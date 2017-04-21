@@ -70,6 +70,12 @@ tsApp
           console.debug('update atom');
           var deferred = $q.defer();
 
+          // Remove extra properties that may have been attached to definitions by the UI
+          for (var j = 0; j < atom.definitions.length; j++) {
+            delete atom.definitions[j].atomElement;
+            delete atom.definitions[j].atomElementStr;
+          }
+          
           gpService.increment();
           $http.post(
             metaEditingUrl

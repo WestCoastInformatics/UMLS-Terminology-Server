@@ -219,6 +219,7 @@ public class WriteRrfContentFilesAlgorithm
             }
           }
           service.commit();
+          service.close();
           Logger.getLogger(getClass()).info("After MRSAT completes.");
 
         } catch (Exception e) {
@@ -265,6 +266,7 @@ public class WriteRrfContentFilesAlgorithm
             }
           }
           service.commit();
+          service.close();
           Logger.getLogger(getClass()).info("After MRREL completes.");
 
         } catch (Exception e) {
@@ -311,6 +313,7 @@ public class WriteRrfContentFilesAlgorithm
             }
           }
           service.commit();
+          service.close();
           Logger.getLogger(getClass()).info("After MRHIER completes.");
 
         } catch (Exception e) {

@@ -4,10 +4,18 @@
 package com.wci.umls.server.jpa.algo.insert;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
@@ -16,7 +24,10 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
+import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.DefinitionJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
@@ -35,8 +46,12 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 public class AttributeLoaderAlgorithm
     extends AbstractInsertMaintReleaseAlgorithm {
 
+  /** The replace flag (only set to true by ReplaceAttributeAlgorithm). */
+  protected Boolean replace = false;
+
   /**
    * Instantiates an empty {@link AttributeLoaderAlgorithm}.
+   * 
    * @throws Exception if anything goes wrong
    */
   public AttributeLoaderAlgorithm() throws Exception {
@@ -71,6 +86,9 @@ public class AttributeLoaderAlgorithm
   }
 
   /* see superclass */
+  @SuppressWarnings({
+      "rawtypes", "unchecked"
+  })
   @Override
   public void compute() throws Exception {
     logInfo("Starting " + getName());
@@ -90,6 +108,7 @@ public class AttributeLoaderAlgorithm
 
     // Count number of added and updated Attributes and Definitions
     // for logging
+    int attributeRemoveCount = 0;
     int attributeAddCount = 0;
     int attributeUpdateCount = 0;
     int definitionAddCount = 0;
@@ -113,11 +132,103 @@ public class AttributeLoaderAlgorithm
 
       final String fields[] = new String[14];
 
-      // Each line of relationships.src corresponds to one relationship.
-      // Check to make sure the relationship doesn't already exist in the
-      // database
-      // If it does, skip it.
-      // If it does not, add it.
+      //
+      // REPLACE
+      //
+
+      // If replace flag is set, remove all attributes that match the
+      // terminology, version, and attribute names present in the file
+      // before
+      // reloading.
+      if (replace) {
+        final Set<Pair<String, String>> terminologyAttributesToRemove =
+            new HashSet<>();
+
+        for (final String line : lines) {
+
+          FieldedStringTokenizer.split(line, "|", 14, fields);
+          final Pair<String, String> terminologyAttribute =
+              new ImmutablePair<>(fields[5], fields[3]);
+
+          terminologyAttributesToRemove.add(terminologyAttribute);
+        }
+
+        // Once all unique terminology/attribute name pairs have been
+        // identified, remove them all from the database
+        for (Pair<String, String> terminologyAttribute : terminologyAttributesToRemove) {
+          final String terminologyAndVersion = terminologyAttribute.getLeft();
+          final String attributeName = terminologyAttribute.getRight();
+          logInfo("  Removing existing attributes where terminology= "
+              + terminologyAndVersion + ", name =" + attributeName);
+
+          final Terminology terminology =
+              getCachedTerminology(terminologyAndVersion);
+          if (terminology == null) {
+            logWarn("WARNING - terminology not found: " + terminologyAndVersion
+                + ".");
+            continue;
+          }
+
+          // We need to load both the attribute and the component
+          // they're
+          // attached to, so we can remove the attribute from
+          // the component before deleting the attribute
+
+          // Note: .src files currently only add Atom and Concept
+          // attributes. If a later version adds attributes to
+          // different components, add those components to the below
+          // list
+
+          final List<Class> containingClazzes =
+              new ArrayList<>(Arrays.asList(AtomJpa.class, ConceptJpa.class));
+
+          for (Class clazz : containingClazzes) {
+            final String query = "SELECT a.id, att.id from "
+                + clazz.getSimpleName()
+                + " a join a.attributes att where att.terminology=:specifiedTerminology and att.version=:specifiedVersion and att.name=:name";
+            final Map<String, String> params =
+                getDefaultQueryParams(getProject());
+            params.put("specifiedTerminology", terminology.getTerminology());
+            params.put("specifiedVersion", terminology.getVersion());
+            params.put("name", attributeName);
+
+            javax.persistence.Query jpaQuery =
+                getEntityManager().createQuery(query);
+            jpaQuery.setParameter("specifiedTerminology",
+                terminology.getTerminology());
+            jpaQuery.setParameter("specifiedVersion", terminology.getVersion());
+            jpaQuery.setParameter("name", attributeName);
+
+            // Return the result list as a pair of component id
+            // longs.
+            final List<Object[]> list = jpaQuery.getResultList();
+
+            for (Object[] entry : list) {
+              Long containingComponentId = (Long) entry[0];
+              Long attributeId = (Long) entry[1];
+
+              final Attribute attribute = getAttribute(attributeId);
+              final ComponentHasAttributes containingComponent =
+                  (ComponentHasAttributes) getComponent(containingComponentId,
+                      clazz);
+
+              containingComponent.getAttributes().remove(attribute);
+              removeAttribute(attributeId);
+              attributeRemoveCount++;
+            }
+          }
+        }
+        // Clear the attribute caches, since they will no longer be
+        // accurate
+        clearAttributeCaches();
+        commitClearBegin();
+      }
+
+      //
+      // LOAD
+      //
+
+      // Each line of attributes.src corresponds to one attribute.
       for (final String line : lines) {
 
         // Check for a cancelled call once every 100 lines
@@ -146,7 +257,8 @@ public class AttributeLoaderAlgorithm
         // e.g.
         // 49|C47666|S|Chemical_Formula|C19H32N2O5.C4H11N|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||875b4a03f8dedd9de05d6e9e4a440401|
 
-        // Load the terminology that will be assigned to the new Attribute or
+        // Load the terminology that will be assigned to the new
+        // Attribute or
         // Definition
         final Terminology setTerminology = getCachedTerminology(fields[5]);
         if (setTerminology == null) {
@@ -155,7 +267,8 @@ public class AttributeLoaderAlgorithm
           continue;
         }
 
-        // If it's a DEFITION, process the line as a definition instead of an
+        // If it's a DEFITION, process the line as a definition instead
+        // of an
         // attribute
         if (fields[3].equals("DEFINITION")) {
           // Create the definition
@@ -207,13 +320,15 @@ public class AttributeLoaderAlgorithm
           final String newDefinitionAtui =
               handler.getTerminologyId(newDefinition, atom);
 
-          // Check to see if attribute with matching ATUI already exists in the
+          // Check to see if attribute with matching ATUI already
+          // exists in the
           // database
           final Definition oldDefinition =
               (Definition) getComponent("DEFINITION", newDefinitionAtui,
                   newDefinition.getTerminology(), null);
 
-          // If no definition with the same ATUI exists, create this new
+          // If no definition with the same ATUI exists, create this
+          // new
           // definition, and add it to its containing component
           if (oldDefinition == null) {
             newDefinition.getAlternateTerminologyIds()
@@ -228,7 +343,8 @@ public class AttributeLoaderAlgorithm
             atom.getDefinitions().add(newDefinition2);
             updateAtom(atom);
           }
-          // If a previous definition with same ATUI exists, load that object.
+          // If a previous definition with same ATUI exists, load that
+          // object.
           else {
             boolean oldDefinitionChanged = false;
 
@@ -243,7 +359,8 @@ public class AttributeLoaderAlgorithm
               oldDefinitionChanged = true;
             }
 
-            // If the existing definition doesn't exactly equal the new one,
+            // If the existing definition doesn't exactly equal the
+            // new one,
             // update obsolete, and suppressible
             if (!oldDefinition.equals(newDefinition)) {
               if (oldDefinition.isObsolete() != newDefinition.isObsolete()) {
@@ -282,9 +399,13 @@ public class AttributeLoaderAlgorithm
           newAttribute.setPublishable(fields[7].toUpperCase().equals("Y"));
 
           // Load the containing object
+          Class relType = null;
+          if (fields[10].contains("RUI")) {
+            relType = ConceptRelationshipJpa.class;
+          }
           final ComponentHasAttributes containerComponent =
               (ComponentHasAttributes) getComponent(fields[10], fields[1],
-                  getCachedTerminologyName(fields[11]), null);
+                  getCachedTerminologyName(fields[11]), relType);
           if (containerComponent == null) {
             logWarnAndUpdate(line,
                 "WARNING - could not find Component for type: " + fields[10]
@@ -297,12 +418,14 @@ public class AttributeLoaderAlgorithm
           final String newAttributeAtui =
               handler.getTerminologyId(newAttribute, containerComponent);
 
-          // Check to see if attribute with matching ATUI already exists in the
+          // Check to see if attribute with matching ATUI already
+          // exists in the
           // database
           final Attribute oldAttribute = (Attribute) getComponent("ATUI",
               newAttributeAtui, newAttribute.getTerminology(), null);
 
-          // If no attribute with the same ATUI exists, create this new
+          // If no attribute with the same ATUI exists, create this
+          // new
           // Attribute, and add it to its containing component
           if (oldAttribute == null) {
             newAttribute.getAlternateTerminologyIds()
@@ -317,7 +440,8 @@ public class AttributeLoaderAlgorithm
             containerComponent.getAttributes().add(newAttribute2);
             updateComponent(containerComponent);
           }
-          // If a previous attribute with same ATUI exists, load that object.
+          // If a previous attribute with same ATUI exists, load that
+          // object.
           else {
             boolean oldAttributeChanged = false;
 
@@ -331,7 +455,8 @@ public class AttributeLoaderAlgorithm
               oldAttributeChanged = true;
             }
 
-            // If the existing relationship doesn't exactly equal the new one,
+            // If the existing relationship doesn't exactly equal
+            // the new one,
             // update obsolete, and suppressible
             if (!oldAttribute.equals(newAttribute)) {
               if (oldAttribute.isObsolete() != newAttribute.isObsolete()) {
@@ -358,7 +483,8 @@ public class AttributeLoaderAlgorithm
             RootService.commitCt);
       }
 
-      // Now remove the alternate terminologies for relationships - we don't
+      // Now remove the alternate terminologies for relationships - we
+      // don't
       // need them anymore
       clearRelationshipAltTerminologies();
 
@@ -368,6 +494,9 @@ public class AttributeLoaderAlgorithm
       commitClearBegin();
       handler.commit();
 
+      if (replace) {
+        logInfo("  removed attribute count = " + attributeRemoveCount);
+      }
       logInfo("  added attribute count = " + attributeAddCount);
       logInfo("  updated attribute count = " + attributeUpdateCount);
       logInfo("  added definition count = " + definitionAddCount);

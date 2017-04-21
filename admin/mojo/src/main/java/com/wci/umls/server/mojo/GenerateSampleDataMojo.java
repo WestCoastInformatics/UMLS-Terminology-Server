@@ -38,6 +38,7 @@ import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.QueryStyle;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.TypeKeyValue;
@@ -455,7 +456,7 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
         if (atom.getTerminology().equals("NCI")) {
           atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
           testService = new IntegrationTestServiceRestImpl();
-          testService.updateAtom((AtomJpa) atom, authToken);
+          testService.updateAtom(new AtomJpa(atom), authToken);
         }
       }
       testService = new IntegrationTestServiceRestImpl();
@@ -489,7 +490,7 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
         if (atom.getTerminology().equals("SNOMEDCT_US")) {
           atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
           testService = new IntegrationTestServiceRestImpl();
-          testService.updateAtom((AtomJpa) atom, authToken);
+          testService.updateAtom(new AtomJpa(atom), authToken);
         }
       }
       testService = new IntegrationTestServiceRestImpl();
@@ -523,7 +524,7 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
             && !atom.getTerminology().equals("SNOMEDCT_US")) {
           atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
           testService = new IntegrationTestServiceRestImpl();
-          testService.updateAtom((AtomJpa) atom, authToken);
+          testService.updateAtom(new AtomJpa(atom), authToken);
         }
       }
 
@@ -580,6 +581,7 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     workflowService = new WorkflowServiceRestImpl();
     WorkflowConfigJpa config = new WorkflowConfigJpa();
     config.setType("MUTUALLY_EXCLUSIVE");
+    config.setQueryStyle(QueryStyle.CLUSTER);
     config.setMutuallyExclusive(true);
     config.setProjectId(projectId);
     workflowService = new WorkflowServiceRestImpl();
@@ -836,6 +838,7 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     workflowService = new WorkflowServiceRestImpl();
     config = new WorkflowConfigJpa();
     config.setType("QUALITY_ASSURANCE");
+    config.setQueryStyle(QueryStyle.CLUSTER);
     config.setMutuallyExclusive(false);
     config.setProjectId(projectId);
     workflowService = new WorkflowServiceRestImpl();

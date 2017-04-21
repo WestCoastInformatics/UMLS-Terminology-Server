@@ -1,5 +1,5 @@
 /*
- *    Copyright 2017 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
@@ -379,10 +379,10 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     final List<String> relationshipPrefixes =
         Arrays.asList("Atom", "Code", "Concept", "Descriptor", "ComponentInfo");
 
-    // Get RUIs for ConceptRelationships, CodeRelationships, and
+    // Get alternate terminology Ids for ConceptRelationships, CodeRelationships, and
     // ComponentInfoRelationships.
     for (String relPrefix : relationshipPrefixes) {
-      final Query query = getEntityManager()
+      Query query = getEntityManager()
           .createQuery("select value(b), a.id from " + relPrefix
               + "RelationshipJpa a join a.alternateTerminologyIds b "
               + "where KEY(b)  = :altTerminologyKey and "
@@ -391,10 +391,30 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       query.setParameter("altTerminologyKey", altTerminologyKey);
 
       logInfo("[SourceLoader] Loading " + relPrefix
+          + "Relationship Alternate Terminology Ids from database for terminology "
+          + terminology);
+
+      List<Object[]> list = query.getResultList();
+      for (final Object[] entry : list) {
+        final String terminologyId = entry[0].toString();
+        final Long id = Long.valueOf(entry[1].toString());
+        relIdCache.put(terminologyId, id);
+      }
+      
+
+      // Get terminologyIds as well (for SOURCE_RUI sg_types)
+      query = getEntityManager()
+          .createQuery("select a.terminologyId, a.id from " + relPrefix
+              + "RelationshipJpa a "
+              + "WHERE a.terminology = :terminology AND a.terminologyId != '' "
+              + "and a.publishable=true");
+      query.setParameter("terminology", terminology);
+
+      logInfo("[SourceLoader] Loading " + relPrefix
           + "Relationship Terminology Ids from database for terminology "
           + terminology);
 
-      final List<Object[]> list = query.getResultList();
+      list = query.getResultList();
       for (final Object[] entry : list) {
         final String terminologyId = entry[0].toString();
         final Long id = Long.valueOf(entry[1].toString());
@@ -711,9 +731,14 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (!atomCachedTerms.contains(getProject().getTerminology())) {
         cacheExistingAtomIds(getProject().getTerminology());
       }
-      // Handle lazy init
+      final Long componentId = atomIdCache.get(terminologyId);
+      if(componentId == null){
+        return null;
+      }
+      
       final Atom atom =
-          getComponent(atomIdCache.get(terminologyId), AtomJpa.class);
+          getComponent(componentId, AtomJpa.class);
+      // Handle lazy init
       if (atom != null) {
         atom.getAlternateTerminologyIds().size();
         atom.getConceptTerminologyIds().size();
@@ -725,9 +750,14 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (!atomCachedTerms.contains(getProject().getTerminology() + "-SRC")) {
         cacheExistingAtomIds(getProject().getTerminology() + "-SRC");
       }
-      // Handle lazy init
+      final Long componentId = atomIdCache.get(terminologyId);
+      if(componentId == null){
+        return null;
+      }
+      
       final Atom atom =
-          getComponent(atomIdCache.get(terminologyId), AtomJpa.class);
+          getComponent(componentId, AtomJpa.class);
+      // Handle lazy init
       if (atom != null) {
         atom.getAlternateTerminologyIds().size();
         atom.getConceptTerminologyIds().size();
@@ -735,13 +765,18 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       return atom;
     }
 
-    else if (type.equals("SOURCE_AUI")) {
+    else if (type.equals("SOURCE_AUI") || type.equals("ROOT_SOURCE_AUI")) {
       if (!atomCachedTerms.contains(terminology)) {
         cacheExistingAtomIds(terminology);
       }
-      // Handle lazy init
+      final Long componentId = atomIdCache.get(terminologyId);
+      if(componentId == null){
+        return null;
+      }
+      
       final Atom atom =
-          getComponent(atomIdCache.get(terminologyId), AtomJpa.class);
+          getComponent(componentId, AtomJpa.class);
+      // Handle lazy init
       if (atom != null) {
         atom.getAlternateTerminologyIds().size();
         atom.getConceptTerminologyIds().size();
@@ -754,9 +789,14 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
           .contains(getProject().getTerminology() + terminology)) {
         cacheExistingAttributeIds(getProject().getTerminology(), terminology);
       }
-      // Handle lazy init
+      final Long componentId = attributeIdCache.get(terminologyId);
+      if(componentId == null){
+        return null;
+      }
+      
       final Attribute attribute =
-          getComponent(attributeIdCache.get(terminologyId), AttributeJpa.class);
+          getComponent(componentId, AttributeJpa.class);
+      // Handle lazy init
       if (attribute != null) {
         attribute.getAlternateTerminologyIds().size();
       }
@@ -767,7 +807,12 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (!codeCachedTerms.contains(terminology)) {
         cacheExistingCodeIds(terminology);
       }
-      return getComponent(codeIdCache.get(terminologyId + terminology),
+      final Long componentId = codeIdCache.get(terminologyId + terminology);
+      if(componentId == null){
+        return null;
+      }
+      
+      return getComponent(componentId,
           CodeJpa.class);
     }
 
@@ -775,7 +820,12 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (!conceptCachedTerms.contains(terminology)) {
         cacheExistingConceptIds(terminology);
       }
-      return getComponent(conceptIdCache.get(terminologyId + terminology),
+      final Long componentId = conceptIdCache.get(terminologyId + terminology);
+      if(componentId == null){
+        return null;
+      }
+      
+      return getComponent(componentId,
           ConceptJpa.class);
     }
 
@@ -783,8 +833,13 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (!cuiPreferredAtomConceptCachedTerms.contains(terminology)) {
         cacheExistingCuiPreferredAtomConceptIds(terminology);
       }
+      final Long componentId = cuiPreferredAtomConceptIdCache.get(terminologyId + terminology);
+      if(componentId == null){
+        return null;
+      }
+      
       return getComponent(
-          cuiPreferredAtomConceptIdCache.get(terminologyId + terminology),
+          componentId,
           ConceptJpa.class);
     }
 
@@ -793,9 +848,14 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
           .contains(getProject().getTerminology() + terminology)) {
         cacheExistingDefinitionIds(getProject().getTerminology(), terminology);
       }
-      // Handle lazy init
+      final Long componentId = definitionIdCache.get(terminologyId);
+      if(componentId == null){
+        return null;
+      }
+      
       final Definition definition = getComponent(
-          definitionIdCache.get(terminologyId), DefinitionJpa.class);
+          componentId, DefinitionJpa.class);
+      // Handle lazy init
       if (definition != null) {
         definition.getAlternateTerminologyIds().size();
       }
@@ -806,19 +866,29 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (!descriptorCachedTerms.contains(terminology)) {
         cacheExistingDescriptorIds(terminology);
       }
-      return getComponent(descriptorIdCache.get(terminologyId + terminology),
+      final Long componentId = descriptorIdCache.get(terminologyId + terminology);
+      if(componentId == null){
+        return null;
+      }
+      
+      return getComponent(componentId,
           DescriptorJpa.class);
     }
 
-    else if (type.equals("RUI")) {
+    else if (type.equals("RUI") || type.equals("SOURCE_RUI")) {
       if (!relCachedTerms
           .contains(getProject().getTerminology() + terminology)) {
         cacheExistingRelationshipIds(getProject().getTerminology(),
             terminology);
       }
-      // Handle lazy init
+      final Long componentId = relIdCache.get(terminologyId);
+      if(componentId == null){
+        return null;
+      }
+      
       final Relationship relationship =
-          getComponent(relIdCache.get(terminologyId), relClass);
+          getComponent(componentId, relClass);
+      // Handle lazy init
       if (relationship != null) {
         relationship.getAlternateTerminologyIds().size();
       }
@@ -831,9 +901,14 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
         cacheExistingRelationshipIds(getProject().getTerminology() + "-SRC",
             terminology);
       }
-      // Handle lazy init
+      final Long componentId = relIdCache.get(terminologyId);
+      if(componentId == null){
+        return null;
+      }
+      
       final Relationship relationship =
-          getComponent(relIdCache.get(terminologyId), relClass);
+          getComponent(componentId, relClass);
+      // Handle lazy init
       if (relationship != null) {
         relationship.getAlternateTerminologyIds().size();
       }
@@ -1253,6 +1328,15 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   }
 
   /**
+   * Clear attribute caches.
+   */
+  @SuppressWarnings("static-method")
+  public void clearAttributeCaches() {
+    attributeCachedTerms.clear();
+    attributeIdCache.clear();
+  }
+
+  /**
    * Clear relationship alt terminologies.
    *
    * @throws Exception the exception
@@ -1308,12 +1392,35 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       FieldedStringTokenizer.split(line, "|", 20, fields);
       final Terminology referencedTerminology = new TerminologyJpa();
       referencedTerminology.setTerminology(fields[4]);
-      referencedTerminology.setVersion(fields[5]);
+      referencedTerminology.setVersion(computeVersion(fields[0], fields[4]));
       referencedTerminologies.add(referencedTerminology);
     }
 
     return referencedTerminologies;
 
+  }
+
+  /**
+   * Compute version. Note: the version found in sources.src fields[5] is not
+   * always accurate (e.g. RXNORM_2016AA_2016_09_06F shows version of
+   * 16AA_160906F). Calculate the version instead. This is also done in the RRF
+   * loader
+   *
+   * @param terminologyAndVersion the terminology and version
+   * @param terminology the terminology
+   * @return the string
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  public String computeVersion(String terminologyAndVersion, String terminology)
+    throws Exception {
+
+    String version = terminologyAndVersion.substring(terminology.length());
+    if (version.startsWith("_")) {
+      version = version.substring(1);
+    }
+
+    return version;
   }
 
 }
