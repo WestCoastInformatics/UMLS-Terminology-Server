@@ -148,6 +148,7 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
     int prevProgress = 0;
     int totalCt = ids.size();
     final Set<Long> assignedConcepts = new HashSet<>(20000);
+    final Set<String> assignedCuis = new HashSet<>(20000);
     for (final Long id : atomIds) {
       objectCt++;
 
@@ -161,10 +162,11 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
           atom.getConceptTerminologyIds().get(getProject().getTerminology());
 
       // If the CUI is set, assign it to the concept and move on
-      if (cui != null) {
+      if (cui != null && !assignedCuis.contains(cui)) {
         final Concept concept = getConcept(atomConceptMap.get(id));
         assignedConcepts.add(concept.getId());
-
+        assignedCuis.add(cui);
+        
         // Assign CUI if not the current CUI
         if (!concept.getTerminologyId().equals(cui)) {
           // Otherwise assign it

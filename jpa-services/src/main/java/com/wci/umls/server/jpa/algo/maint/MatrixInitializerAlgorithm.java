@@ -81,6 +81,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       logInfo("  make publishable = " + makePublishable.size());
 
       // Get publishable concepts without publishable atoms
+      // TODO: this finds publishable concepts with unpublishable atoms (but may also have publishable ones)
       final Set<Long> makeUnpublishable =
           new HashSet<>(handler.getIdResults(getProject().getTerminology(),
               getProject().getVersion(), Branch.ROOT,
