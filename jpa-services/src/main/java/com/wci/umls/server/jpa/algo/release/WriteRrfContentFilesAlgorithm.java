@@ -29,6 +29,7 @@ import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.content.ConceptList;
+import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.CodeJpa;
@@ -47,7 +48,6 @@ import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.ComponentInfoRelationship;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
-import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.ConceptTreePosition;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
@@ -57,6 +57,7 @@ import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
+import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.meta.Terminology;
@@ -2194,15 +2195,18 @@ public class WriteRrfContentFilesAlgorithm
 
     final List<String> lines = new ArrayList<>();
 
+
     // Concept attributes (CUIs)
     // Only do this if the concept has attributes
     if (conceptContentsMap.containsKey(c.getId())
         && conceptContentsMap.get(c.getId()).hasAttributes()) {
-
+      
       for (final Attribute att : c.getAttributes()) {
+        
         if (!att.isPublishable()) {
           continue;
         }
+        
         final StringBuilder sb = new StringBuilder(200);
         // CUI
         sb.append(c.getTerminologyId()).append("|");
@@ -2405,16 +2409,18 @@ public class WriteRrfContentFilesAlgorithm
       // C0000102|L0121443|S1286670|A3714229|SCUI|13579002|AT112719256||ACTIVE|SNOMEDCT_US|1|N||
       // If this is the preferred atom id of the scui
       if (atomContentsMap.get(a.getId()).getConceptId() != null) {
+        
         final Concept scui =
-            service.getConcept(atomContentsMap.get(a.getId()).getConceptId());
-
+            service.getConcept(atomContentsMap.get(a.getId()).getConceptId());      
+        
         if (conceptContentsMap.containsKey(scui.getId())
             && conceptContentsMap.get(scui.getId()).hasAttributes()) {
-
+       
           for (final Attribute attribute : scui.getAttributes()) {
             if (!attribute.isPublishable()) {
               continue;
             }
+            
             final StringBuilder sb = new StringBuilder(200);
             sb.append(c.getTerminologyId()).append("|");
             sb.append(a.getLexicalClassId()).append("|");
@@ -2480,19 +2486,23 @@ public class WriteRrfContentFilesAlgorithm
             }
           }
         }
-
+          
         // Concept subset members
         // C0000102|L0121443|S1286670|A3714229|SCUI|13579002|AT109859972|cbe76318-0356-54e6-9935-03962bd340eb|SUBSET_MEMBER|SNOMEDCT_US|900000000000498005~MAPTARGET~C-29040|N||
+        SubsetMemberList list = service.getConceptSubsetMembers(scui.getTerminologyId(), scui.getTerminology(), scui.getVersion(), Branch.ROOT);
         if (conceptContentsMap.containsKey(scui.getId())
-            && conceptContentsMap.get(scui.getId()).hasMembers()) {
-          for (final ConceptSubsetMember member : scui.getMembers()) {
+            && list.size() > 0) {
+          for (SubsetMember member : list.getObjects()) {  
+            
             if (!member.isPublishable()) {
               continue;
             }
+            
             for (final Attribute att : member.getAttributes()) {
               if (!att.isPublishable()) {
                 continue;
               }
+              
               final StringBuilder sb = new StringBuilder(200);
               sb.append(c.getTerminologyId()).append("|");
               sb.append(a.getLexicalClassId()).append("|");

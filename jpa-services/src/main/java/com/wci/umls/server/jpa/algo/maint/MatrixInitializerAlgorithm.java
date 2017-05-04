@@ -10,6 +10,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
+import com.google.common.collect.Sets;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
@@ -80,16 +81,24 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       fireProgressEvent(10, "Found concepts to make publishable");
       logInfo("  make publishable = " + makePublishable.size());
 
-      // Get publishable concepts without publishable atoms
-      // TODO: this finds publishable concepts with unpublishable atoms (but may also have publishable ones)
-      final Set<Long> makeUnpublishable =
+      // Get publishable concepts without any publishable atoms
+      final Set<Long> publishableConcepts =
           new HashSet<>(handler.getIdResults(getProject().getTerminology(),
               getProject().getVersion(), Branch.ROOT,
-              "publishable:true AND atoms.publishable:false", null,
+              "publishable:true", null,
               ConceptJpa.class, null, new int[1], manager));
       checkCancel();
+      final Set<Long> conceptsWithPublishableAtoms =
+          new HashSet<>(handler.getIdResults(getProject().getTerminology(),
+              getProject().getVersion(), Branch.ROOT,
+              "atoms.publishable:true", null,
+              ConceptJpa.class, null, new int[1], manager));
+      checkCancel();
+      
+      final Set<Long> makeUnpublishable = 
+          Sets.difference(publishableConcepts, conceptsWithPublishableAtoms);
       fireProgressEvent(20, "Found concepts to make unpublishable");
-      logInfo("  make unpublishable = " + makePublishable.size());
+      logInfo("  make unpublishable = " + makeUnpublishable.size());
 
       // Find concepts connected to needs review relationships
       final Set<String> needsReviewR = new HashSet<>();
@@ -188,7 +197,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
         if (makeUnpublishable.contains(conceptId)) {
           publishable = false;
-          logInfo("  publishable change  = " + concept.getId());
+          logInfo("  unpublishable change  = " + concept.getId());
           publishableChangeCt++;
           found = true;
         }
@@ -238,7 +247,10 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
             // One or both of these will be changing..
             if (status != null) {
               action.setWorkflowStatus(status);
+            } else {
+              action.setWorkflowStatus(concept.getWorkflowStatus());
             }
+            
             if (publishable != null) {
               action.setPublishable(publishable);
             }

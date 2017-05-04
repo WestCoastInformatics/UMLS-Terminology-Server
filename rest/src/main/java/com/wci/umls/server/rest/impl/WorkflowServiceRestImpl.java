@@ -3617,7 +3617,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful call (Workflow): /status/compute " + projectId + ", "
-            + activityId);
+            + activityId + ", " + updateFlag);
 
     // Instantiate services
     final ProcessService processService = new ProcessServiceJpa();
@@ -3642,7 +3642,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         pfs.setStartIndex(0);
         pfs.setMaxResults(1);
         final List<LogEntry> list =
-            algorithm.findLogEntries("message:\"Finished MATRIXINIT\"", pfs);
+            algorithm.findLogEntries("message:\"Finished Matrix Initializer Algorithm\"", pfs);
         if (list.size() > 0) {
           final Date lastMatrixinit = list.get(0).getLastModified();
           // find project concepts touched since then\
