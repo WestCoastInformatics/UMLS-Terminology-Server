@@ -317,6 +317,7 @@ public abstract class RootServiceJpa implements RootService {
    * @return the entity manager
    * @throws Exception the exception
    */
+  @Override
   public EntityManager getEntityManager() throws Exception {
     return manager;
   }

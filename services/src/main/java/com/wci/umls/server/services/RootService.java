@@ -6,6 +6,8 @@ package com.wci.umls.server.services;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityManager;
+
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.action.MolecularActionAlgorithm;
 import com.wci.umls.server.helpers.KeyValuePairList;
@@ -458,5 +460,7 @@ public interface RootService extends Transactionable {
    */
   public ValidationResult validateAction(MolecularActionAlgorithm action)
     throws Exception;
+
+  EntityManager getEntityManager() throws Exception;
 
 }
