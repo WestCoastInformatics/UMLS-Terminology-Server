@@ -3,13 +3,19 @@
  */
 package com.wci.umls.server.jpa.services.handlers;
 
+import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.persistence.NoResultException;
 
 import org.apache.log4j.Logger;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
+import org.hibernate.Session;
 
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -75,6 +81,17 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
 
   /** The max concept id. */
   private long maxConceptId = -1;
+
+  /**
+   * String=attribute identity code, String=ATUI
+   */
+  private Map<String, String> attributeIdentityCache = new HashMap<>();
+
+  /**
+   * The terminologies that have already had their attributes identities loaded
+   * and cached.
+   */
+  private Set<String> attributeIdentityCachedTerms = new HashSet<>();
 
   /* see superclass */
   @Override
@@ -339,45 +356,64 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
     }
 
     UmlsIdentityService localService = getService();
+
     try {
-      synchronized (LOCK) {
-        // Create AttributeIdentity and populate from the attribute.
-        final AttributeIdentity identity = new AttributeIdentityJpa();
-        identity.setHashcode(ConfigUtility.getMd5(attribute.getValue()));
-        identity.setName(attribute.getName());
-        if (component instanceof Atom) {
-          identity.setComponentId(((Atom) component)
-              .getAlternateTerminologyIds().get(projectTerminology));
-        } else if (component instanceof Relationship) {
-          identity.setComponentId(((Relationship<?, ?>) component)
-              .getAlternateTerminologyIds().get(projectTerminology));
-        } else {
-          identity.setComponentId(component.getTerminologyId());
-        }
-        if (identity.getComponentId() == null) {
-          throw new Exception("unexpected null terminology id " + component);
-        }
-        identity.setComponentTerminology(component.getTerminology());
-        identity.setComponentType(component.getType());
-        identity.setTerminology(attribute.getTerminology());
-        identity.setTerminologyId(attribute.getTerminologyId());
+      // Create AttributeIdentity and populate from the attribute.
+      final AttributeIdentity identity = new AttributeIdentityJpa();
+      identity.setHashcode(ConfigUtility.getMd5(attribute.getValue()));
+      identity.setName(attribute.getName());
+      if (component instanceof Atom) {
+        identity.setComponentId(((Atom) component).getAlternateTerminologyIds()
+            .get(projectTerminology));
+      } else if (component instanceof Relationship) {
+        identity.setComponentId(((Relationship<?, ?>) component)
+            .getAlternateTerminologyIds().get(projectTerminology));
+      } else {
+        identity.setComponentId(component.getTerminologyId());
+      }
+      if (identity.getComponentId() == null) {
+        throw new Exception("unexpected null terminology id " + component);
+      }
+      identity.setComponentTerminology(component.getTerminology());
+      identity.setComponentType(component.getType());
+      identity.setTerminology(attribute.getTerminology());
+      identity.setTerminologyId(attribute.getTerminologyId());
 
-        final AttributeIdentity identity2 =
-            localService.getAttributeIdentity(identity);
+      // If this is the first time this has been called for this terminology and
+      // name,
+      // cache the existing terminologyIds
+      if (!attributeIdentityCachedTerms
+          .contains(identity.getTerminology() + identity.getName())) {
+        cacheExistingAttributeIdentities(identity.getTerminology(),
+            identity.getName());
+      }
 
-        // Reuse existing id
-        if (identity2 != null) {
-          return convertId(identity2.getId(), "ATUI");
-        }
-        // else generate a new one and add it
-        else {
+      // Check if this identity has already been cached
+      if (attributeIdentityCache.containsKey(identity.getIdentityCode())) {
+        return attributeIdentityCache.get(identity.getIdentityCode());
+      }
+
+      // final AttributeIdentity identity2 =
+      // localService.getAttributeIdentity(identity);
+      //
+      // // Reuse existing id
+      // if (identity2 != null) {
+      //
+      // return convertId(identity2.getId(), "ATUI");
+      // }
+
+      // else generate a new one and add it
+      else {
+        synchronized (LOCK) {
           // Block between getting next id and saving the id value
           // Get next id
           final Long nextId = localService.getNextAttributeId();
           // Add new identity object
           identity.setId(nextId);
           localService.addAttributeIdentity(identity);
-          return convertId(nextId, "ATUI");
+          final String terminologyId = convertId(nextId, "ATUI");
+          attributeIdentityCache.put(identity.getIdentityCode(), terminologyId);
+          return terminologyId;
         }
       }
 
@@ -386,6 +422,37 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
     } finally {
       closeService(localService);
     }
+  }
+
+  private void cacheExistingAttributeIdentities(String terminology, String name)
+    throws Exception {
+
+    final Session session =
+        getService().getEntityManager().unwrap(Session.class);
+    final org.hibernate.Query hQuery =
+        session.createSQLQuery("select id, componentId, componentTerminology, hashCode, terminologyId from attribute_identity "
+            + "where terminology = :terminology and name = :name");
+    hQuery.setParameter("terminology", terminology);
+    hQuery.setParameter("name", name);
+    hQuery.setReadOnly(true).setFetchSize(100000).setCacheable(false);
+    final ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+    while (results.next()) {
+
+      final String atui = convertId(
+          ((BigInteger) results.get()[0]).longValue(),
+          "ATUI");
+      final String componentId = (String) results.get()[1];
+      final String componentTerminology = (String) results.get()[2];
+      final String hashcode = (String) results.get()[3];
+      final String terminologyId = (String) results.get()[4];
+      final String identityCode = componentId + componentTerminology + hashcode + name + terminology
+          + terminologyId;
+      attributeIdentityCache.put(identityCode, atui);
+    }
+    results.close();
+
+    // Add this terminology and name to the cached set.
+    attributeIdentityCachedTerms.add(terminology + name);
   }
 
   /* see superclass */
