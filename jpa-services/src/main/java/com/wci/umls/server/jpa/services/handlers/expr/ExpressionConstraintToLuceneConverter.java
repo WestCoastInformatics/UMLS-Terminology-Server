@@ -165,11 +165,10 @@ public class ExpressionConstraintToLuceneConverter {
    * that is interested in processing a expressionConstraint event implements
    * this interface, and the object created with that class is registered with a
    * component using the component's
-   * <code>addExpressionConstraintListener<code> method. When
+   * addExpressionConstraintListener method. When
    * the expressionConstraint event occurs, that object's appropriate
    * method is invoked.
    *
-   * @see ExpressionConstraintEvent
    */
   protected static final class ExpressionConstraintListener extends
       ExpressionConstraintBaseListener {

@@ -1132,8 +1132,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             termVersion = termVersion.replaceAll("^_", "");
           }
         } else {
-          throw new Exception(
-              "VSAB does not start with RSAB: " + vsab + ", " + rsab);
+          termVersion = fields[6];
+          Logger.getLogger(getClass())
+              .warn("VSAB does not start with RSAB: " + vsab + ", " + rsab);
         }
 
       }

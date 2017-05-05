@@ -93,20 +93,21 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
     }
     reader.close();
-    final File complexMapFile = sorter.findFile(
-        new File(getInputPath(), "Refset/Map"), "der2_iissscRefset_ComplexMap");
-    reader = new BufferedReader(new FileReader(complexMapFile));
-    while ((line = reader.readLine()) != null) {
-      final String fields[] = FieldedStringTokenizer.split(line, "\t");
-      if (!fields[1].equals("effectiveTime")) {
-        try {
-          ConfigUtility.DATE_FORMAT.parse(fields[1]);
-        } catch (Exception e) {
-          throw new Exception("Improperly formatted date found: " + fields[1]);
-        }
-        releaseSet.add(fields[1]);
-      }
-    }
+//    final File complexMapFile =
+//        sorter.findFile(new File(getInputPath(), "Refset/Map"),
+//            "der2_iissscRefset_ComplexMap");
+//    reader = new BufferedReader(new FileReader(complexMapFile));
+//    while ((line = reader.readLine()) != null) {
+//      final String fields[] = FieldedStringTokenizer.split(line, "\t");
+//      if (!fields[1].equals("effectiveTime")) {
+//        try {
+//          ConfigUtility.DATE_FORMAT.parse(fields[1]);
+//        } catch (Exception e) {
+//          throw new Exception("Improperly formatted date found: " + fields[1]);
+//        }
+//        releaseSet.add(fields[1]);
+//      }
+//    }
     File extendedMapFile =
         sorter.findFile(new File(getInputPath(), "Refset/Map"),
             "der2_iisssccRefset_ExtendedMap");
