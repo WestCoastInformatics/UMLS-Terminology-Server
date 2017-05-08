@@ -842,6 +842,7 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
   /* see superclass */
   @Override
   public void close() throws Exception {
+    clearCaches();
     service.close();
   }
 
@@ -869,5 +870,14 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
   public void silentIntervalCommit(int objectCt, int logCt, int commitCt)
     throws Exception {
     service.silentIntervalCommit(objectCt, logCt, commitCt);
+  }
+
+  /**
+   * Clear out all of the caches.
+   */
+  @SuppressWarnings("static-method")
+  public void clearCaches() {
+    attributeIdentityCache.clear();
+    attributeIdentityCache.clear();
   }
 }
