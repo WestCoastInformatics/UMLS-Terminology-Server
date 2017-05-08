@@ -31,7 +31,6 @@ import com.wci.umls.server.model.content.AtomSubset;
 import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
-import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
@@ -59,7 +58,7 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   private Map<String, Subset> addedSubsets = new HashMap<>();
 
   /** The added subset members. */
-  private Map<String, SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> addedSubsetMembers =
+  private Map<String, Long> addedSubsetMembers =
       new HashMap<>();
 
   /**
@@ -137,7 +136,10 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         createSubsets(line);
         updateProgress();
       }
-
+      
+      //  Clear the caches so subsetMembers have enough space.
+      clearCaches();
+      
       // Scan through the lines again, and find all Subset members that need to
       // be created
       for (final String line : lines) {
@@ -371,8 +373,18 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     }
 
     // Check to see if we've already added this subset member
+    Long memberId = addedSubsetMembers.get(subsetMemberIdKey);
     SubsetMember<? extends ComponentHasAttributes, ? extends Subset> member =
-        addedSubsetMembers.get(subsetMemberIdKey);
+        null;
+    if (memberId != null) {
+      if (subsetType.equals("SOURCE_AUI")) {
+        member = this.getSubsetMember(memberId, AtomSubsetMemberJpa.class);
+      } else if (subsetType.equals("SOURCE_CUI")) {
+        member = this.getSubsetMember(memberId, ConceptSubsetMemberJpa.class);
+      } else {
+        throw new Exception("Unexpected subset type for member: " + line);
+      }
+    }
 
     // If not, create it
     if (member == null) {
@@ -428,7 +440,7 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       subsetMemberAddCount++;
 
       // Add to the cache.
-      addedSubsetMembers.put(subsetMemberIdKey, member);
+      addedSubsetMembers.put(subsetMemberIdKey, member.getId());
     }
 
     // Always make an attribute, even if it's an entry for JUST a membership

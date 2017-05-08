@@ -83,9 +83,9 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
   private long maxConceptId = -1;
 
   /**
-   * String=attribute identity code, String=ATUI
+   * String=attribute identity code, String=id
    */
-  private Map<String, String> attributeIdentityCache = new HashMap<>();
+  private Map<String, Long> attributeIdentityCache = new HashMap<>();
 
   /**
    * The terminologies that have already had their attributes identities loaded
@@ -390,7 +390,8 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
 
       // Check if this identity has already been cached
       if (attributeIdentityCache.containsKey(identity.getIdentityCode())) {
-        return attributeIdentityCache.get(identity.getIdentityCode());
+        return convertId(attributeIdentityCache.get(identity.getIdentityCode()),
+            "ATUI");
       }
 
       // final AttributeIdentity identity2 =
@@ -410,9 +411,9 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
           final Long nextId = localService.getNextAttributeId();
           // Add new identity object
           identity.setId(nextId);
+          attributeIdentityCache.put(identity.getIdentityCode(), nextId);
           localService.addAttributeIdentity(identity);
           final String terminologyId = convertId(nextId, "ATUI");
-          attributeIdentityCache.put(identity.getIdentityCode(), terminologyId);
           return terminologyId;
         }
       }
@@ -429,8 +430,8 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
 
     final Session session =
         getService().getEntityManager().unwrap(Session.class);
-    final org.hibernate.Query hQuery =
-        session.createSQLQuery("select id, componentId, componentTerminology, hashCode, terminologyId from attribute_identity "
+    final org.hibernate.Query hQuery = session.createSQLQuery(
+        "select id, componentId, componentTerminology, hashCode, terminologyId from attribute_identity "
             + "where terminology = :terminology and name = :name");
     hQuery.setParameter("terminology", terminology);
     hQuery.setParameter("name", name);
@@ -438,16 +439,14 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
     final ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     while (results.next()) {
 
-      final String atui = convertId(
-          ((BigInteger) results.get()[0]).longValue(),
-          "ATUI");
+      final Long id = ((BigInteger) results.get()[0]).longValue();
       final String componentId = (String) results.get()[1];
       final String componentTerminology = (String) results.get()[2];
       final String hashcode = (String) results.get()[3];
       final String terminologyId = (String) results.get()[4];
-      final String identityCode = componentId + componentTerminology + hashcode + name + terminology
-          + terminologyId;
-      attributeIdentityCache.put(identityCode, atui);
+      final String identityCode = componentId + componentTerminology + hashcode
+          + name + terminology + terminologyId;
+      attributeIdentityCache.put(identityCode, id);
     }
     results.close();
 
