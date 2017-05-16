@@ -143,17 +143,23 @@ public class ContextLoaderAlgorithm
 
         allReferencedTerminologies.add(terminology);
 
-        // If the specified terminology never has a populated HCD, the
-        // transitive relationships and tree positions can be computed.
-        if (!withHcd.contains(terminology.getTerminology())) {
+        // // If the specified terminology never has a populated HCD, the
+        // // transitive relationships and tree positions can be computed.
+        // if (!withHcd.contains(terminology.getTerminology())) {
+        
+        // If terminology is hierarchy computable, compute the hierarchy.
+        if (terminology.getRootTerminology().isHierarchyComputable()) {
           // Only compute once per terminology
           if (!computedTerminologies.contains(terminology.getTerminology())) {
             computeContexts(terminology);
             computedTerminologies.add(terminology.getTerminology());
           }
         }
-        // If the specified terminology has a populated HCD, we need to load the
-        // Tree Positions from the file contents.
+        // // If the specified terminology has a populated HCD, we need to load
+        // the
+        // // Tree Positions from the file contents.
+        
+        // Otherwise, load the tree positions from the file contents.
         else {
 
           // Save this line to process later
