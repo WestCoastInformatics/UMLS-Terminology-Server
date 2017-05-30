@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
@@ -186,11 +185,6 @@ public class AttributeLoaderAlgorithm
             final String query = "SELECT a.id, att.id from "
                 + clazz.getSimpleName()
                 + " a join a.attributes att where att.terminology=:specifiedTerminology and att.version=:specifiedVersion and att.name=:name";
-            final Map<String, String> params =
-                getDefaultQueryParams(getProject());
-            params.put("specifiedTerminology", terminology.getTerminology());
-            params.put("specifiedVersion", terminology.getVersion());
-            params.put("name", attributeName);
 
             javax.persistence.Query jpaQuery =
                 getEntityManager().createQuery(query);

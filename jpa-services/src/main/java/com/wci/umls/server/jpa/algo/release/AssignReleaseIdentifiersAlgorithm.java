@@ -13,6 +13,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.log4j.Logger;
+
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.PrecedenceList;
@@ -158,11 +160,19 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
       }
 
       final Atom atom = getAtom(id);
+      
+      if (atom.getTerminologyId().equals("A14950652")) {
+        Logger.getLogger(getClass()).info("A14950652 in first loop");
+      }
+      
       final String cui =
           atom.getConceptTerminologyIds().get(getProject().getTerminology());
 
       // If the CUI is set, assign it to the concept and move on
       if (cui != null && !assignedCuis.contains(cui)) {
+        if (atom.getTerminologyId().equals("A14950652")) {          
+          Logger.getLogger(getClass()).info("A14950652 in second clause");
+        }
         final Concept concept = getConcept(atomConceptMap.get(id));
         assignedConcepts.add(concept.getId());
         assignedCuis.add(cui);
@@ -195,11 +205,15 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
 
     // Go through concepts without assignments and assign new concepts
     for (final Long conceptId : new HashSet<>(atomConceptMap.values())) {
+      
+      
       if (assignedConcepts.contains(conceptId)) {
         continue;
       }
       final Concept concept = getConcept(conceptId);
-
+      if (concept.getTerminologyId().equals("32824")) {          
+        Logger.getLogger(getClass()).info("32824 in third loop");
+      }
       // skip unpublishable concepts
       // These are concepts containing only unreleasable atoms that did not win
       // their CUI assignment.  They should not get assigned new CUIs, they should be removed
@@ -209,7 +223,11 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
       }
       // prompt for new assignment
       concept.setTerminologyId("");
-      concept.setTerminologyId(handler.getTerminologyId(concept));
+      String tid = handler.getTerminologyId(concept);
+      concept.setTerminologyId(tid);
+      if (concept.getName().equals("Abnormal Cell")) {          
+        Logger.getLogger(getClass()).info("fourth loop " + tid);
+      }
       updateConcept(concept);
     }
     updateProgress();
