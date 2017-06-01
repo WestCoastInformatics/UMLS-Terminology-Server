@@ -115,13 +115,14 @@ public class DT_I3B extends AbstractValidationCheck {
     } catch (NoResultException e) {
       demotedRelIds = new HashSet<>();
     }
-
+    
     if (demotedRelIds.isEmpty()) {
       return new HashSet<>();
     }
 
     // Step 2 = query to find all publishable concept relationships
-    Set<Long> cRelIds = null;
+    Set<Long> cRelIds = new HashSet<>();
+    if (demotedRelIds.size() > 0 ){
     final javax.persistence.Query query2 =
         ((ContentServiceJpa) contentService).getEntityManager()
             .createQuery("select a.from.id " + "from ConceptRelationshipJpa a "
@@ -134,8 +135,9 @@ public class DT_I3B extends AbstractValidationCheck {
       query2.setParameter("version", version);
       query2.setParameter("conceptIds", demotedRelIds);
       cRelIds = new HashSet<Long>(query2.getResultList());
-    } catch (NoResultException e) {
+    } catch (Exception e) {
       cRelIds = new HashSet<>();
+    }
     }
     // Get the intersection of ids passed in with
     // the (demoted MINUS c level rels)
