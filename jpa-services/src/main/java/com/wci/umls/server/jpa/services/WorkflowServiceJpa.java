@@ -725,6 +725,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       }
     }
 
+    commitClearBegin();
     setTransactionPerOperation(false);
     updateWorkflowBin(bin);
 
