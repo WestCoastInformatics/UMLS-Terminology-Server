@@ -586,6 +586,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     Map<Long, String> conceptIdWorklistNameMap) throws Exception {
     Logger.getLogger(getClass()).info("Regenerate bin " + definition.getName());
 
+    setTransactionPerOperation(false);
+
     // Create the workflow bin
     final WorkflowBin bin = new WorkflowBinJpa();
     bin.setCreationTime(new Date().getTime());
@@ -713,8 +715,13 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
         addTrackingRecord(record);
         bin.getTrackingRecords().add(record);
+
+        if (clusterIdCt % 100 == 0) {
+          commitClearBegin();
+        }
       }
     }
+    commit();
     updateWorkflowBin(bin);
 
     return bin;
