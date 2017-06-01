@@ -716,13 +716,16 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
         addTrackingRecord(record);
         bin.getTrackingRecords().add(record);
 
-        if (clusterIdCt % 100 == 0) {
-          Logger.getLogger(getClass()).info("  count = " + clusterIdCt);
+        if (clusterIdCt % 50 == 0) {
+          if (clusterIdCt % 1000 == 0) {
+            Logger.getLogger(getClass()).info("  count = " + clusterIdCt);
+          }
           commitClearBegin();
         }
       }
     }
-    commit();
+
+    setTransactionPerOperation(false);
     updateWorkflowBin(bin);
 
     return bin;
