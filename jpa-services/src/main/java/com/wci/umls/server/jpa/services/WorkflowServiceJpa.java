@@ -654,6 +654,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     // unassigned bin
     if (definition.isEditable()) {
       long clusterIdCt = 1L;
+      final String latestVersion = getLatestVersion(project.getTerminology());
       for (final Long clusterId : clusterIdConceptIdsMap.keySet()) {
 
         // Create the tracking record
@@ -661,7 +662,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
         record.setClusterId(clusterIdCt++);
         record.setTerminology(project.getTerminology());
         record.setTimestamp(new Date());
-        record.setVersion(getLatestVersion(project.getTerminology()));
+        record.setVersion(latestVersion);
         record.setWorkflowBinName(bin.getName());
         record.setProject(project);
         record.setWorklistName(null);
