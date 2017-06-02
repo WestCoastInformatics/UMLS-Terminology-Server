@@ -3,8 +3,11 @@
  */
 package com.wci.umls.server.jpa.content;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -45,6 +48,15 @@ import com.wci.umls.server.model.content.Relationship;
 @XmlRootElement(name = "atomRelationship")
 public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     implements AtomRelationship {
+
+  /**  The rela map. */
+  private final Set<String> relaMap = new HashSet<>(Arrays.asList(new String[] {
+      "transliterated_form_of", "british_form_of", "has_alias",
+      "permuted_term_of", "sort_version_of", "common_name_of",
+      "mth_british_form_of", "plain_text_form_of", "expanded_form_of",
+      "mth_has_plain_text_form", "mth_has_xml_form", "mth_expanded_form_of",
+      "entry_version_of", "translation_of"
+  }));
 
   /** The from atom. */
   @ManyToOne(targetEntity = AtomJpa.class, optional = false)
@@ -314,6 +326,13 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     } else if (!to.equals(other.to))
       return false;
     return true;
+  }
+
+  @Override
+  @XmlTransient
+  public boolean isShortFormLongForm() {
+    return getRelationshipType().equals("SY")
+        && relaMap.contains(getAdditionalRelationshipType());
   }
 
   // Use superclass toString()
