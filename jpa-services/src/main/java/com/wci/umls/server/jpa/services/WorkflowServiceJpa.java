@@ -586,6 +586,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     Map<Long, String> conceptIdWorklistNameMap) throws Exception {
     Logger.getLogger(getClass()).info("Regenerate bin " + definition.getName());
 
+    setTransactionPerOperation(false);
+
     // Create the workflow bin
     final WorkflowBin bin = new WorkflowBinJpa();
     bin.setCreationTime(new Date().getTime());
@@ -652,6 +654,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     // unassigned bin
     if (definition.isEditable()) {
       long clusterIdCt = 1L;
+      final String latestVersion = getLatestVersion(project.getTerminology());
       for (final Long clusterId : clusterIdConceptIdsMap.keySet()) {
 
         // Create the tracking record
@@ -659,7 +662,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
         record.setClusterId(clusterIdCt++);
         record.setTerminology(project.getTerminology());
         record.setTimestamp(new Date());
-        record.setVersion(getLatestVersion(project.getTerminology()));
+        record.setVersion(latestVersion);
         record.setWorkflowBinName(bin.getName());
         record.setProject(project);
         record.setWorklistName(null);
@@ -713,8 +716,18 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
         addTrackingRecord(record);
         bin.getTrackingRecords().add(record);
+
+        if (clusterIdCt % 50 == 0) {
+          if (clusterIdCt % 1000 == 0) {
+            Logger.getLogger(getClass()).info("  count = " + clusterIdCt);
+          }
+          commitClearBegin();
+        }
       }
     }
+
+    commitClearBegin();
+    setTransactionPerOperation(false);
     updateWorkflowBin(bin);
 
     return bin;
