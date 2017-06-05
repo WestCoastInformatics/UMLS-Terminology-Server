@@ -75,6 +75,9 @@ import io.swagger.annotations.SwaggerDefinition;
 public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     implements MetaEditingServiceRest {
 
+  /** The lock. */
+  private static String lock = "LOCK";
+
   /** The security service. */
   private SecurityService securityService;
 
@@ -702,82 +705,85 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
             + conceptId + " for user " + authToken + " with relationship value "
             + relationship);
 
-    // Instantiate services
-    final AddRelationshipMolecularAction action =
-        new AddRelationshipMolecularAction();
-    try {
-
-      // Authorize project role, get userName
-      final String userName = authorizeProject(action, projectId,
-          securityService, authToken, "adding a relationship", UserRole.AUTHOR);
-
-      // Retrieve the project
-      final Project project = action.getProject(projectId);
-      if (!project.isEditingEnabled()) {
-        throw new LocalException(
-            "Editing is disabled on project: " + project.getName());
-      }
-
-      // All new content is unpublished and publishable
-      relationship.setPublished(false);
-      if (relationship.getRelationshipType().equals("XR")) {
-        relationship.setPublishable(false);
-      } else {
-        relationship.setPublishable(true);
-      }
-      // Set defaults for a concept level relationship
-      relationship.setStated(true);
-      relationship.setInferred(true);
-      relationship.setSuppressible(false);
-      relationship.setObsolete(false);
-
-      // Configure the action
-      action.setProject(project);
-      action.setActivityId(activityId);
-      // The relationship is FROM conceptId -> conceptId2, and REL
-      // is represented in that direction
-      action.setConceptId(conceptId);
-      action.setConceptId2(relationship.getTo().getId());
-      action.setLastModifiedBy("E-" + userName);
-      action.setLastModified(lastModified);
-      action.setOverrideWarnings(overrideWarnings);
-      action.setTransactionPerOperation(false);
-      action.setMolecularActionFlag(true);
-      action.setChangeStatusFlag(true);
-
-      action.setRelationship(relationship);
-
-      // Perform the action
-      final ValidationResult validationResult =
-          action.performMolecularAction(action, userName, true);
-
-      // If the action failed, bail out now.
-      if (!validationResult.isValid()
-          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
-        return validationResult;
-      }
-
-      // Websocket notification
-      final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
-          IdType.RELATIONSHIP.toString(), action.getRelationship().getId(),
-          action.getConcept());
-      sendChangeEvent(event);
-
-      return validationResult;
-
-    } catch (Exception e) {
+    // Only one relationship can be added at a time
+    synchronized (lock) {
+      // Instantiate services
+      final AddRelationshipMolecularAction action =
+          new AddRelationshipMolecularAction();
       try {
-        action.rollback();
-      } catch (Exception e2) {
-        // do nothing
-      }
-      handleException(e, "adding a relationship");
-      return null;
-    } finally {
-      action.close();
-      securityService.close();
-    }
 
+        // Authorize project role, get userName
+        final String userName =
+            authorizeProject(action, projectId, securityService, authToken,
+                "adding a relationship", UserRole.AUTHOR);
+
+        // Retrieve the project
+        final Project project = action.getProject(projectId);
+        if (!project.isEditingEnabled()) {
+          throw new LocalException(
+              "Editing is disabled on project: " + project.getName());
+        }
+
+        // All new content is unpublished and publishable
+        relationship.setPublished(false);
+        if (relationship.getRelationshipType().equals("XR")) {
+          relationship.setPublishable(false);
+        } else {
+          relationship.setPublishable(true);
+        }
+        // Set defaults for a concept level relationship
+        relationship.setStated(true);
+        relationship.setInferred(true);
+        relationship.setSuppressible(false);
+        relationship.setObsolete(false);
+
+        // Configure the action
+        action.setProject(project);
+        action.setActivityId(activityId);
+        // The relationship is FROM conceptId -> conceptId2, and REL
+        // is represented in that direction
+        action.setConceptId(conceptId);
+        action.setConceptId2(relationship.getTo().getId());
+        action.setLastModifiedBy("E-" + userName);
+        action.setLastModified(lastModified);
+        action.setOverrideWarnings(overrideWarnings);
+        action.setTransactionPerOperation(false);
+        action.setMolecularActionFlag(true);
+        action.setChangeStatusFlag(true);
+
+        action.setRelationship(relationship);
+
+        // Perform the action
+        final ValidationResult validationResult =
+            action.performMolecularAction(action, userName, true);
+
+        // If the action failed, bail out now.
+        if (!validationResult.isValid() || (!overrideWarnings
+            && validationResult.getWarnings().size() > 0)) {
+          return validationResult;
+        }
+
+        // Websocket notification
+        final ChangeEvent event = new ChangeEventJpa(action.getName(),
+            authToken, IdType.RELATIONSHIP.toString(),
+            action.getRelationship().getId(), action.getConcept());
+        sendChangeEvent(event);
+
+        return validationResult;
+
+      } catch (Exception e) {
+        try {
+          action.rollback();
+        } catch (Exception e2) {
+          // do nothing
+        }
+        handleException(e, "adding a relationship");
+        return null;
+      } finally {
+        action.close();
+        securityService.close();
+      }
+    }
   }
 
   /* see superclass */
