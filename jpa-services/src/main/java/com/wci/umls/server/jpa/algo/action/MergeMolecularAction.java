@@ -14,10 +14,12 @@ import java.util.stream.Collectors;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.ConceptNoteJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.model.content.Atom;
@@ -142,7 +144,8 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     for (final Atom atom : getFromConcept().getAtoms()) {
       Atom atomCopy = new AtomJpa(atom, true);
       fromAtomsCopies.add(atomCopy);
-      for (final AtomRelationship atomRel : new ArrayList<AtomRelationship>(atom.getRelationships())) {
+      for (final AtomRelationship atomRel : new ArrayList<AtomRelationship>(
+          atom.getRelationships())) {
         if (atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)
             && getToConcept().getAtoms().contains(atomRel.getTo())) {
           atomCopy.getRelationships().remove(atomRel);
@@ -153,9 +156,11 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     }
 
     // If any atom in the toConcept has a demotion to the "from" concept, remove
-    // it, update the atom, and create a copy of the demotion for later deletion.
+    // it, update the atom, and create a copy of the demotion for later
+    // deletion.
     for (final Atom atom : getToConcept().getAtoms()) {
-      for (final AtomRelationship atomRel : new ArrayList<AtomRelationship>(atom.getRelationships())) {
+      for (final AtomRelationship atomRel : new ArrayList<AtomRelationship>(
+          atom.getRelationships())) {
         if (atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)
             && getFromConcept().getAtoms().contains(atomRel.getTo())) {
           Atom atomCopy = new AtomJpa(atom, true);
@@ -179,6 +184,12 @@ public class MergeMolecularAction extends AbstractMolecularAction {
       fromRelCopies.add(new ConceptRelationshipJpa(rel, true));
     }
 
+    // Copy notes in "from" concept
+    final List<Note> fromNotesCopies = new ArrayList<>();
+    for (final Note note : getFromConcept().getNotes()) {
+      fromNotesCopies.add(new ConceptNoteJpa((ConceptNoteJpa) note));
+    }
+
     // Prep a list of concepts to update after object removal
     final Set<Concept> conceptsChanged = new HashSet<>();
     conceptsChanged.add(getFromConcept());
@@ -190,6 +201,7 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     getFromConcept().getAtoms().clear();
     getFromConcept().getSemanticTypes().clear();
     getFromConcept().getRelationships().clear();
+    getFromConcept().getNotes().clear();
 
     // Remove the inverse "from" relationships
     for (final ConceptRelationship rel : inverseFromRelsMap.values()) {
@@ -230,8 +242,12 @@ public class MergeMolecularAction extends AbstractMolecularAction {
       removeRelationship(rel.getId(), rel.getClass());
     }
     // Remove demotions between atoms in the "to" and "from" concepts
-    for (final AtomRelationship rel : demotionCopies){
+    for (final AtomRelationship rel : demotionCopies) {
       removeRelationship(rel.getId(), rel.getClass());
+    }
+    // Remove the "from" notes
+    for (final Note note : fromNotesCopies) {
+      removeNote(note.getId(), ConceptNoteJpa.class);
     }
 
     // Note: don't remove atoms - we just move them instead
@@ -328,6 +344,11 @@ public class MergeMolecularAction extends AbstractMolecularAction {
       }
     }
 
+    // Add new notes and wire them to "to" concept
+    for (Note newNote : fromNotesCopies) {
+      getToConcept().getNotes().add(newNote);
+    }
+
     //
     // Change status of the concept
     //
@@ -372,8 +393,8 @@ public class MergeMolecularAction extends AbstractMolecularAction {
                 + getToConcept().getId() + " " + getToConcept().getName()
                 : ""));
 
-  }  
-  
+  }
+
   /* see superclass */
   @Override
   public boolean lockRelatedConcepts() {
