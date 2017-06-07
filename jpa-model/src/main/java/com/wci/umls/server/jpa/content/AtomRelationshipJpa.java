@@ -16,6 +16,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -50,6 +51,7 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     implements AtomRelationship {
 
   /**  The rela map. */
+  @Transient
   private final Set<String> relaMap = new HashSet<>(Arrays.asList(new String[] {
       "transliterated_form_of", "british_form_of", "has_alias",
       "permuted_term_of", "sort_version_of", "common_name_of",
