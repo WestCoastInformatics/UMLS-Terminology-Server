@@ -83,15 +83,37 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
   private long maxConceptId = -1;
 
   /**
-   * String=attribute identity code, String=id
+   * String=attribute identity code, Long=id
    */
   private Map<String, Long> attributeIdentityCache = new HashMap<>();
+
+  /**
+   * String=atom identity code, Long=id
+   */
+  private Map<String, Long> atomIdentityCache = new HashMap<>();
+
+  /**
+   * String=relationship identity code, Long=id
+   */
+  private Map<String, Long> relationshipIdentityCache = new HashMap<>();
 
   /**
    * The terminologies that have already had their attributes identities loaded
    * and cached.
    */
   private Set<String> attributeIdentityCachedTerms = new HashSet<>();
+
+  /**
+   * The terminologies that have already had their atom identities loaded and
+   * cached.
+   */
+  private Set<String> atomIdentityCachedTerms = new HashSet<>();
+
+  /**
+   * The terminologies that have already had their relationship identities
+   * loaded and cached.
+   */
+  private Set<String> relationshipIdentityCachedTerms = new HashSet<>();
 
   /* see superclass */
   @Override
@@ -318,12 +340,26 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
         identity.setTerminologyId(atom.getTerminologyId());
         identity.setTermType(atom.getTermType());
 
-        final AtomIdentity identity2 = localService.getAtomIdentity(identity);
-
-        // Reuse existing id
-        if (identity2 != null) {
-          return convertId(identity2.getId(), "AUI");
+        // If this is the first time this has been called for this terminology,
+        // cache the existing terminologyIds
+        if (!atomIdentityCachedTerms.contains(identity.getTerminology())) {
+          cacheExistingAtomIdentities(identity.getTerminology());
         }
+
+        // Check if this identity has already been cached
+        if (atomIdentityCache.containsKey(identity.getIdentityCode())) {
+          return convertId(atomIdentityCache.get(identity.getIdentityCode()),
+              "AUI");
+        }
+
+        // final AtomIdentity identity2 =
+        // localService.getAtomIdentity(identity);
+        //
+        // // Reuse existing id
+        // if (identity2 != null) {
+        // return convertId(identity2.getId(), "AUI");
+        // }
+
         // else generate a new one and add it
         else {
           // Get next id
@@ -428,6 +464,10 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
   private void cacheExistingAttributeIdentities(String terminology, String name)
     throws Exception {
 
+    Logger.getLogger(getClass())
+        .info("Loading Attribute Identities for terminology = " + terminology
+            + ", name = " + name);
+
     final Session session =
         getService().getEntityManager().unwrap(Session.class);
     final org.hibernate.Query hQuery = session.createSQLQuery(
@@ -452,6 +492,78 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
 
     // Add this terminology and name to the cached set.
     attributeIdentityCachedTerms.add(terminology + name);
+  }
+
+  private void cacheExistingAtomIdentities(String terminology)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("Loading Atom Identities for terminology = " + terminology);
+
+    final Session session =
+        getService().getEntityManager().unwrap(Session.class);
+    final org.hibernate.Query hQuery = session.createSQLQuery(
+        "select id, stringClassId, terminologyId, termType, codeId, conceptId, descriptorId from atom_identity "
+            + "where terminology = :terminology");
+    hQuery.setParameter("terminology", terminology);
+    hQuery.setReadOnly(true).setFetchSize(100000).setCacheable(false);
+    final ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+    while (results.next()) {
+
+      final Long id = ((BigInteger) results.get()[0]).longValue();
+      final String stringClassId = (String) results.get()[1];
+      final String terminologyId = (String) results.get()[2];
+      final String termType = (String) results.get()[3];
+      final String codeId = (String) results.get()[4];
+      final String conceptId = (String) results.get()[5];
+      final String descriptorId = (String) results.get()[6];
+      final String identityCode = stringClassId + terminology + terminologyId
+          + termType + codeId + conceptId + descriptorId;
+      atomIdentityCache.put(identityCode, id);
+    }
+    results.close();
+
+    // Add this terminology to the cached set.
+    atomIdentityCachedTerms.add(terminology);
+  }
+
+  private void cacheExistingRelationshipIdentities(String terminology)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "Loading Relationship Identities for terminology = " + terminology);
+
+    final Session session =
+        getService().getEntityManager().unwrap(Session.class);
+    final org.hibernate.Query hQuery = session.createSQLQuery(
+        "select id, additionalRelationshipType, fromId, fromTerminology, fromType, "
+            + "relationshipType, terminologyId, toId, toTerminology, "
+            + "toType from relationship_identity "
+            + "where terminology = :terminology");
+    hQuery.setParameter("terminology", terminology);
+    hQuery.setReadOnly(true).setFetchSize(100000).setCacheable(false);
+    final ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+    while (results.next()) {
+
+      final Long id = ((BigInteger) results.get()[0]).longValue();
+      final String additionalRelationshipType = (String) results.get()[1];
+      final String fromId = (String) results.get()[2];
+      final String fromTerminology = (String) results.get()[3];
+      final String fromType = (String) results.get()[4];
+      final String relationshipType = (String) results.get()[5];
+      final String terminologyId = (String) results.get()[6];
+      final String toId = (String) results.get()[7];
+      final String toTerminology = (String) results.get()[8];
+      final String toType = (String) results.get()[9];
+      final String identityCode = additionalRelationshipType + fromId
+          + fromTerminology + fromType + relationshipType + terminology
+          + terminologyId + toId + toTerminology + toType;
+      relationshipIdentityCache.put(identityCode, id);
+    }
+    results.close();
+
+    // Add this terminology to the cached set.
+    relationshipIdentityCachedTerms.add(terminology);
   }
 
   /* see superclass */
@@ -487,77 +599,88 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
 
     UmlsIdentityService localService = getService();
     try {
-      // Block between getting next id and saving the id value
-      synchronized (LOCK) {
-        // Create RelationshipIdentity and populate from the relationship.
-        final RelationshipIdentity identity = new RelationshipIdentityJpa();
-        identity.setId(relationship.getId());
-        identity.setTerminology(relationship.getTerminology());
-        identity.setTerminologyId(relationship.getTerminologyId());
-        identity.setRelationshipType(relationship.getRelationshipType());
-        identity.setAdditionalRelationshipType(
-            relationship.getAdditionalRelationshipType());
-        identity.setFromTerminology(relationship.getFrom().getTerminology());
-        identity.setFromType(relationship.getFrom().getType());
-        identity.setToTerminology(relationship.getTo().getTerminology());
-        identity.setToType(relationship.getTo().getType());
-        // If to/from objects are atoms, to/fromId need to be the AUI. Otherwise
-        // set to the terminologyId
-        if (relationship.getFrom() instanceof Atom) {
-          identity.setFromId(((Atom) relationship.getFrom())
-              .getAlternateTerminologyIds().get(projectTerminology));
-        } else {
-          identity.setFromId(relationship.getFrom().getTerminologyId());
-        }
-        if (relationship.getTo() instanceof Atom) {
-          identity.setToId(((Atom) relationship.getTo())
-              .getAlternateTerminologyIds().get(projectTerminology));
-        } else {
-          identity.setToId(relationship.getTo().getTerminologyId());
-        }
+      // Create RelationshipIdentity and populate from the relationship.
+      final RelationshipIdentity identity = new RelationshipIdentityJpa();
+      identity.setId(relationship.getId());
+      identity.setTerminology(relationship.getTerminology());
+      identity.setTerminologyId(relationship.getTerminologyId());
+      identity.setRelationshipType(relationship.getRelationshipType());
+      identity.setAdditionalRelationshipType(
+          relationship.getAdditionalRelationshipType());
+      identity.setFromTerminology(relationship.getFrom().getTerminology());
+      identity.setFromType(relationship.getFrom().getType());
+      identity.setToTerminology(relationship.getTo().getTerminology());
+      identity.setToType(relationship.getTo().getType());
+      // If to/from objects are atoms, to/fromId need to be the AUI. Otherwise
+      // set to the terminologyId
+      if (relationship.getFrom() instanceof Atom) {
+        identity.setFromId(((Atom) relationship.getFrom())
+            .getAlternateTerminologyIds().get(projectTerminology));
+      } else {
+        identity.setFromId(relationship.getFrom().getTerminologyId());
+      }
+      if (relationship.getTo() instanceof Atom) {
+        identity.setToId(((Atom) relationship.getTo())
+            .getAlternateTerminologyIds().get(projectTerminology));
+      } else {
+        identity.setToId(relationship.getTo().getTerminologyId());
+      }
 
-        final RelationshipIdentity identity2 =
-            localService.getRelationshipIdentity(identity);
+      // If this is the first time this has been called for this terminology,
+      // cache the existing terminologyIds
+      if (!relationshipIdentityCachedTerms
+          .contains(identity.getTerminology())) {
+        cacheExistingRelationshipIdentities(identity.getTerminology());
+      }
 
-        // Reuse existing id
-        if (identity2 != null) {
-          return convertId(identity2.getId(), "RUI");
-        }
-        // else generate a new one and add it
-        else {
-          // Get next id and inverse ID
-          final Long nextId = localService.getNextRelationshipId();
+      // Check if this identity has already been cached
+      if (relationshipIdentityCache.containsKey(identity.getIdentityCode())) {
+        return convertId(relationshipIdentityCache.get(identity.getIdentityCode()),
+            "RUI");
+      }
+      
+//      final RelationshipIdentity identity2 =
+//          localService.getRelationshipIdentity(identity);
+//
+//      // Reuse existing id
+//      if (identity2 != null) {
+//        return convertId(identity2.getId(), "RUI");
+//      }
+      
+      // else generate a new one and add it
+      else {
+        // Get next id and inverse ID
+        final Long nextId = localService.getNextRelationshipId();
 
-          // Set ID for the relationship. Set inverseId to bogus number for now
-          // - it will be updated later.
-          identity.setId(nextId);
-          identity.setInverseId(0L);
+        // Set ID for the relationship. Set inverseId to bogus number for now
+        // - it will be updated later.
+        identity.setId(nextId);
+        identity.setInverseId(0L);
 
-          // Add new identity object
-          localService.addRelationshipIdentity(identity);
+        // Add new identity object
+        localService.addRelationshipIdentity(identity);
 
-          // Create inverse Relationship identity
-          final RelationshipIdentity inverseIdentity =
-              localService.createInverseRelationshipIdentity(identity,
-                  inverseRelType, inverseAdditionalRelType);
+        // Create inverse Relationship identity
+        final RelationshipIdentity inverseIdentity =
+            localService.createInverseRelationshipIdentity(identity,
+                inverseRelType, inverseAdditionalRelType);
 
-          // Get next id for inverse relationship
-          final Long nextIdInverse = localService.getNextRelationshipId();
+        // Get next id for inverse relationship
+        final Long nextIdInverse = localService.getNextRelationshipId();
 
-          // Set ID and inverse IDs for the inverse Id
-          inverseIdentity.setId(nextIdInverse);
-          inverseIdentity.setInverseId(nextId);
+        // Set ID and inverse IDs for the inverse Id
+        inverseIdentity.setId(nextIdInverse);
+        inverseIdentity.setInverseId(nextId);
 
-          // Add inverse identity objects
-          localService.addRelationshipIdentity(inverseIdentity);
+        // Add inverse identity objects
+        localService.addRelationshipIdentity(inverseIdentity);
 
-          // Update the identity objects with the true InverseId
-          identity.setInverseId(nextIdInverse);
-          localService.updateRelationshipIdentity(identity);
+        // Update the identity objects with the true InverseId
+        identity.setInverseId(nextIdInverse);
+        localService.updateRelationshipIdentity(identity);
 
-          // return ID for called relationship (inverse can get called later)
-          return convertId(nextId, "RUI");
-        }
+        // return ID for called relationship (inverse can get called later)
+        return convertId(nextId, "RUI");
       }
 
     } catch (Exception e) {

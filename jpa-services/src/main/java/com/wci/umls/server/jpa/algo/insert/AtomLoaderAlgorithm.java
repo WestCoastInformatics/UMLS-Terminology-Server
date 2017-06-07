@@ -350,6 +350,9 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       }
 
+      // Clear the caches to free up memory
+      clearCaches();
+      
       commitClearBegin();
       handler.commit();
 

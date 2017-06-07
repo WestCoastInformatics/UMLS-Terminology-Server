@@ -52,6 +52,9 @@ public class RelationshipLoaderAlgorithm
   /** The rel type map. */
   private Map<String, String> relTypeMap = new HashMap<>();
 
+  /** The replace flag (only set to true by ReplaceRelationshipAlgorithm). */
+  protected Boolean replace = false;
+  
   /**
    * Instantiates an empty {@link RelationshipLoaderAlgorithm}.
    * @throws Exception if anything goes wrong
@@ -279,6 +282,9 @@ public class RelationshipLoaderAlgorithm
 
       }
 
+      // Clear the caches to free up memory
+      clearCaches();
+      
       commitClearBegin();
       handler.commit();
 

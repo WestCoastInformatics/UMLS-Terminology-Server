@@ -478,8 +478,7 @@ public class AttributeLoaderAlgorithm
       }
 
       // Now remove the alternate terminologies for relationships - we
-      // don't
-      // need them anymore
+      // don't need them anymore
       clearRelationshipAltTerminologies();
 
       // Clear the caches to free up memory
