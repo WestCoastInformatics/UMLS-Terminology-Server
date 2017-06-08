@@ -342,6 +342,45 @@ public class MetaEditingClientRest extends RootClientRest
 
   /* see superclass */
   @Override
+  public ValidationResult addRelationships(Long projectId, Long conceptId,
+    String activityId, Long lastModified,
+    List<ConceptRelationshipJpa> relationships, boolean overrideWarnings,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("MetaEditing Client - add relationship to concept " + projectId
+            + ", " + conceptId + ", " + relationships.toString() + ", "
+            + lastModified + ", " + overrideWarnings + ", " + authToken);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(conceptId, "conceptId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/meta/relationships/add?projectId=" + projectId + "&conceptId="
+        + conceptId + (activityId == null ? "" : "&activityId=" + activityId)
+        + "&lastModified=" + lastModified
+        + (overrideWarnings ? "&overrideWarnings=true" : ""));
+
+    String relString = ConfigUtility.getJsonForGraph(relationships == null
+        ? new ArrayList<ConceptRelationshipJpa>() : relationships);
+
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.json(relString));
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString,
+        ValidationResultJpa.class);
+  }
+
+  /* see superclass */
+  @Override
   public ValidationResult removeRelationship(Long projectId, Long conceptId,
     String activityId, Long lastModified, Long relationshipId,
     boolean overrideWarnings, String authToken) throws Exception {
@@ -379,13 +418,12 @@ public class MetaEditingClientRest extends RootClientRest
   /* see superclass */
   @Override
   public ValidationResult addDemotion(Long projectId, Long conceptId,
-    String activityId, Long lastModified, Long conceptId2,
-    Long atomId, Long atomId2, boolean overrideWarnings, String authToken)
-    throws Exception {
+    String activityId, Long lastModified, Long conceptId2, Long atomId,
+    Long atomId2, boolean overrideWarnings, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - add demotion " + projectId + ", "
-            + conceptId + ", atomId: " + atomId + ", atomId2: " + atomId2 + ", " + lastModified
-            + ", " + overrideWarnings + ", " + authToken);
+            + conceptId + ", atomId: " + atomId + ", atomId2: " + atomId2 + ", "
+            + lastModified + ", " + overrideWarnings + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(conceptId, "conceptId");
@@ -396,8 +434,7 @@ public class MetaEditingClientRest extends RootClientRest
         + "/meta/demotion/add?projectId=" + projectId + "&conceptId="
         + conceptId + (activityId == null ? "" : "&activityId=" + activityId)
         + "&lastModified=" + lastModified + "&conceptId2=" + conceptId2
-        + "&atomdId=" + atomId
-        + "&atomId2=" + atomId2
+        + "&atomdId=" + atomId + "&atomId2=" + atomId2
         + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     final Response response = target.request(MediaType.APPLICATION_XML)

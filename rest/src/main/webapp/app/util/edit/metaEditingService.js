@@ -208,6 +208,59 @@ tsApp
             });
           return deferred.promise;
         }
+        
+        // add relationships
+        this.addRelationships = function(projectId, activityId, concept, relationships,
+          overrideWarnings) {
+          return addRelationships(projectId, activityId, concept, relationships, overrideWarnings);
+        }
+        function addRelationships(projectId, activityId, concept, relationships, overrideWarnings) {
+          console.debug('add relationships');
+          var deferred = $q.defer();
+
+          gpService.increment();
+          $http.post(
+            metaEditingUrl
+              + '/relationships/add?projectId='
+              + projectId
+              + '&conceptId='
+              + concept.id
+              + (activityId ? "&activityId=" + activityId : "")
+              + '&lastModified='
+              + concept.lastModified
+              + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings='
+                + overrideWarnings : ''), relationships).then(
+            // success
+            function(response) {
+              console.debug('  validation = ', response.data);
+              gpService.decrement();
+              if (response.data.errors.length > 0
+                || (!overrideWarnings && response.data.warnings.length > 0)) {
+                var modalInstance = openActionErrorsModal(response.data.errors,
+                  response.data.warnings, 'Add Relationships', concept);
+                modalInstance.result.then(
+                // Success
+                function(data) {
+                  if (data) {
+                    addRelationships(projectId, activityId, concept, relationships, true).then(
+                    // Success
+                    function(data) {
+                      deferred.resolve(data);
+                    });
+                  }
+                });
+              } else {
+                deferred.resolve(response.data);
+              }
+            },
+            // error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
+          return deferred.promise;
+        }        
 
         // add semantic type
         this.addSemanticType = function(projectId, activityId, concept, semanticType,

@@ -22,7 +22,9 @@ tsApp.controller('EditRelationshipModalCtrl', [
     $scope.action = action;
 
     $scope.toConcepts = [];
-    $scope.selectedToConcepts = [];
+    $scope.selectedToConcepts = {};
+    $scope.selectedToConceptObjects = [];
+    $scope.selectedConceptCount = 0;
     $scope.toConcept = null;
     $scope.overrideWarnings = false;
     $scope.selectedRelationshipType = 'RO';
@@ -37,6 +39,8 @@ tsApp.controller('EditRelationshipModalCtrl', [
     $scope.selectedWorkflowStatus = 'NEEDS_REVIEW';
     $scope.workflowStatuses = [ 'NEEDS_REVIEW', 'READY_FOR_PUBLICATION' ];
     $scope.defaultOrder = true;
+    
+    $scope.checkboxValue;
 
     // Callbacks for finder
     $scope.callbacks = {
@@ -94,18 +98,19 @@ tsApp.controller('EditRelationshipModalCtrl', [
     }
 
     // Perform insert rel
-    $scope.addRelationship = function() {
+    $scope.addRelationships = function() {
       $scope.errors = [];
+      relationships = [];
 
       // Must have at least one concept selected
-      if($scope.selectedToConcepts.length == 0){
+      if($scope.selectedToConceptObjects.length == 0){
           $scope.errors
           .push("Must select at least one To concept");
       }
 
-      // Add relationship for each selected ToConcept
-      for (var i = 0; i < $scope.selectedToConcepts.length; i++) {
-    	  $scope.toConcept = $scope.selectedToConcepts[i];
+      // Create relationships for each selected ToConcept
+      for (var i = 0; i < $scope.selectedToConceptObjects.length; i++) {
+    	  $scope.toConcept = $scope.selectedToConceptObjects[i];
     	                	  
 	      // Only allow bequeathal to publishable
 	      if (!$scope.toConcept.publishable && $scope.selectedRelationshipType.match(/BR./)) {
@@ -143,8 +148,12 @@ tsApp.controller('EditRelationshipModalCtrl', [
 	        workflowStatus : $scope.selectedWorkflowStatus
 	      };
 	
-	      metaEditingService.addRelationship($scope.selected.project.id, $scope.selected.activityId,
-	        $scope.selected.component, relationship, $scope.overrideWarnings).then(
+	      relationships.push(relationship);
+      }  
+      
+      //Once all relationships have been added to list, send the request
+         metaEditingService.addRelationships($scope.selected.project.id, $scope.selected.activityId,
+	        $scope.selected.component, relationships, $scope.overrideWarnings).then(
 	      // Success
 	      function(data) {
 	        $scope.warnings.push(data.warnings);
@@ -157,17 +166,6 @@ tsApp.controller('EditRelationshipModalCtrl', [
 	      function(data) {
 	        utilService.handleDialogError($scope.errors, data);
 	      });
-	      
-	      window.alert('Concept lastModified before reload: ' + $scope.selected.component.lastModified);
-	      
-	      // Reload the concept, as it will be affected by the addRelationship
-          contentService.getConcept($scope.selected.component.id, $scope.selected.project.id).then(
-          // Success
-          function(data) {
-        	$scope.selected.component = data;
-          });
-	      window.alert('Concept lastModified after reload: ' + $scope.selected.component.lastModified);
-      }
       if ($scope.warnings.length == 0 && $scope.errors.length == 0) {
           $uibModalInstance.close();
       }
@@ -175,17 +173,21 @@ tsApp.controller('EditRelationshipModalCtrl', [
 
     // select the to concept
     $scope.selectToConcept = function(concept) {
-	    if(concept.selected){
-	    	$scope.selectedToConcepts.push(concept);
-	    }
-	    else{
-	        for (var i = 0; i < $scope.selectedToConcepts.length; i++) {
-	            if ($scope.selectedToConcepts[i] === concept) {
-	                $scope.selectedToConcepts.splice(i,1);
-	                break;
-	            }
-	          }
-	    }
+    	if($scope.selectedToConcepts[concept.id]){
+    		$scope.selectedToConcepts[concept.id] = false;
+    		for (var i =0; i < $scope.selectedToConceptObjects.length; i++) {
+			   if ($scope.selectedToConceptObjects[i] == concept) {
+				   $scope.selectedToConceptObjects.splice(i,1);
+			      break;
+			   }
+    		}
+    	}
+    	else{
+    		$scope.selectedToConcepts[concept.id] = true;
+    	    $scope.selectedToConceptObjects.push(concept);
+    	}
+    	
+    	window.alert('Concepts selected = ' + $scope.selectedToConceptObjects.length);
     }
     
     // Dismiss modal
