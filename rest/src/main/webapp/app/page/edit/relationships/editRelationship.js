@@ -187,7 +187,6 @@ tsApp.controller('EditRelationshipModalCtrl', [
     	    $scope.selectedToConceptObjects.push(concept);
     	}
     	
-    	window.alert('Concepts selected = ' + $scope.selectedToConceptObjects.length);
     }
     
     // Dismiss modal
