@@ -238,43 +238,6 @@ public class ReportServiceJpa extends HistoryServiceJpa
     }
 
     //
-    // Notes
-    //
-    StringBuilder notesBuffer = new StringBuilder();
-    String notesLabel = "CONCEPT NOTE(S)";
-    notesBuffer.append(notesLabel);
-    for (final Note note : concept.getNotes()) {
-      notesBuffer.append(lineEnd)
-          .append(
-              WordUtils.wrap(
-                  "  - " + note.getLastModifiedBy() + "/"
-                      + note.getLastModified() + "  " + note.getNote(),
-                  65, "\r\n    ", true));
-    }
-    if (notesBuffer.toString().length() > notesLabel.length()) {
-      sb.append(notesBuffer.toString());
-    }
-    sb.append(lineEnd);
-
-    notesBuffer = new StringBuilder();
-    notesLabel = "ATOM NOTE(S)";
-    notesBuffer.append(notesLabel);
-    for (final Atom atom : concept.getAtoms()) {
-      for (final Note note : atom.getNotes()) {
-        notesBuffer.append(lineEnd)
-            .append(
-                WordUtils.wrap(
-                    "  - " + note.getLastModifiedBy() + "/"
-                        + note.getLastModified() + "  " + note.getNote(),
-                    65, "\r\n    ", true));
-      }
-    }
-    if (notesBuffer.toString().length() > notesLabel.length()) {
-      sb.append(notesBuffer.toString());
-    }
-    sb.append(lineEnd);
-
-    //
     // Atoms
     //
 
@@ -282,7 +245,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
     final Set<Long> ambiguousAtomIds = concept == null ? new HashSet<>()
         : new HashSet<>(getAmbiguousAtomIds(concept));
 
-    sb.append("ATOMS").append(lineEnd);
+    sb.append(lineEnd).append("ATOMS").append(lineEnd);
 
     String prev_lui = "";
     String prev_sui = "";
@@ -404,6 +367,45 @@ public class ReportServiceJpa extends HistoryServiceJpa
     }
     sb.append(lineEnd);
 
+
+    //
+    // Notes
+    //
+    StringBuilder notesBuffer = new StringBuilder();
+    String notesLabel = "CONCEPT NOTE(S)";
+    notesBuffer.append(notesLabel);
+    for (final Note note : concept.getNotes()) {
+      notesBuffer.append(lineEnd)
+          .append(
+              WordUtils.wrap(
+                  "  - " + note.getLastModifiedBy() + "/"
+                      + note.getLastModified() + "  " + note.getNote(),
+                  65, "\r\n    ", true));
+    }
+    if (notesBuffer.toString().length() > notesLabel.length()) {
+      sb.append(notesBuffer.toString());
+      sb.append(lineEnd);
+    }
+
+    notesBuffer = new StringBuilder();
+    notesLabel = "ATOM NOTE(S)";
+    notesBuffer.append(notesLabel);
+    for (final Atom atom : concept.getAtoms()) {
+      for (final Note note : atom.getNotes()) {
+        notesBuffer.append(lineEnd)
+            .append(
+                WordUtils.wrap(
+                    "  - " + note.getLastModifiedBy() + "/"
+                        + note.getLastModified() + "  " + note.getNote(),
+                    65, "\r\n    ", true));
+      }
+    }
+    if (notesBuffer.toString().length() > notesLabel.length()) {
+      sb.append(notesBuffer.toString());
+      sb.append(lineEnd);
+    }
+    sb.append(lineEnd);
+    
     //
     // RELATIONSHIPS
     //
