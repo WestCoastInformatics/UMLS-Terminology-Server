@@ -688,22 +688,22 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   public void putComponent(Component component, String terminologyId)
     throws Exception {
     if (component instanceof Atom) {
-      atomIdCache.put(terminologyId, component.getId());
+      atomIdCache.put(terminologyId, component.getId().longValue());
     } else if (component instanceof Attribute) {
-      attributeIdCache.put(terminologyId, component.getId());
+      attributeIdCache.put(terminologyId, component.getId().longValue());
     } else if (component instanceof Relationship) {
-      relIdCache.put(terminologyId, component.getId());
+      relIdCache.put(terminologyId, component.getId().longValue());
     } else if (component instanceof Concept) {
-      conceptIdCache.put(terminologyId + component.getTerminology(),
-          component.getId());
+      conceptIdCache.put(terminologyId + component.getTerminology().toString(),
+          component.getId().longValue());
     } else if (component instanceof Code) {
-      codeIdCache.put(terminologyId + component.getTerminology(),
-          component.getId());
+      codeIdCache.put(terminologyId + component.getTerminology().toString(),
+          component.getId().longValue());
     } else if (component instanceof Definition) {
-      definitionIdCache.put(terminologyId, component.getId());
+      definitionIdCache.put(terminologyId, component.getId().longValue());
     } else if (component instanceof Descriptor) {
-      descriptorIdCache.put(terminologyId + component.getTerminology(),
-          component.getId());
+      descriptorIdCache.put(terminologyId + component.getTerminology().toString(),
+          component.getId().longValue());
     }
 
     else {
