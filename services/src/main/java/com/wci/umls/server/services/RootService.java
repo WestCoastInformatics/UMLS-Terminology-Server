@@ -461,6 +461,18 @@ public interface RootService extends Transactionable {
   public ValidationResult validateAction(MolecularActionAlgorithm action)
     throws Exception;
 
-  EntityManager getEntityManager() throws Exception;
+  public EntityManager getEntityManager() throws Exception;
+
+  /**
+   * Execute clustered concept query ct.
+   *
+   * @param query the query
+   * @param queryType the query type
+   * @param params the params
+   * @return the int
+   * @throws Exception the exception
+   */
+  public int executeClusteredConceptQueryCt(String query, QueryType queryType,
+    Map<String, String> params) throws Exception;
 
 }
