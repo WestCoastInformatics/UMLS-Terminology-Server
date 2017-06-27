@@ -97,6 +97,13 @@
         <div style="cursor: pointer; display: inline; float: right; width: 3%;">
         </div>
       </div>
+      <div class="alert alert-success" ng-show="queryTotalCount">
+        Full Test Result Count: {{queryTotalCount}}
+      </div>
+      <div class="alert alert-success" ng-show="testSampleResults.length > 0">
+        Sample Query Results
+        <div ng-repeat="row in testSampleResults">{{row}}</div>        
+      </div>
     </div>
   </div>
   <div class="modal-footer">

@@ -31,6 +31,7 @@ tsApp.controller('BinModalCtrl', [
     $scope.errors = [];
     $scope.messages = [];
     $scope.allowSave = true;
+    $scope.testSampleResults = [];
 
     if ($scope.action == 'Edit' || $scope.action == 'Clone') {
       workflowService.getWorkflowBinDefinition($scope.project.id, bin.name, $scope.config.type)
@@ -79,12 +80,20 @@ tsApp.controller('BinModalCtrl', [
         $scope.config.queryStyle).then(
       // success
       function(data) {
+        
+        $scope.queryTotalCount = data.totalCount;
+        $scope.testSampleResults = [];
+        for (var i=0; i<data.results.length; i++ ) {
+          $scope.testSampleResults.push(data.results[i].value);
+        }
         $scope.allowSave = true;
         $scope.messages.push("Query met validation requirements.");
       },
       // Error
       function(data) {
         $scope.allowSave = false;
+        $scope.queryTotalCount = 0;
+        $scope.testSampleResults = [];
         utilService.handleDialogError($scope.errors, data);
       });
     }

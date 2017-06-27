@@ -2091,7 +2091,7 @@ public abstract class RootServiceJpa implements RootService {
       pfs.setQueryRestriction(query);
       if (test) {
         pfs.setStartIndex(0);
-        pfs.setMaxResults(1);
+        pfs.setMaxResults(5);
       }
 
       // Perform search
@@ -2164,7 +2164,7 @@ public abstract class RootServiceJpa implements RootService {
       }
     }
     if (test) {
-      jpaQuery.setMaxResults(1);
+      jpaQuery.setMaxResults(5);
     }
     Logger.getLogger(getClass()).info("  query = " + query);
 
@@ -2268,6 +2268,112 @@ public abstract class RootServiceJpa implements RootService {
 
   }
 
+  /* see superclass */
+  @Override
+  @SuppressWarnings("unchecked")
+  public int executeClusteredConceptQueryCt(String query,
+    QueryType queryType, Map<String, String> params)
+    throws Exception {
+
+    // If query type is not filled out, return an empty List.
+    if (ConfigUtility.isEmpty(query)) {
+      return 0;
+    }
+    // Validate parameters and query
+    validateQueryAndParams(query, queryType, params);
+
+    // Handle the LUCENE case
+    if (queryType == QueryType.LUCENE) {
+      final PfsParameter pfs = new PfsParameterJpa();
+      pfs.setQueryRestriction(query);
+      
+
+      // Perform search
+      final List<Long> ids =
+          this.getSearchHandler(ConfigUtility.DEFAULT).getIdResults(
+              params.get("terminology"), params.get("version"), Branch.ROOT,
+              null, null, ConceptJpa.class, pfs, new int[1], manager);
+
+      // Cluster results
+      final List<Long[]> results = new ArrayList<>();
+      for (final Long id : ids) {
+        final Long[] result = new Long[] {
+            id, id
+        };
+
+        results.add(result);
+      }
+      return results.size();
+    }
+
+    // Handle PROGRAM queries
+    if (queryType == QueryType.PROGRAM) {
+      throw new Exception("PROGRAM queries not yet supported");
+    }
+
+    // Handle SQL and JPQL queries here
+    // Check for JPQL/SQL errors
+
+    boolean conceptQuery = false;
+    boolean dualConceptQuery = false;
+    boolean clusterQuery = false;
+
+    if (query.toUpperCase().replaceAll("[\\n\\r]", "")
+        .matches("SELECT.* CONCEPTID.*FROM.*")) {
+      conceptQuery = true;
+    }
+    if (query.toUpperCase().replaceAll("[\\n\\r]", "")
+        .matches("SELECT.* CONCEPTID1.*CONCEPTID2.*FROM.*")) {
+      dualConceptQuery = true;
+    }
+    if (query.toUpperCase().replaceAll("[\\n\\r]", "")
+        .matches("SELECT.* CLUSTERID.*FROM.*")) {
+      clusterQuery = true;
+    }
+    
+    // Modify query to get the total count of items
+    if (!query.toLowerCase().contains("distinct")) {
+      query = query.toLowerCase().replaceFirst("[\\n\\r]", " ").replaceFirst("[\\n\\r]", " ");
+      query = query.replaceFirst("select.* from", "select count(*) from ");
+    } else {
+      return executeClusteredConceptQuery(query,
+          queryType, params, false).size();
+    }
+
+    if (!conceptQuery && !dualConceptQuery && !clusterQuery) {
+      throw new LocalException(
+          "Query must have either clusterId,conceptId OR conceptId OR conceptId1,conceptId2 fields in the SELECT statement");
+    }
+
+    if (dualConceptQuery && clusterQuery) {
+      throw new LocalException(
+          "Query must have either clusterId,conceptId OR conceptId OR conceptId1,conceptId2 fields in the SELECT statement");
+    }
+
+    // Execute the query
+    javax.persistence.Query jpaQuery = null;
+    if (queryType == QueryType.SQL) {
+      jpaQuery = getEntityManager().createNativeQuery(query);
+    } else if (queryType == QueryType.JPQL) {
+      jpaQuery = getEntityManager().createQuery(query);
+    } else {
+      throw new Exception("Unsupported query type " + queryType);
+    }
+    if (params != null) {
+      for (final String key : params.keySet()) {
+        if (query.contains(":" + key)) {
+          jpaQuery.setParameter(key, params.get(key));
+        }
+      }
+    }
+    
+    Logger.getLogger(getClass()).info("  query = " + query);
+
+    final List<Object> list = jpaQuery.getResultList();      
+    return ((BigInteger) list.get(0)).intValue();
+
+  }
+  
   /**
    * Returns the default query params.
    *

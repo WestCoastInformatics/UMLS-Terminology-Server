@@ -641,7 +641,7 @@ public class WriteRrfHistoryFilesAlgorithm
         final Set<Atom> atoms = new HashSet<>();
         for (final Concept concept : findConcepts(getProject().getTerminology(),
             getProject().getVersion(),
-            Branch.ROOT, "atom.conceptTerminologyIds:\""
+            Branch.ROOT, "atoms.conceptTerminologyIds:\""
                 + getProject().getTerminology() + "=" + cui + "\"",
             null).getObjects()) {
           // Add all atoms having a last release CUI matching the CUI
