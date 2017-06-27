@@ -505,125 +505,20 @@ PfsParameterJpa pfs = new PfsParameterJpa();
     //
     // Add a ME bins workflow config for the current project
     //
-    getLog().info("  Create a ME workflow config");
-    workflowService = new WorkflowServiceRestImpl();
-    WorkflowConfigJpa config = new WorkflowConfigJpa();
-    config.setType("MUTUALLY_EXCLUSIVE");
-    config.setMutuallyExclusive(true);
-    config.setQueryStyle(QueryStyle.CLUSTER);
-    config.setProjectId(projectId);
-    workflowService = new WorkflowServiceRestImpl();
-    WorkflowConfig newConfig =
-        workflowService.addWorkflowConfig(projectId, config, authToken);
+    getLog().info("  Import a ME workflow config");
 
-    // Add workflow definitions
-    // demotions
-    getLog().info("    Add 'demotions' workflow bin definition");
-    WorkflowBinDefinitionJpa definition = new WorkflowBinDefinitionJpa();
-    definition.setName("demotions");
-    definition.setDescription(
-        "Clustered concepts that failed insertion merges.  Must be either related or merged.");
-    definition
-        .setQuery("select d.concepts_id conceptId1, e.concepts_id conceptId2 "
-            + "from atom_relationships a, atoms b, atoms c, "
-            + "concepts_atoms d, concepts_atoms e, concepts f, concepts g "
-            + "where a.terminology = :terminology and a.workflowStatus = 'DEMOTION' "
-            + "  and a.from_id = b.id and a.to_id = c.id "
-            + "  and b.id = d.atoms_id and c.id = e.atoms_id "
-            + "  and d.concepts_id = f.id and e.concepts_id = g.id"
-            + "  and f.terminology = :terminology and g.terminology = :terminology");
-    definition.setEditable(true);
-    definition.setEnabled(true);
-    definition.setRequired(true);
-    definition.setQueryType(QueryType.SQL);
-    definition.setWorkflowConfig(newConfig);
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, null, definition,
-        authToken);
+    String workflowFilePath = inputDir + "/workflow/workflow.ME.txt";
+    File workflowFile = new File(workflowFilePath);
 
-    // norelease
-    getLog().info("    Add 'norelease' workflow bin definition");
-    definition = new WorkflowBinDefinitionJpa();
-    definition.setName("norelease");
-    definition.setDescription("Concepts where all atoms are unreleasable.");
-    definition.setQuery("published:false AND NOT atoms.published:true");
-    definition.setEditable(false);
-    definition.setEnabled(true);
-    definition.setRequired(false);
-    definition.setQueryType(QueryType.LUCENE);
-    definition.setWorkflowConfig(newConfig);
-    workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, null, definition,
-        authToken);
-
-    // reviewed
-    getLog().info("    Add 'reviewed' workflow bin definition");
-    definition = new WorkflowBinDefinitionJpa();
-    definition.setName("reviewed");
-    definition.setDescription("Concepts that do not require review.");
-    definition.setQuery("NOT workflowStatus:NEEDS_REVIEW");
-    definition.setEditable(false);
-    definition.setEnabled(true);
-    definition.setRequired(false);
-    definition.setQueryType(QueryType.LUCENE);
-    definition.setWorkflowConfig(newConfig);
-    workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, null, definition,
-        authToken);
-
-    // ncithesaurus
-    getLog().info("    Add 'ncithesaurus' workflow bin definition");
-    definition = new WorkflowBinDefinitionJpa();
-    definition.setName("ncithesaurus");
-    definition.setDescription("NCI Thesaurus.");
-    definition.setQuery("select distinct a.id conceptId "
-        + "from concepts a, concepts_atoms b, atoms c "
-        + "where a.id = b.concepts_id " + "  and b.atoms_id = c.id  "
-        + "  and a.terminology = :terminology and c.terminology='NCI' "
-        + "  and c.workflowStatus = 'NEEDS_REVIEW'");
-    definition.setEditable(true);
-    definition.setEnabled(true);
-    definition.setRequired(true);
-    definition.setQueryType(QueryType.SQL);
-    definition.setWorkflowConfig(newConfig);
-    workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, null, definition,
-        authToken);
-
-    // snomedct_us
-    getLog().info("    Add 'snomedct_us' workflow bin definition");
-    definition = new WorkflowBinDefinitionJpa();
-    definition.setName("snomedct_us");
-    definition.setDescription("SNOMEDCT_US.");
-    definition.setQuery("select distinct a.id conceptId "
-        + "from concepts a, concepts_atoms b, atoms c "
-        + "where a.id = b.concepts_id " + "  and b.atoms_id = c.id  "
-        + "  and a.terminology = :terminology and c.terminology='SNOMEDCT_US' "
-        + "  and c.workflowStatus = 'NEEDS_REVIEW'");
-    definition.setEditable(true);
-    definition.setEnabled(true);
-    definition.setRequired(true);
-    definition.setQueryType(QueryType.SQL);
-    definition.setWorkflowConfig(newConfig);
-    workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, null, definition,
-        authToken);
-
-    // leftovers
-    getLog().info("    Add 'leftovers' workflow bin definition");
-    definition = new WorkflowBinDefinitionJpa();
-    definition.setName("leftovers");
-    definition.setDescription("SNOMEDCT_US.");
-    definition.setQuery("workflowStatus:NEEDS_REVIEW");
-    definition.setEditable(true);
-    definition.setEnabled(true);
-    definition.setRequired(true);
-    definition.setQueryType(QueryType.LUCENE);
-    definition.setWorkflowConfig(newConfig);
-    workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, null, definition,
-        authToken);
-
+    InputStream in = new FileInputStream(workflowFile);
+    FormDataContentDisposition contentDispositionHeader =
+        new FormDataContentDisposition(
+            "form-data; filename=\"workflow.ME.txt\"; name=\"file\"");
+    workflowService.importWorkflowConfig(contentDispositionHeader, in,
+        projectId, authToken);
+    in.close();
+    
     // Clear and regenerate all bins
     getLog().info("  Clear and regenerate ME bins");
     // Clear bins
@@ -635,9 +530,9 @@ PfsParameterJpa pfs = new PfsParameterJpa();
     workflowService.regenerateBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
 
     // Get bins
-    workflowService = new WorkflowServiceRestImpl();
-    final WorkflowBinList bins = workflowService.getWorkflowBins(projectId,
-        "MUTUALLY_EXCLUSIVE", authToken);
+    //workflowService = new WorkflowServiceRestImpl();
+    //final WorkflowBinList bins = workflowService.getWorkflowBins(projectId,
+    //   "MUTUALLY_EXCLUSIVE", authToken);
 
 //    // For each editable bin, make two worklists of size 5
 //    Worklist lastWorklist = null;
@@ -773,12 +668,12 @@ PfsParameterJpa pfs = new PfsParameterJpa();
     // load QA workflowConfig and bins from workflow.QA.txt file
     workflowService = new WorkflowServiceRestImpl();
 
-    final String workflowFilePath = inputDir + "/workflow/workflow.QA.txt";
+    workflowFilePath = inputDir + "/workflow/workflow.QA.txt";
 
-    final File workflowFile = new File(workflowFilePath);
+    workflowFile = new File(workflowFilePath);
 
-    final InputStream in = new FileInputStream(workflowFile);
-    final FormDataContentDisposition contentDispositionHeader =
+    in = new FileInputStream(workflowFile);
+    contentDispositionHeader =
         new FormDataContentDisposition(
             "form-data; filename=\"workflow.QA.txt\"; name=\"file\"");
     workflowService.importWorkflowConfig(contentDispositionHeader, in,
@@ -786,9 +681,9 @@ PfsParameterJpa pfs = new PfsParameterJpa();
 
     // Clear bins
     getLog().info(" Clear and regenerate QA bins");
-    // Clear bins
     workflowService = new WorkflowServiceRestImpl();
     workflowService.clearBins(projectId, "QUALITY_ASSURANCE", authToken);
+    in.close();
 
     // Note: don't regenerate all bins. Users will do so manually as needed.
     // // Regenerate bins
@@ -800,188 +695,70 @@ PfsParameterJpa pfs = new PfsParameterJpa();
     // Add MID VALIDATOIN
     //
     getLog().info("  Create a MID VALIDATION config");
-    workflowService = new WorkflowServiceRestImpl();
-    config = new WorkflowConfigJpa();
-    config.setType("MID_VALIDATION");
-    config.setMutuallyExclusive(false);
-    config.setAdminConfig(true);
-    config.setQueryStyle(QueryStyle.CLUSTER);
-    config.setProjectId(projectId);
-    workflowService = new WorkflowServiceRestImpl();
-    newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);
+    workflowFilePath = inputDir + "/workflow/workflow.MV.txt";
 
-    // Approved C rel matching demotion
-    getLog().info("    Approved C rel matching demotion");
-    definition = new WorkflowBinDefinitionJpa();
-    definition.setName("Approved C rel matching demotion");
-    definition.setDescription(
-        "Finds approved concept relationships matching demotions.");
-    definition.setQuery("select cr.from_id conceptId1, cr.to_id conceptId2 "
-        + "from atom_relationships ar, concept_relationships cr, "
-        + "     concepts_atoms ca1, concepts_atoms ca2, concepts c1, concepts c2 "
-        + "where ar.terminology = :terminology and cr.terminology = :terminology "
-        + "  and ar.from_id = ca1.atoms_id and ar.to_id = ca2.atoms_id "
-        + "  and cr.from_id = ca1.concepts_id and cr.to_id = ca2.concepts_id "
-        + "  and ar.workflowStatus = 'DEMOTION' "
-        + "  and cr.workflowStatus in ('READY_FOR_PUBLICATION','PUBLISHED')");
-    definition.setEditable(true);
-    definition.setEnabled(true);
-    definition.setRequired(true);
-    definition.setQueryType(QueryType.SQL);
-    definition.setWorkflowConfig(newConfig);
+    workflowFile = new File(workflowFilePath);
+
+    in = new FileInputStream(workflowFile);
+    contentDispositionHeader =
+        new FormDataContentDisposition(
+            "form-data; filename=\"workflow.MV.txt\"; name=\"file\"");
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, null, definition,
-        authToken);
+    workflowService.importWorkflowConfig(contentDispositionHeader, in,
+        projectId, authToken);
+
+    // Clear bins
+    getLog().info(" Clear and regenerate MV bins");
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.clearBins(projectId, "MID_VALIDATION", authToken);
+    in.close();
 
     //
     // Add MID VALIDATION (NO concepts)
     //
     getLog().info("  Create a MID VALIDATION_NOCONCEPT config");
-    workflowService = new WorkflowServiceRestImpl();
-    config = new WorkflowConfigJpa();
-    config.setType("MID_VALIDATION_OTHER");
-    config.setMutuallyExclusive(false);
-    config.setAdminConfig(true);
-    config.setQueryStyle(QueryStyle.OTHER);
-    config.setProjectId(projectId);
-    workflowService = new WorkflowServiceRestImpl();
-    newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);
+    workflowFilePath = inputDir + "/workflow/workflow.MVO.txt";
 
-    // Atom with leading/trailing junk
-    getLog().info("    Atom with leading/trailing junk");
-    definition = new WorkflowBinDefinitionJpa();
-    definition.setName("Atom with leading/trailing junk");
-    definition.setDescription(
-        "Finds atoms with leading or trailing whitespace or junk chars");
-    definition
-        .setQuery("select c.id from atoms a, concepts_atoms ca, concepts c "
-            + "where ca.atoms_id = a.id and ca.concepts_id = c.id"
-            + "  and a.name like ' %' or a.name like '% ' "
-            + "  and c.terminology = :terminology;");
-    definition.setEditable(true);
-    definition.setEnabled(true);
-    definition.setRequired(true);
-    definition.setQueryType(QueryType.SQL);
-    definition.setWorkflowConfig(newConfig);
-    workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, null, definition,
-        authToken);
+    workflowFile = new File(workflowFilePath);
 
-    // Relationship group is null (instead of blank)
-    getLog().info("    Relationship group is null");
-    definition = new WorkflowBinDefinitionJpa();
-    definition.setName("Relationship group is null");
-    definition.setDescription(
-        "Finds atoms with leading or trailing whitespace or junk chars");
-    definition.setQuery(
-        "select r.id,'CONCEPT' from concept_relationships r where relGroup is null"
-            + "union all select r.id,'ATOM' from atom_relationships r where relGroup is null"
-            + "union all select r.id,'CODE' from code_relationships r where relGroup is null"
-            + "union all select r.id, 'DESCRIPTOR' from descriptor_relationships r where relGroup is null"
-            + "union all select r.id,'COMPONENT_INFO' from component_info_relationships r where relGroup is null");
-    definition.setEditable(true);
-    definition.setEnabled(true);
-    definition.setRequired(true);
-    definition.setQueryType(QueryType.SQL);
-    definition.setWorkflowConfig(newConfig);
+    in = new FileInputStream(workflowFile);
+    contentDispositionHeader =
+        new FormDataContentDisposition(
+            "form-data; filename=\"workflow.MVO.txt\"; name=\"file\"");
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, null, definition,
-        authToken);
+    workflowService.importWorkflowConfig(contentDispositionHeader, in,
+        projectId, authToken);
+
+    // Clear bins
+    getLog().info(" Clear and regenerate MVO bins");
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.clearBins(projectId, "MID_VALIDATION_OTHER", authToken);
+    in.close();
+    
+
 
     //
     // Add REPORT_DEFINITIONS
     //
     getLog().info("  Create a REPORT DEFINITIONS config");
-    workflowService = new WorkflowServiceRestImpl();
-    config = new WorkflowConfigJpa();
-    config.setType("REPORT_DEFINITIONS");
-    config.setMutuallyExclusive(false);
-    config.setAdminConfig(true);
-    config.setQueryStyle(QueryStyle.REPORT);
-    config.setProjectId(projectId);
-    workflowService = new WorkflowServiceRestImpl();
-    newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);
+    workflowFilePath = inputDir + "/workflow/workflow.RD.txt";
 
-    // Report for 2 STYS
-    getLog().info("    2 STYS");
-    definition = new WorkflowBinDefinitionJpa();
-    definition.setName("2 STYS");
-    definition.setDescription("Finds concepts with 2 coocurring stys.");
-    definition.setQuery("SELECT distinct c.id itemId, c.name itemName, "
-        + " GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value "
-        + " FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty "
-        + " WHERE c.terminology = :terminology and c.id = csty.concepts_id "
-        + " and csty.semanticTypes_id = sty.id "
-        + " GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) = 2;");
-    definition.setEditable(true);
-    definition.setEnabled(true);
-    definition.setRequired(true);
-    definition.setQueryType(QueryType.SQL);
-    definition.setWorkflowConfig(newConfig);
-    workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, null, definition,
-        authToken);
+    workflowFile = new File(workflowFilePath);
 
-    // Report for 3 STYS
-    getLog().info("    3 STYS");
-    definition = new WorkflowBinDefinitionJpa();
-    definition.setName("3 STYS");
-    definition.setDescription("Finds concepts with 3 coocurring stys.");
-    definition.setQuery("SELECT distinct c.id itemId, c.name itemName, "
-        + " GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value "
-        + " FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty "
-        + " WHERE c.terminology = :terminology and c.id = csty.concepts_id "
-        + " and csty.semanticTypes_id = sty.id "
-        + " GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) = 3;");
-    definition.setEditable(true);
-    definition.setEnabled(true);
-    definition.setRequired(true);
-    definition.setQueryType(QueryType.SQL);
-    definition.setWorkflowConfig(newConfig);
+    in = new FileInputStream(workflowFile);
+    contentDispositionHeader =
+        new FormDataContentDisposition(
+            "form-data; filename=\"workflow.RD.txt\"; name=\"file\"");
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, null, definition,
-        authToken);
+    workflowService.importWorkflowConfig(contentDispositionHeader, in,
+        projectId, authToken);
 
-    // Report for 4 STYS
-    getLog().info("    4 STYS");
-    definition = new WorkflowBinDefinitionJpa();
-    definition.setName("4 STYS");
-    definition.setDescription("Finds concepts with 4 coocurring stys.");
-    definition.setQuery("SELECT distinct c.id itemId, c.name itemName, "
-        + " GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value "
-        + " FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty "
-        + " WHERE c.terminology = :terminology and c.id = csty.concepts_id "
-        + " and csty.semanticTypes_id = sty.id "
-        + " GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) = 4;");
-    definition.setEditable(true);
-    definition.setEnabled(true);
-    definition.setRequired(true);
-    definition.setQueryType(QueryType.SQL);
-    definition.setWorkflowConfig(newConfig);
+    // Clear bins
+    getLog().info(" Clear and regenerate RD bins");
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, null, definition,
-        authToken);
-
-    // Report for >4 STYS
-    getLog().info("    >4 STYS");
-    definition = new WorkflowBinDefinitionJpa();
-    definition.setName(">4 STYS");
-    definition
-        .setDescription("Finds concepts with greater than 4 coocurring stys.");
-    definition.setQuery("SELECT distinct c.id itemId, c.name itemName, "
-        + " GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value "
-        + " FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty "
-        + " WHERE c.terminology = :terminology and c.id = csty.concepts_id "
-        + " and csty.semanticTypes_id = sty.id "
-        + " GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) > 4;");
-    definition.setEditable(true);
-    definition.setEnabled(true);
-    definition.setRequired(true);
-    definition.setQueryType(QueryType.SQL);
-    definition.setWorkflowConfig(newConfig);
-    workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, null, definition,
-        authToken);
+    workflowService.clearBins(projectId, "REPORT_DEFINITIONS", authToken);
+    in.close();
+    
 
     // ComponentInfoRelationship resolves to nothing (auto-fix -> remove), need
     // algorithm?

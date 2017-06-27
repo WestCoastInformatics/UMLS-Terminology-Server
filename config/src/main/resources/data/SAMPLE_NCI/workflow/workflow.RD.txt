@@ -1,0 +1,70 @@
+{
+  "id": 55,
+  "lastModified": 1498226946000,
+  "lastModifiedBy": "admin",
+  "timestamp": 1498226944000,
+  "type": "REPORT_DEFINITIONS",
+  "mutuallyExclusive": false,
+  "adminConfig": true,
+  "queryStyle": "REPORT",
+  "lastPartitionTime": null,
+  "projectId": 4101,
+  "workflowBinDefinitions": [
+    {
+      "id": 139,
+      "lastModified": 1498226944000,
+      "lastModifiedBy": "admin",
+      "timestamp": 1498226944000,
+      "name": "2 STYS",
+      "description": "Finds concepts with 2 coocurring stys.",
+      "query": "SELECT distinct c.id itemId, c.name itemName,  GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value  FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty  WHERE c.terminology = :terminology and c.id = csty.concepts_id  and csty.semanticTypes_id = sty.id  GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) = 2;",
+      "queryType": "SQL",
+      "editable": true,
+      "enabled": true,
+      "required": true,
+      "workflowConfigId": 55
+    },
+    {
+      "id": 140,
+      "lastModified": 1498226945000,
+      "lastModifiedBy": "admin",
+      "timestamp": 1498226945000,
+      "name": "3 STYS",
+      "description": "Finds concepts with 3 coocurring stys.",
+      "query": "SELECT distinct c.id itemId, c.name itemName,  GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value  FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty  WHERE c.terminology = :terminology and c.id = csty.concepts_id  and csty.semanticTypes_id = sty.id  GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) = 3;",
+      "queryType": "SQL",
+      "editable": true,
+      "enabled": true,
+      "required": true,
+      "workflowConfigId": 55
+    },
+    {
+      "id": 141,
+      "lastModified": 1498226945000,
+      "lastModifiedBy": "admin",
+      "timestamp": 1498226945000,
+      "name": "4 STYS",
+      "description": "Finds concepts with 4 coocurring stys.",
+      "query": "SELECT distinct c.id itemId, c.name itemName,  GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value  FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty  WHERE c.terminology = :terminology and c.id = csty.concepts_id  and csty.semanticTypes_id = sty.id  GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) = 4;",
+      "queryType": "SQL",
+      "editable": true,
+      "enabled": true,
+      "required": true,
+      "workflowConfigId": 55
+    },
+    {
+      "id": 142,
+      "lastModified": 1498226945000,
+      "lastModifiedBy": "admin",
+      "timestamp": 1498226945000,
+      "name": ">4 STYS",
+      "description": "Finds concepts with greater than 4 coocurring stys.",
+      "query": "SELECT distinct c.id itemId, c.name itemName,  GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value  FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty  WHERE c.terminology = :terminology and c.id = csty.concepts_id  and csty.semanticTypes_id = sty.id  GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) > 4;",
+      "queryType": "SQL",
+      "editable": true,
+      "enabled": true,
+      "required": true,
+      "workflowConfigId": 55
+    }
+  ]
+}
