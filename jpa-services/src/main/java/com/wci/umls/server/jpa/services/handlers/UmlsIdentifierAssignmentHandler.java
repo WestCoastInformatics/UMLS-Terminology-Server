@@ -82,6 +82,8 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
   /** The max concept id. */
   private long maxConceptId = -1;
 
+  private boolean cachesEnabled = false;
+
   /**
    * String=attribute identity code, Long=id
    */
@@ -250,40 +252,59 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
         identity.setName(stringClass.getName());
         identity.setLanguage(stringClass.getLanguage());
 
-        // If this is the first time this has been called,
-        // cache the existing terminologyIds
-        if (stringClassIdentityCache.isEmpty()) {
-          cacheExistingStringClassIdentities();
+        Long identityId = null;
+        // If caches are enabled (e.g. insertion processes), lookup identity id
+        // from cache
+        if (cachesEnabled) {
+          // If this is the first time this has been called,
+          // populate the cache
+          if (stringClassIdentityCache.isEmpty()) {
+            cacheExistingStringClassIdentities();
+          }
+
+          // Check if this identity exists in cache
+          if (stringClassIdentityCache
+              .containsKey(identity.getIdentityCode())) {
+            identityId =
+                stringClassIdentityCache.get(identity.getIdentityCode());
+          }
+        }
+        // If caches aren't enable (e.g. action performed by user via the UI),
+        // lookup identity id via database query
+        else {
+          final StringClassIdentity identity2 =
+              localService.getStringClassIdentity(identity);
+
+          // Reuse existing id
+          if (identity2 != null) {
+            identityId = identity2.getId();
+          }
         }
 
-        // Check if this identity has already been cached
-        if (stringClassIdentityCache.containsKey(identity.getIdentityCode())) {
-          return convertId(
-              stringClassIdentityCache.get(identity.getIdentityCode()), "SUI");
+        // if id found, return
+        if (identityId != null) {
+          return convertId(identityId, "SUI");
         }
-
-        // final StringClassIdentity identity2 =
-        // localService.getStringClassIdentity(identity);
-        //
-        // // Reuse existing id
-        // if (identity2 != null) {
-        // return convertId(identity2.getId(), "SUI");
-        // }
         // else generate a new one and add it
         else {
           // Get next id
           final Long nextId = localService.getNextStringClassId();
+
           // Add new identity object
           identity.setId(nextId);
           localService.addStringClassIdentity(identity);
-          // Add identity to cache
-          stringClassIdentityCache.put(identity.getIdentityCode(),
-              identity.getId());
+          // Add identity to cache, if caches enabled
+          if (cachesEnabled) {
+            stringClassIdentityCache.put(identity.getIdentityCode(),
+                identity.getId());
+          }
           return convertId(nextId, "SUI");
         }
       }
 
-    } catch (Exception e) {
+    } catch (
+
+    Exception e) {
       throw e;
     } finally {
       closeService(localService);
@@ -313,25 +334,39 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
         identity.setLanguage(lexicalClass.getLanguage());
         identity.setNormalizedName(lexicalClass.getNormalizedName());
 
-        // If this is the first time this has been called,
-        // cache the existing terminologyIds
-        if (lexicalClassIdentityCache.isEmpty()) {
-          cacheExistingLexicalClassIdentities();
+        Long identityId = null;
+        // If caches are enabled (e.g. insertion processes), lookup identity id
+        // from cache
+        if (cachesEnabled) {
+          // If this is the first time this has been called,
+          // populate the cache
+          if (lexicalClassIdentityCache.isEmpty()) {
+            cacheExistingLexicalClassIdentities();
+          }
+
+          // Check if this identity exists in cache
+          if (lexicalClassIdentityCache
+              .containsKey(identity.getIdentityCode())) {
+            identityId =
+                lexicalClassIdentityCache.get(identity.getIdentityCode());
+          }
+        }
+        // If caches aren't enable (e.g. action performed by user via the UI),
+        // lookup identity id via database query
+        else {
+          final LexicalClassIdentity identity2 =
+              localService.getLexicalClassIdentity(identity);
+
+          // Reuse existing id
+          if (identity2 != null) {
+            identityId = identity2.getId();
+          }
         }
 
-        // Check if this identity has already been cached
-        if (lexicalClassIdentityCache.containsKey(identity.getIdentityCode())) {
-          return convertId(
-              lexicalClassIdentityCache.get(identity.getIdentityCode()), "LUI");
+        // if id found, return
+        if (identityId != null) {
+          return convertId(identityId, "LUI");
         }
-
-        // final LexicalClassIdentity identity2 =
-        // localService.getLexicalClassIdentity(identity);
-        //
-        // // Reuse existing id
-        // if (identity2 != null) {
-        // return convertId(identity2.getId(), "LUI");
-        // }
         // else generate a new one and add it
         else {
           // Get next id
@@ -380,26 +415,37 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
         identity.setTerminologyId(atom.getTerminologyId());
         identity.setTermType(atom.getTermType());
 
-        // If this is the first time this has been called for this terminology,
-        // cache the existing terminologyIds
-        if (!atomIdentityCachedTerms.contains(identity.getTerminology())) {
-          cacheExistingAtomIdentities(identity.getTerminology());
+        Long identityId = null;
+
+        // If caches are enabled (e.g. insertion processes), lookup identity id
+        // from cache
+        if (cachesEnabled) {
+          // If this is the first time this has been called for this
+          // terminology, populate the cache
+          if (!atomIdentityCachedTerms.contains(identity.getTerminology())) {
+            cacheExistingAtomIdentities(identity.getTerminology());
+          }
+
+          // Check if this identity exists in cache
+          if (atomIdentityCache.containsKey(identity.getIdentityCode())) {
+            identityId = atomIdentityCache.get(identity.getIdentityCode());
+          }
+        }
+        // If caches aren't enable (e.g. action performed by user via the UI),
+        // lookup identity id via database query
+        else {
+          final AtomIdentity identity2 = localService.getAtomIdentity(identity);
+
+          // Reuse existing id
+          if (identity2 != null) {
+            identityId = identity2.getId();
+          }
         }
 
-        // Check if this identity has already been cached
-        if (atomIdentityCache.containsKey(identity.getIdentityCode())) {
-          return convertId(atomIdentityCache.get(identity.getIdentityCode()),
-              "AUI");
+        // if id found, return
+        if (identityId != null) {
+          return convertId(identityId, "AUI");
         }
-
-        // final AtomIdentity identity2 =
-        // localService.getAtomIdentity(identity);
-        //
-        // // Reuse existing id
-        // if (identity2 != null) {
-        // return convertId(identity2.getId(), "AUI");
-        // }
-
         // else generate a new one and add it
         else {
           // Get next id
@@ -407,8 +453,10 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
           // Add new identity object
           identity.setId(nextId);
           localService.addAtomIdentity(identity);
-          // Add identity to cache
-          atomIdentityCache.put(identity.getIdentityCode(), identity.getId());
+          // Add identity to cache, if caches enabled
+          if (cachesEnabled) {
+            atomIdentityCache.put(identity.getIdentityCode(), identity.getId());
+          }
           return convertId(nextId, "AUI");
         }
       }
@@ -457,30 +505,42 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
       identity.setTerminology(attribute.getTerminology());
       identity.setTerminologyId(attribute.getTerminologyId());
 
-      // If this is the first time this has been called for this terminology and
-      // name,
-      // cache the existing terminologyIds
-      if (!attributeIdentityCachedTerms
-          .contains(identity.getTerminology() + identity.getName())) {
-        cacheExistingAttributeIdentities(identity.getTerminology(),
-            identity.getName());
+      Long identityId = null;
+      // If caches are enabled (e.g. insertion processes), lookup identity id
+      // from cache
+      if (cachesEnabled) {
+        // If this is the first time this has been called for this terminology
+        // and
+        // name,
+        // populate the cache
+        if (!attributeIdentityCachedTerms
+            .contains(identity.getTerminology() + identity.getName())) {
+          cacheExistingAttributeIdentities(identity.getTerminology(),
+              identity.getName());
+        }
+
+        // Check if this identity exists in the cache
+        if (attributeIdentityCache.containsKey(identity.getIdentityCode())) {
+          identityId = attributeIdentityCache.get(identity.getIdentityCode());
+        }
+      }
+      // If caches aren't enable (e.g. action performed by user via the UI),
+      // lookup identity id via database query
+      else {
+        final AttributeIdentity identity2 =
+            localService.getAttributeIdentity(identity);
+
+        // Reuse existing id
+        if (identity2 != null) {
+
+          identityId = identity2.getId();
+        }
       }
 
-      // Check if this identity has already been cached
-      if (attributeIdentityCache.containsKey(identity.getIdentityCode())) {
-        return convertId(attributeIdentityCache.get(identity.getIdentityCode()),
-            "ATUI");
+      // if id found, return
+      if (identityId != null) {
+        return convertId(identityId, "ATUI");
       }
-
-      // final AttributeIdentity identity2 =
-      // localService.getAttributeIdentity(identity);
-      //
-      // // Reuse existing id
-      // if (identity2 != null) {
-      //
-      // return convertId(identity2.getId(), "ATUI");
-      // }
-
       // else generate a new one and add it
       else {
         synchronized (LOCK) {
@@ -491,8 +551,12 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
           identity.setId(nextId);
           attributeIdentityCache.put(identity.getIdentityCode(), nextId);
           localService.addAttributeIdentity(identity);
-          final String terminologyId = convertId(nextId, "ATUI");
-          return terminologyId;
+          // Add identity to cache, if caches enabled
+          if (cachesEnabled) {
+            attributeIdentityCache.put(identity.getIdentityCode(),
+                identity.getId());
+          }
+          return convertId(nextId, "ATUI");
         }
       }
 
@@ -712,27 +776,41 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
           identity.setToId(relationship.getTo().getTerminologyId());
         }
 
-        // If this is the first time this has been called for this terminology,
-        // cache the existing terminologyIds
-        if (!relationshipIdentityCachedTerms
-            .contains(identity.getTerminology())) {
-          cacheExistingRelationshipIdentities(identity.getTerminology());
+        Long identityId = null;
+        // If caches are enabled (e.g. insertion processes), lookup identity id
+        // from cache
+        if (cachesEnabled) {
+          // If this is the first time this has been called for this
+          // terminology,
+          // populate the cache
+          if (!relationshipIdentityCachedTerms
+              .contains(identity.getTerminology())) {
+            cacheExistingRelationshipIdentities(identity.getTerminology());
+          }
+
+          // Check if this identity exists in cache
+          if (relationshipIdentityCache
+              .containsKey(identity.getIdentityCode())) {
+            identityId =
+                relationshipIdentityCache.get(identity.getIdentityCode());
+          }
+        }
+        // If caches aren't enable (e.g. action performed by user via the UI),
+        // lookup identity id via database query
+        else {
+          final RelationshipIdentity identity2 =
+              localService.getRelationshipIdentity(identity);
+
+          // Reuse existing id
+          if (identity2 != null) {
+            identityId = identity2.getId();
+          }
         }
 
-        // Check if this identity has already been cached
-        if (relationshipIdentityCache.containsKey(identity.getIdentityCode())) {
-          return convertId(
-              relationshipIdentityCache.get(identity.getIdentityCode()), "RUI");
+        // if id found, return
+        if (identityId != null) {
+          return convertId(identityId, "RUI");
         }
-
-        // final RelationshipIdentity identity2 =
-        // localService.getRelationshipIdentity(identity);
-        //
-        // // Reuse existing id
-        // if (identity2 != null) {
-        // return convertId(identity2.getId(), "RUI");
-        // }
-
         // else generate a new one and add it
         else {
           // Get next id and inverse ID
@@ -744,7 +822,7 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
           identity.setInverseId(0L);
 
           // Add new identity object
-          localService.addRelationshipIdentity(identity);        
+          localService.addRelationshipIdentity(identity);
 
           // Create inverse Relationship identity
           final RelationshipIdentity inverseIdentity =
@@ -765,9 +843,13 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
           identity.setInverseId(nextIdInverse);
           localService.updateRelationshipIdentity(identity);
 
-          // Add identities to cache
-          relationshipIdentityCache.put(identity.getIdentityCode(), identity.getId());          
-          relationshipIdentityCache.put(inverseIdentity.getIdentityCode(), inverseIdentity.getId());          
+          // Add identities to cache, if caches enabled
+          if (cachesEnabled) {
+            relationshipIdentityCache.put(identity.getIdentityCode(),
+                identity.getId());
+            relationshipIdentityCache.put(inverseIdentity.getIdentityCode(),
+                inverseIdentity.getId());
+          }
 
           // return ID for called relationship (inverse can get called later)
           return convertId(nextId, "RUI");
@@ -1030,6 +1112,7 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
     if (!transactionPerOperation) {
       service = new UmlsIdentityServiceJpa();
       service.setTransactionPerOperation(transactionPerOperation);
+      cachesEnabled = true;
     } else {
       service = null;
     }
@@ -1097,5 +1180,7 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
     atomIdentityCachedTerms.clear();
     relationshipIdentityCache.clear();
     relationshipIdentityCachedTerms.clear();
+    stringClassIdentityCache.clear();
+    lexicalClassIdentityCache.clear();
   }
 }
