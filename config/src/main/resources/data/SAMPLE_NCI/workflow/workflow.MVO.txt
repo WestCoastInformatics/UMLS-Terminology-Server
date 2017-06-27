@@ -1,0 +1,42 @@
+{
+  "id": 54,
+  "lastModified": 1498226944000,
+  "lastModifiedBy": "admin",
+  "timestamp": 1498226943000,
+  "type": "MID_VALIDATION_OTHER",
+  "mutuallyExclusive": false,
+  "adminConfig": true,
+  "queryStyle": "OTHER",
+  "lastPartitionTime": null,
+  "projectId": 4101,
+  "workflowBinDefinitions": [
+    {
+      "id": 137,
+      "lastModified": 1498226943000,
+      "lastModifiedBy": "admin",
+      "timestamp": 1498226943000,
+      "name": "Atom with leading/trailing junk",
+      "description": "Finds atoms with leading or trailing whitespace or junk chars",
+      "query": "select c.id from atoms a, concepts_atoms ca, concepts c where ca.atoms_id = a.id and ca.concepts_id = c.id  and a.name like ' %' or a.name like '% '   and c.terminology = :terminology;",
+      "queryType": "SQL",
+      "editable": true,
+      "enabled": true,
+      "required": true,
+      "workflowConfigId": 54
+    },
+    {
+      "id": 138,
+      "lastModified": 1498226944000,
+      "lastModifiedBy": "admin",
+      "timestamp": 1498226944000,
+      "name": "Relationship group is null",
+      "description": "Finds atoms with leading or trailing whitespace or junk chars",
+      "query": "select r.id,'CONCEPT' from concept_relationships r where relGroup is nullunion all select r.id,'ATOM' from atom_relationships r where relGroup is nullunion all select r.id,'CODE' from code_relationships r where relGroup is nullunion all select r.id, 'DESCRIPTOR' from descriptor_relationships r where relGroup is nullunion all select r.id,'COMPONENT_INFO' from component_info_relationships r where relGroup is null",
+      "queryType": "SQL",
+      "editable": true,
+      "enabled": true,
+      "required": true,
+      "workflowConfigId": 54
+    }
+  ]
+}
