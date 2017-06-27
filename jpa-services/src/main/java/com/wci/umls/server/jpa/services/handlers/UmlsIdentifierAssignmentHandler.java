@@ -258,17 +258,17 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
 
         // Check if this identity has already been cached
         if (stringClassIdentityCache.containsKey(identity.getIdentityCode())) {
-          return convertId(stringClassIdentityCache.get(identity.getIdentityCode()),
-              "SUI");
-        }          
-        
-//        final StringClassIdentity identity2 =
-//            localService.getStringClassIdentity(identity);
-//
-//        // Reuse existing id
-//        if (identity2 != null) {
-//          return convertId(identity2.getId(), "SUI");
-//        }
+          return convertId(
+              stringClassIdentityCache.get(identity.getIdentityCode()), "SUI");
+        }
+
+        // final StringClassIdentity identity2 =
+        // localService.getStringClassIdentity(identity);
+        //
+        // // Reuse existing id
+        // if (identity2 != null) {
+        // return convertId(identity2.getId(), "SUI");
+        // }
         // else generate a new one and add it
         else {
           // Get next id
@@ -276,6 +276,9 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
           // Add new identity object
           identity.setId(nextId);
           localService.addStringClassIdentity(identity);
+          // Add identity to cache
+          stringClassIdentityCache.put(identity.getIdentityCode(),
+              identity.getId());
           return convertId(nextId, "SUI");
         }
       }
@@ -309,7 +312,6 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
         final LexicalClassIdentity identity = new LexicalClassIdentityJpa();
         identity.setLanguage(lexicalClass.getLanguage());
         identity.setNormalizedName(lexicalClass.getNormalizedName());
-        
 
         // If this is the first time this has been called,
         // cache the existing terminologyIds
@@ -319,17 +321,17 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
 
         // Check if this identity has already been cached
         if (lexicalClassIdentityCache.containsKey(identity.getIdentityCode())) {
-          return convertId(lexicalClassIdentityCache.get(identity.getIdentityCode()),
-              "LUI");
-        }        
+          return convertId(
+              lexicalClassIdentityCache.get(identity.getIdentityCode()), "LUI");
+        }
 
-//        final LexicalClassIdentity identity2 =
-//            localService.getLexicalClassIdentity(identity);
-//
-//        // Reuse existing id
-//        if (identity2 != null) {
-//          return convertId(identity2.getId(), "LUI");
-//        }
+        // final LexicalClassIdentity identity2 =
+        // localService.getLexicalClassIdentity(identity);
+        //
+        // // Reuse existing id
+        // if (identity2 != null) {
+        // return convertId(identity2.getId(), "LUI");
+        // }
         // else generate a new one and add it
         else {
           // Get next id
@@ -337,6 +339,9 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
           // Add new identity object
           identity.setId(nextId);
           localService.addLexicalClassIdentity(identity);
+          // Add identity to cache
+          lexicalClassIdentityCache.put(identity.getIdentityCode(),
+              identity.getId());
           return convertId(nextId, "LUI");
         }
       }
@@ -402,6 +407,8 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
           // Add new identity object
           identity.setId(nextId);
           localService.addAtomIdentity(identity);
+          // Add identity to cache
+          atomIdentityCache.put(identity.getIdentityCode(), identity.getId());
           return convertId(nextId, "AUI");
         }
       }
@@ -737,7 +744,7 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
           identity.setInverseId(0L);
 
           // Add new identity object
-          localService.addRelationshipIdentity(identity);
+          localService.addRelationshipIdentity(identity);        
 
           // Create inverse Relationship identity
           final RelationshipIdentity inverseIdentity =
@@ -757,6 +764,10 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
           // Update the identity objects with the true InverseId
           identity.setInverseId(nextIdInverse);
           localService.updateRelationshipIdentity(identity);
+
+          // Add identities to cache
+          relationshipIdentityCache.put(identity.getIdentityCode(), identity.getId());          
+          relationshipIdentityCache.put(inverseIdentity.getIdentityCode(), inverseIdentity.getId());          
 
           // return ID for called relationship (inverse can get called later)
           return convertId(nextId, "RUI");
