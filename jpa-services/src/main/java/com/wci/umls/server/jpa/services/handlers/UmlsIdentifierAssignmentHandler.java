@@ -93,6 +93,16 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
   private Map<String, Long> atomIdentityCache = new HashMap<>();
 
   /**
+   * String=string class identity code, Long=id
+   */
+  private Map<String, Long> stringClassIdentityCache = new HashMap<>();
+
+  /**
+   * String=lexical class identity code, Long=id
+   */
+  private Map<String, Long> lexicalClassIdentityCache = new HashMap<>();
+
+  /**
    * String=relationship identity code, Long=id
    */
   private Map<String, Long> relationshipIdentityCache = new HashMap<>();
@@ -240,13 +250,25 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
         identity.setName(stringClass.getName());
         identity.setLanguage(stringClass.getLanguage());
 
-        final StringClassIdentity identity2 =
-            localService.getStringClassIdentity(identity);
-
-        // Reuse existing id
-        if (identity2 != null) {
-          return convertId(identity2.getId(), "SUI");
+        // If this is the first time this has been called,
+        // cache the existing terminologyIds
+        if (stringClassIdentityCache.isEmpty()) {
+          cacheExistingStringClassIdentities();
         }
+
+        // Check if this identity has already been cached
+        if (stringClassIdentityCache.containsKey(identity.getIdentityCode())) {
+          return convertId(stringClassIdentityCache.get(identity.getIdentityCode()),
+              "SUI");
+        }          
+        
+//        final StringClassIdentity identity2 =
+//            localService.getStringClassIdentity(identity);
+//
+//        // Reuse existing id
+//        if (identity2 != null) {
+//          return convertId(identity2.getId(), "SUI");
+//        }
         // else generate a new one and add it
         else {
           // Get next id
@@ -287,14 +309,27 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
         final LexicalClassIdentity identity = new LexicalClassIdentityJpa();
         identity.setLanguage(lexicalClass.getLanguage());
         identity.setNormalizedName(lexicalClass.getNormalizedName());
+        
 
-        final LexicalClassIdentity identity2 =
-            localService.getLexicalClassIdentity(identity);
-
-        // Reuse existing id
-        if (identity2 != null) {
-          return convertId(identity2.getId(), "LUI");
+        // If this is the first time this has been called,
+        // cache the existing terminologyIds
+        if (lexicalClassIdentityCache.isEmpty()) {
+          cacheExistingLexicalClassIdentities();
         }
+
+        // Check if this identity has already been cached
+        if (lexicalClassIdentityCache.containsKey(identity.getIdentityCode())) {
+          return convertId(lexicalClassIdentityCache.get(identity.getIdentityCode()),
+              "LUI");
+        }        
+
+//        final LexicalClassIdentity identity2 =
+//            localService.getLexicalClassIdentity(identity);
+//
+//        // Reuse existing id
+//        if (identity2 != null) {
+//          return convertId(identity2.getId(), "LUI");
+//        }
         // else generate a new one and add it
         else {
           // Get next id
@@ -525,6 +560,48 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
 
     // Add this terminology to the cached set.
     atomIdentityCachedTerms.add(terminology);
+  }
+
+  private void cacheExistingStringClassIdentities() throws Exception {
+
+    Logger.getLogger(getClass()).info("Loading String Class Identities");
+
+    final Session session =
+        getService().getEntityManager().unwrap(Session.class);
+    final org.hibernate.Query hQuery = session
+        .createSQLQuery("select id, name, language from string_class_identity");
+    hQuery.setReadOnly(true).setFetchSize(100000).setCacheable(false);
+    final ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+    while (results.next()) {
+
+      final Long id = ((BigInteger) results.get()[0]).longValue();
+      final String name = (String) results.get()[1];
+      final String language = (String) results.get()[2];
+      final String identityCode = name + language;
+      stringClassIdentityCache.put(identityCode, id);
+    }
+    results.close();
+  }
+
+  private void cacheExistingLexicalClassIdentities() throws Exception {
+
+    Logger.getLogger(getClass()).info("Loading Lexical Class Identities");
+
+    final Session session =
+        getService().getEntityManager().unwrap(Session.class);
+    final org.hibernate.Query hQuery = session.createSQLQuery(
+        "select id, language, normalizedName from lexical_class_identity");
+    hQuery.setReadOnly(true).setFetchSize(100000).setCacheable(false);
+    final ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+    while (results.next()) {
+
+      final Long id = ((BigInteger) results.get()[0]).longValue();
+      final String language = (String) results.get()[1];
+      final String normalizedName = (String) results.get()[2];
+      final String identityCode = language + normalizedName;
+      lexicalClassIdentityCache.put(identityCode, id);
+    }
+    results.close();
   }
 
   private void cacheExistingRelationshipIdentities(String terminology)
