@@ -345,8 +345,12 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     }
 
     // Add new notes and wire them to "to" concept
-    for (Note newNote : fromNotesCopies) {
-      getToConcept().getNotes().add(newNote);
+    for (Note note : fromNotesCopies) {
+      note.setId(null);
+      final Note newNote = addNote(note);
+      final ConceptNoteJpa conceptNote = (ConceptNoteJpa) newNote;
+      conceptNote.setConcept(getToConcept());
+      getToConcept().getNotes().add(conceptNote);
     }
 
     //

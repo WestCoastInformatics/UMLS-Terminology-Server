@@ -3591,9 +3591,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
       queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
           + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId, "
           + "a.obsolete, a.suppressible, a.published, a.publishable, "
-//          + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
-          + "c2.name, c2.id "
-          + ", a.workflowStatus " + ", a.lastModifiedBy, a.lastModified "
+          // + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
+          + "c2.name, c2.id " + ", a.workflowStatus "
+          + ", a.lastModifiedBy, a.lastModified "
           + "from AtomRelationshipJpa a, ConceptJpa c2 join c2.atoms ca "
           + "where c2.terminology = :terminology and c2.version = :version and "
           + (inverseFlag ? "a.from.id in (ca.id) " : "a.to.id in (ca.id) ")
@@ -3616,9 +3616,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
       queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
           + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId,       "
           + "a.obsolete, a.suppressible, a.published, a.publishable, "
-//          + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
-          + "c2.name, c2.id "
-          + ", a.workflowStatus " + ", a.lastModifiedBy, a.lastModified "
+          // + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
+          + "c2.name, c2.id " + ", a.workflowStatus "
+          + ", a.lastModifiedBy, a.lastModified "
           + "from ConceptRelationshipJpa a, ConceptJpa b, AtomJpa c, "
           + "ConceptJpa d, AtomJpa e, ConceptJpa c2 join c2.atoms ca "
           + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
@@ -3641,9 +3641,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
       queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
           + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId,       "
           + "a.obsolete, a.suppressible, a.published, a.publishable, "
-//          + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
-          + "c2.name, c2.id "
-          + ", a.workflowStatus " + ", a.lastModifiedBy, a.lastModified "
+          // + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
+          + "c2.name, c2.id " + ", a.workflowStatus "
+          + ", a.lastModifiedBy, a.lastModified "
           + "from DescriptorRelationshipJpa a, DescriptorJpa b, AtomJpa c, "
           + "DescriptorJpa d, AtomJpa e, ConceptJpa c2 join c2.atoms ca "
           + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
@@ -3666,9 +3666,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
       queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
           + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId,       "
           + "a.obsolete, a.suppressible, a.published, a.publishable, "
-//          + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
-          + "c2.name, c2.id "
-          + ", a.workflowStatus " + ", a.lastModifiedBy, a.lastModified "
+          // + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
+          + "c2.name, c2.id " + ", a.workflowStatus "
+          + ", a.lastModifiedBy, a.lastModified "
           + "from CodeRelationshipJpa a, CodeJpa b, AtomJpa c, "
           + "CodeJpa d, AtomJpa e, ConceptJpa c2 join c2.atoms ca " + "where a."
           + (inverseFlag ? "to" : "from") + ".id = b.id "
@@ -4631,6 +4631,35 @@ public class ContentServiceJpa extends MetadataServiceJpa
     // Add component
     Note newNote = addHasLastModified(note);
 
+    // Note-specific handling
+    // check that a molecular action exists
+    MolecularAction molecularAction = null;
+    try {
+      molecularAction = getMolecularAction();
+    } catch (Exception e) {
+      // do nothing
+    }
+    if (molecularAction != null) {
+
+      // construct the atomic action
+
+      final AtomicAction atomicAction = new AtomicActionJpa();
+      atomicAction.setField("id");
+      atomicAction.setIdType(IdType.NOTE);
+      atomicAction.setClassName(note.getClass().getName());
+      atomicAction.setMolecularAction(molecularAction);
+      atomicAction.setOldValue(null);
+      atomicAction.setNewValue(note.getId().toString());
+      atomicAction.setObjectId(note.getId());
+
+      // persist the atomic action and add the persisted version to the
+      // molecular action
+      final AtomicAction newAtomicAction = addAtomicAction(atomicAction);
+
+      molecularAction.getAtomicActions().add(newAtomicAction);
+
+    }
+
     // do not inform listeners
     return newNote;
   }
@@ -4640,6 +4669,29 @@ public class ContentServiceJpa extends MetadataServiceJpa
   public void removeNote(Long id, Class<? extends Note> type) throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Service - remove userNote " + id);
+
+    // check that a molecular action exists
+    MolecularAction molecularAction = null;
+    try {
+      molecularAction = getMolecularAction();
+    } catch (Exception e) {
+      // do nothing
+    }
+    if (molecularAction != null) {
+      // construct the atomic action
+      final AtomicAction atomicAction = new AtomicActionJpa();
+      atomicAction.setField("id");
+      atomicAction.setIdType(IdType.NOTE);
+      atomicAction.setClassName(type.getName());
+      atomicAction.setMolecularAction(molecularAction);
+      atomicAction.setObjectId(id);
+      atomicAction.setOldValue(id.toString());
+      atomicAction.setNewValue(null);
+      final AtomicAction newAtomicAction = addAtomicAction(atomicAction);
+
+      molecularAction.getAtomicActions().add(newAtomicAction);
+    }
+
     // Remove the note
     removeHasLastModified(id, type);
 
