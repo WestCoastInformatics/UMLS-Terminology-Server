@@ -220,7 +220,8 @@
             ng-class="{selected : concept.id == selected.component.id}"
             class="{{concept.workflowStatus}}">
             <td>{{concept.id}}</td>
-            <td>{{concept.terminologyId}}</td>
+            <td ng-show="concept.terminologyId != concept.id">{{concept.terminologyId}}</td>
+            <td ng-show="concept.terminologyId == concept.id"></td>
             <td>{{concept.name}}</td>
             <td>
               <span ng-repeat='sty in concept.semanticTypes'>

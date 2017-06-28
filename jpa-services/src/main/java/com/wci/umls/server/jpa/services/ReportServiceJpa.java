@@ -158,7 +158,8 @@ public class ReportServiceJpa extends HistoryServiceJpa
     sb.append(getOpenStyleTag(comp.getWorkflowStatus(), comp.isPublishable(),
         comp.isObsolete(), false, decorate));
     sb.append("CUI ");
-    sb.append(comp.getTerminologyId()).append("\t");
+    sb.append(comp.getTerminologyId().equals(comp.getId().toString()) ? 
+        "        " : comp.getTerminologyId()).append("\t");
     sb.append("Concept Status is ")
         .append(getStatusChar(comp.getWorkflowStatus())).append("\r\n");
     sb.append(getCloseStyleTag(comp.getWorkflowStatus(), comp.isPublishable(),
