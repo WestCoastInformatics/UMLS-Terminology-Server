@@ -37,7 +37,7 @@
           ng-bind="getSortIndicator('atoms','lastModifiedBy')"></span></th>
       <th class="col-md-1 col-xs-1"><span style="float: right;">
           <button ng-click="openAddAtomModal(luser)" title="Add atom"
-            ng-disabled="editingDisabled()" class="btn btn-xs btn-primary">Add
+            ng-show="selected.projectRole != 'AUTHOR'" ng-disabled="editingDisabled()" class="btn btn-xs btn-primary">Add
             Atom</button>
         </span></th>
     </tr>
