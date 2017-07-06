@@ -207,6 +207,7 @@ public class AttributeLoaderAlgorithm
                       clazz);
 
               containingComponent.getAttributes().remove(attribute);
+              updateComponent(containingComponent);
               removeAttribute(attributeId);
               attributeRemoveCount++;
             }
