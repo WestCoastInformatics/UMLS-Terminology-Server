@@ -29,9 +29,16 @@ tsApp
         $scope.messages = [];
 
         // Validate email
-        function validateEmail(email) {
-          var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-          return re.test(email);
+        function validateEmail(emailList) {
+          var emails = emailList.split(";");
+          var regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+          for (var i = 0; i < emails.length; i++) {
+            emails[i] = emails[i].trim();
+            if( emails[i] == "" || !regex.test(emails[i])){
+                return false;
+            }
+          }
+          return true;
         }
 
         // Update process
