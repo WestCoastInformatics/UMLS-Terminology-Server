@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import javax.persistence.NoResultException;
 
 import org.apache.log4j.Logger;
+import org.apache.lucene.queryparser.classic.QueryParserBase;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
@@ -386,8 +387,9 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
             + project.getId() + ", " + type);
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
+    
     final List<WorkflowConfigJpa> results = searchHandler.getQueryResults(null,
-        null, "", composeQuery(project, "") + " AND type:" + type, "",
+        null, "", composeQuery(project, "") + " AND type:\"" + QueryParserBase.escape(type) + "\"", "",
         WorkflowConfigJpa.class, null, totalCt, manager);
 
     if (results.size() == 0) {
