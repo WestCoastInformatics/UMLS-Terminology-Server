@@ -6,8 +6,6 @@ package com.wci.umls.server.jpa.algo.insert;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.LineNumberReader;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -104,14 +102,14 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       //
       // Load the classes_atoms.src file
       //
-      final Long numberOfLines = numberOfLines(getSrcDirFile(),
-          "classes_atoms.src", null, null);
-      //final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
-      //    "classes_atoms.src", null, null);
+      final Long numberOfLines =
+          numberOfLines(getSrcDirFile(), "classes_atoms.src", null, null);
+      // final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
+      // "classes_atoms.src", null, null);
 
       logInfo("  Process classes_atoms.src");
       commitClearBegin();
-      
+
       // Set the number of steps to the number of atoms to be processed
       setSteps(numberOfLines.intValue());
 
@@ -120,7 +118,8 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       String previousVersion = null;
       String latestVersion = null;
 
-      final String sourcesFile = getSrcDirFile() + File.separator + "classes_atoms.src";
+      final String sourcesFile =
+          getSrcDirFile() + File.separator + "classes_atoms.src";
       BufferedReader sources = null;
       try {
         sources = new BufferedReader(new FileReader(sourcesFile));
@@ -131,12 +130,12 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       String line = null;
       while ((line = sources.readLine()) != null) {
         line = line.replace("\r", "");
-      
-      // Each line of classes_atoms.src corresponds to one atom.
-      // Check to make sure the atom doesn't already exist in the database
-      // If it does, skip it.
-      // If it does not, add it.
-      //for (final String line : lines) {
+
+        // Each line of classes_atoms.src corresponds to one atom.
+        // Check to make sure the atom doesn't already exist in the database
+        // If it does, skip it.
+        // If it does not, add it.
+        // for (final String line : lines) {
 
         // Check for a cancelled call once every 100 lines
         if (getStepsCompleted() % 100 == 0) {
@@ -409,7 +408,8 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
    */
   private void reconcileCodeConceptDescriptor(Atom atom) throws Exception {
     // Check map to see if code already exists
-    if (!atom.getCodeId().isEmpty()) {
+    // ONLY handle codes if it is not the NOCODE code
+    if (!atom.getCodeId().isEmpty() && !atom.getCodeId().equals("NOCODE")) {
 
       // Use getComponent because it caches stuff in the background
       final Code existingCode = (Code) getComponent("CODE_SOURCE",

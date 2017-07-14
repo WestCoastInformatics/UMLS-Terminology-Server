@@ -3416,7 +3416,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     objectCt = 0;
     query = getEntityManager()
         .createQuery("select a.id from AtomJpa a where codeId is not null "
-            + "and codeId != '' and timestamp = :timestamp "
+            + "and codeId != '' and codeId != 'NOCODE' and timestamp = :timestamp "
             + "order by terminology, codeId");
     query.setParameter("timestamp", releaseVersionDate);
     ids = query.getResultList();

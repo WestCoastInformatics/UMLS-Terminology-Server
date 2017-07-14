@@ -200,6 +200,16 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    */
   private static Map<String, Terminology> cachedTerminologies = new HashMap<>();
 
+  /**
+   * Number of lines.
+   *
+   * @param srcDirFile the src dir file
+   * @param fileName the file name
+   * @param keepRegexFilter the keep regex filter
+   * @param skipRegexFilter the skip regex filter
+   * @return the long
+   * @throws Exception the exception
+   */
   @SuppressWarnings("static-method")
   public Long numberOfLines(File srcDirFile, String fileName,
     String keepRegexFilter, String skipRegexFilter) throws Exception {
@@ -601,9 +611,6 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   private void cacheExistingConceptIds(String terminology) throws Exception {
 
     // Skip concepts where terminologyId is blank, no point
-    // TODO: for "CUI" things, we really should be looking at the new version
-    // MTH alternate terminology ids for this., but ONLY for the UMLS
-    // insertion...
     final Query query =
         getEntityManager().createQuery("select c.terminologyId, c.id "
             + "from ConceptJpa c where terminology = :terminology AND publishable = true "
@@ -679,7 +686,12 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       precedenceList = getPrecedenceList(getProject().getTerminology(),
           getProject().getVersion());
     }
+
+    // Since this is pulling full atom objects, need to commit/clear every so
+    // often
+    int count = 0;
     for (final String key : atomsMap.keySet()) {
+      count++;
       final Map<Atom, Long> atoms = new HashMap<>();
       for (final Long[] ids : atomsMap.get(key)) {
         final Long atomId = ids[0];
@@ -688,6 +700,10 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       }
       final Atom prefAtom =
           handler.sortAtoms(atoms.keySet(), precedenceList).get(0);
+
+      if (count % commitCt == 0) {
+        commitClearBegin();
+      }
 
       cuiPreferredAtomConceptIdCache.put(key + terminologyVersion,
           atoms.get(prefAtom));

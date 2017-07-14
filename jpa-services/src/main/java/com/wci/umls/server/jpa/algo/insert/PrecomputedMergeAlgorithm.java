@@ -140,6 +140,8 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
       //
       // Load the mergefacts.src file
       //
+      final Long numberOfLines = numberOfLines(getSrcDirFile(),
+          "mergefacts.src", "(.*)"+mergeSet+"(.*)", null);
       final List<String> lines =
           loadFileIntoStringList(getSrcDirFile(), "mergefacts.src", "(.*)"+mergeSet+"(.*)", null);
 
