@@ -111,6 +111,9 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       final String fields[] = new String[15];
 
+      String previousVersion = null;
+      String latestVersion = null;
+
       // Each line of classes_atoms.src corresponds to one atom.
       // Check to make sure the atom doesn't already exist in the database
       // If it does, skip it.
@@ -216,33 +219,43 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         // terminology's version, also make new atom instead of reusing.
         boolean makeNewAtom = false;
         if (oldAtom != null && !ConfigUtility.isEmpty(fields[14])) {
-          final String previousVersion =
-              getPreviousVersion(getProcess().getTerminology());
+          // If previous version has not been looked up yet, attempt to.
           if (previousVersion == null) {
-            throw new Exception(
-                "WARNING - previous version not found for terminology = "
-                    + getProcess().getTerminology());
-          } else {
-            final String oldLastReleaseCui = oldAtom.getConceptTerminologyIds()
-                .get(getProcess().getTerminology() + previousVersion);
-            final String latestLastReleaseCui = oldAtom
-                .getConceptTerminologyIds().get(getProcess().getTerminology()
-                    + getLatestVersion(getProcess().getTerminology()));
-            // If a last_releas_cui is found for the insertion's terminology and
-            // version, it means this atom was already handled on a previous run
-            // of AtomLoader.
-            if (latestLastReleaseCui != null) {
-              // do nothing
+            previousVersion = getPreviousVersion(getProcess().getTerminology());
+            if (previousVersion == null) {
+              throw new Exception(
+                  "WARNING - previous version not found for terminology = "
+                      + getProcess().getTerminology());
             }
-            // All other existing atoms should have a last_release_cui. If not
-            // found, warn.
-            else if (oldLastReleaseCui == null) {
-              logWarn("WARNING - last release cui not found for atom "
-                  + fields[7] + " for terminology/version = "
-                  + getProcess().getTerminology() + previousVersion);
-            } else if (!oldLastReleaseCui.equals(fields[14])) {
-              makeNewAtom = true;
+          }
+          // If latest version has not been looked up yet, attempt to.
+          if (latestVersion == null) {
+            latestVersion = getLatestVersion(getProcess().getTerminology());
+            if (latestVersion == null) {
+              throw new Exception(
+                  "WARNING - latest version not found for terminology = "
+                      + getProcess().getTerminology());
             }
+          }
+
+          final String oldLastReleaseCui = oldAtom.getConceptTerminologyIds()
+              .get(getProcess().getTerminology() + previousVersion);
+          final String latestLastReleaseCui = oldAtom.getConceptTerminologyIds()
+              .get(getProcess().getTerminology() + latestVersion);
+          // If a last_releas_cui is found for the insertion's terminology and
+          // version, it means this atom was already handled on a previous run
+          // of AtomLoader.
+          if (latestLastReleaseCui != null) {
+            // do nothing
+          }
+          // All other existing atoms should have a last_release_cui. If not
+          // found, warn.
+          else if (oldLastReleaseCui == null) {
+            logWarn("WARNING - last release cui not found for atom " + fields[7]
+                + " for terminology/version = " + getProcess().getTerminology()
+                + previousVersion);
+          } else if (!oldLastReleaseCui.equals(fields[14])) {
+            makeNewAtom = true;
           }
         }
 
@@ -271,7 +284,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
           addCount++;
           putComponent(newAtom2, newAtomAui);
-          if(!ConfigUtility.isEmpty(newAtom2.getTerminologyId())){
+          if (!ConfigUtility.isEmpty(newAtom2.getTerminologyId())) {
             putComponent(newAtom2, newAtom2.getTerminologyId());
           }
 
@@ -352,7 +365,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       // Clear the caches to free up memory
       clearCaches();
-      
+
       commitClearBegin();
       handler.commit();
 

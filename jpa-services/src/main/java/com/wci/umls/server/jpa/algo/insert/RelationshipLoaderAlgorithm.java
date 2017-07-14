@@ -54,7 +54,7 @@ public class RelationshipLoaderAlgorithm
 
   /** The replace flag (only set to true by ReplaceRelationshipAlgorithm). */
   protected Boolean replace = false;
-  
+
   /**
    * Instantiates an empty {@link RelationshipLoaderAlgorithm}.
    * @throws Exception if anything goes wrong
@@ -260,7 +260,10 @@ public class RelationshipLoaderAlgorithm
         final String fromTermAndVersion = fields2[13];
         final String fromClassIdType = fields2[12];
         final String toTermId = fields2[14];
-        final String toTermAndVersion = fields2[16];
+        String toTermAndVersion = fields2[16];
+        if (toTermAndVersion == null) {
+          toTermAndVersion = "";
+        }
         final String toClassIdType = fields2[15];
         final String additionalRelType = fields2[2];
         final String group = fields2[10];
@@ -284,7 +287,7 @@ public class RelationshipLoaderAlgorithm
 
       // Clear the caches to free up memory
       clearCaches();
-      
+
       commitClearBegin();
       handler.commit();
 
@@ -386,9 +389,7 @@ public class RelationshipLoaderAlgorithm
           null);
     } else {
       fromComponent = getComponent(fromClassIdType, fromTermId,
-          getProcess().getTerminology()
-              + getProcess().getVersion(),
-          null);
+          getProcess().getTerminology() + getProcess().getVersion(), null);
     }
 
     if (fromComponent == null) {
@@ -407,9 +408,8 @@ public class RelationshipLoaderAlgorithm
                   : getCachedTerminology(toTermAndVersion).getTerminology(),
               null);
     } else {
-      toComponent =
-          getComponent(toClassIdType, toTermId, getProcess().getTerminology()
-              + getProcess().getVersion(), null);
+      toComponent = getComponent(toClassIdType, toTermId,
+          getProcess().getTerminology() + getProcess().getVersion(), null);
     }
 
     if (toComponent == null) {
@@ -533,7 +533,7 @@ public class RelationshipLoaderAlgorithm
 
       addCount++;
       putComponent(newRelationship, newRelationshipRui);
-      if(!ConfigUtility.isEmpty(newRelationship.getTerminologyId())){
+      if (!ConfigUtility.isEmpty(newRelationship.getTerminologyId())) {
         putComponent(newRelationship, newRelationship.getTerminologyId());
       }
 
@@ -592,7 +592,7 @@ public class RelationshipLoaderAlgorithm
 
       addCount++;
       putComponent(newComp, newInverseRelationshipRui);
-      if(!ConfigUtility.isEmpty(newComp.getTerminologyId())){
+      if (!ConfigUtility.isEmpty(newComp.getTerminologyId())) {
         putComponent(newComp, newComp.getTerminologyId());
       }
 
