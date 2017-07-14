@@ -630,7 +630,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
           getProject().getVersion());
     }
     for (final String key : atomsMap.keySet()) {
-      final Map<Atom, Long> atoms = new HashMap<>();
+      Map<Atom, Long> atoms = new HashMap<>();
       for (final Long[] ids : atomsMap.get(key)) {
         final Long atomId = ids[0];
         final Long conceptId = ids[1];
@@ -640,7 +640,10 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
           handler.sortAtoms(atoms.keySet(), precedenceList).get(0);
 
       cuiPreferredAtomConceptIdCache.put(key + terminologyVersion,
-          atoms.get(prefAtom));
+          atoms.get(prefAtom).longValue());
+      
+      //Clear out atoms, to ensure Garbage Collection
+      atoms = null;
     }
 
     // Add this terminology to the cached set.
