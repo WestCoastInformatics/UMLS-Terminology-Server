@@ -67,7 +67,7 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     checkFileExist(srcFullPath, "contexts.src");
     checkFileExist(srcFullPath, "mergefacts.src");
     checkFileExist(srcFullPath, "MRDOC.RRF");
-    checkFileExist(srcFullPath, "relationships.src  ");
+    checkFileExist(srcFullPath, "relationships.src");
     checkFileExist(srcFullPath, "sources.src");
     checkFileExist(srcFullPath, "termgroups.src");
 
