@@ -407,7 +407,11 @@ public class RelationshipLoaderAlgorithm
         final String fromTermAndVersion = fields2[13];
         final String fromClassIdType = fields2[12];
         final String toTermId = fields2[14];
-        final String toTermAndVersion = fields2[16];
+        String toTermAndVersion = fields2[16];
+        // UMLS insertions may be missing the final pipe. If so, set to ""
+        if (toTermAndVersion == null) {
+          toTermAndVersion = "";
+        }
         final String toClassIdType = fields2[15];
         final String additionalRelType = fields2[2];
         final String group = fields2[10];

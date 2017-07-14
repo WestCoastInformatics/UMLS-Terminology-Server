@@ -6,6 +6,7 @@ package com.wci.umls.server.jpa.algo;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -200,6 +201,66 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   private static Map<String, Terminology> cachedTerminologies = new HashMap<>();
 
   /**
+   * Number of lines.
+   *
+   * @param srcDirFile the src dir file
+   * @param fileName the file name
+   * @param keepRegexFilter the keep regex filter
+   * @param skipRegexFilter the skip regex filter
+   * @return the long
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  public Long numberOfLines(File srcDirFile, String fileName,
+    String keepRegexFilter, String skipRegexFilter) throws Exception {
+    Long numberOfLines = 0L;
+    final String sourcesFile = srcDirFile + File.separator + fileName;
+    // If no filters, just get number of lines (fastest)
+    if (keepRegexFilter == null && skipRegexFilter == null) {
+      LineNumberReader lnr = new LineNumberReader(new FileReader(sourcesFile));
+      lnr.skip(Long.MAX_VALUE);
+      numberOfLines = Long.valueOf(lnr.getLineNumber());
+      lnr.close();
+      return numberOfLines;
+    }
+
+    // Otherwise, read through file, skipping/keeping lines based on regex
+    // (slower)
+    BufferedReader sources = null;
+    try {
+      sources = new BufferedReader(new FileReader(sourcesFile));
+    } catch (Exception e) {
+      throw new Exception("File not found: " + sourcesFile);
+    }
+
+    String linePre = null;
+    while ((linePre = sources.readLine()) != null) {
+      // Filter rows
+      if (!ConfigUtility.isEmpty(keepRegexFilter)
+          && ConfigUtility.isEmpty(skipRegexFilter)) {
+        if (linePre.matches(keepRegexFilter)) {
+          numberOfLines += 1L;
+        }
+      } else if (ConfigUtility.isEmpty(keepRegexFilter)
+          && !ConfigUtility.isEmpty(skipRegexFilter)) {
+        if (!linePre.matches(skipRegexFilter)) {
+          numberOfLines += 1L;
+        }
+      } else if (!ConfigUtility.isEmpty(keepRegexFilter)
+          && !ConfigUtility.isEmpty(skipRegexFilter)) {
+        if (linePre.matches(keepRegexFilter)
+            && !linePre.matches(skipRegexFilter)) {
+          numberOfLines += 1L;
+        }
+      }
+    }
+
+    sources.close();
+
+    return numberOfLines;
+  }
+
+  /**
    * Load file into string list.
    *
    * @param srcDirFile the src dir file
@@ -379,14 +440,14 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     final List<String> relationshipPrefixes =
         Arrays.asList("Atom", "Code", "Concept", "Descriptor", "ComponentInfo");
 
-    // Get alternate terminology Ids for ConceptRelationships, CodeRelationships, and
+    // Get alternate terminology Ids for ConceptRelationships,
+    // CodeRelationships, and
     // ComponentInfoRelationships.
     for (String relPrefix : relationshipPrefixes) {
-      Query query = getEntityManager()
-          .createQuery("select value(b), a.id from " + relPrefix
-              + "RelationshipJpa a join a.alternateTerminologyIds b "
-              + "where KEY(b)  = :altTerminologyKey and "
-              + "a.terminology = :terminology and a.publishable=true");
+      Query query = getEntityManager().createQuery("select value(b), a.id from "
+          + relPrefix + "RelationshipJpa a join a.alternateTerminologyIds b "
+          + "where KEY(b)  = :altTerminologyKey and "
+          + "a.terminology = :terminology and a.publishable=true");
       query.setParameter("terminology", terminology);
       query.setParameter("altTerminologyKey", altTerminologyKey);
 
@@ -400,12 +461,11 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
         final Long id = Long.valueOf(entry[1].toString());
         relIdCache.put(terminologyId, id);
       }
-      
 
       // Get terminologyIds as well (for SOURCE_RUI sg_types)
-      query = getEntityManager()
-          .createQuery("select a.terminologyId, a.id from " + relPrefix
-              + "RelationshipJpa a "
+      query =
+          getEntityManager().createQuery("select a.terminologyId, a.id from "
+              + relPrefix + "RelationshipJpa a "
               + "WHERE a.terminology = :terminology AND a.terminologyId != '' "
               + "and a.publishable=true");
       query.setParameter("terminology", terminology);
@@ -551,9 +611,6 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   private void cacheExistingConceptIds(String terminology) throws Exception {
 
     // Skip concepts where terminologyId is blank, no point
-    // TODO: for "CUI" things, we really should be looking at the new version
-    // MTH alternate terminology ids for this., but ONLY for the UMLS
-    // insertion...
     final Query query =
         getEntityManager().createQuery("select c.terminologyId, c.id "
             + "from ConceptJpa c where terminology = :terminology AND publishable = true "
@@ -629,7 +686,12 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       precedenceList = getPrecedenceList(getProject().getTerminology(),
           getProject().getVersion());
     }
+
+    // Since this is pulling full atom objects, need to commit/clear every so
+    // often
+    int count = 0;
     for (final String key : atomsMap.keySet()) {
+      count++;
       final Map<Atom, Long> atoms = new HashMap<>();
       for (final Long[] ids : atomsMap.get(key)) {
         final Long atomId = ids[0];
@@ -638,6 +700,10 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       }
       final Atom prefAtom =
           handler.sortAtoms(atoms.keySet(), precedenceList).get(0);
+
+      if (count % commitCt == 0) {
+        commitClearBegin();
+      }
 
       cuiPreferredAtomConceptIdCache.put(key + terminologyVersion,
           atoms.get(prefAtom));
@@ -702,7 +768,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     } else if (component instanceof Definition) {
       definitionIdCache.put(terminologyId, component.getId().longValue());
     } else if (component instanceof Descriptor) {
-      descriptorIdCache.put(terminologyId + component.getTerminology().toString(),
+      descriptorIdCache.put(
+          terminologyId + component.getTerminology().toString(),
           component.getId().longValue());
     }
 
@@ -732,12 +799,11 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
         cacheExistingAtomIds(getProject().getTerminology());
       }
       final Long componentId = atomIdCache.get(terminologyId);
-      if(componentId == null){
+      if (componentId == null) {
         return null;
       }
-      
-      final Atom atom =
-          getComponent(componentId, AtomJpa.class);
+
+      final Atom atom = getComponent(componentId, AtomJpa.class);
       // Handle lazy init
       if (atom != null) {
         atom.getAlternateTerminologyIds().size();
@@ -751,12 +817,11 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
         cacheExistingAtomIds(getProject().getTerminology() + "-SRC");
       }
       final Long componentId = atomIdCache.get(terminologyId);
-      if(componentId == null){
+      if (componentId == null) {
         return null;
       }
-      
-      final Atom atom =
-          getComponent(componentId, AtomJpa.class);
+
+      final Atom atom = getComponent(componentId, AtomJpa.class);
       // Handle lazy init
       if (atom != null) {
         atom.getAlternateTerminologyIds().size();
@@ -770,12 +835,11 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
         cacheExistingAtomIds(terminology);
       }
       final Long componentId = atomIdCache.get(terminologyId);
-      if(componentId == null){
+      if (componentId == null) {
         return null;
       }
-      
-      final Atom atom =
-          getComponent(componentId, AtomJpa.class);
+
+      final Atom atom = getComponent(componentId, AtomJpa.class);
       // Handle lazy init
       if (atom != null) {
         atom.getAlternateTerminologyIds().size();
@@ -790,12 +854,11 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
         cacheExistingAttributeIds(getProject().getTerminology(), terminology);
       }
       final Long componentId = attributeIdCache.get(terminologyId);
-      if(componentId == null){
+      if (componentId == null) {
         return null;
       }
-      
-      final Attribute attribute =
-          getComponent(componentId, AttributeJpa.class);
+
+      final Attribute attribute = getComponent(componentId, AttributeJpa.class);
       // Handle lazy init
       if (attribute != null) {
         attribute.getAlternateTerminologyIds().size();
@@ -808,12 +871,11 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
         cacheExistingCodeIds(terminology);
       }
       final Long componentId = codeIdCache.get(terminologyId + terminology);
-      if(componentId == null){
+      if (componentId == null) {
         return null;
       }
-      
-      return getComponent(componentId,
-          CodeJpa.class);
+
+      return getComponent(componentId, CodeJpa.class);
     }
 
     else if (type.equals("SOURCE_CUI")) {
@@ -821,26 +883,24 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
         cacheExistingConceptIds(terminology);
       }
       final Long componentId = conceptIdCache.get(terminologyId + terminology);
-      if(componentId == null){
+      if (componentId == null) {
         return null;
       }
-      
-      return getComponent(componentId,
-          ConceptJpa.class);
+
+      return getComponent(componentId, ConceptJpa.class);
     }
 
     else if (type.equals("CUI")) {
       if (!cuiPreferredAtomConceptCachedTerms.contains(terminology)) {
         cacheExistingCuiPreferredAtomConceptIds(terminology);
       }
-      final Long componentId = cuiPreferredAtomConceptIdCache.get(terminologyId + terminology);
-      if(componentId == null){
+      final Long componentId =
+          cuiPreferredAtomConceptIdCache.get(terminologyId + terminology);
+      if (componentId == null) {
         return null;
       }
-      
-      return getComponent(
-          componentId,
-          ConceptJpa.class);
+
+      return getComponent(componentId, ConceptJpa.class);
     }
 
     else if (type.equals("DEFINITION")) {
@@ -849,12 +909,12 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
         cacheExistingDefinitionIds(getProject().getTerminology(), terminology);
       }
       final Long componentId = definitionIdCache.get(terminologyId);
-      if(componentId == null){
+      if (componentId == null) {
         return null;
       }
-      
-      final Definition definition = getComponent(
-          componentId, DefinitionJpa.class);
+
+      final Definition definition =
+          getComponent(componentId, DefinitionJpa.class);
       // Handle lazy init
       if (definition != null) {
         definition.getAlternateTerminologyIds().size();
@@ -866,13 +926,13 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (!descriptorCachedTerms.contains(terminology)) {
         cacheExistingDescriptorIds(terminology);
       }
-      final Long componentId = descriptorIdCache.get(terminologyId + terminology);
-      if(componentId == null){
+      final Long componentId =
+          descriptorIdCache.get(terminologyId + terminology);
+      if (componentId == null) {
         return null;
       }
-      
-      return getComponent(componentId,
-          DescriptorJpa.class);
+
+      return getComponent(componentId, DescriptorJpa.class);
     }
 
     else if (type.equals("RUI") || type.equals("SOURCE_RUI")) {
@@ -882,12 +942,11 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
             terminology);
       }
       final Long componentId = relIdCache.get(terminologyId);
-      if(componentId == null){
+      if (componentId == null) {
         return null;
       }
-      
-      final Relationship relationship =
-          getComponent(componentId, relClass);
+
+      final Relationship relationship = getComponent(componentId, relClass);
       // Handle lazy init
       if (relationship != null) {
         relationship.getAlternateTerminologyIds().size();
@@ -902,12 +961,11 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
             terminology);
       }
       final Long componentId = relIdCache.get(terminologyId);
-      if(componentId == null){
+      if (componentId == null) {
         return null;
       }
-      
-      final Relationship relationship =
-          getComponent(componentId, relClass);
+
+      final Relationship relationship = getComponent(componentId, relClass);
       // Handle lazy init
       if (relationship != null) {
         relationship.getAlternateTerminologyIds().size();

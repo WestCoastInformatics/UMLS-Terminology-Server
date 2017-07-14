@@ -140,8 +140,10 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
       //
       // Load the mergefacts.src file
       //
+      final Long numberOfLines = numberOfLines(getSrcDirFile(),
+          "mergefacts.src", "(.*)"+mergeSet+"(.*)", null);
       final List<String> lines =
-          loadFileIntoStringList(getSrcDirFile(), "mergefacts.src", null, null);
+          loadFileIntoStringList(getSrcDirFile(), "mergefacts.src", "(.*)"+mergeSet+"(.*)", null);
 
       // Set the number of steps to twice the number of lines to be processed
       // This is so processing the mergefacts.src will show up as 50% of the
@@ -157,6 +159,8 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
       final String fields[] = new String[12];
 
+      String previousVersion = getPreviousVersion(getProcess().getTerminology());
+      
       for (final String line : lines) {
 
         // Check for a cancelled call once every 100 lines
@@ -182,12 +186,6 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
         // e.g.
         // 362249700|SY|362281363|NCI_2016_05E||Y|N|NCI-SY|SRC_ATOM_ID||SRC_ATOM_ID||
-
-        // If this lines mergeSet doesn't match the specified mergeSet, skip.
-        if (!fields[7].equals(mergeSet)) {
-          updateProgress();
-          continue;
-        }
 
         // Use the first line encountered to set changeStatus and makeDemotions
         // (they will be the same for the entire merge set)
@@ -216,9 +214,7 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
           if (component == null) {
             component =
                 getComponent(fields[8], fields[0],
-                    getProcess().getTerminology()
-                        + getPreviousVersion(getProcess().getTerminology()),
-                    null);
+                    getProcess().getTerminology() + previousVersion, null);
           }
         }
         if (component == null) {
