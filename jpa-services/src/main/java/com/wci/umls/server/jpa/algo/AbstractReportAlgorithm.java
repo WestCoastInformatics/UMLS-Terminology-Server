@@ -47,11 +47,11 @@ public abstract class AbstractReportAlgorithm extends AbstractAlgorithm {
   @Override
   public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
-    final AlgorithmParameter email = new AlgorithmParameterJpa(
+    final AlgorithmParameter configEmail = new AlgorithmParameterJpa(
         "Notification emails", "email", "Email addresses for notification",
         "e.g. a@b.com", 4000, AlgorithmParameter.Type.TEXT,
         ConfigUtility.getConfigProperties().getProperty("mail.smtp.to"));
-    params.add(email);
+    params.add(configEmail);
     return params;
   }
 

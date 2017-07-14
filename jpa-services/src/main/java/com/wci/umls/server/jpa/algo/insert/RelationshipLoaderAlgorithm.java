@@ -5,6 +5,7 @@ package com.wci.umls.server.jpa.algo.insert;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -26,9 +27,17 @@ import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomRelationship;
+import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.model.content.CodeRelationship;
 import com.wci.umls.server.model.content.Component;
+import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.model.content.DescriptorRelationship;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
+import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.RootService;
@@ -48,6 +57,9 @@ public class RelationshipLoaderAlgorithm
 
   /** The update count. */
   private int updateCount = 0;
+
+  /** The remove count. */
+  private int removeCount = 0;
 
   /** The rel type map. */
   private Map<String, String> relTypeMap = new HashMap<>();
@@ -101,6 +113,9 @@ public class RelationshipLoaderAlgorithm
    *
    * @throws Exception the exception
    */
+  @SuppressWarnings({
+      "rawtypes", "unchecked"
+  })
   /* see superclass */
   @Override
   public void compute() throws Exception {
@@ -161,10 +176,143 @@ public class RelationshipLoaderAlgorithm
       // Set the number of steps to the number of relationships to be processed
       setSteps(lines.size() + lines2.size());
 
+      final String fields[] = new String[18];
+      final String fields2[] = new String[17];
+
+      //
+      // REPLACE
+      //
+
+      // If replace flag is set, remove all relationships that match the
+      // terminology,version, relationshipType, additionalRelationshipType (and
+      // inverses) present in the file before reloading.
+      if (replace) {
+        final Set<String> relationshipsToRemove = new HashSet<>();
+
+        for (final String line : lines) {
+
+          FieldedStringTokenizer.split(line, "|", 18, fields);
+
+          final String fromTermAndVersion = fields[15];
+          final String relType = fields[3];
+          final String additionalRelType = fields[4];
+
+          relationshipsToRemove.add(fromTermAndVersion + "|"
+              + lookupRelationshipType(relType) + "|" + additionalRelType);
+        }
+
+        for (final String line : lines2) {
+
+          FieldedStringTokenizer.split(line, "|", 17, fields2);
+
+          final String fromTermAndVersion = fields2[13];
+          final String relType = "CHD";
+          final String additionalRelType = fields2[2];
+
+          relationshipsToRemove.add(fromTermAndVersion + "|"
+              + lookupRelationshipType(relType) + "|" + additionalRelType);
+        }
+
+        // Once all unique terminology/attribute name pairs have been
+        // identified, remove them all from the database
+
+        final String fields3[] = new String[3];
+        for (final String line : relationshipsToRemove) {
+          FieldedStringTokenizer.split(line, "|", 3, fields3);
+
+          final String fromTermAndVersion = fields3[0];
+          final String relType = fields3[1];
+          final String additionalRelType = fields3[2];
+
+          final Terminology terminology =
+              getCachedTerminology(fromTermAndVersion);
+          if (terminology == null) {
+            logWarn(
+                "WARNING - terminology not found: " + fromTermAndVersion + ".");
+            continue;
+          }
+
+          // We need to load both the relationship and the component
+          // they're attached to, so we can remove the relationship from
+          // the component before deleting the relationship
+
+          // Need to do this for all types of relationships:
+          // atom_relationship, code_relationship, concept_relationship,
+          // descriptor_relationship
+          // Component_info_relationships need to be handled differently
+
+          final List<Class> relClasses =
+              new ArrayList<>(Arrays.asList(AtomRelationshipJpa.class,
+                  CodeRelationshipJpa.class, ConceptRelationshipJpa.class,
+                  DescriptorRelationshipJpa.class,
+                  ComponentInfoRelationshipJpa.class));
+
+          for (Class clazz : relClasses) {
+            final String query = "SELECT rel.id from " + clazz.getSimpleName()
+                + " rel where rel.terminology=:specifiedTerminology and rel.version=:specifiedVersion and rel.relationshipType=:relType and rel.additionalRelationshipType=:additionalRelType";
+
+            javax.persistence.Query jpaQuery =
+                getEntityManager().createQuery(query);
+            jpaQuery.setParameter("specifiedTerminology",
+                terminology.getTerminology());
+            jpaQuery.setParameter("specifiedVersion", terminology.getVersion());
+            jpaQuery.setParameter("relType", relType);
+            jpaQuery.setParameter("additionalRelType", additionalRelType);
+
+            // Return the result list as a single component id long.
+            final List<Object> list = jpaQuery.getResultList();
+
+            for (Object entry : list) {
+              Long relId = (Long) entry;
+              Relationship relationship = getRelationship(relId, clazz);
+              if (relationship == null) {
+                continue;
+              }
+
+              Relationship inverseRelationship =
+                  getInverseRelationship(getProject().getTerminology(),
+                      getProject().getVersion(), relationship);
+
+              // if (clazz.isInstance(ConceptRelationshipJpa.class)) {
+              // removeRelFromComponent(relationship, IdType.CONCEPT);
+              // removeRelFromComponent(inverseRelationship, IdType.CONCEPT);
+              // } else if (clazz.isInstance(DescriptorRelationshipJpa.class)) {
+              // removeRelFromComponent(relationship, IdType.DESCRIPTOR);
+              // removeRelFromComponent(inverseRelationship, IdType.DESCRIPTOR);
+              // } else if (clazz.isInstance(CodeRelationshipJpa.class)) {
+              // removeRelFromComponent(relationship, IdType.CODE);
+              // removeRelFromComponent(inverseRelationship, IdType.CODE);
+              // } else if (clazz.isInstance(AtomRelationshipJpa.class)) {
+              // removeRelFromComponent(relationship, IdType.ATOM);
+              // removeRelFromComponent(inverseRelationship, IdType.ATOM);
+              // } else if
+              // (clazz.isInstance(ComponentInfoRelationshipJpa.class)) {
+              // removeRelFromComponent(relationship,
+              // ((ComponentInfoRelationshipJpa) relationship)
+              // .getFromType());
+              // removeRelFromComponent(inverseRelationship,
+              // ((ComponentInfoRelationshipJpa) inverseRelationship)
+              // .getFromType());
+              // }
+
+              removeRelationship(relationship.getId(), clazz);
+              removeRelationship(inverseRelationship.getId(), clazz);
+
+              removeCount += 2;
+            }
+          }
+
+        }
+
+      }
+
+      //
+      // LOAD
+      //
+
       //
       // Process relationships.src lines
       //
-      final String fields[] = new String[18];
       for (final String line : lines) {
 
         FieldedStringTokenizer.split(line, "|", 18, fields);
@@ -223,7 +371,6 @@ public class RelationshipLoaderAlgorithm
       //
       // Process contexts.src lines
       //
-      final String fields2[] = new String[17];
       for (final String line : lines2) {
 
         FieldedStringTokenizer.split(line, "|", 17, fields2);
@@ -261,6 +408,7 @@ public class RelationshipLoaderAlgorithm
         final String fromClassIdType = fields2[12];
         final String toTermId = fields2[14];
         String toTermAndVersion = fields2[16];
+        // UMLS insertions may be missing the final pipe. If so, set to ""
         if (toTermAndVersion == null) {
           toTermAndVersion = "";
         }
@@ -291,6 +439,9 @@ public class RelationshipLoaderAlgorithm
       commitClearBegin();
       handler.commit();
 
+      if (replace) {
+        logInfo("  removed count = " + removeCount);
+      }
       logInfo("  added count = " + addCount);
       logInfo("  update count = " + updateCount);
 
@@ -304,6 +455,38 @@ public class RelationshipLoaderAlgorithm
       handler.close();
       throw e;
     }
+
+  }
+
+  /**
+   * Removes the rel from component.
+   *
+   * @param relationship the relationship
+   * @param componentType the component type
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("rawtypes")
+  private void removeRelFromComponent(Relationship relationship,
+    IdType componentType) throws Exception {
+
+    Component containingComponent = null;
+
+    if (componentType.equals(IdType.ATOM)) {
+      containingComponent = ((AtomRelationship) relationship).getFrom();
+      ((Atom) containingComponent).getRelationships().remove(relationship);
+    } else if (componentType.equals(IdType.CODE)) {
+      containingComponent = ((CodeRelationship) relationship).getFrom();
+      ((Code) containingComponent).getRelationships().remove(relationship);
+    } else if (componentType.equals(IdType.CONCEPT)) {
+      containingComponent = ((ConceptRelationship) relationship).getFrom();
+      ((Concept) containingComponent).getRelationships().remove(relationship);
+    } else if (componentType.equals(IdType.DESCRIPTOR)) {
+      containingComponent = ((DescriptorRelationship) relationship).getFrom();
+      ((Descriptor) containingComponent).getRelationships()
+          .remove(relationship);
+    }
+
+    updateComponent(containingComponent);
 
   }
 
