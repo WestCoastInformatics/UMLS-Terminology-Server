@@ -1957,7 +1957,7 @@ PfsParameterJpa pfs = new PfsParameterJpa();
     algoConfig.setTimestamp(new Date());
     // Set properties for the algorithm
     algoProperties = new HashMap<String, String>();
-    algoProperties.put("winLose", "win");
+    algoProperties.put("winLose", "lose");
     algoConfig.setProperties(algoProperties);
     // Add algorithm and insert as step into process
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
