@@ -334,7 +334,7 @@ public class SplitMolecularAction extends AbstractMolecularAction {
       newBetweenRel.setTimestamp(new Date());
       newBetweenRel.setPublishable(true);
       newBetweenRel.setAssertedDirection(false);
-      newBetweenRel.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+      newBetweenRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
 
       addRelationship(newBetweenRel);
       getFromConcept().getRelationships().add(newBetweenRel);
