@@ -107,8 +107,12 @@
                   ng-show="worklist.reviewers.length > 0 && worklist.workflowStatus != 'REVIEW_DONE' && selected.projectRole == 'REVIEWER' && selected.worklistMode == 'Assigned'"
                   ng-click="stampWorklist(worklist); " title="Stamp"
                   class="noul glyphicon glyphicon-certificate"></i>
+                <i confirm="Are you sure you want to return the worklist?"
+                  ng-show="selected.projectRole != 'ADMINISTRATOR' && getWorkflowState(worklist) == 'Assigned'"
+                  ng-click="openFinishWorkflowModal(worklist);" title="Return"
+                  class="noul glyphicon glyphicon-ok"></i>
                 <i confirm="Are you sure you want to finish the worklist?"
-                  ng-show="selected.projectRole != 'ADMINISTRATOR' && selected.worklistMode == 'Assigned'"
+                  ng-show="selected.projectRole != 'ADMINISTRATOR' && getWorkflowState(worklist) == 'Review Assigned'"
                   ng-click="openFinishWorkflowModal(worklist);" title="Finish"
                   class="noul glyphicon glyphicon-ok"></i>
               </span>
