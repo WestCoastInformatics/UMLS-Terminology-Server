@@ -4,6 +4,8 @@
 package com.wci.umls.server.jpa.algo.insert;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
@@ -56,7 +58,9 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         ConfigUtility.getConfigProperties().getProperty("source.data.dir") + "/"
             + getProcess().getInputPath();
 
-    setSrcDirFile(new File(srcFullPath));
+    final Path realPath = Paths.get(srcFullPath).toRealPath();    
+    setSrcDirFile(new File(realPath.toString()));
+    
     if (!getSrcDirFile().exists()) {
       throw new LocalException(
           "Specified input directory does not exist - " + srcFullPath);

@@ -687,6 +687,7 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
       }
     }
     commit();
+    close();
   }
 
   /* see superclass */
