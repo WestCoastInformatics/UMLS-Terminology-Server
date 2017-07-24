@@ -84,18 +84,16 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       // Get publishable concepts without any publishable atoms
       final Set<Long> publishableConcepts =
           new HashSet<>(handler.getIdResults(getProject().getTerminology(),
-              getProject().getVersion(), Branch.ROOT,
-              "publishable:true", null,
+              getProject().getVersion(), Branch.ROOT, "publishable:true", null,
               ConceptJpa.class, null, new int[1], manager));
       checkCancel();
       final Set<Long> conceptsWithPublishableAtoms =
           new HashSet<>(handler.getIdResults(getProject().getTerminology(),
-              getProject().getVersion(), Branch.ROOT,
-              "atoms.publishable:true", null,
-              ConceptJpa.class, null, new int[1], manager));
+              getProject().getVersion(), Branch.ROOT, "atoms.publishable:true",
+              null, ConceptJpa.class, null, new int[1], manager));
       checkCancel();
-      
-      final Set<Long> makeUnpublishable = 
+
+      final Set<Long> makeUnpublishable =
           Sets.difference(publishableConcepts, conceptsWithPublishableAtoms);
       fireProgressEvent(20, "Found concepts to make unpublishable");
       logInfo("  make unpublishable = " + makeUnpublishable.size());
@@ -156,7 +154,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
               null, ConceptJpa.class, null, new int[1], manager));
       checkCancel();
       fireProgressEvent(60, "Found concepts to make needs review");
-      logInfo("  concepts to make needs review = " + failures.size());
+      logInfo("  concepts to make needs review = " + makeNeedsReview.size());
 
       final Set<Long> conceptsToChange = new HashSet<>();
       conceptsToChange.addAll(makePublishable);
@@ -168,7 +166,6 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       int prevProgress = 60;
       int statusChangeCt = 0;
       int publishableChangeCt = 0;
-      int warningCt = 0;
       for (final Long conceptId : conceptsToChange) {
         // If in "updater" mode, skip concepts not accounted for.
         if (conceptIds != null && !conceptIds.contains(conceptId)) {
@@ -212,7 +209,6 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
         if (makeNeedsReview.contains(conceptId)) {
           status = WorkflowStatus.NEEDS_REVIEW;
-          warningCt++;
           statusChangeCt++;
           logInfo("  status change  = " + concept.getId());
           found = true;
@@ -221,7 +217,6 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
         if (failures.contains(conceptId)
             && concept.getWorkflowStatus() != WorkflowStatus.NEEDS_REVIEW) {
           status = WorkflowStatus.NEEDS_REVIEW;
-          warningCt++;
           statusChangeCt++;
           logInfo("  status change (failure)  = " + concept.getId());
           found = true;
@@ -250,7 +245,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
             } else {
               action.setWorkflowStatus(concept.getWorkflowStatus());
             }
-            
+
             if (publishable != null) {
               action.setPublishable(publishable);
             }
@@ -269,12 +264,6 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
             action.close();
           }
         }
-
-        if (warningCt > 0) {
-          // Trigger a warning - for "pre production"
-          logWarn("WARNING: some concepts were unapproved = " + warningCt);
-        }
-
       }
 
       logInfo("  publishable changed = " + publishableChangeCt);
