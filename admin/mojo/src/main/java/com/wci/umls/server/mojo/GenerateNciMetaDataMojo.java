@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.apache.maven.plugin.MojoFailureException;
@@ -43,44 +42,26 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.helpers.QueryStyle;
-import com.wci.umls.server.helpers.QueryType;
-import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.TypeKeyValue;
-import com.wci.umls.server.helpers.WorkflowBinList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
 import com.wci.umls.server.jpa.AlgorithmConfigJpa;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.UserJpa;
-import com.wci.umls.server.jpa.content.AtomJpa;
-import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.jpa.services.rest.IntegrationTestServiceRest;
-import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
 import com.wci.umls.server.jpa.services.rest.MetadataServiceRest;
 import com.wci.umls.server.jpa.services.rest.ProcessServiceRest;
 import com.wci.umls.server.jpa.services.rest.ProjectServiceRest;
 import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
-import com.wci.umls.server.jpa.workflow.WorkflowBinDefinitionJpa;
-import com.wci.umls.server.jpa.workflow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.workflow.WorkflowEpochJpa;
-import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.meta.SemanticType;
-import com.wci.umls.server.model.workflow.Checklist;
-import com.wci.umls.server.model.workflow.WorkflowAction;
-import com.wci.umls.server.model.workflow.WorkflowBin;
-import com.wci.umls.server.model.workflow.WorkflowConfig;
-import com.wci.umls.server.model.workflow.WorkflowStatus;
-import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.rest.impl.ContentServiceRestImpl;
 import com.wci.umls.server.rest.impl.IntegrationTestServiceRestImpl;
-import com.wci.umls.server.rest.impl.MetaEditingServiceRestImpl;
 import com.wci.umls.server.rest.impl.MetadataServiceRestImpl;
 import com.wci.umls.server.rest.impl.ProcessServiceRestImpl;
 import com.wci.umls.server.rest.impl.ProjectServiceRestImpl;
@@ -350,135 +331,136 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     IntegrationTestServiceRest testService =
         new IntegrationTestServiceRestImpl();
 
-//    //
-//    // Demotions
-//    //
-//    getLog().info("  Add demotions");
-PfsParameterJpa pfs = new PfsParameterJpa();
-//    pfs.setStartIndex(1000);
-//    pfs.setMaxResults(80);
-//    contentService = new ContentServiceRestImpl();
-//    final Long[] id1s =
-//        contentService.findConcepts(terminology, version, null, pfs, authToken)
-//            .getObjects().stream().map(c -> c.getId())
-//            .collect(Collectors.toList()).toArray(new Long[] {});
-//    pfs.setStartIndex(1100);
-//    pfs.setMaxResults(80);
-//    contentService = new ContentServiceRestImpl();
-//    final Long[] id2s =
-//        contentService.findConcepts(terminology, version, null, pfs, authToken)
-//            .getObjects().stream().map(c -> c.getId())
-//            .collect(Collectors.toList()).toArray(new Long[] {});
-//    for (int i = 0; i < id1s.length; i++) {
-//
-//      contentService = new ContentServiceRestImpl();
-//      final Concept fromConcept =
-//          contentService.getConcept(id1s[i], projectId, authToken);
-//      final Long fromId = fromConcept.getAtoms().get(0).getId();
-//      contentService = new ContentServiceRestImpl();
-//      final Long toId = contentService.getConcept(id2s[i], projectId, authToken)
-//          .getAtoms().iterator().next().getId();
-//
-//      final MetaEditingServiceRest metaEditingService =
-//          new MetaEditingServiceRestImpl();
-//      metaEditingService.addDemotion(projectId, id1s[i], "DEMOTIONS",
-//          fromConcept.getLastModified().getTime(), id2s[i], fromId, toId, false,
-//          authToken);
-//    }
-//
-//    // Status N NCIt concepts (and atoms)
-//    getLog().info("  Mark first 50 NCIt concepts as status N");
-//    pfs = new PfsParameterJpa();
-//    pfs.setStartIndex(0);
-//    pfs.setMaxResults(50);
-//    contentService = new ContentServiceRestImpl();
-//    for (final SearchResult result : contentService.findConcepts(terminology,
-//        version, "atoms.terminology:NCI", pfs, authToken).getObjects()) {
-//      contentService = new ContentServiceRestImpl();
-//      final ConceptJpa concept = new ConceptJpa(
-//          contentService.getConcept(result.getId(), projectId, authToken),
-//          true);
-//      concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-//      // Make all NCI atoms needs review
-//      for (final Atom atom : concept.getAtoms()) {
-//        if (atom.getTerminology().equals("NCI")) {
-//          atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-//          testService = new IntegrationTestServiceRestImpl();
-//          testService.updateAtom(new AtomJpa(atom), authToken);
-//        }
-//      }
-//      testService = new IntegrationTestServiceRestImpl();
-//      testService.updateConcept(new ConceptJpa(concept, false), authToken);
-//    }
-//
-//    // SNOMEDCT_US
-//    getLog().info("  Mark first 100 SNOMED concepts as status N");
-//    pfs = new PfsParameterJpa();
-//    pfs.setStartIndex(0);
-//    pfs.setMaxResults(100);
-//    contentService = new ContentServiceRestImpl();
-//    for (final SearchResult result : contentService.findConcepts(terminology,
-//        version, "atoms.terminology:SNOMEDCT_US", pfs, authToken)
-//        .getObjects()) {
-//      contentService = new ContentServiceRestImpl();
-//      final ConceptJpa concept = new ConceptJpa(
-//          contentService.getConcept(result.getId(), projectId, authToken),
-//          true);
-//
-//      // skip if any concepts have NCI atoms
-//      if (concept.getAtoms().stream().map(a -> a.getTerminology())
-//          .filter(t -> t.equals("NCI")).collect(Collectors.toList())
-//          .size() > 0) {
-//        continue;
-//      }
-//      concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-//
-//      // Make all SNOMEDCT_US atoms needs review
-//      for (final Atom atom : concept.getAtoms()) {
-//        if (atom.getTerminology().equals("SNOMEDCT_US")) {
-//          atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-//          testService = new IntegrationTestServiceRestImpl();
-//          testService.updateAtom(new AtomJpa(atom), authToken);
-//        }
-//      }
-//      testService = new IntegrationTestServiceRestImpl();
-//      testService.updateConcept(new ConceptJpa(concept, false), authToken);
-//    }
-//
-//    // leftovers
-//    getLog().info("  Mark first 100 RXNORM concepts as status N");
-//    pfs = new PfsParameterJpa();
-//    pfs.setStartIndex(0);
-//    pfs.setMaxResults(100);
-//    contentService = new ContentServiceRestImpl();
-//    for (final SearchResult result : contentService.findConcepts(terminology,
-//        version, "atoms.terminology:RXNORM", pfs, authToken).getObjects()) {
-//      contentService = new ContentServiceRestImpl();
-//      final ConceptJpa concept = new ConceptJpa(
-//          contentService.getConcept(result.getId(), projectId, authToken),
-//          true);
-//
-//      // skip if any concepts have NCI atoms
-//      if (concept.getAtoms().stream().map(a -> a.getTerminology())
-//          .filter(t -> t.equals("NCI") || t.equals("SNOMEDCT_US"))
-//          .collect(Collectors.toList()).size() > 0) {
-//        continue;
-//      }
-//      concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-//
-//      // Make all SNOMEDCT_US atoms needs review
-//      for (final Atom atom : concept.getAtoms()) {
-//        if (!atom.getTerminology().equals("NCI")
-//            && !atom.getTerminology().equals("SNOMEDCT_US")) {
-//          atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-//          testService = new IntegrationTestServiceRestImpl();
-//          testService.updateAtom(new AtomJpa(atom), authToken);
-//        }
-//      }
-//
-//      testService = new IntegrationTestServiceRestImpl();
-//      testService.updateConcept(new ConceptJpa(concept, false), authToken);
-//    }
+    // //
+    // // Demotions
+    // //
+    // getLog().info(" Add demotions");
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    // pfs.setStartIndex(1000);
+    // pfs.setMaxResults(80);
+    // contentService = new ContentServiceRestImpl();
+    // final Long[] id1s =
+    // contentService.findConcepts(terminology, version, null, pfs, authToken)
+    // .getObjects().stream().map(c -> c.getId())
+    // .collect(Collectors.toList()).toArray(new Long[] {});
+    // pfs.setStartIndex(1100);
+    // pfs.setMaxResults(80);
+    // contentService = new ContentServiceRestImpl();
+    // final Long[] id2s =
+    // contentService.findConcepts(terminology, version, null, pfs, authToken)
+    // .getObjects().stream().map(c -> c.getId())
+    // .collect(Collectors.toList()).toArray(new Long[] {});
+    // for (int i = 0; i < id1s.length; i++) {
+    //
+    // contentService = new ContentServiceRestImpl();
+    // final Concept fromConcept =
+    // contentService.getConcept(id1s[i], projectId, authToken);
+    // final Long fromId = fromConcept.getAtoms().get(0).getId();
+    // contentService = new ContentServiceRestImpl();
+    // final Long toId = contentService.getConcept(id2s[i], projectId,
+    // authToken)
+    // .getAtoms().iterator().next().getId();
+    //
+    // final MetaEditingServiceRest metaEditingService =
+    // new MetaEditingServiceRestImpl();
+    // metaEditingService.addDemotion(projectId, id1s[i], "DEMOTIONS",
+    // fromConcept.getLastModified().getTime(), id2s[i], fromId, toId, false,
+    // authToken);
+    // }
+    //
+    // // Status N NCIt concepts (and atoms)
+    // getLog().info(" Mark first 50 NCIt concepts as status N");
+    // pfs = new PfsParameterJpa();
+    // pfs.setStartIndex(0);
+    // pfs.setMaxResults(50);
+    // contentService = new ContentServiceRestImpl();
+    // for (final SearchResult result : contentService.findConcepts(terminology,
+    // version, "atoms.terminology:NCI", pfs, authToken).getObjects()) {
+    // contentService = new ContentServiceRestImpl();
+    // final ConceptJpa concept = new ConceptJpa(
+    // contentService.getConcept(result.getId(), projectId, authToken),
+    // true);
+    // concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+    // // Make all NCI atoms needs review
+    // for (final Atom atom : concept.getAtoms()) {
+    // if (atom.getTerminology().equals("NCI")) {
+    // atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+    // testService = new IntegrationTestServiceRestImpl();
+    // testService.updateAtom(new AtomJpa(atom), authToken);
+    // }
+    // }
+    // testService = new IntegrationTestServiceRestImpl();
+    // testService.updateConcept(new ConceptJpa(concept, false), authToken);
+    // }
+    //
+    // // SNOMEDCT_US
+    // getLog().info(" Mark first 100 SNOMED concepts as status N");
+    // pfs = new PfsParameterJpa();
+    // pfs.setStartIndex(0);
+    // pfs.setMaxResults(100);
+    // contentService = new ContentServiceRestImpl();
+    // for (final SearchResult result : contentService.findConcepts(terminology,
+    // version, "atoms.terminology:SNOMEDCT_US", pfs, authToken)
+    // .getObjects()) {
+    // contentService = new ContentServiceRestImpl();
+    // final ConceptJpa concept = new ConceptJpa(
+    // contentService.getConcept(result.getId(), projectId, authToken),
+    // true);
+    //
+    // // skip if any concepts have NCI atoms
+    // if (concept.getAtoms().stream().map(a -> a.getTerminology())
+    // .filter(t -> t.equals("NCI")).collect(Collectors.toList())
+    // .size() > 0) {
+    // continue;
+    // }
+    // concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+    //
+    // // Make all SNOMEDCT_US atoms needs review
+    // for (final Atom atom : concept.getAtoms()) {
+    // if (atom.getTerminology().equals("SNOMEDCT_US")) {
+    // atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+    // testService = new IntegrationTestServiceRestImpl();
+    // testService.updateAtom(new AtomJpa(atom), authToken);
+    // }
+    // }
+    // testService = new IntegrationTestServiceRestImpl();
+    // testService.updateConcept(new ConceptJpa(concept, false), authToken);
+    // }
+    //
+    // // leftovers
+    // getLog().info(" Mark first 100 RXNORM concepts as status N");
+    // pfs = new PfsParameterJpa();
+    // pfs.setStartIndex(0);
+    // pfs.setMaxResults(100);
+    // contentService = new ContentServiceRestImpl();
+    // for (final SearchResult result : contentService.findConcepts(terminology,
+    // version, "atoms.terminology:RXNORM", pfs, authToken).getObjects()) {
+    // contentService = new ContentServiceRestImpl();
+    // final ConceptJpa concept = new ConceptJpa(
+    // contentService.getConcept(result.getId(), projectId, authToken),
+    // true);
+    //
+    // // skip if any concepts have NCI atoms
+    // if (concept.getAtoms().stream().map(a -> a.getTerminology())
+    // .filter(t -> t.equals("NCI") || t.equals("SNOMEDCT_US"))
+    // .collect(Collectors.toList()).size() > 0) {
+    // continue;
+    // }
+    // concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+    //
+    // // Make all SNOMEDCT_US atoms needs review
+    // for (final Atom atom : concept.getAtoms()) {
+    // if (!atom.getTerminology().equals("NCI")
+    // && !atom.getTerminology().equals("SNOMEDCT_US")) {
+    // atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+    // testService = new IntegrationTestServiceRestImpl();
+    // testService.updateAtom(new AtomJpa(atom), authToken);
+    // }
+    // }
+    //
+    // testService = new IntegrationTestServiceRestImpl();
+    // testService.updateConcept(new ConceptJpa(concept, false), authToken);
+    // }
 
     //
     // Prepare workflow related objects
@@ -518,7 +500,7 @@ PfsParameterJpa pfs = new PfsParameterJpa();
     workflowService.importWorkflowConfig(contentDispositionHeader, in,
         projectId, authToken);
     in.close();
-    
+
     // Clear and regenerate all bins
     getLog().info("  Clear and regenerate ME bins");
     // Clear bins
@@ -530,136 +512,137 @@ PfsParameterJpa pfs = new PfsParameterJpa();
     workflowService.regenerateBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
 
     // Get bins
-    //workflowService = new WorkflowServiceRestImpl();
-    //final WorkflowBinList bins = workflowService.getWorkflowBins(projectId,
-    //   "MUTUALLY_EXCLUSIVE", authToken);
+    // workflowService = new WorkflowServiceRestImpl();
+    // final WorkflowBinList bins = workflowService.getWorkflowBins(projectId,
+    // "MUTUALLY_EXCLUSIVE", authToken);
 
-//    // For each editable bin, make two worklists of size 5
-//    Worklist lastWorklist = null;
-//    int chk = 100;
-//    for (final WorkflowBin bin : bins.getObjects()) {
-//      // Log all
-//      getLog().info(
-//          "  bin " + bin.getName() + " = " + bin.getTrackingRecords().size());
-//
-//      // Log "chem" count
-//      workflowService = new WorkflowServiceRestImpl();
-//      int chemRecords = workflowService
-//          .findTrackingRecordsForWorkflowBin(projectId, bin.getId(), null,
-//              authToken)
-//          .getObjects().stream().filter(r -> r.getClusterType().equals("chem"))
-//          .collect(Collectors.toList()).size();
-//      getLog().info("    chem = " + chemRecords);
-//      getLog().info(
-//          "    non chem = " + (bin.getTrackingRecords().size() - chemRecords));
+    // // For each editable bin, make two worklists of size 5
+    // Worklist lastWorklist = null;
+    // int chk = 100;
+    // for (final WorkflowBin bin : bins.getObjects()) {
+    // // Log all
+    // getLog().info(
+    // " bin " + bin.getName() + " = " + bin.getTrackingRecords().size());
+    //
+    // // Log "chem" count
+    // workflowService = new WorkflowServiceRestImpl();
+    // int chemRecords = workflowService
+    // .findTrackingRecordsForWorkflowBin(projectId, bin.getId(), null,
+    // authToken)
+    // .getObjects().stream().filter(r -> r.getClusterType().equals("chem"))
+    // .collect(Collectors.toList()).size();
+    // getLog().info(" chem = " + chemRecords);
+    // getLog().info(
+    // " non chem = " + (bin.getTrackingRecords().size() - chemRecords));
 
-//      if (bin.isEditable()) {
-//        pfs = new PfsParameterJpa();
-//        pfs.setStartIndex(0);
-//        pfs.setMaxResults(5);
-//        workflowService = new WorkflowServiceRestImpl();
-//        // Create a chem worklist
-//        Worklist worklist = null;
-//
-//        if (chemRecords > 0) {
-//          worklist = workflowService.createWorklist(projectId, bin.getId(),
-//              "chem", pfs, authToken);
-//          workflowService = new WorkflowServiceRestImpl();
-//          getLog()
-//              .info(
-//                  "    count = "
-//                      + workflowService
-//                          .findTrackingRecordsForWorklist(projectId,
-//                              worklist.getId(), pfs, authToken)
-//                          .getTotalCount());
-//        }
-//
-//        // Create two non-chem worklist
-//        workflowService = new WorkflowServiceRestImpl();
-//        worklist = workflowService.createWorklist(projectId, bin.getId(), null,
-//            pfs, authToken);
-//        workflowService = new WorkflowServiceRestImpl();
-//        getLog().info("    count = "
-//            + workflowService.findTrackingRecordsForWorklist(projectId,
-//                worklist.getId(), pfs, authToken).getTotalCount());
-//
-//        workflowService = new WorkflowServiceRestImpl();
-//        worklist = workflowService.createWorklist(projectId, bin.getId(), null,
-//            pfs, authToken);
-//        workflowService = new WorkflowServiceRestImpl();
-//        getLog().info("    count = "
-//            + workflowService.findTrackingRecordsForWorklist(projectId,
-//                worklist.getId(), pfs, authToken).getTotalCount());
-//
-//        lastWorklist = worklist;
-//
-//        // Create some checklist
-//        pfs.setMaxResults(10);
-//        workflowService = new WorkflowServiceRestImpl();
-//        Checklist checklist = workflowService.createChecklist(projectId,
-//            bin.getId(), null, "chk_random_nonworklist_" + chk++, "test desc",
-//            true, true, "", pfs, authToken);
-//        workflowService = new WorkflowServiceRestImpl();
-//        getLog().info("    count = "
-//            + workflowService.findTrackingRecordsForChecklist(projectId,
-//                checklist.getId(), pfs, authToken).getTotalCount());
-//
-//        workflowService = new WorkflowServiceRestImpl();
-//        checklist = workflowService.createChecklist(projectId, bin.getId(),
-//            null, "chk_random_worklist_" + chk++, "test desc", true, false, "",
-//            pfs, authToken);
-//        workflowService = new WorkflowServiceRestImpl();
-//        getLog().info("    count = "
-//            + workflowService.findTrackingRecordsForChecklist(projectId,
-//                checklist.getId(), pfs, authToken).getTotalCount());
-//
-//        workflowService = new WorkflowServiceRestImpl();
-//        checklist = workflowService.createChecklist(projectId, bin.getId(),
-//            null, "chk_nonrandom_noworklist_" + chk++, "test desc", false, true,
-//            "", pfs, authToken);
-//        workflowService = new WorkflowServiceRestImpl();
-//        getLog().info("    count = "
-//            + workflowService.findTrackingRecordsForChecklist(projectId,
-//                checklist.getId(), pfs, authToken).getTotalCount());
-//
-//        workflowService = new WorkflowServiceRestImpl();
-//        checklist = workflowService.createChecklist(projectId, bin.getId(),
-//            null, "chk_nonrandom_worklist_" + chk++, "test desc", false, false,
-//            "", pfs, authToken);
-//        workflowService = new WorkflowServiceRestImpl();
-//        getLog().info("    count = "
-//            + workflowService.findTrackingRecordsForChecklist(projectId,
-//                checklist.getId(), pfs, authToken).getTotalCount());
-//
-//      }
-//    }
-//
-//    // March "last worklist" through some workflow changes so other dates show
-//    Logger.getLogger(getClass()).debug("  Walk worklist through workflow");
-//    // Assign
-//    workflowService = new WorkflowServiceRestImpl();
-//    workflowService.performWorkflowAction(projectId, lastWorklist.getId(),
-//        authToken, UserRole.AUTHOR, WorkflowAction.ASSIGN, authToken);
-//
-//    // Save
-//    workflowService = new WorkflowServiceRestImpl();
-//    workflowService.performWorkflowAction(projectId, lastWorklist.getId(),
-//        authToken, UserRole.AUTHOR, WorkflowAction.SAVE, authToken);
-//
-//    // Finish
-//    workflowService = new WorkflowServiceRestImpl();
-//    workflowService.performWorkflowAction(projectId, lastWorklist.getId(),
-//        authToken, UserRole.AUTHOR, WorkflowAction.FINISH, authToken);
-//
-//    // Assign for review
-//    workflowService = new WorkflowServiceRestImpl();
-//    workflowService.performWorkflowAction(projectId, lastWorklist.getId(),
-//        authToken, UserRole.REVIEWER, WorkflowAction.ASSIGN, authToken);
-//
-//    // Finish review
-//    workflowService = new WorkflowServiceRestImpl();
-//    workflowService.performWorkflowAction(projectId, lastWorklist.getId(),
-//        authToken, UserRole.REVIEWER, WorkflowAction.FINISH, authToken);
+    // if (bin.isEditable()) {
+    // pfs = new PfsParameterJpa();
+    // pfs.setStartIndex(0);
+    // pfs.setMaxResults(5);
+    // workflowService = new WorkflowServiceRestImpl();
+    // // Create a chem worklist
+    // Worklist worklist = null;
+    //
+    // if (chemRecords > 0) {
+    // worklist = workflowService.createWorklist(projectId, bin.getId(),
+    // "chem", pfs, authToken);
+    // workflowService = new WorkflowServiceRestImpl();
+    // getLog()
+    // .info(
+    // " count = "
+    // + workflowService
+    // .findTrackingRecordsForWorklist(projectId,
+    // worklist.getId(), pfs, authToken)
+    // .getTotalCount());
+    // }
+    //
+    // // Create two non-chem worklist
+    // workflowService = new WorkflowServiceRestImpl();
+    // worklist = workflowService.createWorklist(projectId, bin.getId(), null,
+    // pfs, authToken);
+    // workflowService = new WorkflowServiceRestImpl();
+    // getLog().info(" count = "
+    // + workflowService.findTrackingRecordsForWorklist(projectId,
+    // worklist.getId(), pfs, authToken).getTotalCount());
+    //
+    // workflowService = new WorkflowServiceRestImpl();
+    // worklist = workflowService.createWorklist(projectId, bin.getId(), null,
+    // pfs, authToken);
+    // workflowService = new WorkflowServiceRestImpl();
+    // getLog().info(" count = "
+    // + workflowService.findTrackingRecordsForWorklist(projectId,
+    // worklist.getId(), pfs, authToken).getTotalCount());
+    //
+    // lastWorklist = worklist;
+    //
+    // // Create some checklist
+    // pfs.setMaxResults(10);
+    // workflowService = new WorkflowServiceRestImpl();
+    // Checklist checklist = workflowService.createChecklist(projectId,
+    // bin.getId(), null, "chk_random_nonworklist_" + chk++, "test desc",
+    // true, true, "", pfs, authToken);
+    // workflowService = new WorkflowServiceRestImpl();
+    // getLog().info(" count = "
+    // + workflowService.findTrackingRecordsForChecklist(projectId,
+    // checklist.getId(), pfs, authToken).getTotalCount());
+    //
+    // workflowService = new WorkflowServiceRestImpl();
+    // checklist = workflowService.createChecklist(projectId, bin.getId(),
+    // null, "chk_random_worklist_" + chk++, "test desc", true, false, "",
+    // pfs, authToken);
+    // workflowService = new WorkflowServiceRestImpl();
+    // getLog().info(" count = "
+    // + workflowService.findTrackingRecordsForChecklist(projectId,
+    // checklist.getId(), pfs, authToken).getTotalCount());
+    //
+    // workflowService = new WorkflowServiceRestImpl();
+    // checklist = workflowService.createChecklist(projectId, bin.getId(),
+    // null, "chk_nonrandom_noworklist_" + chk++, "test desc", false, true,
+    // "", pfs, authToken);
+    // workflowService = new WorkflowServiceRestImpl();
+    // getLog().info(" count = "
+    // + workflowService.findTrackingRecordsForChecklist(projectId,
+    // checklist.getId(), pfs, authToken).getTotalCount());
+    //
+    // workflowService = new WorkflowServiceRestImpl();
+    // checklist = workflowService.createChecklist(projectId, bin.getId(),
+    // null, "chk_nonrandom_worklist_" + chk++, "test desc", false, false,
+    // "", pfs, authToken);
+    // workflowService = new WorkflowServiceRestImpl();
+    // getLog().info(" count = "
+    // + workflowService.findTrackingRecordsForChecklist(projectId,
+    // checklist.getId(), pfs, authToken).getTotalCount());
+    //
+    // }
+    // }
+    //
+    // // March "last worklist" through some workflow changes so other dates
+    // show
+    // Logger.getLogger(getClass()).debug(" Walk worklist through workflow");
+    // // Assign
+    // workflowService = new WorkflowServiceRestImpl();
+    // workflowService.performWorkflowAction(projectId, lastWorklist.getId(),
+    // authToken, UserRole.AUTHOR, WorkflowAction.ASSIGN, authToken);
+    //
+    // // Save
+    // workflowService = new WorkflowServiceRestImpl();
+    // workflowService.performWorkflowAction(projectId, lastWorklist.getId(),
+    // authToken, UserRole.AUTHOR, WorkflowAction.SAVE, authToken);
+    //
+    // // Finish
+    // workflowService = new WorkflowServiceRestImpl();
+    // workflowService.performWorkflowAction(projectId, lastWorklist.getId(),
+    // authToken, UserRole.AUTHOR, WorkflowAction.FINISH, authToken);
+    //
+    // // Assign for review
+    // workflowService = new WorkflowServiceRestImpl();
+    // workflowService.performWorkflowAction(projectId, lastWorklist.getId(),
+    // authToken, UserRole.REVIEWER, WorkflowAction.ASSIGN, authToken);
+    //
+    // // Finish review
+    // workflowService = new WorkflowServiceRestImpl();
+    // workflowService.performWorkflowAction(projectId, lastWorklist.getId(),
+    // authToken, UserRole.REVIEWER, WorkflowAction.FINISH, authToken);
 
     //
     // Add a QA bins workflow config for the current project
@@ -673,9 +656,8 @@ PfsParameterJpa pfs = new PfsParameterJpa();
     workflowFile = new File(workflowFilePath);
 
     in = new FileInputStream(workflowFile);
-    contentDispositionHeader =
-        new FormDataContentDisposition(
-            "form-data; filename=\"workflow.QA.txt\"; name=\"file\"");
+    contentDispositionHeader = new FormDataContentDisposition(
+        "form-data; filename=\"workflow.QA.txt\"; name=\"file\"");
     workflowService.importWorkflowConfig(contentDispositionHeader, in,
         projectId, authToken);
 
@@ -700,9 +682,8 @@ PfsParameterJpa pfs = new PfsParameterJpa();
     workflowFile = new File(workflowFilePath);
 
     in = new FileInputStream(workflowFile);
-    contentDispositionHeader =
-        new FormDataContentDisposition(
-            "form-data; filename=\"workflow.MV.txt\"; name=\"file\"");
+    contentDispositionHeader = new FormDataContentDisposition(
+        "form-data; filename=\"workflow.MV.txt\"; name=\"file\"");
     workflowService = new WorkflowServiceRestImpl();
     workflowService.importWorkflowConfig(contentDispositionHeader, in,
         projectId, authToken);
@@ -722,9 +703,8 @@ PfsParameterJpa pfs = new PfsParameterJpa();
     workflowFile = new File(workflowFilePath);
 
     in = new FileInputStream(workflowFile);
-    contentDispositionHeader =
-        new FormDataContentDisposition(
-            "form-data; filename=\"workflow.MVO.txt\"; name=\"file\"");
+    contentDispositionHeader = new FormDataContentDisposition(
+        "form-data; filename=\"workflow.MVO.txt\"; name=\"file\"");
     workflowService = new WorkflowServiceRestImpl();
     workflowService.importWorkflowConfig(contentDispositionHeader, in,
         projectId, authToken);
@@ -734,8 +714,6 @@ PfsParameterJpa pfs = new PfsParameterJpa();
     workflowService = new WorkflowServiceRestImpl();
     workflowService.clearBins(projectId, "MID_VALIDATION_OTHER", authToken);
     in.close();
-    
-
 
     //
     // Add REPORT_DEFINITIONS
@@ -746,9 +724,8 @@ PfsParameterJpa pfs = new PfsParameterJpa();
     workflowFile = new File(workflowFilePath);
 
     in = new FileInputStream(workflowFile);
-    contentDispositionHeader =
-        new FormDataContentDisposition(
-            "form-data; filename=\"workflow.RD.txt\"; name=\"file\"");
+    contentDispositionHeader = new FormDataContentDisposition(
+        "form-data; filename=\"workflow.RD.txt\"; name=\"file\"");
     workflowService = new WorkflowServiceRestImpl();
     workflowService.importWorkflowConfig(contentDispositionHeader, in,
         projectId, authToken);
@@ -758,7 +735,6 @@ PfsParameterJpa pfs = new PfsParameterJpa();
     workflowService = new WorkflowServiceRestImpl();
     workflowService.clearBins(projectId, "REPORT_DEFINITIONS", authToken);
     in.close();
-    
 
     // ComponentInfoRelationship resolves to nothing (auto-fix -> remove), need
     // algorithm?
@@ -1938,6 +1914,20 @@ PfsParameterJpa pfs = new PfsParameterJpa();
     algoConfig.setDescription("BEQUEATH Algorithm");
     algoConfig.setEnabled(true);
     algoConfig.setName("BEQUEATH algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("BEQUEATHALRELATIONSHIPLOADING");
+    algoConfig.setDescription("BEQUEATHALRELATIONSHIPLOADING Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("BEQUEATHALRELATIONSHIPLOADING algorithm");
     algoConfig.setProcess(processConfig);
     algoConfig.setProject(project1);
     algoConfig.setTimestamp(new Date());
