@@ -140,10 +140,8 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
       //
       // Load the mergefacts.src file
       //
-      final Long numberOfLines = numberOfLines(getSrcDirFile(),
-          "mergefacts.src", "(.*)"+mergeSet+"(.*)", null);
-      final List<String> lines =
-          loadFileIntoStringList(getSrcDirFile(), "mergefacts.src", "(.*)"+mergeSet+"(.*)", null);
+      final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
+          "mergefacts.src", "(.*)" + mergeSet + "(.*)", null);
 
       // Set the number of steps to twice the number of lines to be processed
       // This is so processing the mergefacts.src will show up as 50% of the
@@ -159,8 +157,6 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
       final String fields[] = new String[12];
 
-      String previousVersion = getPreviousVersion(getProcess().getTerminology());
-      
       for (final String line : lines) {
 
         // Check for a cancelled call once every 100 lines
@@ -198,29 +194,12 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
         // Load the two atoms specified by the mergefacts line, or the preferred
         // name atoms if they are containing component
-        // If the type is 'CUI', this is a umls CUI, and needs to be handled
-        // differently than any other component.
-        Component component = null;
-        if (!fields[8].equals("CUI")) {
-          component =
-              getComponent(fields[8], fields[0], fields[8].startsWith("ROOT")
-                  ? fields[9] : getCachedTerminologyName(fields[9]), null);
-        } else {
-          // Check for current version CUIs first.
-          // If not found, check for previous version CUIs.
-          // (Can merge FROM an old Or new CUI)
-          component = getComponent(fields[8], fields[0],
-              getProcess().getTerminology() + getProcess().getVersion(), null);
-          if (component == null) {
-            component =
-                getComponent(fields[8], fields[0],
-                    getProcess().getTerminology() + previousVersion, null);
-          }
-        }
+        final Component component =
+            getComponent(fields[8], fields[0], fields[8].startsWith("ROOT")
+                ? fields[9] : getCachedTerminologyName(fields[9]), null);
         if (component == null) {
-          logWarnAndUpdate(line, "WARNING - could not find Component for type: " + fields[8]
-              + ", terminologyId: " + fields[0]
-              + ".");
+          logWarnAndUpdate(line, "WARNING - could not find Component for type: "
+              + fields[8] + ", terminologyId: " + fields[0] + ".");
           continue;
         }
         Atom atom = null;
@@ -233,29 +212,17 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
                   getProject().getTerminology(), getProject().getVersion()));
           atom = atoms.get(0);
         } else {
-          logWarnAndUpdate(line,  "WARNING - " + component.getClass().getName()
+          logWarnAndUpdate(line, "WARNING - " + component.getClass().getName()
               + " is an unhandled type.");
           continue;
         }
 
-        // If the type is 'CUI', this is a umls CUI, and needs to be handled
-        // differently than any other component.
-        Component component2 = null;
-        if (!fields[10].equals("CUI")) {
-          component2 =
-              getComponent(
-                  fields[10], fields[2], fields[10].startsWith("ROOT")
-                      ? fields[11] : getCachedTerminologyName(fields[11]),
-                  null);
-        } else {
-          // Only need to check for new CUIs (will never merge TO an old
-          // concept)
-          component2 = getComponent(fields[10], fields[2],
-              getProcess().getTerminology() + getProcess().getVersion(), null);
-        }
+        final Component component2 =
+            getComponent(fields[10], fields[2], fields[10].startsWith("ROOT")
+                ? fields[11] : getCachedTerminologyName(fields[11]), null);
         if (component2 == null) {
-          logWarnAndUpdate(line, "WARNING - could not find Component for type: " + fields[10]
-              + ", terminologyId: " + fields[2] + ".");
+          logWarnAndUpdate(line, "WARNING - could not find Component for type: "
+              + fields[10] + ", terminologyId: " + fields[2] + ".");
           continue;
         }
         Atom atom2 = null;

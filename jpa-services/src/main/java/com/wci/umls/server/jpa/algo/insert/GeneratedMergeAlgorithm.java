@@ -156,13 +156,23 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
       List<Long[]> atomIdPairs = executeComponentIdPairQuery(query, queryType,
           params, AtomJpa.class, false);
       statsMap.put("atomPairsReturnedByQuery", atomIdPairs.size());
-
+      
+      logInfo("  atom pairs returned by query count = "
+          + statsMap.get("atomPairsReturnedByQuery"));
+      commitClearBegin();
+      
       // Remove all atom pairs caught by the filters
       final List<Pair<Long, Long>> filteredAtomIdPairs =
           applyFilters(atomIdPairs, params, filterQueryType, filterQuery,
               newAtomsOnly, statsMap);
       statsMap.put("atomPairsRemainingAfterFilters",
           filteredAtomIdPairs.size());
+      
+      logInfo("  atom pairs removed by filters count = "
+          + statsMap.get("atomPairsRemovedByFilters"));
+      logInfo("  atom pairs remaining after filters count = "
+          + statsMap.get("atomPairsRemainingAfterFilters"));
+      commitClearBegin();
 
       // Order atomIdPairs
       // sort by MergeLevel, atomId1, atomId2

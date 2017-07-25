@@ -6,7 +6,6 @@ package com.wci.umls.server.jpa.algo;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -199,66 +198,6 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    * Terminology, if Version = "latest") Value = Terminology object
    */
   private static Map<String, Terminology> cachedTerminologies = new HashMap<>();
-
-  /**
-   * Number of lines.
-   *
-   * @param srcDirFile the src dir file
-   * @param fileName the file name
-   * @param keepRegexFilter the keep regex filter
-   * @param skipRegexFilter the skip regex filter
-   * @return the long
-   * @throws Exception the exception
-   */
-  @SuppressWarnings("static-method")
-  public Long numberOfLines(File srcDirFile, String fileName,
-    String keepRegexFilter, String skipRegexFilter) throws Exception {
-    Long numberOfLines = 0L;
-    final String sourcesFile = srcDirFile + File.separator + fileName;
-    // If no filters, just get number of lines (fastest)
-    if (keepRegexFilter == null && skipRegexFilter == null) {
-      LineNumberReader lnr = new LineNumberReader(new FileReader(sourcesFile));
-      lnr.skip(Long.MAX_VALUE);
-      numberOfLines = Long.valueOf(lnr.getLineNumber());
-      lnr.close();
-      return numberOfLines;
-    }
-
-    // Otherwise, read through file, skipping/keeping lines based on regex
-    // (slower)
-    BufferedReader sources = null;
-    try {
-      sources = new BufferedReader(new FileReader(sourcesFile));
-    } catch (Exception e) {
-      throw new Exception("File not found: " + sourcesFile);
-    }
-
-    String linePre = null;
-    while ((linePre = sources.readLine()) != null) {
-      // Filter rows
-      if (!ConfigUtility.isEmpty(keepRegexFilter)
-          && ConfigUtility.isEmpty(skipRegexFilter)) {
-        if (linePre.matches(keepRegexFilter)) {
-          numberOfLines += 1L;
-        }
-      } else if (ConfigUtility.isEmpty(keepRegexFilter)
-          && !ConfigUtility.isEmpty(skipRegexFilter)) {
-        if (!linePre.matches(skipRegexFilter)) {
-          numberOfLines += 1L;
-        }
-      } else if (!ConfigUtility.isEmpty(keepRegexFilter)
-          && !ConfigUtility.isEmpty(skipRegexFilter)) {
-        if (linePre.matches(keepRegexFilter)
-            && !linePre.matches(skipRegexFilter)) {
-          numberOfLines += 1L;
-        }
-      }
-    }
-
-    sources.close();
-
-    return numberOfLines;
-  }
 
   /**
    * Load file into string list.
@@ -653,12 +592,11 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
     // NOTE: Unlike other caching functionality, this gets passed in a
     // terminology and version.
-    // e.g. MTH2015AB
+    // e.g. NCIMTH, MTH2017AA
 
     // Look up all atoms that have this terminologyVersion as a
-    // conceptTerminologyId, rank them, and get the id of the comcept that
-    // contains the
-    // highest-ranked atom
+    // conceptTerminologyId, rank them, and get the id of the concept that
+    // contains the highest-ranked atom
 
     // Look up matching conceptTerminologyIds
     final Query query =
@@ -891,11 +829,36 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     }
 
     else if (type.equals("CUI")) {
-      if (!cuiPreferredAtomConceptCachedTerms.contains(terminology)) {
-        cacheExistingCuiPreferredAtomConceptIds(terminology);
+      if (terminology != null) {
+        throw new Exception("CUI = " + terminologyId
+            + " is associated with a terminology. This should not happen.");
       }
-      final Long componentId =
-          cuiPreferredAtomConceptIdCache.get(terminologyId + terminology);
+      final String projectTerminology = getProject().getTerminology();
+      if (!cuiPreferredAtomConceptCachedTerms.contains(projectTerminology)) {
+        cacheExistingCuiPreferredAtomConceptIds(projectTerminology);
+      }
+      final Long componentId = cuiPreferredAtomConceptIdCache
+          .get(terminologyId + projectTerminology);
+      if (componentId == null) {
+        return null;
+      }
+
+      return getComponent(componentId, ConceptJpa.class);
+    }
+
+    else if (type.equals("CUI_CURRENT")) {
+      if (terminology != null) {
+        throw new Exception("CUI_CURRENT = " + terminologyId
+            + " is associated with a terminology. This should not happen.");
+      }
+      final String processTerminologyVersion =
+          getProcess().getTerminology() + getProcess().getVersion();
+      if (!cuiPreferredAtomConceptCachedTerms
+          .contains(processTerminologyVersion)) {
+        cacheExistingCuiPreferredAtomConceptIds(processTerminologyVersion);
+      }
+      final Long componentId = cuiPreferredAtomConceptIdCache
+          .get(terminologyId + processTerminologyVersion);
       if (componentId == null) {
         return null;
       }
@@ -1085,7 +1048,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   }
 
   /**
-   * Put a terminology into the ExistingTerminologies cache
+   * Put a terminology into the ExistingTerminologies cache.
    *
    * @param terminology the terminology
    * @throws Exception the exception
