@@ -245,7 +245,11 @@ tsApp
 
         // indicates the style for an atom
         $scope.getAtomClass = function(atom) {
-
+          
+          // DEMOTION (blue)
+          if (atom.workflowStatus == 'DEMOTION')
+            return 'DEMOTION';
+          
           // NEEDS_REVIEW (red)
           if (atom.workflowStatus == 'NEEDS_REVIEW')
             return 'NEEDS_REVIEW';
