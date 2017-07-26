@@ -333,10 +333,18 @@ public class RelationshipLoaderAlgorithm
         //
 
         final String fromTermId = fields[5];
-        final String fromTermAndVersion = fields[15];
+        String fromTermAndVersion = fields[15];
+        // UMLS insertions may include a '/' and a termtype.  If so, strip it out.
+        if(fromTermAndVersion.contains("/")){
+          fromTermAndVersion = fromTermAndVersion.substring(0, fromTermAndVersion.indexOf("/"));
+        }
         final String fromClassIdType = fields[14];
         final String toTermId = fields[2];
-        final String toTermAndVersion = fields[13];
+        String toTermAndVersion = fields[13];
+        // UMLS insertions may include a '/' and a termtype.  If so, strip it out.
+        if(toTermAndVersion.contains("/")){
+          toTermAndVersion = toTermAndVersion.substring(0, toTermAndVersion.indexOf("/"));
+        }
         final String toClassIdType = fields[12];
         final String additionalRelType = fields[4];
         final String group = fields[17];
@@ -581,7 +589,7 @@ public class RelationshipLoaderAlgorithm
     } else if (fromClassIdType.equals("SOURCE_DUI")) {
       relClass = DescriptorRelationshipJpa.class;
       newRelationship = new DescriptorRelationshipJpa();
-    } else if (fromClassIdType.equals("CODE_SOURCE")) {
+    } else if (fromClassIdType.equals("CODE_SOURCE") || fromClassIdType.equals("CODE_TERMGROUP")) {
       relClass = CodeRelationshipJpa.class;
       newRelationship = new CodeRelationshipJpa();
     } else if (fromClassIdType.equals("SRC_ATOM_ID")) {

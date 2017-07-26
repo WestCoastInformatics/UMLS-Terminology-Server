@@ -804,7 +804,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       return attribute;
     }
 
-    else if (type.equals("CODE_SOURCE")) {
+    else if (type.equals("CODE_SOURCE") || type.equals("CODE_TERMGROUP")) {
       if (!codeCachedTerms.contains(terminology)) {
         cacheExistingCodeIds(terminology);
       }
@@ -815,7 +815,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
       return getComponent(componentId, CodeJpa.class);
     }
-
+    
     else if (type.equals("SOURCE_CUI")) {
       if (!conceptCachedTerms.contains(terminology)) {
         cacheExistingConceptIds(terminology);

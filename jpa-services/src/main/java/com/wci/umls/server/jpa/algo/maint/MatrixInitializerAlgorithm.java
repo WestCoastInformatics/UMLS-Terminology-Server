@@ -15,13 +15,16 @@ import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.algo.action.UpdateConceptMolecularAction;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
+import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
@@ -166,6 +169,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       int prevProgress = 60;
       int statusChangeCt = 0;
       int publishableChangeCt = 0;
+      int stepsCompleted = 0;
       for (final Long conceptId : conceptsToChange) {
         // If in "updater" mode, skip concepts not accounted for.
         if (conceptIds != null && !conceptIds.contains(conceptId)) {
@@ -205,6 +209,8 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
           logInfo("  status change  = " + concept.getId());
           statusChangeCt++;
           found = true;
+          // Update tracking record
+          updateTrackingRecord(concept, status);
         }
 
         if (makeNeedsReview.contains(conceptId)) {
@@ -212,6 +218,8 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
           statusChangeCt++;
           logInfo("  status change  = " + concept.getId());
           found = true;
+          // Update tracking record
+          updateTrackingRecord(concept, status);
         }
 
         if (failures.contains(conceptId)
@@ -248,14 +256,14 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
             if (publishable != null) {
               action.setPublishable(publishable);
-            } else{
+            } else {
               action.setPublishable(concept.isPublishable());
             }
             action.setActivityId(getActivityId());
             action.setWorkId(getWorkId());
 
             final ValidationResult result =
-                performMolecularAction(action, getLastModifiedBy(), true);
+                performMolecularAction(action, getLastModifiedBy(), false);
             if (!result.isValid()) {
               throw new Exception("Invalid action - " + result);
             }
@@ -266,6 +274,8 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
             action.close();
           }
         }
+        stepsCompleted++;
+        logAndCommit(stepsCompleted, RootService.logCt, RootService.commitCt);
       }
 
       logInfo("  publishable changed = " + publishableChangeCt);
@@ -280,6 +290,25 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       throw e;
     }
 
+  }
+
+  private void updateTrackingRecord(Concept concept, WorkflowStatus status)
+    throws Exception {
+    // Any tracking record that references this concept may potentially be
+    // updated.
+    final TrackingRecordList records =
+        findTrackingRecordsForConcept(getProject(), concept, null, null);
+
+    // Set trackingRecord to READY_FOR_PUBLICATION if all contained
+    // concepts and atoms are all set to READY_FOR_PUBLICATION.
+    if (records != null) {
+      for (final TrackingRecord record : records.getObjects()) {
+        if (record.getWorkflowStatus() != status) {
+          record.setWorkflowStatus(status);
+          updateTrackingRecord(record);
+        }
+      }
+    }
   }
 
   /* see superclass */
