@@ -369,35 +369,34 @@ public class ContextLoaderAlgorithm
     // Compute tree positions
     //
 
-    TreePositionAlgorithm algo2 = null;
-    // Compute for organizing class types
-    if (terminology.getOrganizingClassType() != null) {
-      algo2 = new TreePositionAlgorithm();
-      algo2.setLastModifiedBy(getLastModifiedBy());
-      algo2.setTerminology(terminology.getTerminology());
-      algo2.setVersion(terminology.getVersion());
-      algo2.setIdType(terminology.getOrganizingClassType());
-      algo2.setWorkId(getWorkId());
-      algo2.setActivityId(getActivityId());
-      algo2.setCycleTolerant(false);
-      algo2.setComputeSemanticType(false);
-      algo2.setProject(getProject());
-      algo2.compute();
-      algo2.close();
-    } else {
-      algo2 = new TreePositionAlgorithm();
-      algo2.setLastModifiedBy(getLastModifiedBy());
-      algo2.setTerminology(terminology.getTerminology());
-      algo2.setVersion(terminology.getVersion());
-      algo2.setIdType(IdType.ATOM);
-      algo2.setWorkId(getWorkId());
-      algo2.setActivityId(getActivityId());
-      algo2.setCycleTolerant(false);
-      algo2.setComputeSemanticType(false);
-      algo2.setProject(getProject());
-      algo2.compute();
-      algo2.close();
-    }
+    // Compute for organizing class types and atoms (no way to know for sure
+    // which one needs doing. One algo will create tree positions, and
+    // the other won't, so it covers our bases).
+    TreePositionAlgorithm algo2 = new TreePositionAlgorithm();
+    algo2.setLastModifiedBy(getLastModifiedBy());
+    algo2.setTerminology(terminology.getTerminology());
+    algo2.setVersion(terminology.getVersion());
+    algo2.setIdType(terminology.getOrganizingClassType());
+    algo2.setWorkId(getWorkId());
+    algo2.setActivityId(getActivityId());
+    algo2.setCycleTolerant(false);
+    algo2.setComputeSemanticType(false);
+    algo2.setProject(getProject());
+    algo2.compute();
+    algo2.close();
+
+    algo2 = new TreePositionAlgorithm();
+    algo2.setLastModifiedBy(getLastModifiedBy());
+    algo2.setTerminology(terminology.getTerminology());
+    algo2.setVersion(terminology.getVersion());
+    algo2.setIdType(IdType.ATOM);
+    algo2.setWorkId(getWorkId());
+    algo2.setActivityId(getActivityId());
+    algo2.setCycleTolerant(false);
+    algo2.setComputeSemanticType(false);
+    algo2.setProject(getProject());
+    algo2.compute();
+    algo2.close();
   }
 
   /**
