@@ -191,7 +191,7 @@ public class ContextLoaderAlgorithm
 
           // Loop through the parentTreeRel string, stripping off trailing
           // elements until they're gone.
-          do {
+          while (parentTreeRelSub.contains(".")) {
             parentTreeRelSub = parentTreeRelSub.substring(0,
                 parentTreeRelSub.lastIndexOf("."));
             // If this particular sub PTR has never been seen, add with a child
@@ -210,7 +210,7 @@ public class ContextLoaderAlgorithm
                   ++currentChildDescendantCount[1]
               });
             }
-          } while (parentTreeRelSub.contains("."));
+          }
         }
       }
 
