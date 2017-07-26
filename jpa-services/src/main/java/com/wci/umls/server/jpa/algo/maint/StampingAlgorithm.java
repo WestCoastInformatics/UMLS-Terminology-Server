@@ -127,31 +127,38 @@ public class StampingAlgorithm extends AbstractAlgorithm {
             ((UpdateConceptMolecularAction) action)
                 .setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
           }
-          // set workflowStatus action to NEEDS_REVIEW
-          final Concept concept = action.getConcept(c.getId());
-          // Configure the action
-          action.setProject(getProject());
-          action.setActivityId(getActivityId());
-          action.setConceptId(concept.getId());
-          action.setConceptId2(null);
-          action.setLastModifiedBy(getLastModifiedBy());
-          action.setLastModified(concept.getLastModified().getTime());
-          action.setOverrideWarnings(true);
-          action.setTransactionPerOperation(false);
-          action.setMolecularActionFlag(true);
-          action.setChangeStatusFlag(true);
+          try {
+            // set workflowStatus action to NEEDS_REVIEW
+            final Concept concept = action.getConcept(c.getId());
+            // Configure the action
+            action.setProject(getProject());
+            action.setActivityId(getActivityId());
+            action.setConceptId(concept.getId());
+            action.setConceptId2(null);
+            action.setLastModifiedBy(getLastModifiedBy());
+            action.setLastModified(concept.getLastModified().getTime());
+            action.setOverrideWarnings(true);
+            action.setTransactionPerOperation(false);
+            action.setMolecularActionFlag(true);
+            action.setChangeStatusFlag(true);
 
-          // Perform the action
-          final ValidationResult validationResult =
-              action.performMolecularAction(action, getLastModifiedBy(), true);
+            // Perform the action
+            final ValidationResult validationResult = action
+                .performMolecularAction(action, getLastModifiedBy(), true);
 
-          // If the action failed, bail out now.
-          if (!validationResult.isValid()) {
-            logError("  unable to approve " + concept.getId());
-            for (final String error : validationResult.getErrors()) {
-              logError("    error = " + error);
+            // If the action failed, bail out now.
+            if (!validationResult.isValid()) {
+              logError("  unable to approve " + concept.getId());
+              for (final String error : validationResult.getErrors()) {
+                logError("    error = " + error);
+              }
             }
+          } catch (Exception e) {
+            action.rollback();
+          } finally {
+            action.close();
           }
+
         }
       }
 
