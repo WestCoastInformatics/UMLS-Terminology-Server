@@ -746,7 +746,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (atom != null) {
         atom.getAlternateTerminologyIds().size();
         atom.getConceptTerminologyIds().size();
-        atom.getNotes();
+        atom.getNotes().size();
+        atom.getDefinitions().size();
       }
       return atom;
     }
@@ -765,7 +766,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (atom != null) {
         atom.getAlternateTerminologyIds().size();
         atom.getConceptTerminologyIds().size();
-        atom.getNotes();
+        atom.getNotes().size();
+        atom.getDefinitions().size();        
       }
       return atom;
     }
@@ -784,7 +786,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (atom != null) {
         atom.getAlternateTerminologyIds().size();
         atom.getConceptTerminologyIds().size();
-        atom.getNotes();
+        atom.getNotes().size();
+        atom.getDefinitions().size();        
       }
       return atom;
     }
