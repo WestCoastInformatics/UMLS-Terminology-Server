@@ -37,7 +37,25 @@ create index x_asm_1 on atom_subset_members (terminologyId);
 create view classes_m4 as select a.id atom_d, a.name, a.terminology, a.version, a.publishable, a.stringClassId sui, a.lexicalClassId lui,  a.codeId code, a.conceptId scui, a.descriptorId sdui, c.id concept_id from atoms a, concepts_atoms b, concepts c where c.terminology = 'NCIMTH'   and atoms_id = a.id and concepts_id = c.id;
 create view auis_m4 as select a.id atom_id, b.alternateTerminologyIds aui from atoms a, AtomJpa_alternateTerminologyIds b where a.id = b.AtomJpa_id   and b.alternateTerminologyIds_KEY = 'NCIMTH';
 create view ruis_m4 as select a.id relationship_id, 'CONCEPT' type, b.alternateTerminologyIds rui from concept_relationships a, ConceptRelationshipJpa_alternateTerminologyIds b where a.id = b.ConceptRelationshipJpa_id   and b.alternateTerminologyIds_KEY = 'NCIMTH' union all select a.id relationship_id, 'CODE' type, b.alternateTerminologyIds rui from code_relationships a, CodeRelationshipJpa_alternateTerminologyIds b where a.id = b.CodeRelationshipJpa_id   and b.alternateTerminologyIds_KEY = 'NCIMTH' union all select a.id relationship_id, 'DESCRIPTOR' type, b.alternateTerminologyIds rui from descriptor_relationships a, DescriptorRelationshipJpa_alternateTerminologyIds b where a.id = b.DescriptorRelationshipJpa_id  and b.alternateTerminologyIds_KEY = 'NCIMTH' union all select a.id relationship_id, 'ATOM' type, b.alternateTerminologyIds rui from atom_relationships a, AtomRelationshipJpa_alternateTerminologyIds b where a.id = b.AtomRelationshipJpa_id  and b.alternateTerminologyIds_KEY = 'NCIMTH';
-
-  
-
-  
+CREATE VIEW ambig_concepts AS
+    SELECT DISTINCT
+        c1.id conceptId1, c2.id conceptId2
+    FROM
+        concepts c1,
+        concepts_atoms ca1,
+        atoms a1,
+        concepts c2,
+        concepts_atoms ca2,
+        atoms a2
+    WHERE
+        c1.terminology = 'NCIMTH'
+            AND c2.terminology = 'NCIMTH'
+            AND c1.id = ca1.concepts_id
+            AND ca1.atoms_id = a1.id
+            AND c2.id = ca2.concepts_id
+            AND ca2.atoms_id = a2.id
+            AND c1.id != c2.id
+            AND a1.lowerNameHash = a2.lowerNameHash
+            AND a1.id != a2.id
+            AND a1.publishable = TRUE
+            AND a2.publishable = TRUE;
