@@ -19,3 +19,4 @@ SET FOREIGN_KEY_CHECKS = 1;
 drop view if exists classes_m4;
 drop view if exists auis_m4;
 drop view if exists ruis_m4;
+drop view if exists ambig_concepts;
