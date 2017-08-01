@@ -1837,9 +1837,9 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
             + "        AND ca.atoms_Id = a.id "
             + "        AND a.id = cid.AtomJpa_id "
             + "        AND a.publishable = TRUE "
-            + "        AND cid.conceptTerminologyIds_KEY = :previousTerminologyVersion) "
+            + "        AND cid.conceptTerminologyIds_KEY = :latestTerminologyVersion) "
             + "        a2 " + "WHERE a1.CUI = a2.CUI "
-            + "AND a1.conceptId != a2.conceptId");
+            + "AND a1.conceptId < a2.conceptId");
     // Use all checks
     algoProperties.put("checkNames", allChecks);
     algoProperties.put("newAtomsOnly", "true");
