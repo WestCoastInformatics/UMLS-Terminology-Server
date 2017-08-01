@@ -357,6 +357,8 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
       undoAction.setMolecularActionId(molecularAction.getId());
       undoAction.setForce(false);
       undoAction.performMolecularAction(undoAction, getLastModifiedBy(), false);
+      
+      undoAction.close();
     }
     logInfo("Finished RESET " + getName());
   }
