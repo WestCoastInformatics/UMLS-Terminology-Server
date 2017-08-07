@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -206,12 +208,14 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    * @param fileName the file name
    * @param keepRegexFilter the regex filter
    * @param skipRegexFilter the skip regex filter
+   * @param sortField the sort field
    * @return the list
    * @throws Exception the exception
    */
   @SuppressWarnings("static-method")
   public List<String> loadFileIntoStringList(File srcDirFile, String fileName,
-    String keepRegexFilter, String skipRegexFilter) throws Exception {
+    String keepRegexFilter, String skipRegexFilter, Long sortField)
+    throws Exception {
     final String sourcesFile = srcDirFile + File.separator + fileName;
     BufferedReader sources = null;
     try {
@@ -248,6 +252,18 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     }
 
     sources.close();
+
+    // If sortField specified, sort.
+    if (sortField != null) {
+      int sortFieldInt = sortField.intValue();
+      Collections.sort(lines, new Comparator<String>() {
+        @Override
+        public int compare(String s1, String s2) {
+          return s1.split("|")[sortFieldInt]
+              .compareTo(s2.split("|")[sortFieldInt]);
+        }
+      });
+    }
 
     return lines;
   }
@@ -746,6 +762,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (atom != null) {
         atom.getAlternateTerminologyIds().size();
         atom.getConceptTerminologyIds().size();
+        atom.getNotes().size();
+        atom.getDefinitions().size();
       }
       return atom;
     }
@@ -764,6 +782,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (atom != null) {
         atom.getAlternateTerminologyIds().size();
         atom.getConceptTerminologyIds().size();
+        atom.getNotes().size();
+        atom.getDefinitions().size();
       }
       return atom;
     }
@@ -782,6 +802,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (atom != null) {
         atom.getAlternateTerminologyIds().size();
         atom.getConceptTerminologyIds().size();
+        atom.getNotes().size();
+        atom.getDefinitions().size();
       }
       return atom;
     }
@@ -815,7 +837,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
       return getComponent(componentId, CodeJpa.class);
     }
-    
+
     else if (type.equals("SOURCE_CUI")) {
       if (!conceptCachedTerms.contains(terminology)) {
         cacheExistingConceptIds(terminology);
@@ -1402,7 +1424,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     // Load the sources.src file
     //
     final List<String> lines =
-        loadFileIntoStringList(getSrcDirFile(), "sources.src", null, null);
+        loadFileIntoStringList(getSrcDirFile(), "sources.src", null, null, null);
 
     final String fields[] = new String[20];
 

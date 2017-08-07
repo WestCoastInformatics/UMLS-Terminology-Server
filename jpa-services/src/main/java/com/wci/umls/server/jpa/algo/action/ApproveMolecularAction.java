@@ -161,28 +161,27 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
     // Change status and update the components
     //
 
-    // For each atom, set workflow status to READY_FOR_PUBLICATION if
-    // NEEDS_REVIEW, and update
+    // For each atom, set workflow status to READY_FOR_PUBLICATION 
     for (final Atom atm : atoms) {
-      if (atm.getWorkflowStatus().equals(WorkflowStatus.NEEDS_REVIEW)) {
+      if (!atm.getWorkflowStatus().equals(WorkflowStatus.READY_FOR_PUBLICATION)) {
         atm.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
       }
     }
 
     // For each semantic type component, set workflow status to
-    // READY_FOR_PUBLICATION if NEEDS_REVIEW, and update Semantic type component
+    // READY_FOR_PUBLICATION, and update Semantic type component
     for (final SemanticTypeComponent sty : stys) {
-      if (sty.getWorkflowStatus().equals(WorkflowStatus.NEEDS_REVIEW)) {
+      if (!sty.getWorkflowStatus().equals(WorkflowStatus.READY_FOR_PUBLICATION)) {
         sty.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
       }
     }
 
     // For each relationship:
-    // Change workflow status from NEEDS_REVIEW to READY_FOR_PUBLiCATION
+    // Change workflow status to READY_FOR_PUBLiCATION
     // Change relationshipType to RO if it is not RO, RB, RN, or XR
     final List<String> typeList = Arrays.asList("RO", "RB", "RN", "XR");
     for (final ConceptRelationship rel : relationships) {
-      if (rel.getWorkflowStatus().equals(WorkflowStatus.NEEDS_REVIEW)) {
+      if (!rel.getWorkflowStatus().equals(WorkflowStatus.READY_FOR_PUBLICATION)) {
         rel.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
       }
       if (!typeList.contains(rel.getRelationshipType())) {
@@ -190,7 +189,7 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
       }
     }
     for (final ConceptRelationship inverseRel : inverseRelationships) {
-      if (inverseRel.getWorkflowStatus().equals(WorkflowStatus.NEEDS_REVIEW)) {
+      if (!inverseRel.getWorkflowStatus().equals(WorkflowStatus.READY_FOR_PUBLICATION)) {
         inverseRel.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
       }
       if (!typeList.contains(inverseRel.getRelationshipType())) {
@@ -217,9 +216,9 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
     //
     // Change status of the concept
     //
-    // Set workflow status to READY_FOR_PUBLICATION if NEEDS_REVIEW
+    // Set workflow status to READY_FOR_PUBLICATION
     // Also set the lastApproved and lastApprovedBy,
-    if (getConcept().getWorkflowStatus().equals(WorkflowStatus.NEEDS_REVIEW)) {
+    if (!getConcept().getWorkflowStatus().equals(WorkflowStatus.READY_FOR_PUBLICATION)) {
       getConcept().setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
     }
 

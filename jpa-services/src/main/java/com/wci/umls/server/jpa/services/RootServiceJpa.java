@@ -1630,6 +1630,12 @@ public abstract class RootServiceJpa implements RootService {
     QueryType queryType, Map<String, String> params,
     Class<? extends Component> clazz, boolean test) throws Exception {
 
+    Logger.getLogger(getClass()).info("  query params = ");
+    for (final String key : params.keySet()) {
+      Logger.getLogger(getClass()).info("   " + key + " -> " + params.get(key));
+    }
+    Logger.getLogger(getClass()).info("  query = " + query);
+
     // If query type is not filled out, return an empty List.
     if (ConfigUtility.isEmpty(query)) {
       return new ArrayList<>();
@@ -1761,9 +1767,9 @@ public abstract class RootServiceJpa implements RootService {
     Class<? extends Component> clazz, boolean test) throws Exception {
 
     // If query type is not filled out, return an empty List.
-    /*if (ConfigUtility.isEmpty(query)) {
-      return new ArrayList<>();
-    }*/
+    /*
+     * if (ConfigUtility.isEmpty(query)) { return new ArrayList<>(); }
+     */
     // Validate parameters and query
     validateQueryAndParams(query, queryType, params);
 
@@ -2255,9 +2261,9 @@ public abstract class RootServiceJpa implements RootService {
     final List<Object[]> list = jpaQuery.getResultList();
     final List<Long[]> results = new ArrayList<>();
     for (final Object[] entry : list) {
-      final Long clusterId = new Long(Long.parseLong(entry[0].toString())) ;//Long.valueOf(entry[0].toString());    
+      final Long clusterId = new Long(Long.parseLong(entry[0].toString()));// Long.valueOf(entry[0].toString());
       final Long conceptId = Long.valueOf(entry[1].toString());
-      
+
       final Long[] result = new Long[] {
           clusterId, conceptId
       };
@@ -2271,9 +2277,8 @@ public abstract class RootServiceJpa implements RootService {
   /* see superclass */
   @Override
   @SuppressWarnings("unchecked")
-  public int executeClusteredConceptQueryCt(String query,
-    QueryType queryType, Map<String, String> params)
-    throws Exception {
+  public int executeClusteredConceptQueryCt(String query, QueryType queryType,
+    Map<String, String> params) throws Exception {
 
     // If query type is not filled out, return an empty List.
     if (ConfigUtility.isEmpty(query)) {
@@ -2286,7 +2291,6 @@ public abstract class RootServiceJpa implements RootService {
     if (queryType == QueryType.LUCENE) {
       final PfsParameter pfs = new PfsParameterJpa();
       pfs.setQueryRestriction(query);
-      
 
       // Perform search
       final List<Long> ids =
@@ -2330,14 +2334,15 @@ public abstract class RootServiceJpa implements RootService {
         .matches("SELECT.* CLUSTERID.*FROM.*")) {
       clusterQuery = true;
     }
-    
+
     // Modify query to get the total count of items
     if (!query.toLowerCase().contains("distinct")) {
-      query = query.toLowerCase().replaceFirst("[\\n\\r]", " ").replaceFirst("[\\n\\r]", " ");
+      query = query.toLowerCase().replaceFirst("[\\n\\r]", " ")
+          .replaceFirst("[\\n\\r]", " ");
       query = query.replaceFirst("select.* from", "select count(*) from ");
     } else {
-      return executeClusteredConceptQuery(query,
-          queryType, params, false).size();
+      return executeClusteredConceptQuery(query, queryType, params, false)
+          .size();
     }
 
     if (!conceptQuery && !dualConceptQuery && !clusterQuery) {
@@ -2366,14 +2371,14 @@ public abstract class RootServiceJpa implements RootService {
         }
       }
     }
-    
+
     Logger.getLogger(getClass()).info("  query = " + query);
 
-    final List<Object> list = jpaQuery.getResultList();      
+    final List<Object> list = jpaQuery.getResultList();
     return ((BigInteger) list.get(0)).intValue();
 
   }
-  
+
   /**
    * Returns the default query params.
    *

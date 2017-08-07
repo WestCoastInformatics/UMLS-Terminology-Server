@@ -594,10 +594,10 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     Logger.getLogger(getClass()).info("Regenerate bin " + definition.getName());
 
     setTransactionPerOperation(false);
-
+    final Date startDate = new Date();
+    
     // Create the workflow bin
     final WorkflowBin bin = new WorkflowBinJpa();
-    bin.setCreationTime(new Date().getTime());
     bin.setName(definition.getName());
     bin.setDescription(definition.getDescription());
     bin.setEditable(definition.isEditable());
@@ -735,6 +735,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
     commitClearBegin();
     setTransactionPerOperation(false);
+    bin.setCreationTime(new Date().getTime() - startDate.getTime());
     updateWorkflowBin(bin);
 
     return bin;

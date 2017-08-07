@@ -28,7 +28,7 @@ tsApp.controller('EditRelationshipModalCtrl', [
     $scope.toConcept = null;
     $scope.overrideWarnings = false;
     $scope.selectedRelationshipType = 'RO';
-    $scope.acceptedRelationshipTypeStrings = [ 'RO', 'RB', 'RN'];
+    $scope.acceptedRelationshipTypeStrings = [ 'RO', 'RB', 'RN', 'BRO', 'BRB', 'BRN'];
     $scope.acceptedRelationshipTypes = [ {
       'key' : 'XR',
       'value' : '(none)'

@@ -124,7 +124,7 @@ public class AttributeLoaderAlgorithm
       //
       final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
           "attributes.src", null,
-          "(.*)(SEMANTIC_TYPE|CONTEXT|SUBSET_MEMBER|XMAP|XMAPTO|XMAPFROM|UMLSCUI)(.*)");
+          "(.*)(SEMANTIC_TYPE|CONTEXT|SUBSET_MEMBER|XMAP|XMAPTO|XMAPFROM|UMLSCUI)(.*)", null);
 
       // Set the number of steps to the number of lines to be processed
       setSteps(lines.size());
