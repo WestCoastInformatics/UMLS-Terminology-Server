@@ -119,7 +119,7 @@ public class WorkflowBinJpa implements WorkflowBin {
 
   /** The creation time. */
   @Column(nullable = false)
-  private Long creationTime = null;
+  private Long creationTime = 0L;
 
   /** The cluster count. Needed for "uneditable" bins. */
   @Column(nullable = false)
