@@ -125,7 +125,7 @@ public class MapSetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       final List<String> lines =
           loadFileIntoStringList(getSrcDirFile(), "attributes.src",
               "(.*)(MAPSETNAME|MAPSETVERSION|TOVSAB|TORSAB|FROMRSAB|FROMVSAB|MAPSETGRAMMAR|MAPSETRSAB|MAPSETTYPE|MAPSETVSAB|MTH_MAPFROMEXHAUSTIVE|MTH_MAPTOEXHAUSTIVE|MTH_MAPSETCOMPLEXITY|MTH_MAPFROMCOMPLEXITY|MTH_MAPTOCOMPLEXITY|MAPSETXRTARGETID|MAPSETSID|XMAP|XMAPTO|XMAPFROM)(.*)",
-              null);
+              null, null);
 
       // Set the number of steps to twice the number of lines to be processed
       // (we'll be looping through everything twice)

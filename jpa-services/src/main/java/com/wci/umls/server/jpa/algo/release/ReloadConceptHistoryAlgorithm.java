@@ -115,7 +115,7 @@ public class ReloadConceptHistoryAlgorithm
         + "/META");
 
     final List<String> lines =
-        loadFileIntoStringList(path, "MRCUI.RRF", null, null);
+        loadFileIntoStringList(path, "MRCUI.RRF", null, null, null);
 
     // Loop through MRCUI, saving all lines associated with each CUI1 to a map
     final Map<String, List<String>> cuiHistoryLines = new HashMap<>();

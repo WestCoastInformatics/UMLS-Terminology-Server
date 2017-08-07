@@ -123,7 +123,7 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       // Load the attributes.src file, keeping only subset member lines
       //
       final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
-          "attributes.src", "(.*)(SUBSET_MEMBER)(.*)", null);
+          "attributes.src", "(.*)(SUBSET_MEMBER)(.*)", null, null);
 
       // Set the number of steps to twice the number of lines to be processed
       // (we'll be looping through everything twice)

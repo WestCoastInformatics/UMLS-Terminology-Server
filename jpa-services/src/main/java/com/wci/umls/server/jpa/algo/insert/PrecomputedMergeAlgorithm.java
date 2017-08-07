@@ -141,7 +141,7 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
       // Load the mergefacts.src file
       //
       final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
-          "mergefacts.src", "(.*)" + mergeSet + "(.*)", null);
+          "mergefacts.src", "(.*)" + mergeSet + "(.*)", null, null);
 
       // Set the number of steps to twice the number of lines to be processed
       // This is so processing the mergefacts.src will show up as 50% of the

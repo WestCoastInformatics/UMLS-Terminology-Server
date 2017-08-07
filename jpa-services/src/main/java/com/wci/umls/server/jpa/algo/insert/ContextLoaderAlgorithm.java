@@ -120,7 +120,7 @@ public class ContextLoaderAlgorithm
       // Load the contexts.src file
       //
       final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
-          "contexts.src", null, "(.*)SIB(.*)");
+          "contexts.src", null, "(.*)SIB(.*)", null);
 
       // Scan the contexts.src file and see if HCD (hierarchical code)
       // for a given terminology is populated.
@@ -674,7 +674,7 @@ public class ContextLoaderAlgorithm
     // Load the contexts.src file
     //
     final List<String> lines =
-        loadFileIntoStringList(getSrcDirFile(), "contexts.src", null, null);
+        loadFileIntoStringList(getSrcDirFile(), "contexts.src", null, null, null);
 
     // Scan through contexts.src, and collect all terminology/versions
     // referenced.

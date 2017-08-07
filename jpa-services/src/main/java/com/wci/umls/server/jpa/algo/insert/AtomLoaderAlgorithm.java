@@ -101,7 +101,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       // Load the classes_atoms.src file
       //
       final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
-          "classes_atoms.src", null, null);
+          "classes_atoms.src", null, null, null);
 
       logInfo("  Process classes_atoms.src");
       commitClearBegin();

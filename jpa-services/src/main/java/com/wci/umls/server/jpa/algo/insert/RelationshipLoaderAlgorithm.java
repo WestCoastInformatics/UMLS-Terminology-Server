@@ -59,6 +59,9 @@ public class RelationshipLoaderAlgorithm
   /** The replace flag (only set to true by ReplaceRelationshipAlgorithm). */
   protected Boolean replace = false;
 
+  /** The current class id type. Used to determine when to clear caches */
+  private String currentClassIdType = null;
+
   /**
    * The bequeathal rels flag (only set to true by
    * BequeathalRelationshipAlgorithm
@@ -162,7 +165,7 @@ public class RelationshipLoaderAlgorithm
       // Load the relationships.src file
       //
       final List<String> lines =
-          loadFileIntoStringList(getSrcDirFile(), fileName, null, null);
+          loadFileIntoStringList(getSrcDirFile(), fileName, null, null, 14L);
 
       //
       // Load the contexts.src file
@@ -172,13 +175,11 @@ public class RelationshipLoaderAlgorithm
       if (!(bequeathalRels || replace)) {
         // Only keep "PAR" relationship rows.
         lines2 = loadFileIntoStringList(getSrcDirFile(), "contexts.src",
-            "[0-9]+?\\|PAR(.*)", null);
+            "[0-9]+?\\|PAR(.*)", null, null);
 
         // There will be many duplicated lines in the contexts.src file, since
-        // the
-        // main
-        // distinguishing field "parent_treenum" is ignored for these purposes.
-        // Remove the dups.
+        // the main distinguishing field "parent_treenum" is ignored for these
+        // purposes. Remove the dups.
         lines2 = removeDups(lines2);
       }
 
@@ -334,16 +335,20 @@ public class RelationshipLoaderAlgorithm
 
         final String fromTermId = fields[5];
         String fromTermAndVersion = fields[15];
-        // UMLS insertions may include a '/' and a termtype.  If so, strip it out.
-        if(fromTermAndVersion.contains("/")){
-          fromTermAndVersion = fromTermAndVersion.substring(0, fromTermAndVersion.indexOf("/"));
+        // UMLS insertions may include a '/' and a termtype. If so, strip it
+        // out.
+        if (fromTermAndVersion.contains("/")) {
+          fromTermAndVersion =
+              fromTermAndVersion.substring(0, fromTermAndVersion.indexOf("/"));
         }
         final String fromClassIdType = fields[14];
         final String toTermId = fields[2];
         String toTermAndVersion = fields[13];
-        // UMLS insertions may include a '/' and a termtype.  If so, strip it out.
-        if(toTermAndVersion.contains("/")){
-          toTermAndVersion = toTermAndVersion.substring(0, toTermAndVersion.indexOf("/"));
+        // UMLS insertions may include a '/' and a termtype. If so, strip it
+        // out.
+        if (toTermAndVersion.contains("/")) {
+          toTermAndVersion =
+              toTermAndVersion.substring(0, toTermAndVersion.indexOf("/"));
         }
         final String toClassIdType = fields[12];
         final String additionalRelType = fields[4];
@@ -516,6 +521,13 @@ public class RelationshipLoaderAlgorithm
     final String workflowStatusStr, final Boolean fromContextsSrcFile)
     throws Exception {
 
+    // If we've reached a a new classIdType, clear the caches so we don't max
+    // out the memory
+    if (currentClassIdType == null
+        || currentClassIdType.equals(fromClassIdType)) {
+      clearCaches();
+      currentClassIdType = fromClassIdType;
+    }
     // NEW THINKING: allow a component info relationship from a SCUI/SDUI/CODE
     // -> SRC atom
     // For the contexts.src file relationships only, if to and from ClassTypes
@@ -589,7 +601,8 @@ public class RelationshipLoaderAlgorithm
     } else if (fromClassIdType.equals("SOURCE_DUI")) {
       relClass = DescriptorRelationshipJpa.class;
       newRelationship = new DescriptorRelationshipJpa();
-    } else if (fromClassIdType.equals("CODE_SOURCE") || fromClassIdType.equals("CODE_TERMGROUP")) {
+    } else if (fromClassIdType.equals("CODE_SOURCE")
+        || fromClassIdType.equals("CODE_TERMGROUP")) {
       relClass = CodeRelationshipJpa.class;
       newRelationship = new CodeRelationshipJpa();
     } else if (fromClassIdType.equals("SRC_ATOM_ID")) {
