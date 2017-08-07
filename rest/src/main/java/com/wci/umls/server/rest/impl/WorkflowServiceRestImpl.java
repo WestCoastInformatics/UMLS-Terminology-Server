@@ -3345,7 +3345,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           sb.append(concept.getName()).append(" ");
         }
         record.setIndexedData(sb.toString());
-        workflowService.computeTrackingRecordStatus(record);
+        workflowService.computeTrackingRecordStatus(record, true);
         final TrackingRecord newRecord =
             workflowService.addTrackingRecord(record);
         // Add the record to the checklist.

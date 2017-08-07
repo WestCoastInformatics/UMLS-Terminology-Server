@@ -262,8 +262,8 @@ public interface WorkflowService extends ContentService {
    * @throws Exception the exception
    */
   public WorkflowConfigList findWorkflowConfigs(Long projectId, String query,
-    PfsParameter pfs) throws Exception;  
-  
+    PfsParameter pfs) throws Exception;
+
   /**
    * Add workflow bin definition.
    *
@@ -488,11 +488,12 @@ public interface WorkflowService extends ContentService {
    * Compute tracking record status.
    *
    * @param record the record
+   * @param batch the batch
    * @return the workflow status
    * @throws Exception the exception
    */
-  public WorkflowStatus computeTrackingRecordStatus(TrackingRecord record)
-    throws Exception;
+  public WorkflowStatus computeTrackingRecordStatus(TrackingRecord record,
+    Boolean batch) throws Exception;
 
   /**
    * Returns the concept id worklist name map.

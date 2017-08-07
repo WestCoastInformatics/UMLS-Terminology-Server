@@ -666,7 +666,7 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
         if (records != null) {
           for (final TrackingRecord record : records.getObjects()) {
             if (!recordsSeen.contains(record.getId())) {
-              final WorkflowStatus status = computeTrackingRecordStatus(record);
+              final WorkflowStatus status = computeTrackingRecordStatus(record, false);
               if (record.getWorkflowStatus() != status) {
                 record.setWorkflowStatus(status);
                 updateTrackingRecord(record);

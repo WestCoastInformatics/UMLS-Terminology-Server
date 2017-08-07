@@ -109,7 +109,8 @@ public class ReportChecklistAlgorithm
         logInfo("  Created chk_" + term + "_" + version
             + "_NEEDS_REVIEW checklist, containing "
             + checklist.getTrackingRecords().size() + " tracking records.");
-
+        commitClearBegin();
+        
         checklist = computeChecklist(getProject(),
             queryPrefix + " AND atoms.workflowStatus:DEMOTION",
             QueryType.LUCENE, "chk_" + term + "_" + version + "_DEMOTION", null,
@@ -117,7 +118,8 @@ public class ReportChecklistAlgorithm
         logInfo("  Created chk_" + term + "_" + version
             + "_DEMOTION checklist, containing "
             + checklist.getTrackingRecords().size() + " tracking records.");
-
+        commitClearBegin();
+        
         checklist = computeChecklist(getProject(),
             queryPrefix + " AND atoms.workflowStatus:READY_FOR_PUBLICATION",
             QueryType.LUCENE,
@@ -126,6 +128,7 @@ public class ReportChecklistAlgorithm
         logInfo("  Created chk_" + term + "_" + version
             + "_READY_FOR_PUBLICATION checklist, containing "
             + checklist.getTrackingRecords().size() + " tracking records.");
+        commitClearBegin();
 
         checklist = computeChecklist(getProject(),
             queryPrefix + " AND atoms.lastModifiedBy:ENG-*", QueryType.LUCENE,
@@ -133,6 +136,7 @@ public class ReportChecklistAlgorithm
         logInfo("  Created chk_" + term + "_" + version
             + "_MIDMERGES checklist, containing "
             + checklist.getTrackingRecords().size() + " tracking records.");
+        commitClearBegin();
 
         // Update the progress
         updateProgress();
