@@ -148,6 +148,9 @@ public class MergeMolecularAction extends AbstractMolecularAction {
           atom.getRelationships())) {
         if (atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)
             && getToConcept().getAtoms().contains(atomRel.getTo())) {
+          if(atomCopy.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)){
+            atomCopy.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+          }
           atomCopy.getRelationships().remove(atomRel);
           updateAtom(atomCopy);
           demotionCopies.add(new AtomRelationshipJpa(atomRel, false));
@@ -164,6 +167,9 @@ public class MergeMolecularAction extends AbstractMolecularAction {
         if (atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)
             && getFromConcept().getAtoms().contains(atomRel.getTo())) {
           Atom atomCopy = new AtomJpa(atom, true);
+          if(atomCopy.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)){
+            atomCopy.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+          }
           atomCopy.getRelationships().remove(atomRel);
           updateAtom(atomCopy);
           demotionCopies.add(new AtomRelationshipJpa(atomRel, false));
