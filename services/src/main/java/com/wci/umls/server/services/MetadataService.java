@@ -115,6 +115,15 @@ public interface MetadataService extends ProjectService {
   public String getPreviousVersion(String terminology) throws Exception;
 
   /**
+   * Returns the two versions ago.
+   *
+   * @param terminology the terminology
+   * @return the two versions ago
+   * @throws Exception the exception
+   */
+  public String getTwoVersionsAgo(String terminology) throws Exception;
+  
+  /**
    * Returns the terminology latest versions.
    * 
    * @return the terminology latest versions
@@ -709,4 +718,5 @@ public interface MetadataService extends ProjectService {
    */
   public Language getLanguage(String language, String terminology,
     String version) throws Exception;
+
 }

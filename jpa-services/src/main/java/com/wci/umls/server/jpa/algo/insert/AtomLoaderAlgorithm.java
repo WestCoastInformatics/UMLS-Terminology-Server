@@ -113,6 +113,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       String previousVersion = null;
       String latestVersion = null;
+      String twoVersionsAgo = null;
 
       // Each line of classes_atoms.src corresponds to one atom.
       // Check to make sure the atom doesn't already exist in the database
@@ -237,11 +238,27 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
                       + getProcess().getTerminology());
             }
           }
+          // If two versions ago has not been looked up yet, attempt to.
+          if (twoVersionsAgo == null) {
+            twoVersionsAgo = getTwoVersionsAgo(getProcess().getTerminology());
+            if (twoVersionsAgo == null) {
+              throw new Exception(
+                  "WARNING - two versions ago not found for terminology = "
+                      + getProcess().getTerminology());
+            }
+          }
 
-          final String oldLastReleaseCui = oldAtom.getConceptTerminologyIds()
-              .get(getProcess().getTerminology() + previousVersion);
           final String latestLastReleaseCui = oldAtom.getConceptTerminologyIds()
               .get(getProcess().getTerminology() + latestVersion);
+          String oldLastReleaseCui = oldAtom.getConceptTerminologyIds()
+              .get(getProcess().getTerminology() + previousVersion);
+          // Some atoms are included every other release. If not found for
+          // preiousVersion, attempt to find last_release_cui for twoVersionsAgo
+          if (oldLastReleaseCui == null) {
+            oldLastReleaseCui = oldAtom.getConceptTerminologyIds()
+                .get(getProcess().getTerminology() + twoVersionsAgo);
+          }
+
           // If a last_releas_cui is found for the insertion's terminology and
           // version, it means this atom was already handled on a previous run
           // of AtomLoader.

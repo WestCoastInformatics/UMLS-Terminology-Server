@@ -347,6 +347,46 @@ public class MetadataServiceJpa extends ProjectServiceJpa
 
   /* see superclass */
   @Override
+  public String getTwoVersionsAgo(String terminology) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Metadata service - get latest version " + terminology);
+    Query query = manager.createQuery(
+        "SELECT max(t.version) from TerminologyJpa t where terminology = :terminology");
+
+    query.setParameter("terminology", terminology);
+    Object o = query.getSingleResult();
+    if (o == null) {
+      return null;
+    }
+    final String latestVersion = o.toString();
+
+    query = manager.createQuery(
+        "SELECT max(t.version) from TerminologyJpa t where terminology = :terminology and not version = :version");
+
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", latestVersion);
+    o = query.getSingleResult();
+    if (o == null) {
+      return null;
+    }
+    final String previousVersion = o.toString();
+    
+    query = manager.createQuery(
+        "SELECT max(t.version) from TerminologyJpa t where terminology = :terminology and not version = :latestVersion and not version = :previousVersion");
+
+    query.setParameter("terminology", terminology);
+    query.setParameter("latestVersion", latestVersion);
+    query.setParameter("previousVersion", previousVersion);
+    o = query.getSingleResult();
+    if (o == null) {
+      return null;
+    } 
+    return o.toString();
+
+  }  
+  
+  /* see superclass */
+  @Override
   public TerminologyList getTerminologyLatestVersions() throws Exception {
     Logger.getLogger(getClass())
         .debug("Metadata service - get latest terminology versions");
