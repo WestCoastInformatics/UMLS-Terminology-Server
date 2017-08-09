@@ -762,8 +762,12 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (atom != null) {
         atom.getAlternateTerminologyIds().size();
         atom.getConceptTerminologyIds().size();
-        atom.getNotes().size();
+        atom.setNotes(new ArrayList<>());
         atom.getDefinitions().size();
+        // NOTE: If above doesn't work, try the following
+        for (final Definition definition : atom.getDefinitions()) {
+          definition.getValue();
+        }
       }
       return atom;
     }
@@ -782,8 +786,12 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (atom != null) {
         atom.getAlternateTerminologyIds().size();
         atom.getConceptTerminologyIds().size();
-        atom.getNotes().size();
+        atom.setNotes(new ArrayList<>());
         atom.getDefinitions().size();
+        // NOTE: If above doesn't work, try the following
+        for (final Definition definition : atom.getDefinitions()) {
+          definition.getValue();
+        }
       }
       return atom;
     }
@@ -802,8 +810,12 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (atom != null) {
         atom.getAlternateTerminologyIds().size();
         atom.getConceptTerminologyIds().size();
-        atom.getNotes().size();
+        atom.setNotes(new ArrayList<>());
         atom.getDefinitions().size();
+        // NOTE: If above doesn't work, try the following
+        for (final Definition definition : atom.getDefinitions()) {
+          definition.getValue();
+        }
       }
       return atom;
     }
@@ -1423,8 +1435,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     //
     // Load the sources.src file
     //
-    final List<String> lines =
-        loadFileIntoStringList(getSrcDirFile(), "sources.src", null, null, null);
+    final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
+        "sources.src", null, null, null);
 
     final String fields[] = new String[20];
 
