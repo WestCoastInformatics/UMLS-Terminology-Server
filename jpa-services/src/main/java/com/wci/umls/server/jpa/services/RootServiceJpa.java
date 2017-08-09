@@ -1462,14 +1462,18 @@ public abstract class RootServiceJpa implements RootService {
    * @param action the action
    * @param userName the user name
    * @param performMaintanence the perform maintanence
+   * @param batchMode the batch mode
    * @return the validation result
    * @throws Exception the exception
    */
   public ValidationResult performMolecularAction(AbstractMolecularAction action,
-    String userName, boolean performMaintanence) throws Exception {
+    String userName, boolean performMaintanence, boolean batchMode)
+    throws Exception {
 
     // Start transaction
-    action.beginTransaction();
+    if (!batchMode) {
+      action.beginTransaction();
+    }
 
     // Do some standard intialization and precondition checking
     // action and prep services
@@ -1520,11 +1524,14 @@ public abstract class RootServiceJpa implements RootService {
     //
     action.compute();
 
-    // create the log entries
-    action.logAction();
+    // If not in batch mode, create log entries and commit
+    if (!batchMode) {
+      // create the log entries
+      action.logAction();
 
-    // commit (also removes the lock)
-    action.commit();
+      // commit (also removes the lock)
+      action.commit();
+    }
 
     // Perform post-action maintenance on affected concept(s)
     // DO this in a separate transaction - maybe some issues with

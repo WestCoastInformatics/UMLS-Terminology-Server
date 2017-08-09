@@ -144,7 +144,7 @@ public class StampingAlgorithm extends AbstractAlgorithm {
 
             // Perform the action
             final ValidationResult validationResult = action
-                .performMolecularAction(action, getLastModifiedBy(), true);
+                .performMolecularAction(action, getLastModifiedBy(), true, false);
 
             // If the action failed, bail out now.
             if (!validationResult.isValid()) {

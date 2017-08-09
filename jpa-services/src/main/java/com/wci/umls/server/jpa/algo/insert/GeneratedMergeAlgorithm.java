@@ -254,7 +254,7 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
       undoAction.setChangeStatusFlag(true);
       undoAction.setMolecularActionId(molecularAction.getId());
       undoAction.setForce(false);
-      undoAction.performMolecularAction(undoAction, getLastModifiedBy(), false);
+      undoAction.performMolecularAction(undoAction, getLastModifiedBy(), false, false);
       
       undoAction.close();
     }

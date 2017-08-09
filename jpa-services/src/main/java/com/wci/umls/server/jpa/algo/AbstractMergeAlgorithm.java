@@ -164,7 +164,7 @@ public abstract class AbstractMergeAlgorithm
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, getLastModifiedBy(), false);
+          action.performMolecularAction(action, getLastModifiedBy(), false, false);
 
       // If the action failed, log the failure, and make a demotion if
       // makeDemotion=true.
@@ -216,7 +216,7 @@ public abstract class AbstractMergeAlgorithm
           action2.setConceptId2(toConcept.getId());
           action2.setLastModifiedBy(getLastModifiedBy());
           ValidationResult demotionValidationResult = action2
-              .performMolecularAction(action2, getLastModifiedBy(), false);
+              .performMolecularAction(action2, getLastModifiedBy(), false, false);
 
           // If there is already a demotion between these two atoms, it will
           // return a validation error
