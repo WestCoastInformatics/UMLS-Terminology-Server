@@ -260,11 +260,17 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
             action.setMolecularActionFlag(true);
             action.setChangeStatusFlag(true);
 
-          if (publishable != null) {
-            concept.setPublishable(publishable);
-          }
+            if (publishable != null) {
+              action.setPublishable(publishable);
+            } else {
+              action.setPublishable(concept.isPublishable());
+            }
 
-          updateConcept(concept);
+            if (status != null) {
+              action.setWorkflowStatus(status);
+            } else {
+              action.setWorkflowStatus(concept.getWorkflowStatus());
+            }
 
             final ValidationResult result = performMolecularAction(action,
                 getLastModifiedBy(), false, true);
@@ -322,7 +328,8 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       }
     }
 
-    // Get the concept's atom Ids, and find all tracking records for those atom Ids
+    // Get the concept's atom Ids, and find all tracking records for those atom
+    // Ids
     final Set<Long> trackingRecordIds = new HashSet<>();
     final List<Long> atomIds = concept.getAtoms().stream().map(a -> a.getId())
         .collect(Collectors.toList());
