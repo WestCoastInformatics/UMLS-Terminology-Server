@@ -132,8 +132,7 @@
                     ng-change="toggleEnable(bin);" ng-model="bin.enabled"></input>
                   <i ng-click="openEditBinModal(bin)" ng-show="bin.enabled"
                     title="Edit Bin" class="noul glyphicon glyphicon-pencil"></i>
-                  <i confirm="Are you sure you want to regenerate the bin?"
-                    ng-click="regenerateBin(bin)" ng-show="bin.enabled"
+                  <i ng-click="regenerateBin(bin)" ng-show="bin.enabled"
                     title="Regenerate Bin"
                     class="noul glyphicon glyphicon-repeat"></i>
                   <i ng-click="openCloneBinModal(bin)" ng-show="bin.enabled"
