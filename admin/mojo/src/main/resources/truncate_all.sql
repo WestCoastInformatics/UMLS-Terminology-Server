@@ -15,8 +15,10 @@ DEALLOCATE PREPARE stmt;
 -- Reenable foreign key constraints
 SET FOREIGN_KEY_CHECKS = 1;
 
--- See import.sql, any view created should be dropped here
+-- See import.sql, any view or table created should be dropped here
 drop view if exists classes_m4;
 drop view if exists auis_m4;
 drop view if exists ruis_m4;
 drop view if exists ambig_concepts;
+drop table if exists deep_atom_relationships;
+drop table if exists deep_concept_relationships;

@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.algo.RrfUnpublishedLoaderAlgorithm;
+import com.wci.umls.server.jpa.algo.maint.BuildDeepRelTablesAlgorithm;
 
 /**
  * A mechanism to reset to the stock dev database for NCI-META testing.
@@ -140,6 +141,17 @@ public class ResetNciMetaDatabase {
     algo.commitClearBegin();
     Logger.getLogger(getClass()).info("Finished unpublished loader algorithm");
 
+    // Build the deep_relationships tables
+    Logger.getLogger(getClass())
+        .info("Run rebuild deep relationship tables algorithm");
+    final BuildDeepRelTablesAlgorithm buildAlgo =
+        new BuildDeepRelTablesAlgorithm();
+    buildAlgo.setTransactionPerOperation(false);
+    buildAlgo.beginTransaction();
+    buildAlgo.compute();
+    buildAlgo.commitClearBegin();
+    Logger.getLogger(getClass())
+        .info("Finished rebuild deep relationship tables algorithm");
   }
 
   /**
