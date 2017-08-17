@@ -93,7 +93,19 @@ public class ResetNciMetaDatabase {
       throw result.getExecutionException();
     }
 
-    // Generate Sample Data
+    // Build the deep_relationships tables
+    Logger.getLogger(getClass())
+        .info("Run rebuild deep relationship tables algorithm");
+    final BuildDeepRelTablesAlgorithm buildAlgo =
+        new BuildDeepRelTablesAlgorithm();
+    buildAlgo.setTransactionPerOperation(false);
+    buildAlgo.beginTransaction();
+    buildAlgo.compute();
+    buildAlgo.commitClearBegin();
+    Logger.getLogger(getClass())
+        .info("Finished rebuild deep relationship tables algorithm");    
+    
+    // Generate MetaData
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/loader/pom.xml"));
     request.setProfiles(Arrays.asList("GenerateNciMetaData"));
@@ -141,17 +153,6 @@ public class ResetNciMetaDatabase {
     algo.commitClearBegin();
     Logger.getLogger(getClass()).info("Finished unpublished loader algorithm");
 
-    // Build the deep_relationships tables
-    Logger.getLogger(getClass())
-        .info("Run rebuild deep relationship tables algorithm");
-    final BuildDeepRelTablesAlgorithm buildAlgo =
-        new BuildDeepRelTablesAlgorithm();
-    buildAlgo.setTransactionPerOperation(false);
-    buildAlgo.beginTransaction();
-    buildAlgo.compute();
-    buildAlgo.commitClearBegin();
-    Logger.getLogger(getClass())
-        .info("Finished rebuild deep relationship tables algorithm");
   }
 
   /**
