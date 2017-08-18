@@ -707,7 +707,8 @@ public class RrfUnpublishedLoaderAlgorithm
 
     final String[] files = new String[] {
         "deletedCuiNames.txt", "conceptNotes.txt", "atomNotes.txt",
-        "icSingle.txt", "icPair.txt", "srcAtomIds.txt", "xrRelationships.txt"
+        /*"icSingle.txt", "icPair.txt", */
+        "srcAtomIds.txt", "xrRelationships.txt", "ruiDaFlags.txt", "umlscui.txt"
     };
     for (final String f : files) {
       // Check file
