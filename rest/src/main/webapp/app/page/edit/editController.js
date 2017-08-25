@@ -836,7 +836,7 @@ tsApp
 
               // select previously selected record if saved in user
               // preferences
-              if ($scope.user.userPreferences.properties['editRecord']) {
+              if ($scope.user.userPreferences.properties['editRecord'] & !selectFirst) {
                 for (var i = 0; i < $scope.lists.records.length; i++) {
                   if (needToSelectRecord(i)) {
                     $scope.selectRecord($scope.lists.records[i]);
