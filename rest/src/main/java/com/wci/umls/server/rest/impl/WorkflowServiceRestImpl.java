@@ -2949,7 +2949,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful call (Workflow): /definition/test ");
+        .info("RESTful call (Workflow): /query/test ");
 
     final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
     try {

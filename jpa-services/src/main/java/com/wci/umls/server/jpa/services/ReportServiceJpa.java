@@ -417,13 +417,13 @@ public class ReportServiceJpa extends HistoryServiceJpa
     if (concept != null) {
       relList = findConceptDeepRelationships(concept.getTerminologyId(),
           concept.getTerminology(), concept.getVersion(), Branch.ROOT, null,
-          false, true, true, false, new PfsParameterJpa()).getObjects();
+          true, true, true, false, new PfsParameterJpa()).getObjects();
     }
 
     // Handle descriptor rels
     if (comp instanceof Descriptor) {
       relList = findDescriptorRelationships(comp.getTerminologyId(),
-          comp.getTerminology(), comp.getVersion(), Branch.ROOT, null, false,
+          comp.getTerminology(), comp.getVersion(), Branch.ROOT, null, true,
           null).getObjects();
     }
 
@@ -431,7 +431,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
     if (comp instanceof Code) {
       relList =
           findCodeRelationships(comp.getTerminologyId(), comp.getTerminology(),
-              comp.getVersion(), Branch.ROOT, null, false, null).getObjects();
+              comp.getVersion(), Branch.ROOT, null, true, null).getObjects();
     }
 
     // Lexical Relationships
