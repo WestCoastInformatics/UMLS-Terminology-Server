@@ -329,7 +329,8 @@ public class ReportServiceJpa extends HistoryServiceJpa
       }
 
       // Name/termgroup/code
-      sb.append(atom.getName()).append(" [");
+      sb.append(atom.getName().replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;").replaceAll("'", "&apos;")).append(" [");
       sb.append(getTerminologyAndVersion(atom)).append("/");
       sb.append(atom.getTermType()).append("/");
       sb.append(atom.getCodeId()).append("]");
