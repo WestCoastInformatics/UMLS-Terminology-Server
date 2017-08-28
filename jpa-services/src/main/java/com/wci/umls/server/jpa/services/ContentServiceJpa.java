@@ -3693,14 +3693,19 @@ public class ContentServiceJpa extends MetadataServiceJpa
       for (final Object[] result : results) {
         final ConceptRelationship relationship = new ConceptRelationshipJpa();
         relationship.setId(Long.parseLong(result[0].toString()));
-        relationship.setFrom(concept);
-        final Concept toConcept = new ConceptJpa();
-        toConcept.setTerminology(concept.getTerminology());
-        toConcept.setVersion(concept.getVersion());
-        toConcept.setTerminologyId(result[6].toString());
-        toConcept.setId(Long.valueOf(result[12].toString()));
-        toConcept.setName(result[11].toString());
-        relationship.setTo(toConcept);
+        final Concept relatedConcept = new ConceptJpa();
+        relatedConcept.setTerminology(concept.getTerminology());
+        relatedConcept.setVersion(concept.getVersion());
+        relatedConcept.setTerminologyId(result[6].toString());
+        relatedConcept.setId(Long.valueOf(result[12].toString()));
+        relatedConcept.setName(result[11].toString());
+        if (!inverseFlag) {
+          relationship.setFrom(concept);
+          relationship.setTo(relatedConcept);
+        } else {
+          relationship.setTo(concept);
+          relationship.setFrom(relatedConcept);
+        }
         relationship.setTerminologyId(result[1].toString());
         relationship.setTerminology(result[2].toString());
         relationship.setVersion(result[3].toString());
