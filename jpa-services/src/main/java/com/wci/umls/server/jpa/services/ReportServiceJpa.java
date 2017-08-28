@@ -464,7 +464,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
     }
 
     // Demoted Related Concepts
-    final List<String> usedToIds = new ArrayList<>();
+    final List<String> usedFromIds = new ArrayList<>();
     final List<ConceptRelationship> demotionRelationships = new ArrayList<>();
     for (final Relationship<?, ?> relationship : relList) {
       final ConceptRelationship rel = (ConceptRelationship) relationship;
@@ -472,15 +472,15 @@ public class ReportServiceJpa extends HistoryServiceJpa
           && !(rel.getRelationshipType().equals("PAR")
               || rel.getRelationshipType().equals("CHD")
               || rel.getRelationshipType().equals("SIB"))) {
-        usedToIds.add(rel.getTo().getTerminologyId());
+        usedFromIds.add(rel.getFrom().getTerminologyId());
         demotionRelationships.add(rel);
       }
     }
     for (final Relationship<?, ?> relationship : relList) {
       final ConceptRelationship rel = (ConceptRelationship) relationship;
       if (rel.getWorkflowStatus() != WorkflowStatus.DEMOTION
-          && usedToIds.contains(rel.getTo().getTerminologyId())) {
-        usedToIds.add(rel.getTo().getTerminologyId());
+          && usedFromIds.contains(rel.getFrom().getTerminologyId())) {
+        usedFromIds.add(rel.getFrom().getTerminologyId());
         demotionRelationships.add(rel);
       }
     }
@@ -499,8 +499,8 @@ public class ReportServiceJpa extends HistoryServiceJpa
     for (final Relationship<?, ?> relationship : relList) {
       final ConceptRelationship rel = (ConceptRelationship) relationship;
       if (rel.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW
-          && !usedToIds.contains(rel.getTo().getTerminologyId())) {
-        usedToIds.add(rel.getTo().getTerminologyId());
+          && !usedFromIds.contains(rel.getFrom().getTerminologyId())) {
+        usedFromIds.add(rel.getFrom().getTerminologyId());
         needsReviewRelationships.add(rel);
       }
     }
@@ -516,23 +516,23 @@ public class ReportServiceJpa extends HistoryServiceJpa
     // XR(S) and Corresponding Relationships
     final List<ConceptRelationship> xrCorrespondingRelationships =
         new ArrayList<>();
-    final List<String> xrRelsToIds = new ArrayList<>();
+    final List<String> xrRelsFromIds = new ArrayList<>();
     for (final Relationship<?, ?> relationship : relList) {
       final ConceptRelationship rel = (ConceptRelationship) relationship;
       if (rel.getWorkflowStatus() != WorkflowStatus.NEEDS_REVIEW
           && rel.getRelationshipType().equals("XR")
-          && !usedToIds.contains(rel.getTo().getTerminologyId())) {
+          && !usedFromIds.contains(rel.getFrom().getTerminologyId())) {
         // usedToIds.add(rel.getTo().getTerminologyId());
-        xrRelsToIds.add(rel.getTo().getTerminologyId());
+        xrRelsFromIds.add(rel.getFrom().getTerminologyId());
         xrCorrespondingRelationships.add(rel);
       }
     }
     for (final Relationship<?, ?> relationship : relList) {
       final ConceptRelationship rel = (ConceptRelationship) relationship;
       if (!rel.getRelationshipType().equals("XR")
-          && !usedToIds.contains(rel.getTo().getTerminologyId())
-          && xrRelsToIds.contains(rel.getTo().getTerminologyId())) {
-        usedToIds.add(rel.getTo().getTerminologyId());
+          && !usedFromIds.contains(rel.getFrom().getTerminologyId())
+          && xrRelsFromIds.contains(rel.getFrom().getTerminologyId())) {
+        usedFromIds.add(rel.getFrom().getTerminologyId());
         xrCorrespondingRelationships.add(rel);
       }
     }
@@ -548,7 +548,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
       int ct = 0;
       if ((rel.getWorkflowStatus() == WorkflowStatus.READY_FOR_PUBLICATION
           || rel.getWorkflowStatus() == WorkflowStatus.PUBLISHED)
-          && !usedToIds.contains(rel.getTo().getTerminologyId()) && ct < 20
+          && !usedFromIds.contains(rel.getFrom().getTerminologyId()) && ct < 20
           // Exclude these rel types
           && !(rel.getRelationshipType().equals("PAR")
               || rel.getRelationshipType().equals("CHD")
@@ -556,7 +556,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
               || rel.getRelationshipType().equals("XR")
               || rel.getRelationshipType().equals("AQ")
               || rel.getRelationshipType().equals("QB"))) {
-        usedToIds.add(rel.getTo().getTerminologyId());
+        usedFromIds.add(rel.getFrom().getTerminologyId());
         reviewedRelatedConcepts.add(rel);
         ct++;
       }
