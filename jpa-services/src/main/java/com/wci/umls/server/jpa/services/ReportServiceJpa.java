@@ -833,7 +833,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
       }
 
       // Name/termgroup/code
-      sb.append(rel.getTo().getName()).append(" [");
+      sb.append(rel.getFrom().getName()).append(" [");
       /*
        * TODO NE-143 sb.append(" ["); sb.append(getVsab(rel) .append("/"); //
        * TODO termType - only ifneeded
@@ -847,13 +847,13 @@ public class ReportServiceJpa extends HistoryServiceJpa
       sb.append("]");
 
       sb.append(" {");
-      sb.append(rel.getTo().getId());
+      sb.append(rel.getFrom().getId());
       sb.append("}");
 
       // Print relationship_level
       if (rel.getWorkflowStatus() == WorkflowStatus.DEMOTION) {
         sb.append(" P");
-      } else if (rel.getTerminology().equals(rel.getFrom().getTerminology())) {
+      } else if (rel.getTerminology().equals(rel.getTo().getTerminology())) {
         sb.append(" C");
       } else {
         sb.append(" S");
