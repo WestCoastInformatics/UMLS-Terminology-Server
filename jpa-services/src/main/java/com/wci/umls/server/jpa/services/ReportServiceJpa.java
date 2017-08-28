@@ -452,8 +452,10 @@ public class ReportServiceJpa extends HistoryServiceJpa
         if (!rel.isPublishable()) {
           sb.append("{");
         }
-        sb.append(rel.getFrom().getName()).append("[SFO]/[LFO]")
-            .append(rel.getTo().getName());
+        sb.append(rel.getFrom().getName().replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;").replaceAll("'", "&apos;")).append("[SFO]/[LFO]")
+            .append(rel.getTo().getName().replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;").replaceAll("'", "&apos;"));
         sb.append("[").append(getTerminologyAndVersion(rel)).append("]")
             .append(lineEnd);
         if (!rel.isPublishable()) {
@@ -833,7 +835,8 @@ public class ReportServiceJpa extends HistoryServiceJpa
       }
 
       // Name/termgroup/code
-      sb.append(rel.getFrom().getName()).append(" [");
+      sb.append(rel.getFrom().getName().replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;").replaceAll("'", "&apos;")).append(" [");
       /*
        * TODO NE-143 sb.append(" ["); sb.append(getVsab(rel) .append("/"); //
        * TODO termType - only ifneeded
