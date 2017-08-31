@@ -113,7 +113,6 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       String previousVersion = null;
       String latestVersion = null;
-      String twoVersionsAgo = null;
 
       // Each line of classes_atoms.src corresponds to one atom.
       // Check to make sure the atom doesn't already exist in the database
@@ -188,13 +187,13 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         newAtom.setConceptId(fields[10]);
         newAtom.setDescriptorId(fields[11]);
         newAtom.setLanguage(fields[12]);
-        if (!ConfigUtility.isEmpty(fields[14])) {
-          newAtom.getConceptTerminologyIds().put(getProject().getTerminology(),
-              fields[14]);
-          newAtom.getConceptTerminologyIds().put(
-              getProcess().getTerminology() + getProcess().getVersion(),
-              fields[14]);
-        }
+        // if (!ConfigUtility.isEmpty(fields[14])) {
+        // newAtom.getConceptTerminologyIds().put(getProject().getTerminology(),
+        // fields[14]);
+        // newAtom.getConceptTerminologyIds().put(
+        // getProcess().getTerminology() + getProcess().getVersion(),
+        // fields[14]);
+        // }
 
         // Add string and lexical classes to get assign their Ids to the Atom
         final StringClass strClass = new StringClassJpa();
@@ -238,26 +237,11 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
                       + getProcess().getTerminology());
             }
           }
-          // If two versions ago has not been looked up yet, attempt to.
-          if (twoVersionsAgo == null) {
-            twoVersionsAgo = getTwoVersionsAgo(getProcess().getTerminology());
-            if (twoVersionsAgo == null) {
-              throw new Exception(
-                  "WARNING - two versions ago not found for terminology = "
-                      + getProcess().getTerminology());
-            }
-          }
 
           final String latestLastReleaseCui = oldAtom.getConceptTerminologyIds()
               .get(getProcess().getTerminology() + latestVersion);
-          String oldLastReleaseCui = oldAtom.getConceptTerminologyIds()
+          final String oldLastReleaseCui = oldAtom.getConceptTerminologyIds()
               .get(getProcess().getTerminology() + previousVersion);
-          // Some atoms are included every other release. If not found for
-          // preiousVersion, attempt to find last_release_cui for twoVersionsAgo
-          if (oldLastReleaseCui == null) {
-            oldLastReleaseCui = oldAtom.getConceptTerminologyIds()
-                .get(getProcess().getTerminology() + twoVersionsAgo);
-          }
 
           // If a last_releas_cui is found for the insertion's terminology and
           // version, it means this atom was already handled on a previous run
@@ -325,19 +309,6 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             oldAtomChanged = true;
           }
 
-          // Set conceptTerminologyId for process terminology/version
-          if (!ConfigUtility.isEmpty(fields[14])
-              && !fields[14].equals(oldAtom.getConceptTerminologyIds().get(
-                  getProcess().getTerminology() + getProcess().getVersion()))) {
-
-            // Set previous release CUI for process terminology/version
-            oldAtom.getConceptTerminologyIds().put(
-                getProcess().getTerminology() + getProcess().getVersion(),
-                fields[14]);
-            oldAtomChanged = true;
-
-          }
-
           // Update the version
           if (!oldAtom.getVersion().equals(newAtom.getVersion())) {
             oldAtom.setVersion(newAtom.getVersion());
@@ -378,6 +349,86 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         handler.silentIntervalCommit(getStepsCompleted(), RootService.logCt,
             RootService.commitCt);
 
+      }
+
+      commitClearBegin();
+      handler.commitClearBegin();
+
+      // UMLS-specific section: handling umlscui.txt
+      if (getProcess().getTerminology().equals("MTH")) {
+
+        logInfo("  Process umlscui.txt");
+        commitClearBegin();
+
+        //
+        // Load the umlscui.txt file
+        //
+        final List<String> lines2 = loadFileIntoStringList(getSrcDirFile(),
+            "umlscui.txt", null, null, null);
+
+        int umlscuiStepsCompleted = 0;
+
+        final String fields2[] = new String[10];
+
+        for (final String line2 : lines2) {
+
+          FieldedStringTokenizer.split(line2, "|", 15, fields2);
+
+          final String CUI = fields2[0];
+          final String terminologyId = fields2[2];
+          final String SCUI = fields2[3];
+          final String SDUI = fields2[4];
+          final String SAB = fields2[5];
+          final String TTY = fields2[6];
+          final String CODE = fields2[7];
+          final String name = fields2[8];
+
+          // Make a fake atom using the fields from umlscui to determine AUI
+
+          final Atom fakeAtom = new AtomJpa();
+          fakeAtom.setTermType(TTY);
+          fakeAtom.setCodeId(CODE);
+          fakeAtom.setName(name);
+          fakeAtom.setTerminologyId(terminologyId);
+          fakeAtom.setConceptId(SCUI);
+          fakeAtom.setDescriptorId(SDUI);
+          fakeAtom.setLanguage(getProject().getLanguage());
+          fakeAtom.setTerminology(SAB);
+
+          final StringClass strClass = new StringClassJpa();
+          strClass.setLanguage(getProject().getLanguage());
+          strClass.setName(name);
+          fakeAtom.setStringClassId(handler.getTerminologyId(strClass));
+
+          final LexicalClass lexClass = new LexicalClassJpa();
+          lexClass.setLanguage(getProject().getLanguage());
+          lexClass.setNormalizedName(getNormalizedString(name));
+          fakeAtom.setLexicalClassId(handler.getTerminologyId(lexClass));
+
+          // Compute atom identity
+          final String atomAui = handler.getTerminologyId(fakeAtom);
+
+          // Load the atom with matching AUI
+          final Atom atom = (Atom) getComponent("AUI", atomAui, null, null);
+
+          if (atom == null) {
+            // this shouldn't occur - only atoms included in the insertion
+            // should be included in umlscui.txt
+            throw new Exception(
+                "No existing atom found that matches line = " + line2);
+          } else {
+            // Set the release CUI for process terminology/version
+            atom.getConceptTerminologyIds().put(
+                getProcess().getTerminology() + getProcess().getVersion(), CUI);
+            updateAtom(atom);
+          }
+
+          umlscuiStepsCompleted++;
+          logAndCommit(umlscuiStepsCompleted, RootService.logCt,
+              RootService.commitCt);
+          handler.silentIntervalCommit(umlscuiStepsCompleted, RootService.logCt,
+              RootService.commitCt);
+        }
       }
 
       // Clear the caches to free up memory
