@@ -140,7 +140,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
     //
     sb.append(lineEnd).append("CN# ");
     sb.append(comp.getId()).append(" ");
-    sb.append(comp.getName()).append(lineEnd);
+    sb.append(handleHtmlSymbols(comp.getName())).append(lineEnd);
 
     // get all concept terminology ids associated with the atoms in this concept
     final List<String> conceptTerminologyIds = new ArrayList<>();
@@ -158,8 +158,8 @@ public class ReportServiceJpa extends HistoryServiceJpa
     sb.append(getOpenStyleTag(comp.getWorkflowStatus(), comp.isPublishable(),
         comp.isObsolete(), false, decorate));
     sb.append("CUI ");
-    sb.append(comp.getTerminologyId().equals(comp.getId().toString()) ? 
-        "        " : comp.getTerminologyId()).append("\t");
+    sb.append(comp.getTerminologyId().equals(comp.getId().toString())
+        ? "        " : comp.getTerminologyId()).append("\t");
     sb.append("Concept Status is ")
         .append(getStatusChar(comp.getWorkflowStatus())).append("\r\n");
     sb.append(getCloseStyleTag(comp.getWorkflowStatus(), comp.isPublishable(),
@@ -329,8 +329,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
       }
 
       // Name/termgroup/code
-      sb.append(atom.getName().replaceAll("<", "&lt;")
-          .replaceAll(">", "&gt;").replaceAll("'", "&apos;")).append(" [");
+      sb.append(handleHtmlSymbols(atom.getName())).append(" [");
       sb.append(getTerminologyAndVersion(atom)).append("/");
       sb.append(atom.getTermType()).append("/");
       sb.append(atom.getCodeId()).append("]");
@@ -369,7 +368,6 @@ public class ReportServiceJpa extends HistoryServiceJpa
     }
     sb.append(lineEnd);
 
-
     //
     // Notes
     //
@@ -407,7 +405,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
       sb.append(lineEnd);
     }
     sb.append(lineEnd);
-    
+
     //
     // RELATIONSHIPS
     //
@@ -452,10 +450,9 @@ public class ReportServiceJpa extends HistoryServiceJpa
         if (!rel.isPublishable()) {
           sb.append("{");
         }
-        sb.append(rel.getFrom().getName().replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;").replaceAll("'", "&apos;")).append("[SFO]/[LFO]")
-            .append(rel.getTo().getName().replaceAll("<", "&lt;")
-                .replaceAll(">", "&gt;").replaceAll("'", "&apos;"));
+        sb.append(handleHtmlSymbols(rel.getFrom().getName()))
+            .append("[SFO]/[LFO]")
+            .append(handleHtmlSymbols(rel.getTo().getName()));
         sb.append("[").append(getTerminologyAndVersion(rel)).append("]")
             .append(lineEnd);
         if (!rel.isPublishable()) {
@@ -715,6 +712,12 @@ public class ReportServiceJpa extends HistoryServiceJpa
     return sb.toString();
   }
 
+  private Object handleHtmlSymbols(String name) {
+    name.replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("'",
+        "&apos;");
+    return name;
+  }
+
   /**
    * Prints the children.
    *
@@ -871,6 +874,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
        */
       sb.append(lineEnd);
     }
+
     return sb.append(lineEnd).toString();
   }
 
