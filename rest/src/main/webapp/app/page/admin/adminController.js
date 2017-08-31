@@ -491,6 +491,9 @@ tsApp
               user : function() {
                 return null;
               },
+              loggedUser : function() {
+                  return $scope.user;
+                },
               applicationRoles : function() {
                 return $scope.lists.applicationRoles;
               },
@@ -520,6 +523,9 @@ tsApp
               user : function() {
                 return luser;
               },
+              loggedUser : function() {
+                  return $scope.user;
+                },
               applicationRoles : function() {
                 return $scope.lists.applicationRoles;
               },

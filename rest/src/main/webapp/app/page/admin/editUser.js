@@ -1,20 +1,22 @@
 // Edit user modal controller
-tsApp.controller('EditUserModalCtrl', [ '$scope', '$uibModalInstance', 'securityService', 'user',
+tsApp.controller('EditUserModalCtrl', [ '$scope', '$uibModalInstance', 'securityService', 'user', 'loggedUser',
   'applicationRoles', 'action',
-  function($scope, $uibModalInstance, securityService, user, applicationRoles, action) {
+  function($scope, $uibModalInstance, securityService, user, loggedUser, applicationRoles, action) {
     // Scope vars
-    $scope.action = action;
+	$scope.action = action;
     $scope.applicationRoles = applicationRoles;
     $scope.user = (user ? user : {
       applicationRole : applicationRoles[0]
     });
     $scope.errors = [];
 
-    // those without application admin roles, can't give themselves admin
-    // roles
-    if (user && user.applicationRole != 'ADMINISTRATOR') {
+    // those without application admin roles, can't assign admin
+    // roles to themselves or others
+    if (loggedUser.applicationRole != 'ADMINISTRATOR') {
       var index = $scope.applicationRoles.indexOf('ADMINISTRATOR');
-      $scope.applicationRoles.splice(index, 1);
+      if(index != -1){
+        $scope.applicationRoles.splice(index, 1);
+      }
     }
 
     $scope.submitUser = function(user) {
