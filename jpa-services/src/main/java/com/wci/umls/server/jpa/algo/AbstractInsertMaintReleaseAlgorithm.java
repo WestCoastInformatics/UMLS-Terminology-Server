@@ -252,15 +252,15 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     }
 
     sources.close();
-
+    
     // If sortField specified, sort.
     if (sortField != null) {
       int sortFieldInt = sortField.intValue();
       Collections.sort(lines, new Comparator<String>() {
         @Override
         public int compare(String s1, String s2) {
-          return s1.split("|")[sortFieldInt]
-              .compareTo(s2.split("|")[sortFieldInt]);
+          return s1.split("\\|")[sortFieldInt]
+              .compareTo(s2.split("\\|")[sortFieldInt]);
         }
       });
     }
