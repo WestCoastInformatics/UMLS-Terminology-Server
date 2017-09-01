@@ -618,7 +618,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     final Query query =
         getEntityManager().createQuery("select value(cid), a.id, c.id "
             + "from ConceptJpa c join c.atoms a join a.conceptTerminologyIds cid "
-            + "where c.terminology = :projectTerminology and key(cid) = :terminologyVersion AND c.publishable = true  AND a.publishable = true ");
+            + "where c.terminology = :projectTerminology and key(cid) = :terminologyVersion ");
     query.setParameter("terminologyVersion", terminologyVersion);
     query.setParameter("projectTerminology", getProject().getTerminology());
 
