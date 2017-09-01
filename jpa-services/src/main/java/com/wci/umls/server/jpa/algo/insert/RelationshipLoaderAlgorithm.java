@@ -173,6 +173,10 @@ public class RelationshipLoaderAlgorithm
       //
       List<String> lines2 = new ArrayList<>();
       if (!(bequeathalRels || replace)) {
+        
+        logInfo("  Processing contexts.src");
+        commitClearBegin();        
+        
         // Only keep "PAR" relationship rows.
         lines2 = loadFileIntoStringList(getSrcDirFile(), "contexts.src",
             "[0-9]+?\\|PAR(.*)", null, 15L);
@@ -527,6 +531,7 @@ public class RelationshipLoaderAlgorithm
         || !currentClassIdType.equals(fromClassIdType)) {
       clearCaches();
       commitClearBegin();
+      handler.commitClearBegin();
       currentClassIdType = fromClassIdType;
     }
     // NEW THINKING: allow a component info relationship from a SCUI/SDUI/CODE

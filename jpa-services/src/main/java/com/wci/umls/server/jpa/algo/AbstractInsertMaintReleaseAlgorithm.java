@@ -1374,6 +1374,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     codeIdCache.clear();
     conceptCachedTerms.clear();
     conceptIdCache.clear();
+    cuiPreferredAtomConceptCachedTerms.clear();
+    cuiPreferredAtomConceptIdCache.clear();
     definitionCachedTerms.clear();
     definitionIdCache.clear();
     descriptorCachedTerms.clear();
