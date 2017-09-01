@@ -175,7 +175,7 @@ public class RelationshipLoaderAlgorithm
       if (!(bequeathalRels || replace)) {
         // Only keep "PAR" relationship rows.
         lines2 = loadFileIntoStringList(getSrcDirFile(), "contexts.src",
-            "[0-9]+?\\|PAR(.*)", null, null);
+            "[0-9]+?\\|PAR(.*)", null, 15L);
 
         // There will be many duplicated lines in the contexts.src file, since
         // the main distinguishing field "parent_treenum" is ignored for these
@@ -524,8 +524,9 @@ public class RelationshipLoaderAlgorithm
     // If we've reached a a new classIdType, clear the caches so we don't max
     // out the memory
     if (currentClassIdType == null
-        || currentClassIdType.equals(fromClassIdType)) {
+        || !currentClassIdType.equals(fromClassIdType)) {
       clearCaches();
+      commitClearBegin();
       currentClassIdType = fromClassIdType;
     }
     // NEW THINKING: allow a component info relationship from a SCUI/SDUI/CODE

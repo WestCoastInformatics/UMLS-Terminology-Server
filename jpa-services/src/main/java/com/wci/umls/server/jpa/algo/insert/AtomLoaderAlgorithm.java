@@ -412,10 +412,8 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           final Atom atom = (Atom) getComponent("AUI", atomAui, null, null);
 
           if (atom == null) {
-            // this shouldn't occur - only atoms included in the insertion
-            // should be included in umlscui.txt
-            throw new Exception(
-                "No existing atom found that matches line = " + line2);
+            // do nothing. This will occur often - umlscui.txt contains way more
+            // entries than classes_atoms.src
           } else {
             // Set the release CUI for process terminology/version
             atom.getConceptTerminologyIds().put(
