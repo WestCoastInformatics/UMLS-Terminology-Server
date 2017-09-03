@@ -25,6 +25,7 @@ import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractMergeAlgorithm;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.meta.TermType;
@@ -275,7 +276,7 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
 
       // Delete any demotions that were removed from atoms
       for (Long relId : removeRelationshipIds) {
-        removeRelationship(relId, AtomRelationship.class);
+        removeRelationship(relId, AtomRelationshipJpa.class);
       }
 
       // Log it
