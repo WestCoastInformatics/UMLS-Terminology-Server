@@ -130,22 +130,20 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
     // other is new
 
     // Generate query string
-    String query =
-        "SELECT DISTINCT a1.id, a2.id "
-            + "FROM ConceptJpa c JOIN c.atoms a1 JOIN c.atoms a2 "
-            + "WHERE NOT a1.id = a2.id "
-            + "AND c.terminology=:projectTerminology AND c.version=:projectVersion "
-            + "AND a1.terminology=:terminology AND NOT a1.version=:version "
-            + "AND a1.publishable=true "
-            + "AND a2.terminology=:terminology AND a2.version=:version "
-            + "AND a2.publishable=true "
-            + (stringClassId ? "AND a1.stringClassId = a2.stringClassId " : "")
-            + (lexicalClassId ? "AND a1.lexicalClassId = a2.lexicalClassId "
-                : "")
-            + (conceptId ? "AND a1.conceptId = a2.conceptId " : "")
-            + (codeId ? "AND a1.codeId = a2.codeId " : "")
-            + (descriptorId ? "AND a1.descriptorId = a2.descriptorId " : "")
-            + (termType ? "AND a1.termType = a2.termType " : "");
+    String query = "SELECT DISTINCT a1.id, a2.id "
+        + "FROM ConceptJpa c JOIN c.atoms a1 JOIN c.atoms a2 "
+        + "WHERE NOT a1.id = a2.id "
+        + "AND c.terminology=:projectTerminology AND c.version=:projectVersion "
+        + "AND a1.terminology=:terminology AND NOT a1.version=:version "
+        + "AND a1.publishable=true "
+        + "AND a2.terminology=:terminology AND a2.version=:version "
+        + "AND a2.publishable=true "
+        + (stringClassId ? "AND a1.stringClassId = a2.stringClassId " : "")
+        + (lexicalClassId ? "AND a1.lexicalClassId = a2.lexicalClassId " : "")
+        + (conceptId ? "AND a1.conceptId = a2.conceptId " : "")
+        + (codeId ? "AND a1.codeId = a2.codeId " : "")
+        + (descriptorId ? "AND a1.descriptorId = a2.descriptorId " : "")
+        + (termType ? "AND a1.termType = a2.termType " : "");
 
     // If terminology is not set, run the query for ALL terminologies referenced
     // in sources.src, and add all results to atomIdPairArray
@@ -250,7 +248,7 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
       // Remove all demotions from the new Atom, and the inverses
       final Set<Long> removeRelationshipIds = new HashSet<>();
 
-      for (AtomRelationship rel : newAtom.getRelationships()) {
+      for (AtomRelationship rel : new ArrayList<>(newAtom.getRelationships())) {
         if (rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
           // Remove the demotion from the atom
           newAtom.getRelationships().remove(rel);
@@ -290,7 +288,7 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
     }
 
     commitClearBegin();
-    
+
     logInfo("  new atoms safe-replaced = " + safeReplacedAtomIds.size());
     logInfo("Finished " + getName());
 
