@@ -85,6 +85,13 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
   private boolean cachesEnabled = false;
 
   /**
+   * Flag to be able to look up identifiers WITHOUT creating a new one if none
+   * found. Only used in very rare cases (e.g. umlscui.txt handling in
+   * AtomLoader)
+   */
+  private boolean createFlag = true;
+
+  /**
    * String=attribute identity code, Long=id
    */
   private Map<String, Long> attributeIdentityCache = new HashMap<>();
@@ -126,6 +133,15 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
    * loaded and cached.
    */
   private Set<String> relationshipIdentityCachedTerms = new HashSet<>();
+
+  /**
+   * Sets the creates the flag.
+   *
+   * @param createFlag the creates the flag
+   */
+  public void setCreateFlag(boolean createFlag) {
+    this.createFlag = createFlag;
+  }
 
   /* see superclass */
   @Override
@@ -287,6 +303,9 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
         }
         // else generate a new one and add it
         else {
+          if (!createFlag) {
+            return null;
+          }
           // Get next id
           final Long nextId = localService.getNextStringClassId();
 
@@ -448,6 +467,9 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
         }
         // else generate a new one and add it
         else {
+          if (!createFlag) {
+            return null;
+          }
           // Get next id
           final Long nextId = localService.getNextAtomId();
           // Add new identity object

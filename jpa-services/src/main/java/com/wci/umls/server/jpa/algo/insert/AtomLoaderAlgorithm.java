@@ -22,6 +22,7 @@ import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
+import com.wci.umls.server.jpa.services.handlers.UmlsIdentifierAssignmentHandler;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
@@ -370,6 +371,9 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
         final String fields2[] = new String[10];
 
+        // Don't want to make any new identifiers during this section
+        ((UmlsIdentifierAssignmentHandler) handler).setCreateFlag(false);
+
         for (final String line2 : lines2) {
 
           FieldedStringTokenizer.split(line2, "|", 15, fields2);
@@ -383,7 +387,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           final String CODE = fields2[7];
           final String name = fields2[8];
 
-          // Make a fake atom using the fields from umlscui to determine AUI
+          // Make a fake atom using the fields from umlscui to look up AUI
 
           final Atom fakeAtom = new AtomJpa();
           fakeAtom.setTermType(TTY);
@@ -398,27 +402,28 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           final StringClass strClass = new StringClassJpa();
           strClass.setLanguage(getProject().getLanguage());
           strClass.setName(name);
-          fakeAtom.setStringClassId(handler.getTerminologyId(strClass));
+          final String stringClassId = handler.getTerminologyId(strClass);
+          if (stringClassId != null) {
+            fakeAtom.setStringClassId(stringClassId);
 
-          final LexicalClass lexClass = new LexicalClassJpa();
-          lexClass.setLanguage(getProject().getLanguage());
-          lexClass.setNormalizedName(getNormalizedString(name));
-          fakeAtom.setLexicalClassId(handler.getTerminologyId(lexClass));
+            // Look up atom identity
+            final String atomAui = handler.getTerminologyId(fakeAtom);
+            if (atomAui != null) {
 
-          // Compute atom identity
-          final String atomAui = handler.getTerminologyId(fakeAtom);
+              // Load the atom with matching AUI
+              final Atom atom = (Atom) getComponent("AUI", atomAui, null, null);
 
-          // Load the atom with matching AUI
-          final Atom atom = (Atom) getComponent("AUI", atomAui, null, null);
-
-          if (atom == null) {
-            // do nothing. This will occur often - umlscui.txt contains way more
-            // entries than classes_atoms.src
-          } else {
-            // Set the release CUI for process terminology/version
-            atom.getConceptTerminologyIds().put(
-                getProcess().getTerminology() + getProcess().getVersion(), CUI);
-            updateAtom(atom);
+              if (atom == null) {
+                // do nothing. This will occur often - umlscui.txt contains way
+                // more entries than classes_atoms.src
+              } else {
+                // Set the release CUI for process terminology/version
+                atom.getConceptTerminologyIds().put(
+                    getProcess().getTerminology() + getProcess().getVersion(),
+                    CUI);
+                updateAtom(atom);
+              }
+            }
           }
 
           umlscuiStepsCompleted++;
@@ -427,6 +432,10 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           handler.silentIntervalCommit(umlscuiStepsCompleted, RootService.logCt,
               RootService.commitCt);
         }
+
+        // Reset the handler create flag
+        ((UmlsIdentifierAssignmentHandler) handler).setCreateFlag(true);
+
       }
 
       // Clear the caches to free up memory
