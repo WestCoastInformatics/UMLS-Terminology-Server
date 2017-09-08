@@ -2486,8 +2486,10 @@ public abstract class RootServiceJpa implements RootService {
     }
     // Iterate through all children, add and recurse
     for (final Long chd : parChd.get(par)) {
+      if(!result.contains(chd)){
+        getDescendants(chd, parChd, result);
+      }
       result.add(chd);
-      getDescendants(chd, parChd, result);
     }
 
   }
