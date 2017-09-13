@@ -2583,6 +2583,17 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       // Get atom for the PTR part
       final Atom atom = getAtom(atomIdMap.get(fields[1]));
+      // If multi, and top-level atom is null, skip it
+      if (style == Style.MULTI && atom == null
+          && ConfigUtility.isEmpty(ancPath)) {
+        continue;
+      }
+
+      // Skip top-level SRC atoms
+      if (atom.getTerminology().equals("SRC")
+          && ConfigUtility.isEmpty(ancPath)) {
+        continue;
+      }
 
       // Keys for lookups
       final String ptrKey =
@@ -2592,12 +2603,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       // Skip if we've seen this part already
       if (seen.contains(treeposKey)) {
-        continue;
-      }
-
-      // Skip top-level SRC atoms
-      if (atom.getTerminology().equals("SRC")
-          && ConfigUtility.isEmpty(ancPath)) {
         continue;
       }
 

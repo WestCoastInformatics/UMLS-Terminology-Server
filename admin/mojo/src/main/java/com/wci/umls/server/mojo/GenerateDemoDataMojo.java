@@ -34,6 +34,7 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.helpers.QueryStyle;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.UserJpa;
@@ -290,6 +291,7 @@ public class GenerateDemoDataMojo extends AbstractLoaderMojo {
       workflowService = new WorkflowServiceRestImpl();
       WorkflowConfigJpa config = new WorkflowConfigJpa();
       config.setType("MUTUALLY_EXCLUSIVE");
+      config.setQueryStyle(QueryStyle.CLUSTER);
       config.setMutuallyExclusive(true);
       config.setProjectId(projectId);
       workflowService = new WorkflowServiceRestImpl();
@@ -366,6 +368,7 @@ public class GenerateDemoDataMojo extends AbstractLoaderMojo {
       workflowService = new WorkflowServiceRestImpl();
       config = new WorkflowConfigJpa();
       config.setType("QUALITY_ASSURANCE");
+      config.setQueryStyle(QueryStyle.CLUSTER);
       config.setMutuallyExclusive(false);
       config.setProjectId(projectId);
       workflowService = new WorkflowServiceRestImpl();
