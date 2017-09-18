@@ -3719,6 +3719,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
         relationship.setPublishable(result[10].toString().equals("true"));
         relationship
             .setWorkflowStatus(WorkflowStatus.valueOf(result[13].toString()));
+        // Force atom-rel demotions to not be equivalent to concept rels.
+        // This is a hack, but is required for concept rels and atom rels to
+        // both show up on ConceptReports
+        if (relationship.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+          relationship.setTerminologyId(String.valueOf(relationship.getId()));
+        }
         relationship.setLastModifiedBy(result[14].toString());
         relationship.setLastModified(
             new Date(((java.sql.Timestamp) result[15]).getTime()));
