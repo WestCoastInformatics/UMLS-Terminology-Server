@@ -595,7 +595,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
     setTransactionPerOperation(false);
     final Date startDate = new Date();
-    
+
     // Create the workflow bin
     final WorkflowBin bin = new WorkflowBinJpa();
     bin.setName(definition.getName());
@@ -634,9 +634,11 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       final Long componentId = Long.parseLong(result[1].toString());
 
       // skip result entry where the conceptId is already in conceptsSeen
-      // and workflow config is mutually exclusive
+      // and workflow config is mutually exclusive and bin is not a
+      // conceptId/conceptId2 pair bin
       if (!conceptsSeen.contains(componentId)
-          || !definition.getWorkflowConfig().isMutuallyExclusive()) {
+          || !definition.getWorkflowConfig().isMutuallyExclusive()
+          || definition.getQuery().matches(".*conceptId2.*")) {
         if (clusterIdConceptIdsMap.containsKey(clusterId)) {
           final Set<Long> componentIds = clusterIdConceptIdsMap.get(clusterId);
           componentIds.add(componentId);
