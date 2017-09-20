@@ -229,7 +229,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-
   @Override
   @GET
   @Path("/expression/query/{terminology}/{version}/{query}")
@@ -245,8 +244,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
             + "/version/" + query);
 
     try {
-      authorizeApp(securityService, authToken, "create ECL indexes",
-          UserRole.ADMINISTRATOR);
+      authorizeApp(securityService, authToken,
+          "checking query for expression syntax", UserRole.ADMINISTRATOR);
       EclExpressionHandler handler =
           new EclExpressionHandler(terminology, version);
       return handler.resolve(query);
@@ -1374,7 +1373,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @QueryParam("query") String query,
-    @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -1413,7 +1412,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "project id, e.g. 1 (optional)", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @QueryParam("query") String query,
-    @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -1616,7 +1615,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Descriptor terminology name, e.g. MSH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Descriptor version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @QueryParam("query") String query,
-    @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -1768,7 +1767,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Code terminology name, e.g. MTH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Code version, e.g. 2014AB", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @QueryParam("query") String query,
-    @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 

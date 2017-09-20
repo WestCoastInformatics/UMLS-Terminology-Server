@@ -130,6 +130,7 @@ public class Rf2FileSorter {
     }
 
     if (fileVersion == null) {
+      Logger.getLogger(getClass()).warn("Make sure you are pointing to a Snapshot or Delta directory - " + inputDir);
       throw new Exception(
           "Unable to determine file version from input directory " + inputDir);
     }
