@@ -87,7 +87,7 @@ tsApp
             version : $scope.selected.project.version,
             terminologyId : $scope.selected.component.terminologyId,
             type : $scope.selected.component.type
-          }, false, true, $scope.preferredOnly, false, $scope.paging['relationships']).then(
+          }, true, true, $scope.preferredOnly, false, $scope.paging['relationships']).then(
             // Success
             function(data) {
               $scope.pagedRelationships = data.relationships;
