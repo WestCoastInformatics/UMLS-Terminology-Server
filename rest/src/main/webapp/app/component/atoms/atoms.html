@@ -76,7 +76,7 @@
 							uib-tooltip="{{item.terminology}} code"> {{item.version}}
 							<a ng-show="item.codeId != 'NOCODE'"
 							ng-class="{'nolink' : !callbacks.getComponent}"
-							ng-click="callbacks.getComponent(item.id, 'CODE', item.codeId, item.terminology, item.version)">{{item.codeId}}</a>
+							ng-click="item.type='CODE'; callbacks.getComponent(item)">{item.codeId}}</a>
 							<span ng-show="item.codeId==='NOCODE'">NOCODE</span>
 						</span>
 						<!-- For concept id, do not show if identical to component id -->
@@ -84,7 +84,7 @@
 							ng-show="item.terminology != selected.component.terminology || item.conceptId != selected.component.terminologyId"
 							uib-tooltip="{{item.terminology}} concept"> <a
 							ng-class="{'nolink' : !callbacks.getComponent}"
-							ng-click="callbacks.getComponent(item.id, 'CONCEPT',item.conceptId, item.terminology, item.version)">{{item.conceptId}}</a>
+							ng-click="item.type='CONCEPT'; callbacks.getComponent(item)">{{item.conceptId}}</a>
 						</span>
 
 						<!-- For descriptor id, do not show if identical to component id -->
@@ -92,14 +92,14 @@
 							ng-show="item.terminology != selected.component.terminology || item.descriptorId != selected.component.terminologyId"
 							uib-tooltip="{{item.terminology}} descriptor"> <a
 							ng-class="{'nolink' : !callbacks.getComponent}"
-							ng-click="callbacks.getComponent(item.id, 'DESCRIPTOR',item.descriptorId, item.terminology, item.version)">{{item.descriptorId}}</a>
+							ng-click="item.type='DESCRIPTOR'; callbacks.getComponent(item)">{{item.descriptorId}}</a>
 						</span>
 						<!-- Show any referenced components in the concept terminology id list -->
 						<span ng-repeat="(key, value) in item.conceptTerminologyIds">
 							<a ng-class="{'nolink' : !callbacks.getComponent}"
 							ng-show="key != selected.component.terminology || value != selected.component.terminologyId"
 							uib-tooltip="{{key}} concept"
-							ng-click="callbacks.getComponent(item.id, 'CONCEPT',value, key, callbacks.getTerminologyVersion(key))">{{value}}</a>
+							ng-click="callbacks.getComponent({id: item.id, type: 'CONCEPT', terminologyId: value, terminology: key,version: callbacks.getTerminologyVersion(key)})">{{value}}</a>
 						</span>
 						<div style="margin-left: 20px;" ng-show="expanded[item.id]">
 							<!-- Atom Definitions -->

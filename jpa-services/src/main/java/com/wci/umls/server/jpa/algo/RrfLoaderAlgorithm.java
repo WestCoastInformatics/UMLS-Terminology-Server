@@ -1030,7 +1030,11 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // lazy init
       term.getSynonymousNames().size();
       term.getRootTerminology().getTerminology();
-      loadedTerminologies.put(term.getTerminology(), term);
+      // Add either the first one we've encountered, or the current one
+      if (term.isCurrent()
+          || !loadedTerminologies.containsKey(term.getTerminology())) {
+        loadedTerminologies.put(term.getTerminology(), term);
+      }
     }
 
   }
@@ -1190,10 +1194,16 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         term.setRootTerminology(root);
         addTerminology(term);
 
-        // cache terminology by RSAB and VSAB
-        // ONLY load the current version of the terminology here.
-        loadedTerminologies.put(term.getTerminology(), term);
+        // cache terminology by RSAB
+        // Favor the current version of the terminology here
+        if (term.isCurrent()
+            || !loadedTerminologies.containsKey(term.getTerminology())) {
+          Logger.getLogger(getClass()).info("  Terminology " + term.getTerminology() + " = " + term.getVersion());
+          loadedTerminologies.put(term.getTerminology(), term);
+        }
+        // Add the VSAB too, for later lookup
         if (!fields[2].equals("") && term.isCurrent()) {
+          Logger.getLogger(getClass()).info("  Terminology " + term.getTerminology() + " = " + term.getVersion());
           loadedTerminologies.put(fields[2], term);
         }
       }
@@ -1226,7 +1236,11 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           loadedRootTerminologies.put(root.getTerminology(), root);
         }
         term.setRootTerminology(root);
-        loadedTerminologies.put(term.getTerminology(), term);
+        if (term.isCurrent()
+            || !loadedTerminologies.containsKey(term.getTerminology())) {
+          Logger.getLogger(getClass()).info("  Terminology " + term.getTerminology() + " = " + term.getVersion());
+          loadedTerminologies.put(term.getTerminology(), term);
+        }
       }
 
       term.setAssertsRelDirection(false);
