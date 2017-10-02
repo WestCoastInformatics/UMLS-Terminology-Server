@@ -151,9 +151,10 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable
       boolean nullId = atom.getId() == null;
 
       atom.getName();
-      // atom.getConceptTerminologyIds().keySet();
+      // BAC: setting this back to keep concept terminology ids
+      atom.getConceptTerminologyIds().keySet();
       // atom.getAlternateTerminologyIds().keySet();
-      atom.setConceptTerminologyIds(new HashMap<>(0));
+      // atom.setConceptTerminologyIds(new HashMap<>(0));
       atom.setAlternateTerminologyIds(new HashMap<>(0));
 
       atom.setMembers(new ArrayList<AtomSubsetMember>(0));

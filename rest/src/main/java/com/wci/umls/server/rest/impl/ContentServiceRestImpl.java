@@ -3273,6 +3273,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           }
         }
         mergedTree.setChildCt(mergedTree.getChildren().size());       ;
+        rootTree = mergedTree;
       }
 
       // otherwise, no single root concept
@@ -3450,6 +3451,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           }
         }
         mergedTree.setChildCt(mergedTree.getChildren().size());       ;
+        rootTree = mergedTree;
       }
 
       // otherwise, no single root code
