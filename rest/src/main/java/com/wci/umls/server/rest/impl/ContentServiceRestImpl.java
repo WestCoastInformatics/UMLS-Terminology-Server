@@ -3259,11 +3259,21 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
                 Branch.ROOT, ConceptTreePositionJpa.class, pfs);
 
         // construct and add children
+        Tree mergedTree = null;        
         for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
             .getObjects()) {
           final Tree childTree = new TreeJpa(childTreePosition);
-          rootTree.addChild(childTree);
+          if (mergedTree == null) {
+            mergedTree = new TreeJpa(rootTree);
+            mergedTree.addChild(childTree);
+          } else {
+            final Tree wrappedChildTree = new TreeJpa(rootTree);
+            wrappedChildTree.addChild(childTree);
+            mergedTree.mergeTree(wrappedChildTree, null);
+          }
         }
+        mergedTree.setChildCt(mergedTree.getChildren().size());       ;
+        rootTree = mergedTree;
       }
 
       // otherwise, no single root concept
@@ -3334,13 +3344,22 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
             contentService.findTreePositionChildren(null,
                 rootTree.getNodeTerminologyId(), terminology, version,
                 Branch.ROOT, DescriptorTreePositionJpa.class, pfs);
-
         // construct and add children
+        Tree mergedTree = null;        
         for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
             .getObjects()) {
           final Tree childTree = new TreeJpa(childTreePosition);
-          rootTree.mergeTree(childTree, null);
+          if (mergedTree == null) {
+            mergedTree = new TreeJpa(rootTree);
+            mergedTree.addChild(childTree);
+          } else {
+            final Tree wrappedChildTree = new TreeJpa(rootTree);
+            wrappedChildTree.addChild(childTree);
+            mergedTree.mergeTree(wrappedChildTree, null);
+          }
         }
+        mergedTree.setChildCt(mergedTree.getChildren().size());
+        rootTree = mergedTree;
       }
 
       // otherwise, no single root descriptor
@@ -3361,13 +3380,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       }
 
       return rootTree;
-    } catch (Exception e) {
-      handleException(e, "trying to find root trees");
-      return null;
-    } finally {
-      contentService.close();
-      securityService.close();
-    }
+    }catch(
+
+  Exception e)
+  {
+    handleException(e, "trying to find root trees");
+    return null;
+  }finally
+  {
+    contentService.close();
+    securityService.close();
+  }
   }
 
   /* see superclass */
@@ -3414,11 +3437,21 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
                 Branch.ROOT, CodeTreePositionJpa.class, pfs);
 
         // construct and add children
+        Tree mergedTree = null;        
         for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
             .getObjects()) {
           final Tree childTree = new TreeJpa(childTreePosition);
-          rootTree.mergeTree(childTree, null);
+          if (mergedTree == null) {
+            mergedTree = new TreeJpa(rootTree);
+            mergedTree.addChild(childTree);
+          } else {
+            final Tree wrappedChildTree = new TreeJpa(rootTree);
+            wrappedChildTree.addChild(childTree);
+            mergedTree.mergeTree(wrappedChildTree, null);
+          }
         }
+        mergedTree.setChildCt(mergedTree.getChildren().size());       ;
+        rootTree = mergedTree;
       }
 
       // otherwise, no single root code

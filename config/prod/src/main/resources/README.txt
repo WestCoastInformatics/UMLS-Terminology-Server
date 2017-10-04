@@ -36,7 +36,7 @@ mvn install -PDatabase -Drun.config.umls=/home/ec2-tomcat/config/config-load.pro
 # to the /home/ec2-tomcat/umls/config/config.properties file
 
 
-COPYING DATA
+RELOADING DATA
 
 * undeploy and put up maintenance page
 /opt/maint/getMaintHtml.sh start umls
@@ -44,17 +44,18 @@ COPYING DATA
 /bin/rm -rf /var/lib/tomcat8/webapps/umls-server-rest
 /bin/rm -rf /var/lib/tomcat8/webapps/umls-server-rest.war
 
-wget https://s3.amazonaws.com/wci1/TermServer/umls-sql.zip
-unzip umls-sql.zip
-/bin/rm -f umls-sql.zip
-mysqlu < code/admin/mojo/src/main/resources/truncate_all.sql
-mysqlu < ~/umls/data/umls.sql
+wget https://s3.amazonaws.com/wci1/TermServer/umls.sql.gz
+mysqlu < ~/umls/code/admin/mojo/src/main/resources/truncate_all.sql
+gunzip -c umls.sql.gz | mysqlu
 mysqlu < ~/fixWindowsExportData.sql
 
-wget https://s3.amazonaws.com/wci1/TermServer/umls-indexes.zip
-/bin/rm
+# recompute indexes (make sure latest code is built)
+/bin/rm -rf /var/lib/tomcat8/indexes/umls/*
+cd ~/umls/code/admin/lucene
+mvn install -PReindex -Drun.config.umls=/home/ec2-tomcat/config/config-load.properties >&! mvn.log &
+wait
 
-* deploy and take down maintenance page
+# deploy and take down maintenance page
 /bin/cp -f ~/umls/code/rest/target/umls-server-rest*war /var/lib/tomcat8/webapps/umls-server-rest.war
 /opt/maint/getMaintHtml.sh stop umls
 
@@ -64,7 +65,7 @@ REDEPLOY INSTRUCTIONS
 
 cd ~/umls/code
 git pull
-mvn -Drun.config.label=umls -Dconfig.artifactId=term-server-config-prod clean install
+mvn -Dconfig.artifactId=term-server-config-prod clean install
 
 /bin/rm -rf /var/lib/tomcat8/work/Catalina/localhost/umls-server-rest
 /bin/rm -rf /var/lib/tomcat8/webapps/umls-server-rest

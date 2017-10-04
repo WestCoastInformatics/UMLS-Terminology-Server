@@ -156,6 +156,7 @@ tsApp
           // check prereqs
           if (!(component.type && component.id)
             && !(component.type && component.terminologyId && component.terminology && component.version)) {
+            console.debug("component",component);
             utilService.setError('Component object not fully specified');
             deferred.reject('Component object not fully specified');
             return;

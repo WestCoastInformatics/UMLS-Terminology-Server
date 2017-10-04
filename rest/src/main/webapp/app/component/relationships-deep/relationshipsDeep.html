@@ -29,15 +29,15 @@
           uib-tooltip="{{callbacks.getRelationshipTypeName(item.relationshipType,metadata)}}">{{item.relationshipType}}</span>
         {{item.additionalRelationshipType}} <!-- Mobile friendly switch --> <span
           class="hidden-xs">
-          <a
+          <a class="pointer"
             ng-class="[{'nolink' : !callbacks.getComponent}, {'noul' : !callbacks.getComponent}]"
-            ng-click="getComponent(metadata.terminology.organizingClassType, item.toTerminologyId, component.terminology, component.version)"
+            ng-click="getComponent(component.type, item.toTerminologyId, component.terminology, component.version)"
             uib-tooltip="{{component.terminology}} {{component.type | lowercase}}">{{item.toTerminologyId}}</a>
           {{item.toName}} [{{item.terminology}}]
         </span> <span class="visible-xs-inline">
           <a
             ng-class="[{'nolink' : !callbacks.getComponent}, {'noul' : !callbacks.getComponent}]"
-            ng-click="getComponent( metadata.terminology.organizingClassType, item.toTerminologyId, component.terminology, component.version)"
+            ng-click="getComponent(component.type, item.toTerminologyId, component.terminology, component.version)"
             uib-tooltip="{{item.terminology}} {{metadata.terminology.organizingClassType | lowercase}}">{{item.toName}}
             [{{item.terminology}}]</a>
         </span> &nbsp;</li>

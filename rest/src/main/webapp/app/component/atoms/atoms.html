@@ -1,174 +1,177 @@
 <!-- Atoms -->
 <div
-	ng-show="pagedData.totalCount > 0 || paging.filter || callbacks.isEditingEnabled()">
+  ng-show="pagedData.totalCount > 0 || paging.filter || callbacks.isEditingEnabled()">
 
-	<div class="row" style="margin-bottom: 10px; margin-right: 0px;">
-		<div class="col-md-10">
-			<i style="float: left" class="noul glyphicon"
-				ng-click="showing = !showing"
-				ng-class="[{'glyphicon-chevron-down' : showing}, {'glyphicon-chevron-right' : !showing}]"></i>
+  <div class="row" style="margin-bottom: 10px; margin-right: 0px;">
+    <div class="col-md-10">
+      <i style="float: left" class="noul glyphicon"
+        ng-click="showing = !showing"
+        ng-class="[{'glyphicon-chevron-down' : showing}, {'glyphicon-chevron-right' : !showing}]"></i>
 
-			<h5 style="display: inline;">{{selected.metadata.atomsLabel}}
-				({{pagedData.totalCount}})</h5>
-		</div>
-		<div class="col-md-2">
-			<span ng-show="callbacks.isEditingEnabled()"
-				style="transform: scale(.8, .8);"
-				class="btn btn-xs btn-primary pull-right"
-				ng-click="openAddAtomModal()">Add {{selected.metadata.atomsLabel}}</span>
-		</div>
-	</div>
+      <h5 style="display: inline;">{{selected.metadata.atomsLabel}}
+        ({{pagedData.totalCount}})</h5>
+    </div>
+    <div class="col-md-2">
+      <span ng-show="callbacks.isEditingEnabled()"
+        style="transform: scale(.8, .8);"
+        class="btn btn-xs btn-primary pull-right" ng-click="openAddAtomModal()">Add
+        {{selected.metadata.atomsLabel}}</span>
+    </div>
+  </div>
 
-	<div ng-show="showing">
-		<span ng-show="pagedData.totalCount > 10" style="float: right;">
-			Page size: <select ng-model="paging.pageSize" title="Page Size"
-			ng-change="getPagedList()"
-			ng-options="item.value as item.name for item in pageSizes">
-		</select>
-		</span> <span class="alert alert-warning" style="margin-left: 15px"
-			ng-show="!showHidden && pagedData.totalCount == 0 && !paging.filter">
-			Click button above to show Obsolete <span
-			ng-show="selected.metadata.terminology.metadatathesaurus">/Suppressible</span>
-			content.
-		</span>
-		<div pager paging="paging" count="pagedData.totalCount"
-			callbacks="pageCallbacks"></div>
-		<ul class="icon-list">
-			<li ng-class="cr-list"
-				ng-repeat="item in pagedData.data | orderBy:'name'">
-				<div>
+  <div ng-show="showing">
+    <span ng-show="pagedData.totalCount > 10" style="float: right;">
+      Page size: <select ng-model="paging.pageSize" title="Page Size"
+        ng-change="getPagedList()"
+        ng-options="item.value as item.name for item in pageSizes">
+      </select>
+    </span>
+    <span class="alert alert-warning" style="margin-left: 15px"
+      ng-show="!showHidden && pagedData.totalCount == 0 && !paging.filter">
+      Click button above to show Obsolete
+      <span ng-show="selected.metadata.terminology.metadatathesaurus">/Suppressible</span>
+      content.
+    </span>
+    <div pager paging="paging" count="pagedData.totalCount"
+      callbacks="pageCallbacks"></div>
+    <ul class="icon-list">
+      <li ng-class="cr-list" ng-repeat="item in pagedData.data | orderBy:'name'">
+        <div>
 
-					<div style="display: table-cell; padding: 1px;">
-						<i ng-class="getCollapseIcon(item)"
-							ng-click="toggleItemCollapse(item)"></i>
-					</div>
-					<div style="display: table-cell; padding: 1px;" class="w100">
-						<span style="float: right; margin-right: 25px"
-							ng-show="callbacks.isEditingEnabled()"> <i
-							ng-click="openEditAtomModal(item);" title="Edit"
-							class="noul glyphicon glyphicon-pencil"></i> <i
-							confirm="Are you sure you want to remove this?"
-							ng-click="removeAtom(item);" title="Delete"
-							class="noul glyphicon glyphicon-trash"></i>
-						</span> <span class="label label-warning"
-							ng-show="selected.metadata.terminology.metathesaurus && item.suppressible"
-							uib-tooltip="{{selected.metadata.suppressibleLabel}}">{{selected.metadata.suppressibleIndicator}}</span>
-						<span class="label label-default" ng-show="item.obsolete"
-							uib-tooltip="{{selected.metadata.obsoleteLabel}}">{{selected.metadata.obsoleteIndicator}}</span>
-						<!-- Format:  termType name [ terminology ] codeId componentId descriptorId conceptTerminologyIds
+          <div style="display: table-cell; padding: 1px;">
+            <i ng-class="getCollapseIcon(item)"
+              ng-click="toggleItemCollapse(item)"></i>
+          </div>
+          <div style="display: table-cell; padding: 1px;" class="w100">
+            <span style="float: right; margin-right: 25px"
+              ng-show="callbacks.isEditingEnabled()">
+              <i ng-click="openEditAtomModal(item);" title="Edit"
+                class="noul glyphicon glyphicon-pencil"></i> <i
+                confirm="Are you sure you want to remove this?"
+                ng-click="removeAtom(item);" title="Delete"
+                class="noul glyphicon glyphicon-trash"></i>
+            </span>
+            <span class="label label-warning"
+              ng-show="selected.metadata.terminology.metathesaurus && item.suppressible"
+              uib-tooltip="{{selected.metadata.suppressibleLabel}}">{{selected.metadata.suppressibleIndicator}}</span>
+            <span class="label label-default" ng-show="item.obsolete"
+              uib-tooltip="{{selected.metadata.obsoleteLabel}}">{{selected.metadata.obsoleteIndicator}}</span>
+            <!-- Format:  termType name [ terminology ] codeId componentId descriptorId conceptTerminologyIds
                                                 NOTE: codeId, componentId, descriptorId automatically shown if of differing terminology, 
                                                 see each type below for additional rules -->
-						{{item.name}}
-						<!-- Mobile friendly line-break -->
-						<br class="visible-xs-inline" /> <span style="margin-left: 20px;"
-							class="visible-xs-inline"> </span>
-						<!-- Terminology and term type -->
-						[ <span
-							ng-show="item.terminology != selected.component.terminology">
-							{{item.terminology}} /</span> <span
-							uib-tooltip="{{callbacks.getTermTypeName(item.termType,selected.metadata)}}">{{item.termType}}</span>
-						, {{item.language}} ]
+            {{item.name}}
+            <!-- Mobile friendly line-break -->
+            <br class="visible-xs-inline" />
+            <span style="margin-left: 20px;" class="visible-xs-inline"> </span>
+            <!-- Terminology and term type -->
+            [
+            <span ng-show="item.terminology != selected.component.terminology">
+              {{item.terminology}} /</span>
+            <span
+              uib-tooltip="{{callbacks.getTermTypeName(item.termType,selected.metadata)}}">{{item.termType}}</span>
+            , {{item.language}} ]
 
 
-						<!-- For code id, do not show if NOCODE, or if identical to component, concept, or descriptor id -->
-						<span
-							ng-show="item.codeId != selected.component.terminologyId && item.codeId != item.conceptId && item.codeId != item.descriptorId"
-							uib-tooltip="{{item.terminology}} code"> {{item.version}}
-							<a ng-show="item.codeId != 'NOCODE'"
-							ng-class="{'nolink' : !callbacks.getComponent}"
-							ng-click="callbacks.getComponent(item.id, 'CODE', item.codeId, item.terminology, item.version)">{{item.codeId}}</a>
-							<span ng-show="item.codeId==='NOCODE'">NOCODE</span>
-						</span>
-						<!-- For concept id, do not show if identical to component id -->
-						<span
-							ng-show="item.terminology != selected.component.terminology || item.conceptId != selected.component.terminologyId"
-							uib-tooltip="{{item.terminology}} concept"> <a
-							ng-class="{'nolink' : !callbacks.getComponent}"
-							ng-click="callbacks.getComponent(item.id, 'CONCEPT',item.conceptId, item.terminology, item.version)">{{item.conceptId}}</a>
-						</span>
+            <!-- For code id, do not show if NOCODE, or if identical to component, concept, or descriptor id -->
+            <span
+              ng-show="item.codeId != selected.component.terminologyId && item.codeId != item.conceptId && item.codeId != item.descriptorId"
+              uib-tooltip="{{item.terminology}} code">
+              {{item.version}}
+              <a class="pointer" ng-show="item.codeId != 'NOCODE'"
+                ng-class="{'nolink' : !callbacks.getComponent}"
+                ng-click="callbacks.getComponent({terminologyId: item.codeId, terminology: item.terminology, version: item.version, type: 'CODE'})">{{item.codeId}}</a>
+              <span ng-show="item.codeId==='NOCODE'">NOCODE</span>
+            </span>
+            <!-- For concept id, do not show if identical to component id -->
+            <span
+              ng-show="item.terminology != selected.component.terminology || item.conceptId != selected.component.terminologyId"
+              uib-tooltip="{{item.terminology}} concept">
+              <a class="pointer" ng-class="{'nolink' : !callbacks.getComponent}"
+                ng-click="callbacks.getComponent({terminologyId: item.conceptId, terminology: item.terminology, version: item.version, type: 'CONCEPT'})">{{item.conceptId}}</a>
+            </span>
 
-						<!-- For descriptor id, do not show if identical to component id -->
-						<span
-							ng-show="item.terminology != selected.component.terminology || item.descriptorId != selected.component.terminologyId"
-							uib-tooltip="{{item.terminology}} descriptor"> <a
-							ng-class="{'nolink' : !callbacks.getComponent}"
-							ng-click="callbacks.getComponent(item.id, 'DESCRIPTOR',item.descriptorId, item.terminology, item.version)">{{item.descriptorId}}</a>
-						</span>
-						<!-- Show any referenced components in the concept terminology id list -->
-						<span ng-repeat="(key, value) in item.conceptTerminologyIds">
-							<a ng-class="{'nolink' : !callbacks.getComponent}"
-							ng-show="key != selected.component.terminology || value != selected.component.terminologyId"
-							uib-tooltip="{{key}} concept"
-							ng-click="callbacks.getComponent(item.id, 'CONCEPT',value, key, callbacks.getTerminologyVersion(key))">{{value}}</a>
-						</span>
-						<div style="margin-left: 20px;" ng-show="expanded[item.id]">
-							<!-- Atom Definitions -->
-							<div ng-show="item.definitions.length > 0">
-								<strong>{{selected.metadata.definitionsLabel}}</strong>
-								<ul>
-									<li
-										ng-repeat="definition in item.definitions | orderBy:'value'">
-										{{definition.value}}</li>
-								</ul>
-							</div>
-							<!-- end Atom Definitions -->
-							<!-- Atom Attributes -->
-							<div ng-show="item.attributes.length > 0">
-								<strong>{{selected.metadata.attributesLabel}}</strong>
-								<ul>
-									<li
-										ng-repeat="attribute in item.attributes | orderBy: ['name', 'value']">
-										<span class="label label-info"
-										uib-tooltip="{{callbacks.getAttributeNameName(attribute.name,selected.metadata)}}">{{attribute.name}}</span>
-										= {{attribute.value}}
-									</li>
-								</ul>
-							</div>
-							<!-- end Atom Attributes -->
+            <!-- For descriptor id, do not show if identical to component id -->
+            <span
+              ng-show="item.terminology != selected.component.terminology || item.descriptorId != selected.component.terminologyId"
+              uib-tooltip="{{item.terminology}} descriptor">
+              <a class="pointer" ng-class="{'nolink' : !callbacks.getComponent}"
+                ng-click="callbacks.getComponent({terminologyId: item.descriptorId, terminology: item.terminology, version: item.version, type: 'DESCRIPTOR'})">{{item.descriptorId}}</a>
+            </span>
+            <!-- Show any referenced components in the concept terminology id list -->
+            <span ng-repeat="(key, value) in item.conceptTerminologyIds">
+              <a class="pointer" ng-class="{'nolink' : !callbacks.getComponent}"
+                ng-show="key != selected.component.terminology || value != selected.component.terminologyId"
+                uib-tooltip="{{key}} concept"
+                ng-click="callbacks.getComponent({id: item.id, type: 'CONCEPT', terminologyId: value, terminology: key,version: callbacks.getTerminologyVersion(key)})">{{value}}</a>
+            </span>
+            <div style="margin-left: 20px;" ng-show="expanded[item.id]">
+              <!-- Atom Definitions -->
+              <div ng-show="item.definitions.length > 0">
+                <strong>{{selected.metadata.definitionsLabel}}</strong>
+                <ul>
+                  <li
+                    ng-repeat="definition in item.definitions | orderBy:'value'">
+                    {{definition.value}}</li>
+                </ul>
+              </div>
+              <!-- end Atom Definitions -->
+              <!-- Atom Attributes -->
+              <div ng-show="item.attributes.length > 0">
+                <strong>{{selected.metadata.attributesLabel}}</strong>
+                <ul>
+                  <li
+                    ng-repeat="attribute in item.attributes | orderBy: ['name', 'value']">
+                    <span class="label label-info"
+                      uib-tooltip="{{callbacks.getAttributeNameName(attribute.name,selected.metadata)}}">{{attribute.name}}</span>
+                    = {{attribute.value}}
+                  </li>
+                </ul>
+              </div>
+              <!-- end Atom Attributes -->
 
-							<!-- Atom Subsets -->
-							<div ng-show="item.members.length > 0">
-								<strong>{{selected.metadata.subsetsLabel}}</strong>
-								<ul>
-									<li
-										ng-repeat="member in item.members | orderBy: ['subsetName']">
-										{{member.subsetName}}
-										<div ng-show="item.attributes.length > 0">
-											<ul>
-												<li
-													ng-repeat="attribute in member.attributes | orderBy: ['name']">
-													<span class="label label-info"
-													uib-tooltip="{{callbacks.getAttributeNameName(attribute.name,selected.metadata)}}">{{attribute.name}}</span>
-													= {{attribute.value}}
-												</li>
-											</ul>
-										</div>
-									</li>
-								</ul>
-							</div>
-							<!-- end Atom Subsets -->
-							<!-- Atom Relationship -->
-							<div ng-show="item.relationships.length > 0">
-								<strong>{{selected.metadata.atomRelationshipsLabel}}</strong>
-								<ul>
-									<li
-										ng-repeat="relationship in item.relationships | orderBy:['relationshipType', 'toName']"><span
-										class="label label-info"
-										uib-tooltip="{{callbacks.getRelationshipTypeName(relationship.relationshipType,selected.metadata)}}">{{relationship.relationshipType}}</span>
-										{{relationship.additionalRelationshipType}} <a
-										ng-click="callbacks.findComponentsForQuery(relationship.toName)"
-										uib-tooltip="Search in {{relationship.terminology}} {{terminology.organizingClassType | lowercase}}">{{relationship.toName}}</a>
-									</li>
-								</ul>
-							</div>
-							<!-- end Atom Relationship -->
-						</div>
-					</div>
+              <!-- Atom Subsets -->
+              <div ng-show="item.members.length > 0">
+                <strong>{{selected.metadata.subsetsLabel}}</strong>
+                <ul>
+                  <li
+                    ng-repeat="member in item.members | orderBy: ['subsetName']">
+                    {{member.subsetName}}
+                    <div ng-show="item.attributes.length > 0">
+                      <ul>
+                        <li
+                          ng-repeat="attribute in member.attributes | orderBy: ['name']">
+                          <span class="label label-info"
+                            uib-tooltip="{{callbacks.getAttributeNameName(attribute.name,selected.metadata)}}">{{attribute.name}}</span>
+                          = {{attribute.value}}
+                        </li>
+                      </ul>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+              <!-- end Atom Subsets -->
+              <!-- Atom Relationship -->
+              <div ng-show="item.relationships.length > 0">
+                <strong>{{selected.metadata.atomRelationshipsLabel}}</strong>
+                <ul>
+                  <li
+                    ng-repeat="relationship in item.relationships | orderBy:['relationshipType', 'toName']"><span
+                      class="label label-info"
+                      uib-tooltip="{{callbacks.getRelationshipTypeName(relationship.relationshipType,selected.metadata)}}">{{relationship.relationshipType}}</span>
+                    {{relationship.additionalRelationshipType}} <a
+                      ng-click="callbacks.findComponentsForQuery(relationship.toName)"
+                      uib-tooltip="Search in {{relationship.terminology}} {{terminology.organizingClassType | lowercase}}">{{relationship.toName}}</a>
+                  </li>
+                </ul>
+              </div>
+              <!-- end Atom Relationship -->
+            </div>
+          </div>
 
 
-				</div>
-			</li>
-		</ul>
-	</div>
+        </div>
+      </li>
+    </ul>
+  </div>
 </div>
 <!-- end Atoms -->
