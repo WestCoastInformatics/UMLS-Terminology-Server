@@ -1,5 +1,5 @@
 /*
- *    Copyright 2017 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services;
 
@@ -976,6 +976,18 @@ public class ReportServiceJpa extends HistoryServiceJpa
   private void cacheContexts(Long conceptId, String contexts) {
     synchronized (conceptContextsCache) {
       conceptContextsCache.put(conceptId, contexts);
+    }
+  }
+
+  /**
+   * Clear cache contexts for concept.
+   *
+   * @param conceptId the concept id
+   */
+  @SuppressWarnings("static-method")
+  public static void clearCachedContextsForConcept(Long conceptId) {
+    synchronized (conceptContextsCache) {
+      conceptContextsCache.remove(conceptId);
     }
   }
 

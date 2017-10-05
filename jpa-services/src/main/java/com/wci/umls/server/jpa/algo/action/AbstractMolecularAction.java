@@ -26,6 +26,7 @@ import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.jpa.actions.MolecularActionJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.services.ReportServiceJpa;
 import com.wci.umls.server.jpa.services.helper.IndexUtility;
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.MolecularAction;
@@ -642,6 +643,14 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
       concepts.add(getConcept(getConcept2().getId()));
     }
 
+    // Molecular actions can cause the ConceptReport's context cache to be out
+    // of date. Clear the cache for each affected concept.
+    for (final Concept c : concepts) {
+      if (c != null) {
+        ReportServiceJpa.clearCachedContextsForConcept(c.getId());
+      }
+    }
+
     // Start a new action that doesn't create molecular/atomic actions
     beginTransaction();
     setMolecularActionFlag(false);
@@ -666,7 +675,8 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
         if (records != null) {
           for (final TrackingRecord record : records.getObjects()) {
             if (!recordsSeen.contains(record.getId())) {
-              final WorkflowStatus status = computeTrackingRecordStatus(record, false);
+              final WorkflowStatus status =
+                  computeTrackingRecordStatus(record, false);
               if (record.getWorkflowStatus() != status) {
                 record.setWorkflowStatus(status);
                 updateTrackingRecord(record);
