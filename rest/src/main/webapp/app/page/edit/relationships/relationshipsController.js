@@ -101,7 +101,7 @@ tsApp
         }
 
         $scope.transferConceptToEditor = function() {
-          $scope.parentWindowScope.transferConceptToEditor($scope.selected.relationship.toId);
+          $scope.parentWindowScope.transferConceptToEditor($scope.selected.relationship.fromId);
         }
 
         //
