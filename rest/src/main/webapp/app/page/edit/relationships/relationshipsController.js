@@ -74,6 +74,8 @@ tsApp
 
         // remove relationship
         $scope.removeRelationshipFromConcept = function(relationship) {
+        // Because client wanted inverse rels displayed in relationship window
+        // Need to load the related concept to run removeRelationship on.
             contentService.getConcept(relationship.fromId, $scope.selected.project.id).then(
                     // Success
                     function(data) {
