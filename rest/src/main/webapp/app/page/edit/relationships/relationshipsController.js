@@ -32,6 +32,7 @@ tsApp
         $scope.user = $scope.parentWindowScope.user;
         $scope.selected.relationship = null;
         $scope.preferredOnly = true;
+        $scope.relatedConcept = null;
 
         // Paging variables
         $scope.pageSizes = utilService.getPageSizes();
@@ -73,8 +74,13 @@ tsApp
 
         // remove relationship
         $scope.removeRelationshipFromConcept = function(relationship) {
-          metaEditingService.removeRelationship($scope.selected.project.id,
-            $scope.selected.activityId, $scope.selected.component, relationship.id, true);
+            contentService.getConcept(relationship.fromId, $scope.selected.project.id).then(
+                    // Success
+                    function(data) {
+                        metaEditingService.removeRelationship($scope.selected.project.id,
+                                $scope.selected.activityId, data, relationship.id, true);
+
+                   }); 
         }
 
         // Get paged relationships
