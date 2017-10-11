@@ -222,12 +222,16 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
       final Atom oldAtom = getAtom(oldAtomId);
       final Atom newAtom = getAtom(newAtomId);
 
-      // Update newAtom's alternateTerminologyIds
-      for (final Map.Entry<String, String> oldAltTermId : oldAtom
-          .getAlternateTerminologyIds().entrySet()) {
-        newAtom.getAlternateTerminologyIds().put(oldAltTermId.getKey(),
-            oldAltTermId.getValue());
-      }
+      // DON'T update the alternetTerminologyIds
+      // New atom has unique AUI, so NCIMTH shouldn't change
+      // And NCIMTH-SRC id is release-specific, and shouldn't be pulled from
+      // old atom.
+      // // Update newAtom's alternateTerminologyIds
+      // for (final Map.Entry<String, String> oldAltTermId : oldAtom
+      // .getAlternateTerminologyIds().entrySet()) {
+      // newAtom.getAlternateTerminologyIds().put(oldAltTermId.getKey(),
+      // oldAltTermId.getValue());
+      // }
 
       // Update obsolete and suppresible.
       // If old atom was suppresed by an editor and new atom is unsuppressed,
