@@ -222,10 +222,17 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       final ProcessConfigJpa process =
           ConfigUtility.getGraphForJson(json, ProcessConfigJpa.class);
 
-      // Clean up the imported process
+      // Clean up the imported process and algorithms
       process.setProject(project);
-      // Verify that passed projectId matches ID of the processConfig's project
+      for (AlgorithmConfig step : process.getSteps()) {
+        step.setProject(project);
+      }
+      // Verify that passed projectId matches ID of the processConfig's and
+      // algorithmConfigs' project
       verifyProject(process, projectId);
+      for (AlgorithmConfig step : process.getSteps()) {
+        verifyProject(step, projectId);
+      }
 
       // Save steps
       final List<AlgorithmConfig> configs = new ArrayList<>(process.getSteps());
@@ -246,6 +253,17 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       for (final AlgorithmConfig config : configs) {
         config.setId(null);
         config.setProcess(newProcess);
+
+        // Populate the algorithm's properties based on its parameters' values.
+        for (final AlgorithmParameter param : config.getParameters()) {
+          if (!param.getValues().isEmpty()) {
+            config.getProperties().put(param.getFieldName(),
+                StringUtils.join(param.getValues(), ';'));
+          } else if (!ConfigUtility.isEmpty(param.getValue())) {
+            config.getProperties().put(param.getFieldName(), param.getValue());
+          }
+        }             
+        
         newProcess.getSteps().add(processService.addAlgorithmConfig(config));
       }
 
@@ -289,6 +307,28 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // Load project/process
       final ProcessConfig process = processService.getProcessConfig(processId);
       verifyProject(process, projectId);
+
+      // For each of the process' algorithms, populate the parameters based on
+      // its properties' values.
+      Algorithm instance = null;
+      for (final AlgorithmConfig algo : process.getSteps()) {
+        instance = processService.getAlgorithmInstance(algo.getAlgorithmKey());
+        instance.setProject(processService.getProject(projectId));
+        algo.setParameters(instance.getParameters());
+        instance.close();
+        for (final AlgorithmParameter param : algo.getParameters()) {
+          // Populate both Value and Values (UI will determine which is required
+          // for each algorithm type)
+          if (algo.getProperties().get(param.getFieldName()) != null) {
+            if (param.getType().equals(AlgorithmParameter.Type.MULTI)) {
+              param.setValues(new ArrayList<String>(Arrays.asList(
+                  algo.getProperties().get(param.getFieldName()).split(";"))));
+            } else {
+              param.setValue(algo.getProperties().get(param.getFieldName()));
+            }
+          }
+        }
+      }
 
       return new ByteArrayInputStream(
           ConfigUtility.getJsonForGraph(process).getBytes("UTF-8"));
