@@ -252,7 +252,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     }
 
     sources.close();
-    
+
     // If sortField specified, sort.
     if (sortField != null) {
       int sortFieldInt = sortField.intValue();
@@ -1413,9 +1413,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
           + "RelationshipJpa a join a.alternateTerminologyIds b where KEY(b)  = :terminology and a.publishable=true");
       query.setParameter("terminology", getProject().getTerminology() + "-SRC");
 
-      final List<Object[]> list = query.getResultList();
-      for (final Object[] entry : list) {
-        final Relationship<?, ?> relationship = (Relationship<?, ?>) entry[0];
+      final List<Relationship<?, ?>> list = query.getResultList();
+      for (final Relationship<?, ?> relationship : list) {
         relationship.getAlternateTerminologyIds()
             .remove(getProject().getTerminology() + "-SRC");
         updateRelationship(relationship);
