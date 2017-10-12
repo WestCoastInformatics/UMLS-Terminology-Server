@@ -395,9 +395,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     final List<String> relationshipPrefixes =
         Arrays.asList("Atom", "Code", "Concept", "Descriptor", "ComponentInfo");
 
-    // Get alternate terminology Ids for ConceptRelationships,
-    // CodeRelationships, and
-    // ComponentInfoRelationships.
+    // Get alternate terminology Ids for AtomRelationships, CodeRelationships,
+    // ConceptRelationships, etc.
     for (String relPrefix : relationshipPrefixes) {
       Query query = getEntityManager().createQuery("select value(b), a.id from "
           + relPrefix + "RelationshipJpa a join a.alternateTerminologyIds b "

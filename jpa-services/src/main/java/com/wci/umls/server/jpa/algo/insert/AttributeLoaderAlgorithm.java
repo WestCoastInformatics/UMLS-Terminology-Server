@@ -25,6 +25,7 @@ import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
+import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.DefinitionJpa;
@@ -397,6 +398,11 @@ public class AttributeLoaderAlgorithm
           Class relType = null;
           if (fields[10].contains("RUI")) {
             relType = ConceptRelationshipJpa.class;
+          }
+          // TODO: find a better way to do this.
+          // Only MDR insertion uses SRC_REL_ID, and they are all CodeRelationships.
+          else if (fields[10].contains("SRC_REL_ID")) {
+            relType = CodeRelationshipJpa.class;
           }
           final ComponentHasAttributes containerComponent =
               (ComponentHasAttributes) getComponent(fields[10], fields[1],
