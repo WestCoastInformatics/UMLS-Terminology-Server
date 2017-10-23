@@ -202,13 +202,6 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   private static Map<String, Terminology> cachedTerminologies = new HashMap<>();
 
   /**
-   * Cached terminology/versions referenced in sources.src. Key = Terminology,
-   * Value = Version
-   */
-  private static Map<String, String> cachedReferencedTerminologies =
-      new HashMap<>();
-
-  /**
    * Load file into string list.
    *
    * @param srcDirFile the src dir file
@@ -1388,7 +1381,6 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     descriptorIdCache.clear();
     relCachedTerms.clear();
     relIdCache.clear();
-    cachedReferencedTerminologies.clear();
   }
 
   /**
@@ -1484,42 +1476,6 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     }
 
     return version;
-  }
-
-  /**
-   * Takes a list of atoms, and removes atom that are for a terminology
-   * references in sources.src, but for a previous version.
-   *
-   * @param atomList the atom list
-   * @return the list
-   * @throws Exception the exception
-   */
-  public List<Atom> removeOldVersionAtoms(List<Atom> atomList)
-    throws Exception {
-    List<Atom> newAtoms = atomList;
-
-    if (cachedReferencedTerminologies.isEmpty()) {
-
-      final Set<Terminology> referencedTerminologies =
-          getReferencedTerminologies();
-      for (final Terminology terminology : referencedTerminologies) {
-        cachedReferencedTerminologies.put(terminology.getTerminology(),
-            terminology.getVersion());
-      }
-    }
-
-    for (final Atom atom : atomList) {
-      final String terminology = atom.getTerminology();
-      final String version = atom.getVersion();
-
-      if (cachedReferencedTerminologies.containsKey(terminology)
-          && !cachedReferencedTerminologies.get(terminology).equals(version)) {
-        newAtoms.remove(atom);
-      }
-
-    }
-
-    return newAtoms;
   }
 
 }

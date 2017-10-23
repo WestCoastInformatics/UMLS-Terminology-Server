@@ -208,7 +208,7 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
         } else if (component instanceof AtomClass) {
           final AtomClass atomClass = (AtomClass) component;
           final List<Atom> atoms =
-              prefNameHandler.sortAtoms(removeOldVersionAtoms(atomClass.getAtoms()), getPrecedenceList(
+              prefNameHandler.sortAtoms(atomClass.getAtoms(), getPrecedenceList(
                   getProject().getTerminology(), getProject().getVersion()));
           atom = atoms.get(0);
         } else {
@@ -231,7 +231,7 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
         } else if (component2 instanceof AtomClass) {
           final AtomClass atomClass = (AtomClass) component2;
           final List<Atom> atoms =
-              prefNameHandler.sortAtoms(removeOldVersionAtoms(atomClass.getAtoms()), getPrecedenceList(
+              prefNameHandler.sortAtoms(atomClass.getAtoms(), getPrecedenceList(
                   getProject().getTerminology(), getProject().getVersion()));
           atom2 = atoms.get(0);
         } else {
