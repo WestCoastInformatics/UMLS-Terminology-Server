@@ -14,8 +14,11 @@ import java.util.Properties;
 
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.jpa.AbstractConfigurable;
+import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Relationship;
+import com.wci.umls.server.model.meta.Terminology;
+import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 
 /**
@@ -31,6 +34,9 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
   /** The terminology rank map. */
   private static Map<Long, Map<String, String>> terminologyRankMap =
       new HashMap<>();
+
+  /** The terminology/versions -> current map. */
+  private static Map<String, Boolean> currentTerminologies = new HashMap<>();
 
   /**
    * Instantiates an empty {@link RrfComputePreferredNameHandler}.
@@ -82,7 +88,7 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
       atomRanks.put(atom, rank);
     }
     // Sort by atom rank - this works because atom ranks are designed to be
-    // fixed-length strings that are directly comparable where higher 
+    // fixed-length strings that are directly comparable where higher
     // values are ranked better
     Collections.sort(sortedAtoms, new Comparator<Atom>() {
       @Override
@@ -90,6 +96,10 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
         return atomRanks.get(o2).compareTo(atomRanks.get(o1));
       }
     });
+
+    // Clear out the current terminologies, in case new terminologies are added
+    // later.
+    currentTerminologies.clear();
 
     return sortedAtoms;
   }
@@ -117,21 +127,37 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
           "Unexpected condition, list is not cached - " + list.getId());
     }
 
+    // Add to currentTerminologies, if needed
+    if (!currentTerminologies
+        .containsKey(atom.getTerminology() + atom.getVersion())) {
+      MetadataService service = new MetadataServiceJpa();
+      final Terminology terminology =
+          service.getTerminology(atom.getTerminology(), atom.getVersion());
+      currentTerminologies.put(atom.getTerminology() + atom.getVersion(),
+          terminology.isCurrent());
+      service.close();
+    }
+
     final Map<String, String> ttyRanks = ttyRankMap.get(list.getId());
     // Compute the rank as a fixed length string
-    // [publishable][obsolete][suppressible][tty rank][lrr][SUI][atomId]
+    // [publishable][isCurrent][obsolete][suppressible][tty
+    // rank][lrr][SUI][atomId]
     // Higher values are better.
     if (!atom.getStringClassId().isEmpty()) {
-      return "" +(atom.isPublishable() ? 1 : 0) +(atom.isObsolete() ? 0 : 1)
-          + (atom.isSuppressible() ? 0 : 1)
+      return "" + (atom.isPublishable() ? 1 : 0)
+          + (currentTerminologies.get(atom.getTerminology() + atom.getVersion())
+              ? 1 : 0)
+          + (atom.isObsolete() ? 0 : 1) + (atom.isSuppressible() ? 0 : 1)
           + ttyRanks.get(atom.getTerminology() + "/" + atom.getTermType())
           + atom.getLastPublishedRank()
           + +(10000000000L
               - Long.parseLong(atom.getStringClassId().substring(1)))
           + (100000000000L - atom.getId());
     } else {
-      return "" +(atom.isPublishable() ? 1 : 0) + (atom.isObsolete() ? 0 : 1)
-          + (atom.isSuppressible() ? 0 : 1)
+      return "" + (atom.isPublishable() ? 1 : 0)
+          + (currentTerminologies.get(atom.getTerminology() + atom.getVersion())
+              ? 1 : 0)
+          + (atom.isObsolete() ? 0 : 1) + (atom.isSuppressible() ? 0 : 1)
           + ttyRanks.get(atom.getTerminology() + "/" + atom.getTermType())
           + atom.getLastPublishedRank() + (100000000000L - atom.getId());
     }
