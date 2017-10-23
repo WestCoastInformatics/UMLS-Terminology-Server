@@ -301,7 +301,7 @@ public class AttributeLoaderAlgorithm
           } else if (containerComponent instanceof AtomClass) {
             final AtomClass atomClass = (AtomClass) containerComponent;
             final List<Atom> atoms =
-                prefNameHandler.sortAtoms(atomClass.getAtoms(),
+                prefNameHandler.sortAtoms(removeOldVersionAtoms(atomClass.getAtoms()),
                     getPrecedenceList(getProject().getTerminology(),
                         getProject().getVersion()));
             atom = atoms.get(0);

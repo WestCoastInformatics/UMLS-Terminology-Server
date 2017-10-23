@@ -165,8 +165,8 @@ public class SemanticTypeLoaderAlgorithm
           atom = (Atom) component;
         } else if (component instanceof AtomClass) {
           final AtomClass atomClass = (AtomClass) component;
-          final List<Atom> atoms =
-              prefNameHandler.sortAtoms(atomClass.getAtoms(), getPrecedenceList(
+          final List<Atom> atoms = prefNameHandler.sortAtoms(
+              removeOldVersionAtoms(atomClass.getAtoms()), getPrecedenceList(
                   getProject().getTerminology(), getProject().getVersion()));
           atom = atoms.get(0);
         } else {
