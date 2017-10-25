@@ -49,4 +49,11 @@ public interface ComputePreferredNameHandler extends Configurable {
   public <T extends Relationship<?, ?>> List<T> sortRelationships(
     Collection<T> rels, PrecedenceList list) throws Exception;
 
+  /**
+   * Clear caches.
+   *
+   * @throws Exception the exception
+   */
+  public void clearCaches() throws Exception;
+
 }

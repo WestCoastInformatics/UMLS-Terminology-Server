@@ -49,4 +49,10 @@ public class DefaultComputePreferredNameHandler extends AbstractConfigurable
     return new ArrayList<>(rels);
   }
 
+  /* see superclass */
+  @Override
+  public void clearCaches() throws Exception {
+    // n/a
+  }
+
 }

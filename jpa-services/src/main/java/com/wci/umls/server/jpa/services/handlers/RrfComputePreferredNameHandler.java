@@ -1,5 +1,5 @@
 /*
- *    Copyright 2017 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,10 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
  */
 public class RrfComputePreferredNameHandler extends AbstractConfigurable
     implements ComputePreferredNameHandler {
+
+  /** The precedenceList lastModifiedDate map. */
+  private static Map<Long, Date> precedenceListLastModifiedMap =
+      new HashMap<>();
 
   /** The tty rank map. */
   private static Map<Long, Map<String, String>> ttyRankMap = new HashMap<>();
@@ -96,10 +101,6 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
         return atomRanks.get(o2).compareTo(atomRanks.get(o1));
       }
     });
-
-    // Clear out the current terminologies, in case new terminologies are added
-    // later.
-    currentTerminologies.clear();
 
     return sortedAtoms;
   }
@@ -218,10 +219,22 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
       return;
     }
 
-    // Bail if configured already
-    if (ttyRankMap.containsKey(list.getId())) {
-      return;
+    // Bail if configured already and if precedence list hasn't changed since it
+    // was cached
+    if (precedenceListLastModifiedMap.containsKey(list.getId())) {
+      if (precedenceListLastModifiedMap.get(list.getId())
+          .equals(list.getLastModified())) {
+        return;
+      }
+      // If this list has been updated since it was last cached, clear its
+      // values
+      else {
+        removeListFromCaches(list.getId());
+      }
     }
+
+    precedenceListLastModifiedMap.put(list.getId(), list.getLastModified());
+
     // Otherwise, build the TTY map
     final Map<String, String> ttyRanks = list.getTermTypeRankMap();
     ttyRankMap.put(list.getId(), ttyRanks);
@@ -230,6 +243,27 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
     final Map<String, String> terminologyRanks = list.getTerminologyRankMap();
     terminologyRankMap.put(list.getId(), terminologyRanks);
 
+  }
+
+  /* see superclass */
+  @Override
+  public void clearCaches() throws Exception {
+    ttyRankMap.clear();
+    terminologyRankMap.clear();
+    currentTerminologies.clear();
+    precedenceListLastModifiedMap.clear();
+  }
+
+  /**
+   * Remove a single precedence list's content from the caches.
+   *
+   * @param precedenceListId the list id
+   * @throws Exception the exception
+   */
+  public void removeListFromCaches(Long precedenceListId) throws Exception {
+    ttyRankMap.remove(precedenceListId);
+    terminologyRankMap.remove(precedenceListId);
+    precedenceListLastModifiedMap.remove(precedenceListId);
   }
 
   /* see superclass */

@@ -41,6 +41,7 @@ import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.TermTypeStyle;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.meta.UsageType;
+import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 
 /**
  * Implementation of an algorithm to import metadata.
@@ -334,6 +335,14 @@ public class MetadataLoaderAlgorithm
 
       commitClearBegin();
 
+      // Clear the preferredNameHandler caches, since the terminologies and
+      // precedence lists have now changed.
+      final ComputePreferredNameHandler prefNameHandler =
+          getComputePreferredNameHandler(getProject().getTerminology());
+      prefNameHandler.clearCaches();
+
+      commitClearBegin();      
+      
       logInfo("Finished " + getName());
 
     } catch (Exception e) {
