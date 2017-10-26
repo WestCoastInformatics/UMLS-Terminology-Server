@@ -14,6 +14,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.model.content.Atom;
 
 /**
  * Test database communication speeds.
@@ -46,7 +47,6 @@ public class SpeedTestAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   }
 
   /* see superclass */
-  @SuppressWarnings("unchecked")
   @Override
   public void compute() throws Exception {
     logInfo("Starting " + getName());
@@ -55,24 +55,29 @@ public class SpeedTestAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     setMolecularActionFlag(false);
 
     /**
-     * The atom ID cache. Key = AUI; Value = atomJpa Id
+     * The atom cache.
      */
     Set<Long> atomIdCache = new HashSet<>();
+    Set<Atom> atomCache = new HashSet<>();
 
     // Search for 10,000 atoms from the database, one at a time
     logInfo("  Starting database read loop.");
 
     for (int i = 1; i < 10000; i++) {
-      // Load alternateTerminologyIds
       List<Long> atomIdList = executeSingleComponentIdQuery(
-          "select a.id from atoms a where id=" + String.valueOf(i), QueryType.SQL,
-          getDefaultQueryParams(getProject()), AtomJpa.class, false);
-
+          "select a.id from atoms a where id=" + String.valueOf(i),
+          QueryType.SQL, getDefaultQueryParams(getProject()), AtomJpa.class,
+          false);
       atomIdCache.add(atomIdList.get(0));
-      //logInfo("  Read " + i);
     }
-
     logInfo("  Finished database read loop.");
+
+    // Get all 10,000 atoms using the ID, one at a time
+    logInfo("  Starting atom load loop.");
+    for (Long atomId : atomIdCache) {
+      atomCache.add(getAtom(atomId));
+    }
+    logInfo("  Finished atom load loop.");
 
   }
 
