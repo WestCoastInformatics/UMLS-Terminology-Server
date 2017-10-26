@@ -1151,6 +1151,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         // Set up and run the algorithm
         final Properties algoProperties = new Properties();
         algoProperties.put("type", type);
+        algoProperties.put("UIRun", "true");
         algorithm.setProperties(algoProperties);
         algorithm.setLastModifiedBy(userName);
 
