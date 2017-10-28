@@ -252,8 +252,6 @@ public class AtomRelationshipJpaUnitTest extends ModelUnitSupport {
     tester.include("published");
     tester.include("publishable");
     tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("version");
     tester.include("assertedDirection");
     tester.include("relationshipType");
     tester.include("inferred");

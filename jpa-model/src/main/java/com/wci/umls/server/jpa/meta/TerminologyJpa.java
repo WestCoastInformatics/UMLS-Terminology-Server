@@ -87,7 +87,7 @@ public class TerminologyJpa extends AbstractHasLastModified
   private List<String> relatedTerminologies = new ArrayList<>();
 
   /** The version. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String version;
 
   /** The is asserts rel direction. */
@@ -95,7 +95,7 @@ public class TerminologyJpa extends AbstractHasLastModified
   private boolean assertsRelDirection = false;
 
   /** The is current. */
-  @Column(nullable = false)
+  @Column(name = "\"current\"", nullable = false)
   private boolean current = false;
 
   /** The metathesaurus flag. */

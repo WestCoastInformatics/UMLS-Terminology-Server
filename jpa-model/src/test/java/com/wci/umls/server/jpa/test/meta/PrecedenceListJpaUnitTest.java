@@ -146,9 +146,6 @@ public class PrecedenceListJpaUnitTest extends ModelUnitSupport {
     tester.include("timestamp");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
-    tester.include("terminology");
-    tester.include("version");
-    tester.include("name");
     tester.include("terminologies");
     tester.include("termTypes");
 

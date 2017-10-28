@@ -2110,7 +2110,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
         for (final TrackingRecord record : list) {
           String clusterType = record.getClusterType();
-          if (clusterType.isEmpty()) {
+          if (clusterType == null || clusterType.isEmpty()) {
             clusterType = "default";
           }
 

@@ -204,8 +204,6 @@ public class CodeTransitiveRelationshipJpaUnitTest extends ModelUnitSupport {
     tester.include("publishable");
     tester.include("depth");
     tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("version");
     tester.include("subType");
     tester.include("superType");
     assertTrue(tester.testNotNullFields());

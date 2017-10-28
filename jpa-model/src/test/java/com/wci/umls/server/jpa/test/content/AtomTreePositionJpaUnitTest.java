@@ -195,8 +195,6 @@ public class AtomTreePositionJpaUnitTest extends ModelUnitSupport {
     tester.include("published");
     tester.include("publishable");
     tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("version");
     tester.include("node");
     tester.include("childCt");
     tester.include("descendantCt");

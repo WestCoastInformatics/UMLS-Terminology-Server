@@ -35,7 +35,7 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
   private String example;
 
   /** The type id. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String typeId;
 
   /** The non human. */

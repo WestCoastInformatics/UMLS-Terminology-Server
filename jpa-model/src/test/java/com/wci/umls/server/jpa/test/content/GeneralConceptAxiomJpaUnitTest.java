@@ -159,8 +159,6 @@ public class GeneralConceptAxiomJpaUnitTest extends ModelUnitSupport {
     tester.include("published");
     tester.include("publishable");
     tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("version");
     tester.include("leftHandSide");
     tester.include("rightHandSide");
     tester.include("equivalent");

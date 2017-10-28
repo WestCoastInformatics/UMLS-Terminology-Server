@@ -131,9 +131,6 @@ public class ConceptJpaUnitTest extends ModelUnitSupport {
     tester.include("published");
     tester.include("publishable");
     tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("version");
-    tester.include("name");
     tester.include("fullyDefined");
     tester.include("anonymous");
     tester.include("usesRelationshipIntersection");

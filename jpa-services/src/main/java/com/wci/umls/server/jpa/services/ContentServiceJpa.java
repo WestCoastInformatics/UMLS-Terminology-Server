@@ -886,7 +886,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public Code getCode(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get code " + id);
+    Logger.getLogger(getClass()).debug ("Content Service - get code " + id);
     final Code c = manager.find(CodeJpa.class, id);
     return c;
   }

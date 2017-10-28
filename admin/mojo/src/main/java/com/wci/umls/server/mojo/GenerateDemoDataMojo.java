@@ -309,7 +309,7 @@ public class GenerateDemoDataMojo extends AbstractLoaderMojo {
           + "and b.atoms_id = c.id and c.publishable = 0 "
           + "and not exists (select * from concepts_atoms d, atoms e "
           + " where a.id = d.concepts_id and d.atoms_id = e.id "
-          + " and e.publishable = 1);");
+          + " and e.publishable = 1)");
       definition.setEditable(false);
       definition.setEnabled(true);
       definition.setRequired(false);

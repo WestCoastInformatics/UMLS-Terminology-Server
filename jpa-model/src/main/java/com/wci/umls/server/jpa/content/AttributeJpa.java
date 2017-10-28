@@ -30,11 +30,11 @@ import com.wci.umls.server.model.content.Attribute;
 public class AttributeJpa extends AbstractComponent implements Attribute {
 
   /** The name. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String name;
 
   /** The value. */
-  @Column(nullable = false, length = 4000)
+  @Column(nullable = true, length = 20000)
   private String value;
 
   /** The alternate terminology ids. */

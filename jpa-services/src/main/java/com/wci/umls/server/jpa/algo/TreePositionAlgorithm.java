@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.hibernate.Query;
+
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
@@ -155,16 +157,25 @@ public class TreePositionAlgorithm extends AbstractAlgorithm {
     final Set<Long> allRootIds = new HashSet<>();
 
     // Compute distinct additionalRelationshipType values
-    final List<String> additionalRelationshipTypes = manager
-        .createQuery("select distinct additionalRelationshipType from "
-            + tableName + " r where "
-            + "version = :version and terminology = :terminology "
-            + "and hierarchical = 1 and inferred = 1 and obsolete = 0 "
-            + "and r.from in (select o from " + tableName2
-            + " o where obsolete = 0)")
-        .setParameter("terminology", getTerminology())
-        .setParameter("version", getVersion()).getResultList();
-
+    
+    javax.persistence.Query additionalRelationshipTypeQuery = manager.createQuery(
+    		"select distinct additionalRelationshipType " 
+    				+ "from " + tableName + " r " 
+    				+ "where 1=1 "
+    				+ ((getVersion() != null) ? "and version = :version " : "and version IS NULL ")
+    				+ ((getTerminology() != null) ? "and terminology = :terminology " : "and terminology IS NULL ")
+    				+ "and hierarchical = 1 and inferred = 1 and obsolete = 0 "
+    				+ "and r.from in (select o from " + tableName2
+    				+ " o where obsolete = 0)");
+    
+    if (getTerminology() != null)
+    	additionalRelationshipTypeQuery.setParameter("terminology", getTerminology());
+    
+    if (getVersion() != null)
+    	additionalRelationshipTypeQuery.setParameter("version", getVersion());
+    
+    final List<String> additionalRelationshipTypes = additionalRelationshipTypeQuery.getResultList();
+    
     if (additionalRelationshipTypes.size() == 0) {
       fireProgressEvent(100, "Finished.");
       logInfo("    NO HIERARCHICAL RELATIONSHIPS");
@@ -182,20 +193,30 @@ public class TreePositionAlgorithm extends AbstractAlgorithm {
     int step = 0;
     for (final String additionalRelationshipType : additionalRelationshipTypes) {
       step++;
-      final List<Object[]> relationships = manager
-          .createQuery(
-              "select r.from.id, r.to.id from " + tableName + " r where "
-                  + "version = :version and terminology = :terminology "
-                  + "and hierarchical = 1 and inferred = 1 and obsolete = 0 "
-                  + "and additionalRelationshipType = :additionalRelationshipType "
-                  + "and r.from in (select o from " + tableName2
-                  + " o where obsolete = 0)")
-          .setParameter("terminology", getTerminology())
-          .setParameter("version", getVersion())
-          .setParameter("additionalRelationshipType",
-              additionalRelationshipType)
-          .getResultList();
 
+      
+      javax.persistence.Query relationshipsQuery = manager.createQuery(
+    		  "select r.from.id, r.to.id " 
+    				  + "from " + tableName + " r "
+    				  + "where 1=1 "
+    				  + ((getVersion() != null) ? "and version = :version " : "and version IS NULL ")
+    				  + ((getTerminology() != null) ? "and terminology = :terminology " : "and terminology IS NULL ")
+    				  + "and hierarchical = 1 and inferred = 1 and obsolete = 0 "
+    				  + ((additionalRelationshipType != null) ? "and additionalRelationshipType = :additionalRelationshipType " : "and additionalRelationshipType IS NULL ") 
+    				  + "and r.from in (select o from " + tableName2
+    				  + " o where obsolete = 0)");
+      
+      if (getTerminology() != null)
+    	  relationshipsQuery.setParameter("terminology", getTerminology());
+      
+      if (getVersion() != null)
+    	  relationshipsQuery.setParameter("version", getVersion());
+      
+      if (additionalRelationshipType != null)
+    	  relationshipsQuery.setParameter("additionalRelationshipType", additionalRelationshipType);
+      
+      final List<Object[]> relationships = relationshipsQuery.getResultList();
+      
       int ct = 0;
       final Map<Long, Set<Long>> parChd = new HashMap<>();
       Map<Long, Set<Long>> chdPar = new HashMap<>();

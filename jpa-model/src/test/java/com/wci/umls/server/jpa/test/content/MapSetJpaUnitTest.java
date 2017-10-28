@@ -171,19 +171,8 @@ public class MapSetJpaUnitTest extends ModelUnitSupport {
     tester.include("published");
     tester.include("publishable");
     tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("version");
     tester.include("name");
-    // tester.include("fromComplexity");
-    // tester.include("complexity");
-    // tester.include("toComplexity");
-    // tester.include("fromExhaustive");
-    // tester.include("toExhaustive");
-    // tester.include("mapType");
     tester.include("fromTerminology");
-    // tester.include("toTerminology");
-    // tester.include("fromVersion");
-    // tester.include("toVersion");
 
     assertTrue(tester.testNotNullFields());
   }

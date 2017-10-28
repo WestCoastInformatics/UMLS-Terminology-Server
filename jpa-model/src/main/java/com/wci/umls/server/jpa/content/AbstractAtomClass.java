@@ -97,7 +97,7 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
   private List<Atom> atoms = null;
 
   /** The name. */
-  @Column(nullable = false, length = 4000)
+  @Column(nullable = true, length = 4000)
   private String name;
 
   /** branched to tracking. */

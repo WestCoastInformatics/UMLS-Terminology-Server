@@ -125,13 +125,9 @@ public class RelationshipIdentityJpaUnitTest extends ModelUnitSupport {
     NullableFieldTester tester = new NullableFieldTester(object);
 
     tester.include("terminology");
-    tester.include("terminologyId");
     tester.include("relationshipType");
-    tester.include("additionalRelationshipType");
-    tester.include("fromId");
     tester.include("fromType");
     tester.include("fromTerminology");
-    tester.include("toId");
     tester.include("toType");
     tester.include("toTerminology");
     tester.include("inverseId");

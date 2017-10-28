@@ -88,7 +88,7 @@ public class TrackingRecordJpa implements TrackingRecord {
   private Long clusterId;
 
   /** The cluster type. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String clusterType;
 
   /** The terminology. */

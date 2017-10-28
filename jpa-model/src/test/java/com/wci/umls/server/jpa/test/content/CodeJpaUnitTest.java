@@ -127,9 +127,6 @@ public class CodeJpaUnitTest extends ModelUnitSupport {
     tester.include("published");
     tester.include("publishable");
     tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("version");
-    tester.include("name");
     tester.include("workflowStatus");
 
     assertTrue(tester.testNotNullFields());

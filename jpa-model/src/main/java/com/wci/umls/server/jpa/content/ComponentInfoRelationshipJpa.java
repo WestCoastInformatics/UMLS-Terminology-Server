@@ -75,6 +75,7 @@ public class ComponentInfoRelationshipJpa
   private String toVersion;
 
   /** The to name. */
+  @Column(length = 500)
   private String toName;
 
   /** The to type. */

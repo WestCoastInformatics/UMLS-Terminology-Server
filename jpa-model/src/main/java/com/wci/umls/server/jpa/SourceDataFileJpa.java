@@ -63,7 +63,7 @@ public class SourceDataFileJpa implements SourceDataFile {
   private boolean directory;
 
   /** The file size. */
-  @Column(name = "fileSize", nullable = false, unique = false)
+  @Column(name = "\"size\"", nullable = false, unique = false)
   private Long size;
 
   /** The file path. */

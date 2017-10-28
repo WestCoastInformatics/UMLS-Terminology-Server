@@ -44,7 +44,7 @@ public class AttributeIdentityJpa implements AttributeIdentity {
   private String name;
 
   /** The terminology id. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String terminologyId;
 
   /** The terminology. */
@@ -52,7 +52,7 @@ public class AttributeIdentityJpa implements AttributeIdentity {
   private String terminology;
 
   /** The component id. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String componentId;
 
   /** The component type. */
@@ -61,7 +61,7 @@ public class AttributeIdentityJpa implements AttributeIdentity {
   private IdType componentType;
 
   /** The component terminology. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String componentTerminology;
 
   /** The attribute value hash code. */

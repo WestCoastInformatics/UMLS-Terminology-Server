@@ -138,10 +138,7 @@ public class RelationshipTypeJpaUnitTest extends ModelUnitSupport {
   public void testModelNotNullField() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
-    tester.include("abbreviation");
     tester.include("expandedForm");
-    tester.include("terminology");
-    tester.include("version");
     tester.include("publishable");
     tester.include("published");
     tester.include("timestamp");

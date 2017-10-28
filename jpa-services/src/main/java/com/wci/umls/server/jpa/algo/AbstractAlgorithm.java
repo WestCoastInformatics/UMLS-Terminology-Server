@@ -9,6 +9,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import com.mysql.jdbc.StringUtils;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.Project;
@@ -276,19 +277,19 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
   /* see superclass */
   @Override
   public void setTerminology(String terminology) {
-    this.terminology = terminology;
+	  this.terminology = !StringUtils.isNullOrEmpty(terminology) ? terminology : "UNK";
   }
 
   /* see superclass */
   @Override
   public String getTerminology() {
-    return this.terminology;
+	  return this.terminology;
   }
 
   /* see superclass */
   @Override
   public void setVersion(String version) {
-    this.version = version;
+    this.version = !StringUtils.isNullOrEmpty(version) ? version : "UNK";;
   }
 
   /* see superclass */

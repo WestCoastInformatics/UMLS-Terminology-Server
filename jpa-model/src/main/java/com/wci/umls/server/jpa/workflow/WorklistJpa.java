@@ -80,7 +80,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   private WorkflowStatus workflowStatus;
 
   /** The number, also the last part of the name. */
-  @Column(nullable = false)
+  @Column(name="\"number\"", nullable = false)
   private int number;
 
   /** The author time. */

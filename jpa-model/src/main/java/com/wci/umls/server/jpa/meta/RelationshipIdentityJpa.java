@@ -43,7 +43,7 @@ public class RelationshipIdentityJpa implements RelationshipIdentity {
   private String terminology;
 
   /** The terminology id. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String terminologyId;
 
   /** The relationship type. */
@@ -51,11 +51,11 @@ public class RelationshipIdentityJpa implements RelationshipIdentity {
   private String relationshipType;
 
   /** The additional relationship type. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String additionalRelationshipType;
 
   /** The from id. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String fromId;
 
   /** The from type. */
@@ -68,7 +68,7 @@ public class RelationshipIdentityJpa implements RelationshipIdentity {
   private String fromTerminology;
 
   /** The to id. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String toId;
 
   /** The to type. */

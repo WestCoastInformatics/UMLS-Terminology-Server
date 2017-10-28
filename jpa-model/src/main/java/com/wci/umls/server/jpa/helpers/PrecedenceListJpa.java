@@ -29,6 +29,7 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 
+import com.mysql.jdbc.StringUtils;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
@@ -68,11 +69,11 @@ public class PrecedenceListJpa implements PrecedenceList {
   private String lastModifiedBy;
 
   /** The terminology. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String terminology;
 
   /** The version. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String version;
 
   /** The branch. */
@@ -80,7 +81,7 @@ public class PrecedenceListJpa implements PrecedenceList {
   private String branch = Branch.ROOT;
 
   /** The name. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String name;
 
   /** The terminology list. */
@@ -142,7 +143,7 @@ public class PrecedenceListJpa implements PrecedenceList {
   /* see superclass */
   @Override
   public void setName(String name) {
-    this.name = name;
+    this.name = !StringUtils.isNullOrEmpty(name) ? name : "UNK";
   }
 
   /* see superclass */
@@ -166,7 +167,7 @@ public class PrecedenceListJpa implements PrecedenceList {
   /* see superclass */
   @Override
   public void setTerminology(String terminology) {
-    this.terminology = terminology;
+    this.terminology = !StringUtils.isNullOrEmpty(terminology) ? terminology : "UNK";
   }
 
   /* see superclass */
@@ -178,7 +179,7 @@ public class PrecedenceListJpa implements PrecedenceList {
   /* see superclass */
   @Override
   public void setVersion(String version) {
-    this.version = version;
+    this.version = !StringUtils.isNullOrEmpty(version) ? version : "UNK";;
   }
 
   /* see superclass */

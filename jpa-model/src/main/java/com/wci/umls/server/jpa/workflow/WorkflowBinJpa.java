@@ -79,7 +79,7 @@ public class WorkflowBinJpa implements WorkflowBin {
   private String description;
 
   /** The terminology id. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String terminologyId;
 
   /** The terminology. */
@@ -87,7 +87,7 @@ public class WorkflowBinJpa implements WorkflowBin {
   private String terminology;
 
   /** The version. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String version;
 
   /**

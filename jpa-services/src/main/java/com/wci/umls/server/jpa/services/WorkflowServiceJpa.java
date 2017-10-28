@@ -619,9 +619,10 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
     // execute the query
     final String query = definition.getQuery();
+    
     final List<Long[]> results = executeClusteredConceptQuery(query,
         definition.getQueryType(), getDefaultQueryParams(project), false);
-
+    
     if (results == null)
       throw new Exception("Failed to retrieve results for query");
 
@@ -939,7 +940,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
   public ChecklistList findChecklists(Project project, String query,
     PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass())
-        .debug("Workflow Service - find checklists for query " + query);
+        //.debug("Workflow Service - find checklists for query " + query);
+    	.info("Workflow Service - find checklists for query " + query);
 
     ChecklistList results = new ChecklistListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);

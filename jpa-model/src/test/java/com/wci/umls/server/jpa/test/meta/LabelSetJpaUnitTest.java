@@ -124,11 +124,8 @@ public class LabelSetJpaUnitTest extends ModelUnitSupport {
     tester.include("timestamp");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
-    tester.include("terminology");
     tester.include("publishable");
     tester.include("published");
-    tester.include("version");
-    tester.include("abbreviation");
     tester.include("expandedForm");
     tester.include("description");
     tester.include("derived");

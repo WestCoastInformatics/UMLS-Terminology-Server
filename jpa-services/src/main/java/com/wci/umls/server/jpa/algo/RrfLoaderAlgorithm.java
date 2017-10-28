@@ -845,7 +845,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     final Map<String, String> versionsMap = new HashMap<>();
     for (final Terminology terminology : getTerminologyLatestVersions()
         .getObjects()) {
-      versionsMap.put(terminology.getTerminology(), terminology.getVersion());
+    	if (terminology != null) {
+    		versionsMap.put(terminology.getTerminology(), terminology.getVersion());
+    	}
     }
 
     // Iterate through terminologies
@@ -2811,7 +2813,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
         } else if (fields[2].equals("CODE") && fields[6].equals("CODE")) {
           final CodeRelationship codeRel = new CodeRelationshipJpa();
-
           final Long fromId = codeIdMap.get(
               atomTerminologyMap.get(fields[5]) + atomCodeIdMap.get(fields[5]));
           final Long toId = codeIdMap.get(
@@ -2862,19 +2863,25 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
                 conceptIdMap.get(atomTerminologyMap.get(fields[5])
                     + atomConceptIdMap.get(fields[5]));
             final Concept concept = getConcept(fromId);
-            from = new ComponentInfoJpa(concept);
+            if (concept != null) {
+            	from = new ComponentInfoJpa(concept);
+            }
 
           } else if (stype2.equals("CUI")) {
             final Long fromId = conceptIdMap.get(getTerminology() + fields[4]);
             final Concept concept = getConcept(fromId);
-            from = new ComponentInfoJpa(concept);
+            if (concept != null) {
+            	from = new ComponentInfoJpa(concept);
+            }
 
           } else if (stype2.equals("SDUI")) {
             final Long fromId =
                 descriptorIdMap.get(atomTerminologyMap.get(fields[5])
                     + atomDescriptorIdMap.get(fields[5]));
             final Descriptor descriptor = getDescriptor(fromId);
-            from = new ComponentInfoJpa(descriptor);
+            if (descriptor != null) {
+            	from = new ComponentInfoJpa(descriptor);
+            }
 
           } else if (stype2.equals("AUI")) {
             final Atom fromAtom = getAtom(atomIdMap.get(fields[5]));
@@ -2895,25 +2902,33 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             final Long toId = codeIdMap.get(atomTerminologyMap.get(fields[1])
                 + atomCodeIdMap.get(fields[1]));
             final Code code = getCode(toId);
-            to = new ComponentInfoJpa(code);
+            if (code != null) {
+            	to = new ComponentInfoJpa(code);
+          	}
 
           } else if (stype1.equals("CUI")) {
             final Long toId = conceptIdMap.get(getTerminology() + fields[0]);
             final Concept concept = getConcept(toId);
-            to = new ComponentInfoJpa(concept);
+            if (concept != null) {
+            	to = new ComponentInfoJpa(concept);
+            }
 
           } else if (stype1.equals("SCUI")) {
             final Long toId = conceptIdMap.get(atomTerminologyMap.get(fields[1])
                 + atomConceptIdMap.get(fields[1]));
             final Concept concept = getConcept(toId);
-            to = new ComponentInfoJpa(concept);
+            if (concept != null) {
+            	to = new ComponentInfoJpa(concept);
+            }
 
           } else if (stype1.equals("SDUI")) {
             final Long toId =
                 descriptorIdMap.get(atomTerminologyMap.get(fields[1])
                     + atomDescriptorIdMap.get(fields[1]));
             final Descriptor descriptor = getDescriptor(toId);
-            to = new ComponentInfoJpa(descriptor);
+            if (descriptor != null) {
+            	to = new ComponentInfoJpa(descriptor);
+            }
 
           } else if (stype1.equals("AUI")) {
             final Atom toAtom = getAtom(atomIdMap.get(fields[1]));
@@ -3340,10 +3355,11 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     objectCt = 0;
     Query query = getEntityManager()
         .createQuery("select a.id from AtomJpa a where conceptId is not null "
-            + "and conceptId != '' and timestamp = :timestamp "
+            + "and length(conceptId) <> 0 and timestamp = :timestamp "
             + "order by terminology, conceptId");
     query.setParameter("timestamp", releaseVersionDate);
     List<Long> ids = query.getResultList();
+    logInfo("date: " + releaseVersionDate + " number of concpets: " + ids.size());
     prevCui = null;
     cui = null;
     for (final Long id : ids) {
@@ -3387,10 +3403,11 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     query = getEntityManager().createQuery(
         "select a.id from AtomJpa a where descriptorId is not null "
-            + "and descriptorId != '' and timestamp = :timestamp "
+            + "and length(descriptorId) <> 0 and timestamp = :timestamp "
             + "order by terminology, descriptorId");
     query.setParameter("timestamp", releaseVersionDate);
     ids = query.getResultList();
+    logInfo("date: " + releaseVersionDate + " number of descriptors: " + ids.size());
     String prevDui = null;
     Descriptor dui = null;
     for (final Long id : ids) {
@@ -3435,10 +3452,11 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     objectCt = 0;
     query = getEntityManager()
         .createQuery("select a.id from AtomJpa a where codeId is not null "
-            + "and codeId != '' and codeId != 'NOCODE' and timestamp = :timestamp "
+            + "and length(codeId) <> 0 and codeId != 'NOCODE' and timestamp = :timestamp "
             + "order by terminology, codeId");
     query.setParameter("timestamp", releaseVersionDate);
     ids = query.getResultList();
+    logInfo("date: " + releaseVersionDate + " number of codes: " + ids.size());
     String prevCode = null;
     Code code = null;
     int atomCt = 0;

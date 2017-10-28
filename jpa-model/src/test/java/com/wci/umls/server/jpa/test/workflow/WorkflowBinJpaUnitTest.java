@@ -175,9 +175,6 @@ public class WorkflowBinJpaUnitTest extends ModelUnitSupport {
     tester.include("lastModified");
     tester.include("lastModifiedBy");
     tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("version");
-
     tester.include("name");
     tester.include("description");
     tester.include("type");

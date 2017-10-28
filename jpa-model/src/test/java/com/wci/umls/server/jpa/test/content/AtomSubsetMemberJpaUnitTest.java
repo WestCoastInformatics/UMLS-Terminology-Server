@@ -239,8 +239,6 @@ public class AtomSubsetMemberJpaUnitTest extends ModelUnitSupport {
     tester.include("published");
     tester.include("publishable");
     tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("version");
     tester.include("member");
     tester.include("subset");
     assertTrue(tester.testNotNullFields());

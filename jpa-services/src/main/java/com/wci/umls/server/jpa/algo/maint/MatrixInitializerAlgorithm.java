@@ -80,6 +80,8 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
       final SearchHandler handler = getSearchHandler(ConfigUtility.DEFAULT);
 
+      logInfo("  term:" +getProject().getTerminology()+ " | version:" + getProject().getVersion());
+      
       // Get unpublishable concepts with publishable atoms
       final Set<Long> makePublishable =
           new HashSet<>(handler.getIdResults(getProject().getTerminology(),

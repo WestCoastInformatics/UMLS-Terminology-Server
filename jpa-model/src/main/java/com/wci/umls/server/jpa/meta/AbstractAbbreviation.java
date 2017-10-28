@@ -28,7 +28,7 @@ public abstract class AbstractAbbreviation extends AbstractHasLastModified
   private boolean publishable = false;
 
   /** The abbreviation. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String abbreviation;
 
   /** The expandedForm. */
@@ -36,11 +36,11 @@ public abstract class AbstractAbbreviation extends AbstractHasLastModified
   private String expandedForm;
 
   /** The terminology. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String terminology;
 
   /** The version. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String version;
 
   /** The branch. */

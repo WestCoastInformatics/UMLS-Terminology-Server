@@ -2219,8 +2219,14 @@ public abstract class RootServiceJpa implements RootService {
         } else if (entry[1] instanceof Long) {
           conceptId2 = (Long) entry[1];
         }
-        final Long par = Math.min(conceptId1, conceptId2);
-        final Long chd = Math.max(conceptId1, conceptId2);
+        
+        if (conceptId1 == null || conceptId2 == null) {
+        	continue;
+        }
+        
+        final Long par = (conceptId1 < conceptId2) ? conceptId1 : conceptId2; //Math.min(conceptId1, conceptId2);
+        
+        final Long chd = (conceptId1 > conceptId2) ? conceptId1 : conceptId2; //Math.max(conceptId1, conceptId2);
 
         // skip self-ref
         if (par.equals(chd)) {

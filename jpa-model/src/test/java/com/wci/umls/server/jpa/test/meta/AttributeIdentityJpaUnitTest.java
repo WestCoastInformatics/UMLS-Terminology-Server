@@ -123,10 +123,7 @@ public class AttributeIdentityJpaUnitTest extends ModelUnitSupport {
 
     tester.include("name");
     tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("componentId");
     tester.include("componentType");
-    tester.include("componentTerminology");
     tester.include("hashcode");
 
     assertTrue(tester.testNotNullFields());

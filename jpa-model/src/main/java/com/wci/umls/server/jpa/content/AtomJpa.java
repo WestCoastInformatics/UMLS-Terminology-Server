@@ -110,15 +110,15 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   private Map<String, String> alternateTerminologyIds;
 
   /** The code id. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String codeId;
 
   /** The descriptor id. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String descriptorId;
 
   /** The concept id. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String conceptId;
 
   /** The language. */
@@ -126,11 +126,11 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   private String language;
 
   /** The lexical class id. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String lexicalClassId;
 
   /** The string class id. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String stringClassId;
 
   /** The lower name hash. */
@@ -601,7 +601,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
       return false;
     return true;
   }
-
+  
   /* see superclass */
   @Override
   public String toString() {

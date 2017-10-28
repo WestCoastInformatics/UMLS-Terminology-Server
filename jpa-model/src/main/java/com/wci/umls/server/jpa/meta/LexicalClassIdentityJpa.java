@@ -37,7 +37,7 @@ public class LexicalClassIdentityJpa implements LexicalClassIdentity {
   private Long id;
 
   /** The normalized name. */
-  @Column(nullable = false, length = 4000)
+  @Column(nullable = true, length = 4000)
   private String normalizedName;
 
   /** The language */

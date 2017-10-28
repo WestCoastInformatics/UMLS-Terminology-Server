@@ -124,8 +124,6 @@ public class SemanticTypeComponentJpaUnitTest extends ModelUnitSupport {
     tester.include("published");
     tester.include("publishable");
     tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("version");
     tester.include("semanticType");
     tester.include("workflowStatus");
 

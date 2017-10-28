@@ -57,7 +57,7 @@ public class MappingJpa extends AbstractComponentHasAttributes
   private String fromTerminologyId;
 
   /** The to terminology id. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String toTerminologyId;
 
   /** The from id type. */

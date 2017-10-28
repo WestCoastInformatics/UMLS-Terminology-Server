@@ -52,7 +52,7 @@ public class AtomIdentityJpa implements AtomIdentity {
   private String terminology;
 
   /** The terminology id. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String terminologyId;
 
   /** The term type. */
@@ -64,11 +64,11 @@ public class AtomIdentityJpa implements AtomIdentity {
   private String codeId;
 
   /** The concept id. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String conceptId;
 
   /** The descriptor id. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String descriptorId;
 
   /**

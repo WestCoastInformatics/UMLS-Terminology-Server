@@ -215,12 +215,8 @@ public class MappingJpaUnitTest extends ModelUnitSupport {
     tester.include("published");
     tester.include("publishable");
     tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("version");
-
     tester.include("mapSet");
     tester.include("fromTerminologyId");
-    tester.include("toTerminologyId");
     tester.include("fromIdType");
     tester.include("toIdType");
 

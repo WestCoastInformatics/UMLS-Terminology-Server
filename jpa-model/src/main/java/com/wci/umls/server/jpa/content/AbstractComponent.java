@@ -62,11 +62,11 @@ public abstract class AbstractComponent extends AbstractHasLastModified
   private String terminology;
 
   /** The terminology id. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String terminologyId;
 
   /** The version. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String version;
 
   /** The branch set to include empty branch. */

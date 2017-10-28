@@ -123,17 +123,13 @@ public class SemanticTypeJpaUnitTest extends ModelUnitSupport {
   public void testModelNotNullField() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
-    tester.include("abbreviation");
     tester.include("expandedForm");
-    tester.include("terminology");
-    tester.include("version");
     tester.include("publishable");
     tester.include("published");
     tester.include("timestamp");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
     tester.include("definition");
-    tester.include("typeId");
     tester.include("nonHuman");
     tester.include("functionalChemical");
     tester.include("structuralChemical");
