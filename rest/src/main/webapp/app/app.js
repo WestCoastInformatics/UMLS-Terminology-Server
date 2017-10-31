@@ -8,12 +8,30 @@ var $routeProviderReference;
 var tsApp = angular.module(
   'tsApp',
   [ 'ngRoute', 'ui.bootstrap', 'ui.tree', 'ngFileUpload', 'ui.tinymce', 'ngCookies', 'ngTable',
-    'angularFileUpload' ]).config(function($rootScopeProvider, $routeProvider) {
+    'angularFileUpload', 'pascalprecht.translate' ]).config(function($rootScopeProvider, $routeProvider, $translateProvider) {
 
   // Set recursive digest limit higher to handle very deep trees.
   $rootScopeProvider.digestTtl(15);
   // Save reference to route provider
   $routeProviderReference = $routeProvider;
+  
+  //translations
+  $translateProvider.useStaticFilesLoader({
+	    prefix: 'app/translations/',
+	    suffix: '.json'
+	});
+  //default to users language on first visit
+  $translateProvider.registerAvailableLanguageKeys(
+		  ['en','fr','es','pt','de'], {
+	    'en_*': 'en',
+	    'fr_*': 'fr',
+	    'es_*': 'es',
+	    'pt_*': 'pt',
+	    'de_*': 'de',
+	    '*': 'en'
+	}).determinePreferredLanguage();
+  //store users preference for next visit
+  $translateProvider.useCookieStorage();
 
 });
 

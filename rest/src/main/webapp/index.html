@@ -1,4 +1,4 @@
-<html ng-app="tsApp">
+<html lang="en" ng-app="tsApp">
 <head>
 <meta http-equiv="Content-Language" content="en" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -47,6 +47,14 @@
 <!-- SQL formatter-->
 <script type="text/javascript"
   src="ui/components/sql-formatter/sql-formatter.min.js"></script>
+
+<!--  translate -->
+<script type="text/javascript"
+  src="lib/angular-translate/angular-translate.min.js"></script>
+<script type="text/javascript"
+  src="lib/angular-translate/angular-translate-loader-static-files.min.js"></script>
+<script type="text/javascript"
+  src="lib/angular-translate/angular-translate-storage-cookie.min.js"></script>
 
 <!-- Library: ngTable -->
 <script type="text/javascript" src="lib/ng-table/ng-table.min.js"></script>
@@ -140,7 +148,10 @@
 <script src="app/actions/log/log.js"></script>
 <script src="app/actions/notes/notes.js"></script>
 <script src="app/actions/finder/finder.js"></script>
+
+
 <!-- UTS utilities and misc directives -->
+<script src="app/util/language/language.js"></script>
 <script src="app/util/pager/pager.js"></script>
 <script src="app/util/errors/errors.js"></script>
 <script src="app/util/tree-search-result/treeSearchResult.js"></script>
