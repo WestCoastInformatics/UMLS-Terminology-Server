@@ -550,6 +550,12 @@ tsApp
 
         }
 
+        // update project
+        $scope.updateProject = function(project) {
+        	projectService.updateProject(project);
+        }
+
+        
         $scope.getAllMetadata = function() {
           // Initialize metadata - this also sets the model
           metadataService.getAllMetadata($scope.selected.project.terminology,

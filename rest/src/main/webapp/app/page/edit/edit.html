@@ -21,6 +21,11 @@
         <span class="alert alert-danger"> DISCONNECTED</span>
         <button class="btn btn-xs btn-primary" ng-click="reconnect()">Reconnect</button>
       </span>
+      <br />
+      <span ng-show="selected.projectRole != 'AUTHOR'">Editing enabled 
+        <input type="checkbox" ng-model="selected.project.editingEnabled"
+        ng-change="updateProject(selected.project)">
+      </span>
       <span ng-show="selected.project && !selected.project.editingEnabled"
         style="display: block;" class="alert alert-danger">Editing is
         disabled.</span>
