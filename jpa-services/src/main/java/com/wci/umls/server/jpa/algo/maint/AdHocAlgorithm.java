@@ -122,6 +122,11 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     definitionIdAtomIdMap.put(362126L, 6851079L);
     definitionIdAtomIdMap.put(362199L, 6854454L);
     definitionIdAtomIdMap.put(362200L, 6851116L);
+    definitionIdAtomIdMap.put(5322L, 49047L);
+    definitionIdAtomIdMap.put(40739L, 470079L);
+    definitionIdAtomIdMap.put(75071L, 1446086L);
+    definitionIdAtomIdMap.put(50708L, 685841L);
+
 
     for (Map.Entry<Long, Long> entry : definitionIdAtomIdMap.entrySet()) {
       final Long definitionId = entry.getKey();
