@@ -54,11 +54,6 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       throw new Exception("Ad Hoc algorithms requires a project to be set");
     }
 
-    if (actionName == null) {
-      throw new Exception(
-          "Ad Hoc algorithms requires an action to be specified");
-    }
-
     return validationResult;
   }
 
@@ -67,9 +62,6 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings({
-      "unchecked",
-  })
   /* see superclass */
   @Override
   public void compute() throws Exception {
@@ -104,7 +96,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // definitions.
     // Load these definitions and re-add them to the appropriate atom.
 
-    final Map<Long,Long> definitionIdAtomIdMap = new HashMap<>();
+    int successful = 0;
+
+    final Map<Long, Long> definitionIdAtomIdMap = new HashMap<>();
     definitionIdAtomIdMap.put(37014L, 338961L);
     definitionIdAtomIdMap.put(275324L, 6783080L);
     definitionIdAtomIdMap.put(275326L, 6783082L);
@@ -128,27 +122,37 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     definitionIdAtomIdMap.put(362126L, 6851079L);
     definitionIdAtomIdMap.put(362199L, 6854454L);
     definitionIdAtomIdMap.put(362200L, 6851116L);
-    
-    for(Map.Entry<Long, Long> entry : definitionIdAtomIdMap.entrySet()){
+
+    for (Map.Entry<Long, Long> entry : definitionIdAtomIdMap.entrySet()) {
       final Long definitionId = entry.getKey();
       final Long atomId = entry.getValue();
-      
+
       final Atom atom = getAtom(atomId);
-      if(atom==null){
+      if (atom == null) {
         logWarn("Could not find atom with id=" + atomId);
         continue;
       }
-      
+
       final Definition definition = getDefinition(definitionId);
-      if(definition==null){
+      if (definition == null) {
         logWarn("Could not find definition with id=" + definitionId);
         continue;
       }
-      
+
+      if (atom.getDefinitions().contains(definition)) {
+        logWarn(
+            "atom=" + atomId + " already contains definition=" + definitionId);
+        continue;
+      }
+
       atom.getDefinitions().add(definition);
       updateAtom(atom);
+      successful++;
     }
-    
+
+    logInfo("[FixOrphanDefinitions] " + successful
+        + " orphan definitions successfully reattached.");
+
   }
 
   /* see superclass */
@@ -163,7 +167,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   @Override
   public void checkProperties(Properties p) throws Exception {
     checkRequiredProperties(new String[] {
-        "queryType", "query", "objectType", "action"
+        "actionName"
     }, p);
   }
 
@@ -171,7 +175,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   @Override
   public void setProperties(Properties p) throws Exception {
 
-    if (p.getProperty("action") != null) {
+    if (p.getProperty("actionName") != null) {
       actionName = String.valueOf(p.getProperty("actionName"));
     }
 
@@ -187,7 +191,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   @Override
   public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
-    AlgorithmParameter param = new AlgorithmParameterJpa("ActionName",
+    AlgorithmParameter param = new AlgorithmParameterJpa("Action Name",
         "actionName", "Name of Ad Hoc Action to be performed",
         "e.g. Fix Orphan Definitions", 200, AlgorithmParameter.Type.ENUM, "");
     param.setPossibleValues(Arrays.asList("Fix Orphan Definitions"));
