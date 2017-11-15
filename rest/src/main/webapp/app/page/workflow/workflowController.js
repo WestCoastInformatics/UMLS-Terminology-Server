@@ -213,6 +213,11 @@ tsApp.controller('WorkflowCtrl', [
 
     }
 
+    // update project
+    $scope.updateProject = function(project) {
+    	projectService.updateProject(project);
+    }
+    
     // Retrieve all projects
     $scope.getProjects = function() {
 
