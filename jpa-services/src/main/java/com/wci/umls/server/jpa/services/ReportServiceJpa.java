@@ -1,5 +1,5 @@
 /*
- *    Copyright 2017 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services;
 
@@ -140,7 +140,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
     //
     sb.append(lineEnd).append("CN# ");
     sb.append(comp.getId()).append(" ");
-    sb.append(comp.getName()).append(lineEnd);
+    sb.append(handleHtmlSymbols(comp.getName())).append(lineEnd);
 
     // get all concept terminology ids associated with the atoms in this concept
     final List<String> conceptTerminologyIds = new ArrayList<>();
@@ -158,7 +158,8 @@ public class ReportServiceJpa extends HistoryServiceJpa
     sb.append(getOpenStyleTag(comp.getWorkflowStatus(), comp.isPublishable(),
         comp.isObsolete(), false, decorate));
     sb.append("CUI ");
-    sb.append(comp.getTerminologyId()).append("\t");
+    sb.append(comp.getTerminologyId().equals(comp.getId().toString())
+        ? "        " : comp.getTerminologyId()).append("\t");
     sb.append("Concept Status is ")
         .append(getStatusChar(comp.getWorkflowStatus())).append("\r\n");
     sb.append(getCloseStyleTag(comp.getWorkflowStatus(), comp.isPublishable(),
@@ -238,43 +239,6 @@ public class ReportServiceJpa extends HistoryServiceJpa
     }
 
     //
-    // Notes
-    //
-    StringBuilder notesBuffer = new StringBuilder();
-    String notesLabel = "CONCEPT NOTE(S)";
-    notesBuffer.append(notesLabel);
-    for (final Note note : concept.getNotes()) {
-      notesBuffer.append(lineEnd)
-          .append(
-              WordUtils.wrap(
-                  "  - " + note.getLastModifiedBy() + "/"
-                      + note.getLastModified() + "  " + note.getNote(),
-                  65, "\r\n    ", true));
-    }
-    if (notesBuffer.toString().length() > notesLabel.length()) {
-      sb.append(notesBuffer.toString());
-    }
-    sb.append(lineEnd);
-
-    notesBuffer = new StringBuilder();
-    notesLabel = "ATOM NOTE(S)";
-    notesBuffer.append(notesLabel);
-    for (final Atom atom : concept.getAtoms()) {
-      for (final Note note : atom.getNotes()) {
-        notesBuffer.append(lineEnd)
-            .append(
-                WordUtils.wrap(
-                    "  - " + note.getLastModifiedBy() + "/"
-                        + note.getLastModified() + "  " + note.getNote(),
-                    65, "\r\n    ", true));
-      }
-    }
-    if (notesBuffer.toString().length() > notesLabel.length()) {
-      sb.append(notesBuffer.toString());
-    }
-    sb.append(lineEnd);
-
-    //
     // Atoms
     //
 
@@ -282,7 +246,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
     final Set<Long> ambiguousAtomIds = concept == null ? new HashSet<>()
         : new HashSet<>(getAmbiguousAtomIds(concept));
 
-    sb.append("ATOMS").append(lineEnd);
+    sb.append(lineEnd).append("ATOMS").append(lineEnd);
 
     String prev_lui = "";
     String prev_sui = "";
@@ -365,7 +329,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
       }
 
       // Name/termgroup/code
-      sb.append(atom.getName()).append(" [");
+      sb.append(handleHtmlSymbols(atom.getName())).append(" [");
       sb.append(getTerminologyAndVersion(atom)).append("/");
       sb.append(atom.getTermType()).append("/");
       sb.append(atom.getCodeId()).append("]");
@@ -405,6 +369,44 @@ public class ReportServiceJpa extends HistoryServiceJpa
     sb.append(lineEnd);
 
     //
+    // Notes
+    //
+    StringBuilder notesBuffer = new StringBuilder();
+    String notesLabel = "CONCEPT NOTE(S)";
+    notesBuffer.append(notesLabel);
+    for (final Note note : concept.getNotes()) {
+      notesBuffer.append(lineEnd)
+          .append(
+              WordUtils.wrap(
+                  "  - " + note.getLastModifiedBy() + "/"
+                      + note.getLastModified() + "  " + note.getNote(),
+                  65, "\r\n    ", true));
+    }
+    if (notesBuffer.toString().length() > notesLabel.length()) {
+      sb.append(notesBuffer.toString());
+      sb.append(lineEnd);
+    }
+
+    notesBuffer = new StringBuilder();
+    notesLabel = "ATOM NOTE(S)";
+    notesBuffer.append(notesLabel);
+    for (final Atom atom : concept.getAtoms()) {
+      for (final Note note : atom.getNotes()) {
+        notesBuffer.append(lineEnd)
+            .append(
+                WordUtils.wrap(
+                    "  - " + note.getLastModifiedBy() + "/"
+                        + note.getLastModified() + "  " + note.getNote(),
+                    65, "\r\n    ", true));
+      }
+    }
+    if (notesBuffer.toString().length() > notesLabel.length()) {
+      sb.append(notesBuffer.toString());
+      sb.append(lineEnd);
+    }
+    sb.append(lineEnd);
+
+    //
     // RELATIONSHIPS
     //
 
@@ -414,13 +416,13 @@ public class ReportServiceJpa extends HistoryServiceJpa
     if (concept != null) {
       relList = findConceptDeepRelationships(concept.getTerminologyId(),
           concept.getTerminology(), concept.getVersion(), Branch.ROOT, null,
-          false, true, true, false, new PfsParameterJpa()).getObjects();
+          true, true, false, false, new PfsParameterJpa()).getObjects();
     }
 
     // Handle descriptor rels
     if (comp instanceof Descriptor) {
       relList = findDescriptorRelationships(comp.getTerminologyId(),
-          comp.getTerminology(), comp.getVersion(), Branch.ROOT, null, false,
+          comp.getTerminology(), comp.getVersion(), Branch.ROOT, null, true,
           null).getObjects();
     }
 
@@ -428,7 +430,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
     if (comp instanceof Code) {
       relList =
           findCodeRelationships(comp.getTerminologyId(), comp.getTerminology(),
-              comp.getVersion(), Branch.ROOT, null, false, null).getObjects();
+              comp.getVersion(), Branch.ROOT, null, true, null).getObjects();
     }
 
     // Lexical Relationships
@@ -437,11 +439,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
     // additional relation types ends with form_of
     for (final Atom atom : comp.getAtoms()) {
       for (final AtomRelationship atomRel : atom.getRelationships()) {
-        if (atomRel.getAdditionalRelationshipType().startsWith("mth_")
-            && atomRel.getAdditionalRelationshipType().endsWith("form_of")) {
-          lexicalRelationships.add(atomRel);
-        } else if (atomRel.getAdditionalRelationshipType()
-            .equals("expanded_form")) {
+        if (atomRel.isShortFormLongForm()) {
           lexicalRelationships.add(atomRel);
         }
       }
@@ -452,8 +450,9 @@ public class ReportServiceJpa extends HistoryServiceJpa
         if (!rel.isPublishable()) {
           sb.append("{");
         }
-        sb.append(rel.getFrom().getName()).append("[SFO]/[LFO]")
-            .append(rel.getTo().getName());
+        sb.append(handleHtmlSymbols(rel.getFrom().getName()))
+            .append("[SFO]/[LFO]")
+            .append(handleHtmlSymbols(rel.getTo().getName()));
         sb.append("[").append(getTerminologyAndVersion(rel)).append("]")
             .append(lineEnd);
         if (!rel.isPublishable()) {
@@ -464,7 +463,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
     }
 
     // Demoted Related Concepts
-    final List<String> usedToIds = new ArrayList<>();
+    final List<String> usedFromIds = new ArrayList<>();
     final List<ConceptRelationship> demotionRelationships = new ArrayList<>();
     for (final Relationship<?, ?> relationship : relList) {
       final ConceptRelationship rel = (ConceptRelationship) relationship;
@@ -472,15 +471,15 @@ public class ReportServiceJpa extends HistoryServiceJpa
           && !(rel.getRelationshipType().equals("PAR")
               || rel.getRelationshipType().equals("CHD")
               || rel.getRelationshipType().equals("SIB"))) {
-        usedToIds.add(rel.getTo().getTerminologyId());
+        usedFromIds.add(rel.getFrom().getTerminologyId());
         demotionRelationships.add(rel);
       }
     }
     for (final Relationship<?, ?> relationship : relList) {
       final ConceptRelationship rel = (ConceptRelationship) relationship;
       if (rel.getWorkflowStatus() != WorkflowStatus.DEMOTION
-          && usedToIds.contains(rel.getTo().getTerminologyId())) {
-        usedToIds.add(rel.getTo().getTerminologyId());
+          && usedFromIds.contains(rel.getFrom().getTerminologyId())) {
+        usedFromIds.add(rel.getFrom().getTerminologyId());
         demotionRelationships.add(rel);
       }
     }
@@ -499,8 +498,8 @@ public class ReportServiceJpa extends HistoryServiceJpa
     for (final Relationship<?, ?> relationship : relList) {
       final ConceptRelationship rel = (ConceptRelationship) relationship;
       if (rel.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW
-          && !usedToIds.contains(rel.getTo().getTerminologyId())) {
-        usedToIds.add(rel.getTo().getTerminologyId());
+          && !usedFromIds.contains(rel.getFrom().getTerminologyId())) {
+        usedFromIds.add(rel.getFrom().getTerminologyId());
         needsReviewRelationships.add(rel);
       }
     }
@@ -516,23 +515,23 @@ public class ReportServiceJpa extends HistoryServiceJpa
     // XR(S) and Corresponding Relationships
     final List<ConceptRelationship> xrCorrespondingRelationships =
         new ArrayList<>();
-    final List<String> xrRelsToIds = new ArrayList<>();
+    final List<String> xrRelsFromIds = new ArrayList<>();
     for (final Relationship<?, ?> relationship : relList) {
       final ConceptRelationship rel = (ConceptRelationship) relationship;
       if (rel.getWorkflowStatus() != WorkflowStatus.NEEDS_REVIEW
           && rel.getRelationshipType().equals("XR")
-          && !usedToIds.contains(rel.getTo().getTerminologyId())) {
+          && !usedFromIds.contains(rel.getFrom().getTerminologyId())) {
         // usedToIds.add(rel.getTo().getTerminologyId());
-        xrRelsToIds.add(rel.getTo().getTerminologyId());
+        xrRelsFromIds.add(rel.getFrom().getTerminologyId());
         xrCorrespondingRelationships.add(rel);
       }
     }
     for (final Relationship<?, ?> relationship : relList) {
       final ConceptRelationship rel = (ConceptRelationship) relationship;
       if (!rel.getRelationshipType().equals("XR")
-          && !usedToIds.contains(rel.getTo().getTerminologyId())
-          && xrRelsToIds.contains(rel.getTo().getTerminologyId())) {
-        usedToIds.add(rel.getTo().getTerminologyId());
+          && !usedFromIds.contains(rel.getFrom().getTerminologyId())
+          && xrRelsFromIds.contains(rel.getFrom().getTerminologyId())) {
+        usedFromIds.add(rel.getFrom().getTerminologyId());
         xrCorrespondingRelationships.add(rel);
       }
     }
@@ -548,7 +547,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
       int ct = 0;
       if ((rel.getWorkflowStatus() == WorkflowStatus.READY_FOR_PUBLICATION
           || rel.getWorkflowStatus() == WorkflowStatus.PUBLISHED)
-          && !usedToIds.contains(rel.getTo().getTerminologyId()) && ct < 20
+          && !usedFromIds.contains(rel.getFrom().getTerminologyId()) && ct < 20
           // Exclude these rel types
           && !(rel.getRelationshipType().equals("PAR")
               || rel.getRelationshipType().equals("CHD")
@@ -556,7 +555,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
               || rel.getRelationshipType().equals("XR")
               || rel.getRelationshipType().equals("AQ")
               || rel.getRelationshipType().equals("QB"))) {
-        usedToIds.add(rel.getTo().getTerminologyId());
+        usedFromIds.add(rel.getFrom().getTerminologyId());
         reviewedRelatedConcepts.add(rel);
         ct++;
       }
@@ -713,6 +712,12 @@ public class ReportServiceJpa extends HistoryServiceJpa
     return sb.toString();
   }
 
+  private Object handleHtmlSymbols(String name) {
+    name.replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("'",
+        "&apos;");
+    return name;
+  }
+
   /**
    * Prints the children.
    *
@@ -833,7 +838,8 @@ public class ReportServiceJpa extends HistoryServiceJpa
       }
 
       // Name/termgroup/code
-      sb.append(rel.getTo().getName()).append(" [");
+      sb.append(rel.getFrom().getName().replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;").replaceAll("'", "&apos;")).append(" [");
       /*
        * TODO NE-143 sb.append(" ["); sb.append(getVsab(rel) .append("/"); //
        * TODO termType - only ifneeded
@@ -847,13 +853,13 @@ public class ReportServiceJpa extends HistoryServiceJpa
       sb.append("]");
 
       sb.append(" {");
-      sb.append(rel.getTo().getId());
+      sb.append(rel.getFrom().getId());
       sb.append("}");
 
       // Print relationship_level
       if (rel.getWorkflowStatus() == WorkflowStatus.DEMOTION) {
         sb.append(" P");
-      } else if (rel.getTerminology().equals(rel.getFrom().getTerminology())) {
+      } else if (rel.getTerminology().equals(rel.getTo().getTerminology())) {
         sb.append(" C");
       } else {
         sb.append(" S");
@@ -868,6 +874,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
        */
       sb.append(lineEnd);
     }
+
     return sb.append(lineEnd).toString();
   }
 
@@ -969,6 +976,18 @@ public class ReportServiceJpa extends HistoryServiceJpa
   private void cacheContexts(Long conceptId, String contexts) {
     synchronized (conceptContextsCache) {
       conceptContextsCache.put(conceptId, contexts);
+    }
+  }
+
+  /**
+   * Clear cache contexts for concept.
+   *
+   * @param conceptId the concept id
+   */
+  @SuppressWarnings("static-method")
+  public static void clearCachedContextsForConcept(Long conceptId) {
+    synchronized (conceptContextsCache) {
+      conceptContextsCache.remove(conceptId);
     }
   }
 

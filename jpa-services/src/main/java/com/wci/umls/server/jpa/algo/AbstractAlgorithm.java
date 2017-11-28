@@ -131,7 +131,9 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
     }
     fireWarningEvent(message);
     Logger.getLogger(getClass()).warn(message);
-    commitClearBegin();
+    if (getTransactionPerOperation()) {
+      commitClearBegin();
+    }
   }
 
   /**

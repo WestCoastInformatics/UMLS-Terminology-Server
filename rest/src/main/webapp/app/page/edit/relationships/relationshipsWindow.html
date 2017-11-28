@@ -22,11 +22,11 @@
   <thead>
     <tr>
       <th class="col-md-4 col-xs-4"><span
-          ng-click="setSortField('relationships','toName')">To Name</span> <span
-          ng-bind="getSortIndicator('relationships','toName')"></span></th>
+          ng-click="setSortField('relationships','fromName')">From Name</span> <span
+          ng-bind="getSortIndicator('relationships','fromName')"></span></th>
       <th class="col-md-1 col-xs-1"><span
-          ng-click="setSortField('relationships','toId')"> Concept</span> <span
-          ng-bind="getSortIndicator('relationships','toId')"></span></th>
+          ng-click="setSortField('relationships','fromId')"> Concept</span> <span
+          ng-bind="getSortIndicator('relationships','fromId')"></span></th>
       <th class="col-md-2 col-xs-2"><span
           ng-click="setSortField('relationships','relationshipType')">Rel
           Type</span> <span
@@ -50,8 +50,8 @@
       ng-click="selectRelationship($event, relationship)"
       class="{{getRelationshipClass(relationship)}}"
       ng-class="{selected: isRowSelected(relationship)}">
-      <td>{{relationship.toName}}</td>
-      <td>{{relationship.toId}}</td>
+      <td>{{relationship.fromName}}</td>
+      <td>{{relationship.fromId}}</td>
       <td>{{relationship.relationshipType}}&nbsp;
         {{relationship.additionalRelationshipType}}</td>
       <td>{{relationship.level}}</td>

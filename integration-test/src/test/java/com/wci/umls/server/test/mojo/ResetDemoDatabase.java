@@ -161,7 +161,7 @@ public class ResetDemoDatabase {
     p.setProperty("terminology", "ICD-10-CM");
     p.setProperty("version", "2015");
     p.setProperty("input.file",
-        "../../config/src/main/resources/data/icd10cm.xml");
+        "../../config/src/main/resources/data/icd10cm-2016.xml");
     request.setProperties(p);
     request.setMavenOpts("-Xmx2G");
     invoker = new DefaultInvoker();

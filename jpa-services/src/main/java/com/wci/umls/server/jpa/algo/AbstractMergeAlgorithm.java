@@ -122,17 +122,20 @@ public abstract class AbstractMergeAlgorithm
     Concept toConcept = null;
     Atom fromAtom = null;
     Atom toAtom = null;
+    List<Atom> fromAtoms = null;
 
     final Concept concept = getConcept(conceptId);
     final Concept concept2 = getConcept(conceptId2);
 
     if (concept.getAtoms().size() < concept2.getAtoms().size()) {
       fromConcept = concept;
+      fromAtoms = concept.getAtoms();
       fromAtom = getAtom(atomId);
       toConcept = concept2;
       toAtom = getAtom(atomId2);
     } else {
       fromConcept = concept2;
+      fromAtoms = concept2.getAtoms();
       fromAtom = getAtom(atomId2);
       toConcept = concept;
       toAtom = getAtom(atomId);
@@ -161,7 +164,7 @@ public abstract class AbstractMergeAlgorithm
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, getLastModifiedBy(), false);
+          action.performMolecularAction(action, getLastModifiedBy(), false, false);
 
       // If the action failed, log the failure, and make a demotion if
       // makeDemotion=true.
@@ -213,7 +216,7 @@ public abstract class AbstractMergeAlgorithm
           action2.setConceptId2(toConcept.getId());
           action2.setLastModifiedBy(getLastModifiedBy());
           ValidationResult demotionValidationResult = action2
-              .performMolecularAction(action2, getLastModifiedBy(), false);
+              .performMolecularAction(action2, getLastModifiedBy(), false, false);
 
           // If there is already a demotion between these two atoms, it will
           // return a validation error
@@ -242,7 +245,7 @@ public abstract class AbstractMergeAlgorithm
       // Otherwise, it was successful.
       else {
         // Update atomsConcepts map to reflect change made by successful merge
-        updateAtomsConcepts(fromConcept.getId(), toConcept.getId());
+        updateAtomsConcepts(fromAtoms, toConcept.getId());
         statsMap.put("successfulMerges", statsMap.get("successfulMerges") + 1);
         return;
       }
@@ -284,7 +287,7 @@ public abstract class AbstractMergeAlgorithm
     // Load the mergefacts.src file
     //
     try {
-      lines = loadFileIntoStringList(srcDirFile, "mergefacts.src", null, null);
+      lines = loadFileIntoStringList(srcDirFile, "mergefacts.src", null, null, null);
     }
     // If file not found, return null
     catch (Exception e) {
@@ -536,21 +539,27 @@ public abstract class AbstractMergeAlgorithm
   /**
    * Update atoms concepts.
    *
-   * @param fromConceptId the from concept id
+   * @param fromAtoms the from atoms
    * @param toConceptId the to concept id
    * @throws Exception the exception
    */
-  public void updateAtomsConcepts(Long fromConceptId, Long toConceptId)
+  public void updateAtomsConcepts(List<Atom> fromAtoms, Long toConceptId)
     throws Exception {
     // For every atom that was merged into a new concept, update its value in
     // the atomsConcepts map.
-    for (Map.Entry<Long, Long> entry : atomsConcepts.entrySet()) {
-      Long atomId = entry.getKey();
-      Long conceptId = entry.getValue();
-      if (conceptId.equals(fromConceptId)) {
-        atomsConcepts.put(atomId, toConceptId);
-      }
+
+    for (final Atom atom : fromAtoms) {
+      final Long atomId = atom.getId();
+      atomsConcepts.put(atomId, toConceptId);
     }
+
+    // for (Map.Entry<Long, Long> entry : atomsConcepts.entrySet()) {
+    // Long atomId = entry.getKey();
+    // Long conceptId = entry.getValue();
+    // if (conceptId.equals(fromConceptId)) {
+    // atomsConcepts.put(atomId, toConceptId);
+    // }
+    // }
   }
 
 }

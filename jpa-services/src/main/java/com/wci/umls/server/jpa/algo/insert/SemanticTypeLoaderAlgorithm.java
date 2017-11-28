@@ -120,7 +120,7 @@ public class SemanticTypeLoaderAlgorithm
       //
       final List<String> lines =
           loadFileIntoStringList(getSrcDirFile(), "attributes.src",
-              "(([a-zA-Z0-9]+?)\\|){3}(SEMANTIC_TYPE\\|){1}(.*)", null);
+              "(([a-zA-Z0-9]+?)\\|){3}(SEMANTIC_TYPE\\|){1}(.*)", null, null);
 
       // Set the number of steps to the number of atoms to be processed
       setSteps(lines.size());

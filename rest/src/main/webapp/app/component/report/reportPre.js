@@ -21,7 +21,9 @@ tsApp.directive('reportPre', [ function() {
           console.debug('selected.component1', $scope.selected.component, $scope.selected.project);
           if ($scope.selected.component) {
             $scope.getReport($scope.selected.component);
-          }
+          }     
+          $scope.tId = $scope.selected.component.terminologyId == $scope.selected.component.id ? 
+                '' : $scope.selected.component.terminologyId;      
         });
 
         // Trust as HTML

@@ -1,10 +1,12 @@
 /*
- *    Copyright 2017 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.services;
 
 import java.util.List;
 import java.util.Map;
+
+import javax.persistence.EntityManager;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.action.MolecularActionAlgorithm;
@@ -458,5 +460,25 @@ public interface RootService extends Transactionable {
    */
   public ValidationResult validateAction(MolecularActionAlgorithm action)
     throws Exception;
+
+  /**
+   * Returns the entity manager.
+   *
+   * @return the entity manager
+   * @throws Exception the exception
+   */
+  public EntityManager getEntityManager() throws Exception;
+
+  /**
+   * Execute clustered concept query ct.
+   *
+   * @param query the query
+   * @param queryType the query type
+   * @param params the params
+   * @return the int
+   * @throws Exception the exception
+   */
+  public int executeClusteredConceptQueryCt(String query, QueryType queryType,
+    Map<String, String> params) throws Exception;
 
 }

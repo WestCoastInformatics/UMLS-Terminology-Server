@@ -62,6 +62,9 @@ public enum IdType {
   /** The definition. */
   DEFINITION,
 
+  /** The note. */
+  NOTE,
+  
   /** The project type - for websocket events. */
   PROJECT;
 

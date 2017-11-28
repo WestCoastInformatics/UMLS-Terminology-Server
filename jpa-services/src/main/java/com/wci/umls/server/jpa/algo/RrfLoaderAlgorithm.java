@@ -1030,7 +1030,11 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // lazy init
       term.getSynonymousNames().size();
       term.getRootTerminology().getTerminology();
-      loadedTerminologies.put(term.getTerminology(), term);
+      // Add either the first one we've encountered, or the current one
+      if (term.isCurrent()
+          || !loadedTerminologies.containsKey(term.getTerminology())) {
+        loadedTerminologies.put(term.getTerminology(), term);
+      }
     }
 
   }
@@ -1132,8 +1136,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             termVersion = termVersion.replaceAll("^_", "");
           }
         } else {
-          throw new Exception(
-              "VSAB does not start with RSAB: " + vsab + ", " + rsab);
+          termVersion = fields[6];
+          Logger.getLogger(getClass())
+              .warn("VSAB does not start with RSAB: " + vsab + ", " + rsab);
         }
 
       }
@@ -1189,10 +1194,16 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         term.setRootTerminology(root);
         addTerminology(term);
 
-        // cache terminology by RSAB and VSAB
-        // ONLY load the current version of the terminology here.
-        loadedTerminologies.put(term.getTerminology(), term);
+        // cache terminology by RSAB
+        // Favor the current version of the terminology here
+        if (term.isCurrent()
+            || !loadedTerminologies.containsKey(term.getTerminology())) {
+          Logger.getLogger(getClass()).info("  Terminology " + term.getTerminology() + " = " + term.getVersion());
+          loadedTerminologies.put(term.getTerminology(), term);
+        }
+        // Add the VSAB too, for later lookup
         if (!fields[2].equals("") && term.isCurrent()) {
+          Logger.getLogger(getClass()).info("  Terminology " + term.getTerminology() + " = " + term.getVersion());
           loadedTerminologies.put(fields[2], term);
         }
       }
@@ -1225,7 +1236,11 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           loadedRootTerminologies.put(root.getTerminology(), root);
         }
         term.setRootTerminology(root);
-        loadedTerminologies.put(term.getTerminology(), term);
+        if (term.isCurrent()
+            || !loadedTerminologies.containsKey(term.getTerminology())) {
+          Logger.getLogger(getClass()).info("  Terminology " + term.getTerminology() + " = " + term.getVersion());
+          loadedTerminologies.put(term.getTerminology(), term);
+        }
       }
 
       term.setAssertsRelDirection(false);
@@ -2582,6 +2597,17 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       // Get atom for the PTR part
       final Atom atom = getAtom(atomIdMap.get(fields[1]));
+      // If multi, and top-level atom is null, skip it
+      if (style == Style.MULTI && atom == null
+          && ConfigUtility.isEmpty(ancPath)) {
+        continue;
+      }
+
+      // Skip top-level SRC atoms
+      if (atom.getTerminology().equals("SRC")
+          && ConfigUtility.isEmpty(ancPath)) {
+        continue;
+      }
 
       // Keys for lookups
       final String ptrKey =
@@ -2591,12 +2617,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       // Skip if we've seen this part already
       if (seen.contains(treeposKey)) {
-        continue;
-      }
-
-      // Skip top-level SRC atoms
-      if (atom.getTerminology().equals("SRC")
-          && ConfigUtility.isEmpty(ancPath)) {
         continue;
       }
 
@@ -3415,7 +3435,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     objectCt = 0;
     query = getEntityManager()
         .createQuery("select a.id from AtomJpa a where codeId is not null "
-            + "and codeId != '' and timestamp = :timestamp "
+            + "and codeId != '' and codeId != 'NOCODE' and timestamp = :timestamp "
             + "order by terminology, codeId");
     query.setParameter("timestamp", releaseVersionDate);
     ids = query.getResultList();

@@ -149,7 +149,7 @@ public class MatrixInitializerAlgorithmTest extends IntegrationUnitSupport {
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, "admin", true);
+          action.performMolecularAction(action, "admin", true, false);
       assertTrue(validationResult.getErrors().isEmpty());
 
     } catch (Exception e) {
@@ -383,7 +383,7 @@ public class MatrixInitializerAlgorithmTest extends IntegrationUnitSupport {
 
         // Perform the action
         final ValidationResult validationResult =
-            action.performMolecularAction(action, "admin", true);
+            action.performMolecularAction(action, "admin", true, false);
         assertTrue(validationResult.getErrors().isEmpty());
 
       } catch (Exception e) {
@@ -415,7 +415,7 @@ public class MatrixInitializerAlgorithmTest extends IntegrationUnitSupport {
 
         // Perform the action
         final ValidationResult validationResult =
-            action2.performMolecularAction(action2, "admin", true);
+            action2.performMolecularAction(action2, "admin", true, false);
         assertTrue(validationResult.getErrors().isEmpty());
 
       } catch (Exception e) {

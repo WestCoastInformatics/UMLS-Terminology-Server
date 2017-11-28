@@ -32,6 +32,7 @@ tsApp
         $scope.user = $scope.parentWindowScope.user;
         $scope.selected.relationship = null;
         $scope.preferredOnly = true;
+        $scope.relatedConcept = null;
 
         // Paging variables
         $scope.pageSizes = utilService.getPageSizes();
@@ -73,8 +74,15 @@ tsApp
 
         // remove relationship
         $scope.removeRelationshipFromConcept = function(relationship) {
-          metaEditingService.removeRelationship($scope.selected.project.id,
-            $scope.selected.activityId, $scope.selected.component, relationship.id, true);
+        // Because client wanted inverse rels displayed in relationship window
+        // Need to load the related concept to run removeRelationship on.
+            contentService.getConcept(relationship.fromId, $scope.selected.project.id).then(
+                    // Success
+                    function(data) {
+                        metaEditingService.removeRelationship($scope.selected.project.id,
+                                $scope.selected.activityId, data, relationship.id, true);
+
+                   }); 
         }
 
         // Get paged relationships
@@ -87,7 +95,7 @@ tsApp
             version : $scope.selected.project.version,
             terminologyId : $scope.selected.component.terminologyId,
             type : $scope.selected.component.type
-          }, false, true, $scope.preferredOnly, false, $scope.paging['relationships']).then(
+          }, true, true, $scope.preferredOnly, false, $scope.paging['relationships']).then(
             // Success
             function(data) {
               $scope.pagedRelationships = data.relationships;
@@ -101,7 +109,7 @@ tsApp
         }
 
         $scope.transferConceptToEditor = function() {
-          $scope.parentWindowScope.transferConceptToEditor($scope.selected.relationship.toId);
+          $scope.parentWindowScope.transferConceptToEditor($scope.selected.relationship.fromId);
         }
 
         //

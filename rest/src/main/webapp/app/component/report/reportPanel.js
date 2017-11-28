@@ -19,6 +19,15 @@ tsApp.directive('reportPanel', [
           $scope.mode = $scope.user.userPreferences.properties['reportModeTab'] ? 
             $scope.user.userPreferences.properties['reportModeTab'] : 'Static';
 
+          // watch component, blank out temporary cuis 
+          $scope.$watch('selected.component',
+              function() {
+                console.debug('selected.component', $scope.selected.component,
+                  $scope.selected.project);
+                $scope.tId = $scope.selected.component.terminologyId == $scope.selected.component.id ? 
+                  '' : $scope.selected.component.terminologyId;
+              });
+            
           // open report window
           $scope.openReportWindow = function() {
             reportService.popout($scope.selected.component);

@@ -15,6 +15,16 @@ tsApp.directive('report', [ '$window', '$routeParams', function($window, $routeP
       $scope.config = {
         showHidden : true
       };
+      
+     // watch component, blank out temporary cuis 
+      $scope.$watch('selected.component',
+        function() {
+          console.debug('selected.component', $scope.selected.component,
+            $scope.selected.project);
+          $scope.tId = $scope.selected.component.terminologyId == $scope.selected.component.id ? 
+            '' : $scope.selected.component.terminologyId;
+        });
+      
 
       $scope.removeConcept = function() {
         if ($scope.callbacks.hasOwnProperty('removeConcept')) {
@@ -27,6 +37,8 @@ tsApp.directive('report', [ '$window', '$routeParams', function($window, $routeP
           });
         }
       }
+      
+      
 
     } ]
   };

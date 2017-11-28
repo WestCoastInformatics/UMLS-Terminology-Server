@@ -54,6 +54,8 @@ import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.QueryStyle;
 import com.wci.umls.server.helpers.QueryType;
+import com.wci.umls.server.helpers.SearchResult;
+import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorkflowBinList;
@@ -67,6 +69,8 @@ import com.wci.umls.server.jpa.algo.maint.MatrixInitializerAlgorithm;
 import com.wci.umls.server.jpa.algo.maint.StampingAlgorithm;
 import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.SearchResultJpa;
+import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
 import com.wci.umls.server.jpa.helpers.TrackingRecordListJpa;
 import com.wci.umls.server.jpa.helpers.WorkflowBinListJpa;
 import com.wci.umls.server.jpa.helpers.WorkflowConfigListJpa;
@@ -1147,6 +1151,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         // Set up and run the algorithm
         final Properties algoProperties = new Properties();
         algoProperties.put("type", type);
+        algoProperties.put("UIRun", "true");
         algorithm.setProperties(algoProperties);
         algorithm.setLastModifiedBy(userName);
 
@@ -2933,10 +2938,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @POST
+  @GET
   @Path("/query/test")
-  @ApiOperation(value = "Test query.", notes = "Test workflow bin definition query.")
-  public void testQuery(
+  @ApiOperation(value = "Test query.", notes = "Test workflow bin definition query.", response = SearchResultListJpa.class)
+  public SearchResultList testQuery(
     @ApiParam(value = "Project id, e.g. 5") @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Query, e.g. NOT workflowStatus:NEEDS_REVIEW", required = true) @QueryParam("query") String query,
     @ApiParam(value = "Query type, e.g. LUCENE", required = true) @QueryParam("queryType") QueryType queryType,
@@ -2945,7 +2950,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful call (Workflow): /definition/test ");
+        .info("RESTful call (Workflow): /query/test ");
 
     final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
     try {
@@ -2961,9 +2966,13 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
             "Remove semi-colon character from end of query");
       }
 
+      List<Long[]> results = new ArrayList<>();
+      int ct = 0;
       if (queryStyle == QueryStyle.CLUSTER) {
-        workflowService.executeClusteredConceptQuery(query, queryType,
+        results = workflowService.executeClusteredConceptQuery(query, queryType,
             workflowService.getDefaultQueryParams(project), true);
+        ct = workflowService.executeClusteredConceptQueryCt(query, queryType,
+            workflowService.getDefaultQueryParams(project));
       }
 
       else if (queryStyle == QueryStyle.REPORT) {
@@ -2977,6 +2986,22 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       } else {
         throw new LocalException("Unexpected query style = " + queryStyle);
       }
+      
+      SearchResultList searchResultList = new SearchResultListJpa();
+      List<SearchResult> srl = new ArrayList<>();
+      for (Long[] result : results) {
+        SearchResult sr = new SearchResultJpa();
+        if (result.length > 1) {
+          sr.setValue(result[0].toString() + ", " + result[1].toString());
+        } else {
+          sr.setValue(result[0].toString());
+        }
+        srl.add(sr);
+      }
+      searchResultList.setObjects(srl);
+      searchResultList.setTotalCount(ct);
+      return searchResultList;
+      
 
       // websocket - n/a
     } catch (Exception e) {
@@ -2985,6 +3010,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       workflowService.close();
       securityService.close();
     }
+    return null;
 
   }
 
@@ -3320,7 +3346,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           sb.append(concept.getName()).append(" ");
         }
         record.setIndexedData(sb.toString());
-        workflowService.computeTrackingRecordStatus(record);
+        workflowService.computeTrackingRecordStatus(record, true);
         final TrackingRecord newRecord =
             workflowService.addTrackingRecord(record);
         // Add the record to the checklist.
@@ -3617,7 +3643,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful call (Workflow): /status/compute " + projectId + ", "
-            + activityId);
+            + activityId + ", " + updateFlag);
 
     // Instantiate services
     final ProcessService processService = new ProcessServiceJpa();
@@ -3642,7 +3668,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         pfs.setStartIndex(0);
         pfs.setMaxResults(1);
         final List<LogEntry> list =
-            algorithm.findLogEntries("message:\"Finished MATRIXINIT\"", pfs);
+            algorithm.findLogEntries("message:\"Finished Matrix Initializer Algorithm\"", pfs);
         if (list.size() > 0) {
           final Date lastMatrixinit = list.get(0).getLastModified();
           // find project concepts touched since then\

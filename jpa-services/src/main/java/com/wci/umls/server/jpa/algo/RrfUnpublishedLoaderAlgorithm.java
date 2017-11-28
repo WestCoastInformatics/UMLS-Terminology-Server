@@ -464,6 +464,30 @@ public class RrfUnpublishedLoaderAlgorithm
       logInfo("    add xr = " + xr);
       addRelationship(xr);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
+      
+      // Also create the inverse relationship
+      final ConceptRelationship xr2 = new ConceptRelationshipJpa();
+      xr2.setAdditionalRelationshipType("");
+      xr2.setAssertedDirection(false);
+      xr2.setFrom(concept2);
+      xr2.setLastModifiedBy(lastModifiedBy);
+      xr2.setLastModified(new Date());
+      xr2.setTimestamp(new Date());
+      xr2.setObsolete(false);
+      xr2.setPublishable(false);
+      xr2.setPublished(false);
+      xr2.setRelationshipType("XR");
+      xr2.setStated(true);
+      xr2.setInferred(true);
+      xr2.setTerminology(getTerminology());
+      xr2.setTerminologyId("");
+      xr2.setTo(concept);
+      xr2.setVersion(getVersion());
+      xr2.setGroup("");
+      xr2.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+      logInfo("    add xr2 = " + xr2);
+      addRelationship(xr2);
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);      
     }
     commitClearBegin();
     logInfo("    count = " + ct);
@@ -683,7 +707,8 @@ public class RrfUnpublishedLoaderAlgorithm
 
     final String[] files = new String[] {
         "deletedCuiNames.txt", "conceptNotes.txt", "atomNotes.txt",
-        "icSingle.txt", "icPair.txt", "srcAtomIds.txt", "xrRelationships.txt"
+        /*"icSingle.txt", "icPair.txt", */
+        "srcAtomIds.txt", "xrRelationships.txt", "ruiDaFlags.txt", "umlscui.txt"
     };
     for (final String f : files) {
       // Check file

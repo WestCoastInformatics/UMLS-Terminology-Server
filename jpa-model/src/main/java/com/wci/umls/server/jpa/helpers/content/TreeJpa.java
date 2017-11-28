@@ -128,7 +128,6 @@ public class TreeJpa implements Tree {
 
     // allow for merging trees with null ids
     if (!(tree.getId() == null && this.getId() == null)) {
-
       // but don't allow merging trees with different ids
       if (!this.getId().equals(tree.getId())) {
         throw new IllegalArgumentException(

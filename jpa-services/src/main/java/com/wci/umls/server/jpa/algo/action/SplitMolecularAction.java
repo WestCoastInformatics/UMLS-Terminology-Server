@@ -186,7 +186,7 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     // Copy atoms in "from" concept
     List<Atom> moveAtomsCopies = new ArrayList<>();
     for (final Atom atom : moveAtoms) {
-      moveAtomsCopies.add(new AtomJpa(atom));
+      moveAtomsCopies.add(new AtomJpa(atom, true));
     }
 
     // Copy stys in "from" concept
@@ -334,7 +334,7 @@ public class SplitMolecularAction extends AbstractMolecularAction {
       newBetweenRel.setTimestamp(new Date());
       newBetweenRel.setPublishable(true);
       newBetweenRel.setAssertedDirection(false);
-      newBetweenRel.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+      newBetweenRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
 
       addRelationship(newBetweenRel);
       getFromConcept().getRelationships().add(newBetweenRel);

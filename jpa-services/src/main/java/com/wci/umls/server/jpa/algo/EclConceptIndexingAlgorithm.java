@@ -5,6 +5,7 @@ package com.wci.umls.server.jpa.algo;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -29,17 +30,36 @@ import org.apache.lucene.util.Version;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomTransitiveRelationshipJpa;
+import com.wci.umls.server.jpa.content.CodeJpa;
+import com.wci.umls.server.jpa.content.CodeTransitiveRelationshipJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.ConceptTransitiveRelationshipJpa;
+import com.wci.umls.server.jpa.content.DescriptorJpa;
+import com.wci.umls.server.jpa.content.DescriptorTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.handlers.expr.EclConceptFieldNames;
+import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomTransitiveRelationship;
+import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.model.content.CodeTransitiveRelationship;
+import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.content.ConceptTransitiveRelationship;
+import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.model.content.DescriptorTransitiveRelationship;
+import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.Terminology;
+import com.wci.umls.server.services.RootService;
 
 /**
  * The Expression Constraint Language Index Writer.
@@ -66,6 +86,9 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
 
   /** The subset map, terminologyId -> subset terminology id. */
   private Map<String, Set<String>> subsetMemberMap = new HashMap<>();
+
+  /** The descendants map. */
+  private Map<Long, Set<Long>> descendantsMap = new HashMap<>();
 
   /** The subsets map, id -> terminologyId. */
   private Map<Long, String> subsetMap = new HashMap<>();
@@ -143,8 +166,7 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
     query.setParameter("version", getVersion());
     results = query.getResultList();
 
-    Logger.getLogger(getClass())
-        .info("  " + results.size() + " concepts found");
+    Logger.getLogger(getClass()).info("  concepts = " + results.size());
 
     // add the id->terminologyId mapping
     for (final Object[] o : results) {
@@ -153,47 +175,16 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
 
     // clear the results array and log
     results.clear();
-    Logger.getLogger(getClass()).info("  Finished caching concept ids");
 
     //
     // Cache transitive rel ancestor information
     //
-    Logger.getLogger(getClass()).info("Caching ancestor information...");
+    Logger.getLogger(getClass()).info("Compute transitive closure...");
 
-    // construct and execute query
-    query = manager.createQuery(
-        "select r.subType.id, r.superType.id from ConceptTransitiveRelationshipJpa r where "
-            + "version = :version and terminology = :terminology and depth != 0");
-    query.setParameter("terminology", getTerminology());
-    query.setParameter("version", getVersion());
-    results = query.getResultList();
-
-    Logger.getLogger(getClass())
-        .info("  " + results.size() + " transitive relationships retrieved");
-
-    // cycle over results
-    for (final Object[] o : results) {
-
-      // get the terminology ids
-      final String conceptId = idMap.get(o[0]);
-      final String ancestorId = idMap.get(o[1]);
-
-      // get/create the existing ancestors for this concept
-      Set<String> ancestors = ancestorMap.get(conceptId);
-      if (ancestors == null) {
-        ancestors = new HashSet<>();
-      }
-
-      // add the ancestor to the set and replace in map
-      ancestors.add(ancestorId);
-      ancestorMap.put(conceptId, ancestors);
-    }
+    computeTransitiveClosure();
 
     // clear the results and log
-    results.clear();
-    Logger.getLogger(getClass())
-        .info("  Finished caching ancestor information for "
-            + ancestorMap.keySet().size() + " concepts");
+    Logger.getLogger(getClass()).info("  ancestorMap = " + ancestorMap.size());
 
     //
     // Cache subsets
@@ -263,8 +254,9 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
     // cycle over concepts
     do {
       pfs.setStartIndex(pos);
-      concepts =
-          findConceptSearchResults(getTerminology(), getVersion(), Branch.ROOT, null, pfs);
+      concepts = findConceptSearchResults(getTerminology(), getVersion(),
+          Branch.ROOT, null, pfs);
+      this.clear();
 
       // logging content on first retrieval
       if (pos == 0) {
@@ -289,6 +281,127 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
 
     Logger.getLogger(getClass())
         .info("ECL Index writing finished successfully.");
+  }
+
+  /**
+   * Compute transitive closure.
+   *
+   * @throws Exception the exception
+   */
+  private void computeTransitiveClosure() throws Exception {
+
+    Logger.getLogger(getClass()).info("  Load hierarchical relationships");
+    final javax.persistence.Query query = manager
+        .createQuery("select r.from.id, r.to.id from ConceptRelationshipJpa "
+            + " r where obsolete = 0 and inferred = 1 "
+            + "and terminology = :terminology " + "and version = :version "
+            + "and hierarchical = 1")
+        .setParameter("terminology", getTerminology())
+        .setParameter("version", getVersion());
+
+    @SuppressWarnings("unchecked")
+    final List<Object[]> rels = query.getResultList();
+    final Map<Long, Set<Long>> parChd = new HashMap<>();
+    final Set<Long> allNodes = new HashSet<>();
+    int ct = 0;
+    for (final Object[] rel : rels) {
+      ct++;
+      final Long chd = Long.parseLong(rel[0].toString());
+      final Long par = Long.parseLong(rel[1].toString());
+      allNodes.add(par);
+      allNodes.add(chd);
+      if (!parChd.containsKey(par)) {
+        parChd.put(par, new HashSet<Long>());
+      }
+      final Set<Long> children = parChd.get(par);
+      children.add(chd);
+      // Check cancel flag
+      if (ct % RootService.logCt == 0 && isCancelled()) {
+        rollback();
+        throw new CancelException("Transitive closure computation cancelled.");
+      }
+    }
+    if (ct == 0) {
+      Logger.getLogger(getClass()).info("  NO HIERARCHICAL RELATIONSHIPS");
+      return;
+    }
+
+    else {
+      Logger.getLogger(getClass())
+          .info("  concepts with descendants = " + parChd.size());
+    }
+    manager.clear();
+
+    // initialize descendant map
+    descendantsMap = new HashMap<>();
+    for (final Long code : parChd.keySet()) {
+      // Check cancel flag
+      if (isCancelled()) {
+        rollback();
+        throw new CancelException("Transitive closure computation cancelled.");
+      }
+
+      final List<Long> ancPath = new ArrayList<>();
+      ancPath.add(code);
+      final Set<Long> descs = getDescendants(code, parChd, ancPath);
+      for (final Long desc : descs) {
+        final String superType = idMap.get(code);
+        final String subType = idMap.get(desc);
+        if (!ancestorMap.containsKey(subType)) {
+          ancestorMap.put(subType, new HashSet<>());
+        }
+        ancestorMap.get(subType).add(superType);
+      }
+
+    }
+
+    // release memory
+    descendantsMap = new HashMap<>();
+
+  }
+
+  /**
+   * Returns the descendants.
+   *
+   * @param par the par
+   * @param parChd the par chd
+   * @param ancPath the anc path
+   * @return the descendants
+   * @throws Exception the exception
+   */
+  private Set<Long> getDescendants(Long par, Map<Long, Set<Long>> parChd,
+    List<Long> ancPath) throws Exception {
+
+    Set<Long> descendants = new HashSet<>();
+    // If cached, return them
+    if (descendantsMap.containsKey(par)) {
+      descendants = descendantsMap.get(par);
+    }
+    // Otherwise, compute them
+    else {
+
+      // Get Children of this node
+      final Set<Long> children = parChd.get(par);
+
+      // If this is a leaf node, bail
+      if (children == null || children.isEmpty()) {
+        return new HashSet<>(0);
+      }
+      // Iterate through children, mark as descendant and recursively call
+      for (final Long chd : children) {
+        if (ancPath.contains(chd)) {
+          // cycle tolerant = true
+          return new HashSet<>(0);
+        }
+        descendants.add(chd);
+        ancPath.add(chd);
+        descendants.addAll(getDescendants(chd, parChd, ancPath));
+        ancPath.remove(chd);
+      }
+      descendantsMap.put(par, descendants);
+    }
+
+    return descendants;
   }
 
   /**
@@ -391,6 +504,5 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
   public String getDescription() {
     return ConfigUtility.getNameFromClass(getClass());
   }
-
 
 }

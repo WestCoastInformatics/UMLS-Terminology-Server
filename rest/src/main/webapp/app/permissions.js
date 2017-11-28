@@ -99,7 +99,8 @@ tsApp.run([ 'securityService', function(securityService) {
     'AUTHOR' : false,
     'EDITOR5' : false,
     'ADMINISTRATOR' : false,
-    'APP_USER' : true
+    'APP_USER' : true,
+    'APP_ADMINISTRATOR' : true
   });
   securityService.addPermission('EditProcessOrStep', {
     'REVIEWER' : false,

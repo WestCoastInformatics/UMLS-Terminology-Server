@@ -155,6 +155,24 @@ public interface MetaEditingServiceRest {
     boolean overrideWarnings, String authToken) throws Exception;
 
   /**
+   * Adds the relationships.
+   *
+   * @param projectId the project id
+   * @param conceptId the concept id
+   * @param activityId the activity id
+   * @param lastModified the last modified
+   * @param relationships the relationships
+   * @param overrideWarnings the override warnings
+   * @param authToken the auth token
+   * @return the validation result
+   * @throws Exception the exception
+   */
+  public ValidationResult addRelationships(Long projectId, Long conceptId,
+    String activityId, Long lastModified,
+    List<ConceptRelationshipJpa> relationships, boolean overrideWarnings,
+    String authToken) throws Exception;
+
+  /**
    * Removes the relationship.
    *
    * @param projectId the project id
@@ -288,8 +306,7 @@ public interface MetaEditingServiceRest {
    * @throws Exception the exception
    */
   public ValidationResult addDemotion(Long projectId, Long conceptId,
-    String activityId, Long lastModified, Long conceptId2,
-    Long atomId, Long atomId2, boolean overrideWarnings, String authToken)
-    throws Exception;
+    String activityId, Long lastModified, Long conceptId2, Long atomId,
+    Long atomId2, boolean overrideWarnings, String authToken) throws Exception;
 
 }

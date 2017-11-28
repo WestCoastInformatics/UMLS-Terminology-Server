@@ -48,6 +48,7 @@ import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
 import com.wci.umls.server.model.actions.ChangeEvent;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -152,7 +153,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName, true);
+          action.performMolecularAction(action, userName, true, false);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -235,7 +236,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName, true);
+          action.performMolecularAction(action, userName, true, false);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -321,7 +322,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName, true);
+          action.performMolecularAction(action, userName, true, false);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -404,7 +405,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName, true);
+          action.performMolecularAction(action, userName, true, false);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -489,7 +490,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName, true);
+          action.performMolecularAction(action, userName, true, false);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -571,7 +572,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName, true);
+          action.performMolecularAction(action, userName, true, false);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -651,7 +652,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName, true);
+          action.performMolecularAction(action, userName, true, false);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -749,7 +750,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName, true);
+          action.performMolecularAction(action, userName, true, false);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -777,6 +778,134 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.close();
       securityService.close();
     }
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/relationships/add")
+  @ApiOperation(value = "Add relationships to concept", notes = "Add relationships to concept on a project branch", response = ValidationResultJpa.class)
+  public ValidationResult addRelationships(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
+    @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
+    @ApiParam(value = "Relationships to add", required = true) List<ConceptRelationshipJpa> relationships,
+    @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
+    @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (MetaEditing): /relationships/add " + projectId
+            + "," + conceptId + " for user " + authToken
+            + " with relationships = " + relationships);
+
+    // Pre-create all of the vars that will be used across all added
+    // relationships
+    String userName = null;
+    Project project = null;
+    Long innerLastModified = lastModified;
+    final ValidationResult allValidationResults = new ValidationResultJpa();
+
+    // Create seperate molecular actions for each relationship to be added
+    for (ConceptRelationship relationship : relationships) {
+
+      // Instantiate services
+      final AddRelationshipMolecularAction action =
+          new AddRelationshipMolecularAction();
+
+      try {
+
+        // Authorize project role, get userName (first time only)
+        if (userName == null) {
+          userName = authorizeProject(action, projectId, securityService,
+              authToken, "adding a relationship", UserRole.AUTHOR);
+        }
+
+        // Retrieve the project (first time only)
+        if (project == null) {
+          project = action.getProject(projectId);
+          if (!project.isEditingEnabled()) {
+            throw new LocalException(
+                "Editing is disabled on project: " + project.getName());
+          }
+        }
+
+        // All new content is unpublished and publishable
+        relationship.setPublished(false);
+        if (relationship.getRelationshipType().equals("XR")) {
+          relationship.setPublishable(false);
+        } else {
+          relationship.setPublishable(true);
+        }
+        // Set defaults for a concept level relationship
+        relationship.setStated(true);
+        relationship.setInferred(true);
+        relationship.setSuppressible(false);
+        relationship.setObsolete(false);
+
+        // Configure the action
+        action.setProject(project);
+        action.setActivityId(activityId);
+        // The relationship is FROM conceptId -> conceptId2, and REL
+        // is represented in that direction
+        action.setConceptId(conceptId);
+        action.setConceptId2(relationship.getTo().getId());
+        action.setLastModifiedBy("E-" + userName);
+        action.setLastModified(innerLastModified);
+        action.setOverrideWarnings(overrideWarnings);
+        action.setTransactionPerOperation(false);
+        action.setMolecularActionFlag(true);
+        action.setChangeStatusFlag(true);
+
+        action.setRelationship(relationship);
+
+        // Perform the action
+        final ValidationResult validationResult =
+            action.performMolecularAction(action, userName, true, false);
+
+        // Add all of the errors/warnings/comments to allValidationResults
+        for (String error : validationResult.getErrors()) {
+          allValidationResults.getErrors().add(error);
+        }
+        for (String warning : validationResult.getWarnings()) {
+          allValidationResults.getWarnings().add(warning);
+        }
+        for (String comment : validationResult.getComments()) {
+          allValidationResults.getComments().add(comment);
+        }
+
+        // If this action failed, bail out here.
+        if (!validationResult.isValid() || (!overrideWarnings
+            && validationResult.getWarnings().size() > 0)) {
+          return allValidationResults;
+        }
+
+        // Websocket notification
+        final ChangeEvent event = new ChangeEventJpa(action.getName(),
+            authToken, IdType.RELATIONSHIP.toString(),
+            action.getRelationship().getId(), action.getConcept());
+        sendChangeEvent(event);
+
+        // Reload the fromConcept for next pass
+        Concept fromConcept = action.getConcept(conceptId);
+        innerLastModified = fromConcept.getLastModified().getTime();
+
+      } catch (Exception e) {
+        try {
+          action.rollback();
+        } catch (Exception e2) {
+          // do nothing
+        }
+        handleException(e, "adding relationships");
+        return allValidationResults;
+      } finally {
+        action.close();
+        securityService.close();
+      }
+    }
+
+    return allValidationResults;
 
   }
 
@@ -834,7 +963,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName, true);
+          action.performMolecularAction(action, userName, true, false);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -923,7 +1052,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName, true);
+          action.performMolecularAction(action, userName, true, false);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -1002,7 +1131,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName, true);
+          action.performMolecularAction(action, userName, true, false);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -1090,7 +1219,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName, true);
+          action.performMolecularAction(action, userName, true, false);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -1181,7 +1310,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName, true);
+          action.performMolecularAction(action, userName, true, false);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -1265,7 +1394,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName, true);
+          action.performMolecularAction(action, userName, true, false);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -1356,7 +1485,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName, true);
+          action.performMolecularAction(action, userName, true, false);
 
       // If the action failed, bail out now.
       if (!validationResult.getErrors().isEmpty()) {
@@ -1460,7 +1589,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName, true);
+          action.performMolecularAction(action, userName, true, false);
 
       // If the action failed, bail out now.
       if (!validationResult.getErrors().isEmpty()) {

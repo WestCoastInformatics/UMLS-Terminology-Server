@@ -550,6 +550,12 @@ tsApp
 
         }
 
+        // update project
+        $scope.updateProject = function(project) {
+        	projectService.updateProject(project);
+        }
+
+        
         $scope.getAllMetadata = function() {
           // Initialize metadata - this also sets the model
           metadataService.getAllMetadata($scope.selected.project.terminology,
@@ -836,7 +842,7 @@ tsApp
 
               // select previously selected record if saved in user
               // preferences
-              if ($scope.user.userPreferences.properties['editRecord']) {
+              if ($scope.user.userPreferences.properties['editRecord'] & !selectFirst) {
                 for (var i = 0; i < $scope.lists.records.length; i++) {
                   if (needToSelectRecord(i)) {
                     $scope.selectRecord($scope.lists.records[i]);

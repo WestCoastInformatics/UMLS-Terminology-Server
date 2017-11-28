@@ -12,6 +12,7 @@ import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.QueryStyle;
 import com.wci.umls.server.helpers.QueryType;
+import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorkflowBinList;
@@ -673,9 +674,10 @@ public interface WorkflowServiceRest {
    * @param type the type
    * @param style the style
    * @param authToken the auth token
+   * @return 
    * @throws Exception the exception
    */
-  public void testQuery(Long projectId, String query, QueryType type,
+  public SearchResultList testQuery(Long projectId, String query, QueryType type,
     QueryStyle style, String authToken) throws Exception;
 
   /**

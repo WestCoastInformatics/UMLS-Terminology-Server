@@ -35,9 +35,15 @@
       <td>
         <table class="slim table">
           <tbody>
-            <tr ng-repeat="concept in toConcepts"
+            <!-- <tr ng-repeat="concept in toConcepts"
               ng-click="selectToConcept(concept)"
+              ng-class="{selected: concept.id == toConcept.id}">  -->
+            <tr ng-repeat="concept in toConcepts"
               ng-class="{selected: concept.id == toConcept.id}">
+              <td>
+              <input type="checkbox" title="Select/Deselect Concept"
+                    ng-change="selectToConcept(concept);" ng-model="checkboxValue"></input>
+              </td>
               <td class="col-md-2 col-xs-2">{{concept.id}}</td>
               <td class="col-md-5 col-xs-5">{{concept.name}}</td>
               <td class="col-md-5 col-xs-5">
@@ -85,6 +91,6 @@
     <span finder selected="selected" lists="lists" callbacks="callbacks"></span>
   </span>
   <button ng-disabled="!toConcept" class="btn btn-primary"
-    ng-click="addRelationship();" title="Add relationship">Add</button>
+    ng-click="addRelationships();" title="Add relationship(s)">Add</button>
   <button class="btn btn-warning" ng-click="cancel()">Close</button>
 </div>

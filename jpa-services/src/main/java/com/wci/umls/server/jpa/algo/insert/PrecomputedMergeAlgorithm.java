@@ -140,14 +140,18 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
       //
       // Load the mergefacts.src file
       //
-      final List<String> lines =
-          loadFileIntoStringList(getSrcDirFile(), "mergefacts.src", null, null);
+      final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
+          "mergefacts.src", "(.*)" + mergeSet + "(.*)", null, null);
 
-      // Set the number of steps to the number of lines to be processed
-      setSteps(lines.size());
+      // Set the number of steps to twice the number of lines to be processed
+      // This is so processing the mergefacts.src will show up as 50% of the
+      // progress.
+      setSteps(lines.size() * 2);
 
       logInfo("Looking up atom id pairs for each " + mergeSet
           + " line in mergefacts.src");
+      commitClearBegin();
+
       // Store all of the atom Id pairs in the file in a list
       final List<Long[]> atomIdPairs = new ArrayList<>();
 
@@ -179,11 +183,6 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
         // e.g.
         // 362249700|SY|362281363|NCI_2016_05E||Y|N|NCI-SY|SRC_ATOM_ID||SRC_ATOM_ID||
 
-        // If this lines mergeSet doesn't match the specified mergeSet, skip.
-        if (!fields[7].equals(mergeSet)) {
-          continue;
-        }
-
         // Use the first line encountered to set changeStatus and makeDemotions
         // (they will be the same for the entire merge set)
         if (changeStatus == null) {
@@ -195,30 +194,12 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
         // Load the two atoms specified by the mergefacts line, or the preferred
         // name atoms if they are containing component
-        // If the type is 'CUI', this is a umls CUI, and needs to be handled
-        // differently than any other component.
-        Component component = null;
-        if (!fields[8].equals("CUI")) {
-          component = getComponent(fields[8], fields[0],
-              getCachedTerminologyName(fields[9]), null);
-        } else {
-          // Check for current version CUIs first.
-          // If not found, check for previous version CUIs.
-          // (Can merge FROM an old Or new CUI)
-          component = getComponent(fields[8], fields[0],
-              getProcess().getTerminology() + getProcess().getVersion(), null);
-          if (component == null) {
-            component =
-                getComponent(fields[8], fields[0],
-                    getProcess().getTerminology()
-                        + getPreviousVersion(getProcess().getTerminology()),
-                    null);
-          }
-        }
+        final Component component =
+            getComponent(fields[8], fields[0], fields[8].startsWith("ROOT")
+                ? fields[9] : getCachedTerminologyName(fields[9]), null);
         if (component == null) {
-          logWarn("WARNING - could not find Component for type: " + fields[8]
-              + ", terminologyId: " + fields[0]
-              + ". Could not process the following line:\n\t" + line);
+          logWarnAndUpdate(line, "WARNING - could not find Component for type: "
+              + fields[8] + ", terminologyId: " + fields[0] + ".");
           continue;
         }
         Atom atom = null;
@@ -231,28 +212,17 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
                   getProject().getTerminology(), getProject().getVersion()));
           atom = atoms.get(0);
         } else {
-          logWarn("WARNING - " + component.getClass().getName()
-              + " is an unhandled type. Could not process the following line:\n\t"
-              + line);
+          logWarnAndUpdate(line, "WARNING - " + component.getClass().getName()
+              + " is an unhandled type.");
           continue;
         }
 
-        // If the type is 'CUI', this is a umls CUI, and needs to be handled
-        // differently than any other component.
-        Component component2 = null;
-        if (!fields[10].equals("CUI")) {
-          component2 = getComponent(fields[10], fields[2],
-              getCachedTerminologyName(fields[11]), null);
-        } else {
-          // Only need to check for new CUIs (will never merge TO an old
-          // concept)
-          component2 = getComponent(fields[10], fields[2],
-              getProcess().getTerminology() + getProcess().getVersion(), null);
-        }
+        final Component component2 =
+            getComponent(fields[10], fields[2], fields[10].startsWith("ROOT")
+                ? fields[11] : getCachedTerminologyName(fields[11]), null);
         if (component2 == null) {
-          logWarn("WARNING - could not find Component for type: " + fields[10]
-              + ", terminologyId: " + fields[2]
-              + ". Could not process the following line:\n\t" + line);
+          logWarnAndUpdate(line, "WARNING - could not find Component for type: "
+              + fields[10] + ", terminologyId: " + fields[2] + ".");
           continue;
         }
         Atom atom2 = null;
@@ -265,9 +235,8 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
                   getProject().getTerminology(), getProject().getVersion()));
           atom2 = atoms.get(0);
         } else {
-          logWarn("WARNING - " + component2.getClass().getName()
-              + " is an unhandled type. Could not process the following line:\n\t"
-              + line);
+          logWarnAndUpdate(line, "WARNING - " + component2.getClass().getName()
+              + " is an unhandled type.");
           continue;
         }
 
@@ -276,6 +245,8 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
             atom.getId(), atom2.getId()
         });
 
+        // Update the progress
+        updateProgress();
       }
 
       statsMap.put("atomPairsLoadedFromMergefacts", atomIdPairs.size());
@@ -289,6 +260,7 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
       // Remove all atom pairs caught by the filters
       logInfo("Removing atom id pairs that are caught by the filter.");
+      commitClearBegin();
       // If no filters specified, it will return all of the atom pairs.
       final List<Pair<Long, Long>> filteredAtomIdPairs = applyFilters(
           atomIdPairs, params, filterQueryType, filterQuery, false, statsMap);
@@ -296,13 +268,20 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
       statsMap.put("atomPairsRemainingAfterFilters",
           filteredAtomIdPairs.size());
 
-      // Set the steps count to the number of atomPairs merges will be
+      // Reset the steps count to the number of atomPairs merges will be
       // attempted for
-      setSteps(filteredAtomIdPairs.size());
+      // ADDED to original number of lines processed.
+      // Yeah, I know this is weird - it was the only way I could ensure that
+      // both processing the file and performing the merges got counted towards
+      // the progress, and could be canceled.
+      setSteps(lines.size() + filteredAtomIdPairs.size());
 
       // Attempt to perform the merges given the integrity checks
       for (final Pair<Long, Long> atomIdPair : filteredAtomIdPairs) {
-        checkCancel();
+        // Check for a cancelled call once every 100 pairs
+        if (getStepsCompleted() % 100 == 0) {
+          checkCancel();
+        }
 
         merge(atomIdPair.getLeft(), atomIdPair.getRight(), checkNames,
             makeDemotions, changeStatus, getProject(), statsMap);
@@ -313,8 +292,8 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
       commitClearBegin();
 
-      logInfo("  atom pairs returned by query count = "
-          + statsMap.get("atomPairsReturnedByQuery"));
+      logInfo("  atom pairs loaded from mergefacts.src " + mergeSet + " = "
+          + statsMap.get("atomPairsLoadedFromMergefacts"));
       logInfo("  atom pairs removed by filters count = "
           + statsMap.get("atomPairsRemovedByFilters"));
       logInfo("  atom pairs remaining after filters count = "
@@ -377,7 +356,9 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
       undoAction.setChangeStatusFlag(true);
       undoAction.setMolecularActionId(molecularAction.getId());
       undoAction.setForce(false);
-      undoAction.performMolecularAction(undoAction, getLastModifiedBy(), false);
+      undoAction.performMolecularAction(undoAction, getLastModifiedBy(), false, false);
+      
+      undoAction.close();
     }
     logInfo("Finished RESET " + getName());
   }

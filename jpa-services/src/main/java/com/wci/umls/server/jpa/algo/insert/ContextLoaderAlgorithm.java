@@ -119,8 +119,8 @@ public class ContextLoaderAlgorithm
       //
       // Load the contexts.src file
       //
-      final List<String> lines =
-          loadFileIntoStringList(getSrcDirFile(), "contexts.src", null, null);
+      final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
+          "contexts.src", null, "(.*)SIB(.*)", null);
 
       // Scan the contexts.src file and see if HCD (hierarchical code)
       // for a given terminology is populated.
@@ -143,17 +143,23 @@ public class ContextLoaderAlgorithm
 
         allReferencedTerminologies.add(terminology);
 
-        // If the specified terminology never has a populated HCD, the
-        // transitive relationships and tree positions can be computed.
-        if (!withHcd.contains(terminology.getTerminology())) {
+        // // If the specified terminology never has a populated HCD, the
+        // // transitive relationships and tree positions can be computed.
+        // if (!withHcd.contains(terminology.getTerminology())) {
+
+        // If terminology is hierarchy computable, compute the hierarchy.
+        if (terminology.getRootTerminology().isHierarchyComputable()) {
           // Only compute once per terminology
           if (!computedTerminologies.contains(terminology.getTerminology())) {
             computeContexts(terminology);
             computedTerminologies.add(terminology.getTerminology());
           }
         }
-        // If the specified terminology has a populated HCD, we need to load the
-        // Tree Positions from the file contents.
+        // // If the specified terminology has a populated HCD, we need to load
+        // the
+        // // Tree Positions from the file contents.
+
+        // Otherwise, load the tree positions from the file contents.
         else {
 
           // Save this line to process later
@@ -185,7 +191,7 @@ public class ContextLoaderAlgorithm
 
           // Loop through the parentTreeRel string, stripping off trailing
           // elements until they're gone.
-          do {
+          while (parentTreeRelSub.contains(".")) {
             parentTreeRelSub = parentTreeRelSub.substring(0,
                 parentTreeRelSub.lastIndexOf("."));
             // If this particular sub PTR has never been seen, add with a child
@@ -204,7 +210,7 @@ public class ContextLoaderAlgorithm
                   ++currentChildDescendantCount[1]
               });
             }
-          } while (parentTreeRelSub.contains("."));
+          }
         }
       }
 
@@ -363,34 +369,34 @@ public class ContextLoaderAlgorithm
     // Compute tree positions
     //
 
-    // Only compute for organizing class types
-    if (terminology.getOrganizingClassType() != null) {
-      TreePositionAlgorithm algo2 = new TreePositionAlgorithm();
-      algo2.setLastModifiedBy(getLastModifiedBy());
-      algo2.setTerminology(terminology.getTerminology());
-      algo2.setVersion(terminology.getVersion());
-      algo2.setIdType(terminology.getOrganizingClassType());
-      algo2.setWorkId(getWorkId());
-      algo2.setActivityId(getActivityId());
-      algo2.setCycleTolerant(false);
-      algo2.setComputeSemanticType(false);
-      algo2.setProject(getProject());
-      algo2.compute();
-      algo2.close();
+    // Compute for organizing class types and atoms (no way to know for sure
+    // which one needs doing. One algo will create tree positions, and
+    // the other won't, so it covers our bases).
+    TreePositionAlgorithm algo2 = new TreePositionAlgorithm();
+    algo2.setLastModifiedBy(getLastModifiedBy());
+    algo2.setTerminology(terminology.getTerminology());
+    algo2.setVersion(terminology.getVersion());
+    algo2.setIdType(terminology.getOrganizingClassType());
+    algo2.setWorkId(getWorkId());
+    algo2.setActivityId(getActivityId());
+    algo2.setCycleTolerant(false);
+    algo2.setComputeSemanticType(false);
+    algo2.setProject(getProject());
+    algo2.compute();
+    algo2.close();
 
-      algo2 = new TreePositionAlgorithm();
-      algo2.setLastModifiedBy(getLastModifiedBy());
-      algo2.setTerminology(terminology.getTerminology());
-      algo2.setVersion(terminology.getVersion());
-      algo2.setIdType(IdType.ATOM);
-      algo2.setWorkId(getWorkId());
-      algo2.setActivityId(getActivityId());
-      algo2.setCycleTolerant(false);
-      algo2.setComputeSemanticType(false);
-      algo2.setProject(getProject());
-      algo2.compute();
-      algo2.close();
-    }
+    algo2 = new TreePositionAlgorithm();
+    algo2.setLastModifiedBy(getLastModifiedBy());
+    algo2.setTerminology(terminology.getTerminology());
+    algo2.setVersion(terminology.getVersion());
+    algo2.setIdType(IdType.ATOM);
+    algo2.setWorkId(getWorkId());
+    algo2.setActivityId(getActivityId());
+    algo2.setCycleTolerant(false);
+    algo2.setComputeSemanticType(false);
+    algo2.setProject(getProject());
+    algo2.compute();
+    algo2.close();
   }
 
   /**
@@ -588,7 +594,7 @@ public class ContextLoaderAlgorithm
           nodeAtom.getTerminology(), null);
       ctp.setNode(code);
       newTreePos = ctp;
-    } else if (idType.equals(IdType.ATOM)) {
+    } else if (idType.equals("SRC_ATOM_ID")) {
       final AtomTreePosition atp = new AtomTreePositionJpa();
       final Atom atom = nodeAtom;
       atp.setNode(atom);
@@ -668,7 +674,7 @@ public class ContextLoaderAlgorithm
     // Load the contexts.src file
     //
     final List<String> lines =
-        loadFileIntoStringList(getSrcDirFile(), "contexts.src", null, null);
+        loadFileIntoStringList(getSrcDirFile(), "contexts.src", null, null, null);
 
     // Scan through contexts.src, and collect all terminology/versions
     // referenced.

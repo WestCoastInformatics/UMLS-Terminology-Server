@@ -5,6 +5,7 @@ package com.wci.umls.server.jpa.algo.insert;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -49,8 +50,29 @@ public class RelationshipLoaderAlgorithm
   /** The update count. */
   private int updateCount = 0;
 
+  /** The remove count. */
+  private int removeCount = 0;
+
   /** The rel type map. */
   private Map<String, String> relTypeMap = new HashMap<>();
+
+  /** The replace flag (only set to true by ReplaceRelationshipAlgorithm). */
+  protected Boolean replace = false;
+
+  /** The current class id type. Used to determine when to clear caches */
+  private String currentClassIdType = null;
+
+  /**
+   * The bequeathal rels flag (only set to true by
+   * BequeathalRelationshipAlgorithm
+   */
+  protected Boolean bequeathalRels = false;
+
+  /**
+   * Filename defaults to relationships.src. Only changed if this is a
+   * bequeathal run
+   */
+  protected String fileName = "relationships.src";
 
   /**
    * Instantiates an empty {@link RelationshipLoaderAlgorithm}.
@@ -98,6 +120,9 @@ public class RelationshipLoaderAlgorithm
    *
    * @throws Exception the exception
    */
+  @SuppressWarnings({
+      "rawtypes", "unchecked"
+  })
   /* see superclass */
   @Override
   public void compute() throws Exception {
@@ -117,7 +142,7 @@ public class RelationshipLoaderAlgorithm
 
     try {
 
-      logInfo("  Processing relationships.src");
+      logInfo("  Processing " + fileName);
       commitClearBegin();
 
       // Look up rel/rela inverses
@@ -139,35 +164,153 @@ public class RelationshipLoaderAlgorithm
       //
       // Load the relationships.src file
       //
-      final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
-          "relationships.src", null, null);
+      final List<String> lines =
+          loadFileIntoStringList(getSrcDirFile(), fileName, null, null, 14L);
 
       //
       // Load the contexts.src file
+      // Only do if a 'normal' run. Don't do if replace or bequeathal run.
       //
-      // Only keep "PAR" relationship rows.
-      List<String> lines2 = loadFileIntoStringList(getSrcDirFile(),
-          "contexts.src", "[0-9]+?\\|PAR(.*)", null);
+      List<String> lines2 = new ArrayList<>();
+      if (!(bequeathalRels || replace)) {
 
-      // There will be many duplicated lines in the contexts.src file, since the
-      // main
-      // distinguishing field "parent_treenum" is ignored for these purposes.
-      // Remove the dups.
-      lines2 = removeDups(lines2);
+        logInfo("  Processing contexts.src");
+        commitClearBegin();
+
+        // Only keep "PAR" relationship rows.
+        lines2 = loadFileIntoStringList(getSrcDirFile(), "contexts.src",
+            "[0-9]+?\\|PAR(.*)", null, 15L);
+
+        // There will be many duplicated lines in the contexts.src file, since
+        // the main distinguishing field "parent_treenum" is ignored for these
+        // purposes. Remove the dups.
+        lines2 = removeDups(lines2);
+      }
 
       // Set the number of steps to the number of relationships to be processed
       setSteps(lines.size() + lines2.size());
 
+      final String fields[] = new String[18];
+      final String fields2[] = new String[17];
+
+      //
+      // REPLACE
+      //
+
+      // If replace flag is set, remove all relationships that match the
+      // terminology,version, relationshipType, additionalRelationshipType (and
+      // inverses) present in the file before reloading.
+      if (replace) {
+        final Set<String> relationshipsToRemove = new HashSet<>();
+
+        for (final String line : lines) {
+
+          FieldedStringTokenizer.split(line, "|", 18, fields);
+
+          final String fromTermAndVersion = fields[15];
+          final String relType = fields[3];
+          final String additionalRelType = fields[4];
+
+          relationshipsToRemove.add(fromTermAndVersion + "|"
+              + lookupRelationshipType(relType) + "|" + additionalRelType);
+        }
+
+        for (final String line : lines2) {
+
+          FieldedStringTokenizer.split(line, "|", 17, fields2);
+
+          final String fromTermAndVersion = fields2[13];
+          final String relType = "CHD";
+          final String additionalRelType = fields2[2];
+
+          relationshipsToRemove.add(fromTermAndVersion + "|"
+              + lookupRelationshipType(relType) + "|" + additionalRelType);
+        }
+
+        // Once all unique terminology/attribute name pairs have been
+        // identified, remove them all from the database
+
+        final String fields3[] = new String[3];
+        for (final String line : relationshipsToRemove) {
+          FieldedStringTokenizer.split(line, "|", 3, fields3);
+
+          final String fromTermAndVersion = fields3[0];
+          final String relType = fields3[1];
+          final String additionalRelType = fields3[2];
+
+          final Terminology terminology =
+              getCachedTerminology(fromTermAndVersion);
+          if (terminology == null) {
+            logWarn(
+                "WARNING - terminology not found: " + fromTermAndVersion + ".");
+            continue;
+          }
+
+          // We need to load both the relationship and the component
+          // they're attached to, so we can remove the relationship from
+          // the component before deleting the relationship
+
+          // Need to do this for all types of relationships:
+          // atom_relationship, code_relationship, concept_relationship,
+          // descriptor_relationship
+          // Component_info_relationships need to be handled differently
+
+          final List<Class> relClasses =
+              new ArrayList<>(Arrays.asList(AtomRelationshipJpa.class,
+                  CodeRelationshipJpa.class, ConceptRelationshipJpa.class,
+                  DescriptorRelationshipJpa.class,
+                  ComponentInfoRelationshipJpa.class));
+
+          for (Class clazz : relClasses) {
+            final String query = "SELECT rel.id from " + clazz.getSimpleName()
+                + " rel where rel.terminology=:specifiedTerminology and rel.version=:specifiedVersion and rel.relationshipType=:relType and rel.additionalRelationshipType=:additionalRelType";
+
+            javax.persistence.Query jpaQuery =
+                getEntityManager().createQuery(query);
+            jpaQuery.setParameter("specifiedTerminology",
+                terminology.getTerminology());
+            jpaQuery.setParameter("specifiedVersion", terminology.getVersion());
+            jpaQuery.setParameter("relType", relType);
+            jpaQuery.setParameter("additionalRelType", additionalRelType);
+
+            // Return the result list as a single component id long.
+            final List<Object> list = jpaQuery.getResultList();
+
+            for (Object entry : list) {
+              Long relId = (Long) entry;
+              Relationship relationship = getRelationship(relId, clazz);
+              if (relationship == null) {
+                continue;
+              }
+
+              Relationship inverseRelationship =
+                  getInverseRelationship(getProject().getTerminology(),
+                      getProject().getVersion(), relationship);
+
+              removeRelationship(relationship.getId(), clazz);
+              removeRelationship(inverseRelationship.getId(), clazz);
+
+              removeCount += 2;
+            }
+          }
+
+        }
+
+      }
+
+      //
+      // LOAD
+      //
+
       //
       // Process relationships.src lines
       //
-      final String fields[] = new String[18];
       for (final String line : lines) {
 
         FieldedStringTokenizer.split(line, "|", 18, fields);
 
         // Fields:
-        // 0 src_relationship_id (Not used)
+        // 0 src_relationship_id
         // 1 level
         // 2 id_1
         // 3 relationship_name
@@ -194,11 +337,24 @@ public class RelationshipLoaderAlgorithm
         // Relationship based on input line.
         //
 
+        final String sourceRelationshipId = fields[0];
         final String fromTermId = fields[5];
-        final String fromTermAndVersion = fields[15];
+        String fromTermAndVersion = fields[15];
+        // UMLS insertions may include a '/' and a termtype. If so, strip it
+        // out.
+        if (fromTermAndVersion.contains("/")) {
+          fromTermAndVersion =
+              fromTermAndVersion.substring(0, fromTermAndVersion.indexOf("/"));
+        }
         final String fromClassIdType = fields[14];
         final String toTermId = fields[2];
-        final String toTermAndVersion = fields[13];
+        String toTermAndVersion = fields[13];
+        // UMLS insertions may include a '/' and a termtype. If so, strip it
+        // out.
+        if (toTermAndVersion.contains("/")) {
+          toTermAndVersion =
+              toTermAndVersion.substring(0, toTermAndVersion.indexOf("/"));
+        }
         final String toClassIdType = fields[12];
         final String additionalRelType = fields[4];
         final String group = fields[17];
@@ -210,78 +366,91 @@ public class RelationshipLoaderAlgorithm
         final String sourceTermId = fields[16];
         final String workflowStatusStr = fields[8];
 
-        handleRelationships(line, fromTermId, fromTermAndVersion,
-            fromClassIdType, toTermId, toTermAndVersion, toClassIdType,
-            additionalRelType, group, publishable, published, relType,
-            suppresible, sourceTermAndVersion, sourceTermId, workflowStatusStr,
-            false);
+        handleRelationships(line, sourceRelationshipId, fromTermId,
+            fromTermAndVersion, fromClassIdType, toTermId, toTermAndVersion,
+            toClassIdType, additionalRelType, group, publishable, published,
+            relType, suppresible, sourceTermAndVersion, sourceTermId,
+            workflowStatusStr, false);
       }
 
       //
       // Process contexts.src lines
+      // Only do if a 'normal' run. Don't do if replace or bequeathal run.
       //
-      final String fields2[] = new String[17];
-      for (final String line : lines2) {
+      if (!(bequeathalRels || replace)) {
+        for (final String line : lines2) {
 
-        FieldedStringTokenizer.split(line, "|", 17, fields2);
+          FieldedStringTokenizer.split(line, "|", 17, fields2);
 
-        // Fields:
-        // 0 source_atom_id_1
-        // 1 relationship_name
-        // 2 relationship_attribute
-        // 3 source_atom_id_2
-        // 4 source
-        // 5 source_of_label
-        // 6 hcd
-        // 7 parent_treenum
-        // 8 release mode
-        // 9 source_rui
-        // 10 relationship_group
-        // 11 sg_id_1
-        // 12 sg_type_1
-        // 13 sg_qualifier_1
-        // 14 sg_id_2
-        // 15 sg_type_2
-        // 16 sg_qualifier_2
+          // Fields:
+          // 0 source_atom_id_1
+          // 1 relationship_name
+          // 2 relationship_attribute
+          // 3 source_atom_id_2
+          // 4 source
+          // 5 source_of_label
+          // 6 hcd
+          // 7 parent_treenum
+          // 8 release mode
+          // 9 source_rui
+          // 10 relationship_group
+          // 11 sg_id_1
+          // 12 sg_type_1
+          // 13 sg_qualifier_1
+          // 14 sg_id_2
+          // 15 sg_type_2
+          // 16 sg_qualifier_2
 
-        // e.g.
-        // 362241646|PAR|isa|362239326|NCI_2016_05E|NCI_2016_05E||
-        // 31926003.362204588.362250568.362172407.362239326|00|||C90893|
-        // SOURCE_CUI|NCI_2016_05E|C29696|SOURCE_CUI|NCI_2016_05E|
+          // e.g.
+          // 362241646|PAR|isa|362239326|NCI_2016_05E|NCI_2016_05E||
+          // 31926003.362204588.362250568.362172407.362239326|00|||C90893|
+          // SOURCE_CUI|NCI_2016_05E|C29696|SOURCE_CUI|NCI_2016_05E|
 
-        //
-        // Relationship based on input line.
-        //
+          //
+          // Relationship based on input line.
+          //
 
-        final String fromTermId = fields2[11];
-        final String fromTermAndVersion = fields2[13];
-        final String fromClassIdType = fields2[12];
-        final String toTermId = fields2[14];
-        final String toTermAndVersion = fields2[16];
-        final String toClassIdType = fields2[15];
-        final String additionalRelType = fields2[2];
-        final String group = fields2[10];
-        final String publishable = "Y";
-        final String published = "N";
-        // Note: relType and additionalRelType are swapped in file. We're only
-        // keeping "PAR" rows, so we hard-code relType as "CHD"
-        final String relType = "CHD";
-        final String suppresible = "N";
-        final String sourceTermAndVersion = fields2[4];
-        final String sourceTermId = fields2[9];
-        final String workflowStatusStr = "R";
+          final String sourceRelationshipId = null;
+          final String fromTermId = fields2[11];
+          final String fromTermAndVersion = fields2[13];
+          final String fromClassIdType = fields2[12];
+          final String toTermId = fields2[14];
+          String toTermAndVersion = fields2[16];
+          // UMLS insertions may be missing the final pipe. If so, set to ""
+          if (toTermAndVersion == null) {
+            toTermAndVersion = "";
+          }
+          final String toClassIdType = fields2[15];
+          final String additionalRelType = fields2[2];
+          final String group = fields2[10];
+          final String publishable = "Y";
+          final String published = "N";
+          // Note: relType and additionalRelType are swapped in file. We're only
+          // keeping "PAR" rows, so we hard-code relType as "CHD"
+          final String relType = "CHD";
+          final String suppresible = "N";
+          final String sourceTermAndVersion = fields2[4];
+          final String sourceTermId = fields2[9];
+          final String workflowStatusStr = "R";
 
-        handleRelationships(line, fromTermId, fromTermAndVersion,
-            fromClassIdType, toTermId, toTermAndVersion, toClassIdType,
-            additionalRelType, group, publishable, published, relType,
-            suppresible, sourceTermAndVersion, sourceTermId, workflowStatusStr,
-            true);
+          handleRelationships(line, sourceRelationshipId, fromTermId,
+              fromTermAndVersion, fromClassIdType, toTermId, toTermAndVersion,
+              toClassIdType, additionalRelType, group, publishable, published,
+              relType, suppresible, sourceTermAndVersion, sourceTermId,
+              workflowStatusStr, true);
 
+        }
       }
+
+      // Clear the caches to free up memory
+      clearCaches();
 
       commitClearBegin();
       handler.commit();
 
+      if (replace) {
+        logInfo("  removed count = " + removeCount);
+      }
       logInfo("  added count = " + addCount);
       logInfo("  update count = " + updateCount);
 
@@ -348,7 +517,8 @@ public class RelationshipLoaderAlgorithm
   @SuppressWarnings({
       "rawtypes", "unchecked"
   })
-  private void handleRelationships(final String line, final String fromTermId,
+  private void handleRelationships(final String line,
+    final String sourceRelationshipId, final String fromTermId,
     final String fromTermAndVersion, final String fromClassIdType,
     final String toTermId, final String toTermAndVersion,
     final String toClassIdType, final String additionalRelType,
@@ -358,6 +528,15 @@ public class RelationshipLoaderAlgorithm
     final String workflowStatusStr, final Boolean fromContextsSrcFile)
     throws Exception {
 
+    // If we've reached a a new classIdType, clear the caches so we don't max
+    // out the memory
+    if (currentClassIdType == null
+        || !currentClassIdType.equals(fromClassIdType)) {
+      clearCaches();
+      commitClearBegin();
+      handler.commitClearBegin();
+      currentClassIdType = fromClassIdType;
+    }
     // NEW THINKING: allow a component info relationship from a SCUI/SDUI/CODE
     // -> SRC atom
     // For the contexts.src file relationships only, if to and from ClassTypes
@@ -370,20 +549,11 @@ public class RelationshipLoaderAlgorithm
     // }
 
     // Load the from and to objects based on type
-    // If the type is 'CUI', this is a umls CUI, and needs to be handled
-    // differently than any other component.
-    Component fromComponent = null;
-    if (!fromClassIdType.equals("CUI")) {
-      fromComponent = getComponent(fromClassIdType, fromTermId,
-          fromTermAndVersion.equals("") ? null
-              : getCachedTerminology(fromTermAndVersion).getTerminology(),
-          null);
-    } else {
-      fromComponent = getComponent(fromClassIdType, fromTermId,
-          getProcess().getTerminology()
-              + getProcess().getVersion(),
-          null);
-    }
+    final Component fromComponent =
+        getComponent(fromClassIdType, fromTermId,
+            fromTermAndVersion.equals("") ? null
+                : getCachedTerminology(fromTermAndVersion).getTerminology(),
+            null);
 
     if (fromComponent == null) {
       logWarnAndUpdate(line,
@@ -391,20 +561,11 @@ public class RelationshipLoaderAlgorithm
       return;
     }
 
-    Component toComponent = null;
-    // If the type is 'CUI', this is a umls CUI, and needs to be handled
-    // differently than any other component.
-    if (!fromClassIdType.equals("CUI")) {
-      toComponent =
-          getComponent(toClassIdType, toTermId,
-              toTermAndVersion.equals("") ? null
-                  : getCachedTerminology(toTermAndVersion).getTerminology(),
-              null);
-    } else {
-      toComponent =
-          getComponent(toClassIdType, toTermId, getProcess().getTerminology()
-              + getProcess().getVersion(), null);
-    }
+    final Component toComponent =
+        getComponent(toClassIdType, toTermId,
+            toTermAndVersion.equals("") ? null
+                : getCachedTerminology(toTermAndVersion).getTerminology(),
+            null);
 
     if (toComponent == null) {
       logWarnAndUpdate(line,
@@ -442,13 +603,15 @@ public class RelationshipLoaderAlgorithm
         toComponent.setVersion(getProject().getVersion());
       }
     } else if (fromClassIdType.equals("SOURCE_CUI")
-        || fromClassIdType.equals("CUI")) {
+        || fromClassIdType.equals("CUI")
+        || fromClassIdType.equals("CUI_CURRENT")) {
       relClass = ConceptRelationshipJpa.class;
       newRelationship = new ConceptRelationshipJpa();
     } else if (fromClassIdType.equals("SOURCE_DUI")) {
       relClass = DescriptorRelationshipJpa.class;
       newRelationship = new DescriptorRelationshipJpa();
-    } else if (fromClassIdType.equals("CODE_SOURCE")) {
+    } else if (fromClassIdType.equals("CODE_SOURCE")
+        || fromClassIdType.equals("CODE_TERMGROUP")) {
       relClass = CodeRelationshipJpa.class;
       newRelationship = new CodeRelationshipJpa();
     } else if (fromClassIdType.equals("SRC_ATOM_ID")) {
@@ -456,6 +619,11 @@ public class RelationshipLoaderAlgorithm
       newRelationship = new AtomRelationshipJpa();
     } else {
       throw new Exception("Error - unhandled class type: " + fromClassIdType);
+    }
+
+    if (!ConfigUtility.isEmpty(sourceRelationshipId)) {
+      newRelationship.getAlternateTerminologyIds()
+          .put(getProject().getTerminology() + "-SRC", sourceRelationshipId);
     }
 
     newRelationship.setAdditionalRelationshipType(additionalRelType);
@@ -527,6 +695,9 @@ public class RelationshipLoaderAlgorithm
 
       addCount++;
       putComponent(newRelationship, newRelationshipRui);
+      if (!ConfigUtility.isEmpty(newRelationship.getTerminologyId())) {
+        putComponent(newRelationship, newRelationship.getTerminologyId());
+      }
 
       // No need to explicitly attach to component - will be done
       // automatically by addRelationship.
@@ -542,6 +713,19 @@ public class RelationshipLoaderAlgorithm
         oldRelationship.getAlternateTerminologyIds()
             .put(getProject().getTerminology(), newRelationshipRui);
         oldRelChanged = true;
+      }
+
+      if (!ConfigUtility.isEmpty(sourceRelationshipId)) {
+        // Update "alternateTerminologyIds" for -SRC ids, if applicable
+        final Map<String, String> altTermIds =
+            oldRelationship.getAlternateTerminologyIds();
+        if (altTermIds.get(getProject().getTerminology() + "-SRC") == null
+            || !altTermIds.get(getProject().getTerminology() + "-SRC")
+                .equals(sourceRelationshipId)) {
+          oldRelationship.getAlternateTerminologyIds().put(
+              getProject().getTerminology() + "-SRC", sourceRelationshipId);
+          oldRelChanged = true;
+        }
       }
 
       // Update the version
@@ -583,6 +767,9 @@ public class RelationshipLoaderAlgorithm
 
       addCount++;
       putComponent(newComp, newInverseRelationshipRui);
+      if (!ConfigUtility.isEmpty(newComp.getTerminologyId())) {
+        putComponent(newComp, newComp.getTerminologyId());
+      }
 
       // No need to explicitly attach to component - will be done
       // automatically by addRelationship.
@@ -683,7 +870,7 @@ public class RelationshipLoaderAlgorithm
 
   @Override
   public String getDescription() {
-    return "Loads and processes relationships.src";
+    return "Loads and processes " + fileName;
   }
 
 }

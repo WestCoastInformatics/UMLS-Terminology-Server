@@ -28,6 +28,7 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.QueryStyle;
 import com.wci.umls.server.helpers.QueryType;
+import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorkflowBinList;
@@ -36,6 +37,7 @@ import com.wci.umls.server.helpers.WorkflowEpochList;
 import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
 import com.wci.umls.server.jpa.helpers.TrackingRecordListJpa;
 import com.wci.umls.server.jpa.helpers.WorkflowBinListJpa;
 import com.wci.umls.server.jpa.helpers.WorkflowConfigListJpa;
@@ -1478,7 +1480,7 @@ public class WorkflowClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public void testQuery(Long projectId, String query, QueryType type,
+  public SearchResultList testQuery(Long projectId, String query, QueryType type,
     QueryStyle style, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Workflow Client - test query - " + type + ", " + query);
@@ -1492,11 +1494,16 @@ public class WorkflowClientRest extends RootClientRest
             + projectId + "&queryType=" + type + "&queryStyle=" + style
             + "&query=" + URLEncoder.encode(query == null ? "" : query, "UTF-8")
                 .replaceAll("\\+", "%20"));
+    
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.text(""));
+        .header("Authorization", authToken).get();
 
+    final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // n/a
+      // converting to object
+      SearchResultListJpa list = ConfigUtility.getGraphForString(resultString,
+          SearchResultListJpa.class);
+      return list;
     } else {
       throw new Exception(response.toString());
     }

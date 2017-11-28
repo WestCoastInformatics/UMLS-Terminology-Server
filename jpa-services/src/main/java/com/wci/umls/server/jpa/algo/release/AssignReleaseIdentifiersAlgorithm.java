@@ -13,6 +13,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.log4j.Logger;
+
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.PrecedenceList;
@@ -148,6 +150,7 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
     int prevProgress = 0;
     int totalCt = ids.size();
     final Set<Long> assignedConcepts = new HashSet<>(20000);
+    final Set<String> assignedCuis = new HashSet<>(20000);
     for (final Long id : atomIds) {
       objectCt++;
 
@@ -157,14 +160,17 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
       }
 
       final Atom atom = getAtom(id);
+      
       final String cui =
           atom.getConceptTerminologyIds().get(getProject().getTerminology());
 
       // If the CUI is set, assign it to the concept and move on
-      if (cui != null) {
+      if (cui != null && !assignedCuis.contains(cui)) {
+        
         final Concept concept = getConcept(atomConceptMap.get(id));
         assignedConcepts.add(concept.getId());
-
+        assignedCuis.add(cui);
+        
         // Assign CUI if not the current CUI
         if (!concept.getTerminologyId().equals(cui)) {
           // Otherwise assign it
@@ -193,11 +199,13 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
 
     // Go through concepts without assignments and assign new concepts
     for (final Long conceptId : new HashSet<>(atomConceptMap.values())) {
+      
+      
       if (assignedConcepts.contains(conceptId)) {
         continue;
       }
       final Concept concept = getConcept(conceptId);
-
+      
       // skip unpublishable concepts
       // These are concepts containing only unreleasable atoms that did not win
       // their CUI assignment.  They should not get assigned new CUIs, they should be removed
@@ -207,7 +215,9 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
       }
       // prompt for new assignment
       concept.setTerminologyId("");
-      concept.setTerminologyId(handler.getTerminologyId(concept));
+      String tid = handler.getTerminologyId(concept);
+      concept.setTerminologyId(tid);
+      
       updateConcept(concept);
     }
     updateProgress();

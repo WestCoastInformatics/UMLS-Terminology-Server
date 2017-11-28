@@ -21,6 +21,11 @@
         <span class="alert alert-danger"> DISCONNECTED</span>
         <button class="btn btn-xs btn-primary" ng-click="reconnect()">Reconnect</button>
       </span>
+      <br />
+      <span ng-show="selected.projectRole != 'AUTHOR'">Editing enabled 
+        <input type="checkbox" ng-model="selected.project.editingEnabled"
+        ng-change="updateProject(selected.project)">
+      </span>
       <span ng-show="selected.project && !selected.project.editingEnabled"
         style="display: block;" class="alert alert-danger">Editing is
         disabled.</span>
@@ -107,8 +112,12 @@
                   ng-show="worklist.reviewers.length > 0 && worklist.workflowStatus != 'REVIEW_DONE' && selected.projectRole == 'REVIEWER' && selected.worklistMode == 'Assigned'"
                   ng-click="stampWorklist(worklist); " title="Stamp"
                   class="noul glyphicon glyphicon-certificate"></i>
+                <i confirm="Are you sure you want to return the worklist?"
+                  ng-show="selected.projectRole != 'ADMINISTRATOR' && getWorkflowState(worklist) == 'Assigned'"
+                  ng-click="openFinishWorkflowModal(worklist);" title="Return"
+                  class="noul glyphicon glyphicon-ok"></i>
                 <i confirm="Are you sure you want to finish the worklist?"
-                  ng-show="selected.projectRole != 'ADMINISTRATOR' && selected.worklistMode == 'Assigned'"
+                  ng-show="selected.projectRole != 'ADMINISTRATOR' && getWorkflowState(worklist) == 'Review Assigned'"
                   ng-click="openFinishWorkflowModal(worklist);" title="Finish"
                   class="noul glyphicon glyphicon-ok"></i>
               </span>
@@ -220,7 +229,8 @@
             ng-class="{selected : concept.id == selected.component.id}"
             class="{{concept.workflowStatus}}">
             <td>{{concept.id}}</td>
-            <td>{{concept.terminologyId}}</td>
+            <td ng-show="concept.terminologyId != concept.id">{{concept.terminologyId}}</td>
+            <td ng-show="concept.terminologyId == concept.id"></td>
             <td>{{concept.name}}</td>
             <td>
               <span ng-repeat='sty in concept.semanticTypes'>

@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import javax.persistence.NoResultException;
 
 import org.apache.log4j.Logger;
+import org.apache.lucene.queryparser.classic.QueryParserBase;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
@@ -27,6 +28,7 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.QueryType;
+import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorkflowConfigList;
@@ -69,6 +71,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
   /** The workflow action handlers. */
   static Map<String, WorkflowActionHandler> workflowHandlerMap =
       new HashMap<>();
+
+  private Set<Long> atomIdsForTrackingRecordNeedsReview = null;
 
   static {
     init();
@@ -386,9 +390,12 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
             + project.getId() + ", " + type);
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
-    final List<WorkflowConfigJpa> results = searchHandler.getQueryResults(null,
-        null, "", composeQuery(project, "") + " AND type:" + type, "",
-        WorkflowConfigJpa.class, null, totalCt, manager);
+
+    final List<WorkflowConfigJpa> results =
+        searchHandler.getQueryResults(null, null, "",
+            composeQuery(project, "") + " AND type:\""
+                + QueryParserBase.escape(type) + "\"",
+            "", WorkflowConfigJpa.class, null, totalCt, manager);
 
     if (results.size() == 0) {
       return null;
@@ -586,9 +593,11 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     Map<Long, String> conceptIdWorklistNameMap) throws Exception {
     Logger.getLogger(getClass()).info("Regenerate bin " + definition.getName());
 
+    setTransactionPerOperation(false);
+    final Date startDate = new Date();
+
     // Create the workflow bin
     final WorkflowBin bin = new WorkflowBinJpa();
-    bin.setCreationTime(new Date().getTime());
     bin.setName(definition.getName());
     bin.setDescription(definition.getDescription());
     bin.setEditable(definition.isEditable());
@@ -625,9 +634,11 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       final Long componentId = Long.parseLong(result[1].toString());
 
       // skip result entry where the conceptId is already in conceptsSeen
-      // and workflow config is mutually exclusive
+      // and workflow config is mutually exclusive and bin is not a
+      // conceptId/conceptId2 pair bin
       if (!conceptsSeen.contains(componentId)
-          || !definition.getWorkflowConfig().isMutuallyExclusive()) {
+          || !definition.getWorkflowConfig().isMutuallyExclusive()
+          || definition.getQuery().matches(".*conceptId2.*")) {
         if (clusterIdConceptIdsMap.containsKey(clusterId)) {
           final Set<Long> componentIds = clusterIdConceptIdsMap.get(clusterId);
           componentIds.add(componentId);
@@ -652,6 +663,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     // unassigned bin
     if (definition.isEditable()) {
       long clusterIdCt = 1L;
+      final String latestVersion = getLatestVersion(project.getTerminology());
       for (final Long clusterId : clusterIdConceptIdsMap.keySet()) {
 
         // Create the tracking record
@@ -659,7 +671,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
         record.setClusterId(clusterIdCt++);
         record.setTerminology(project.getTerminology());
         record.setTimestamp(new Date());
-        record.setVersion(getLatestVersion(project.getTerminology()));
+        record.setVersion(latestVersion);
         record.setWorkflowBinName(bin.getName());
         record.setProject(project);
         record.setWorklistName(null);
@@ -713,8 +725,19 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
         addTrackingRecord(record);
         bin.getTrackingRecords().add(record);
+
+        if (clusterIdCt % 50 == 0) {
+          if (clusterIdCt % 1000 == 0) {
+            Logger.getLogger(getClass()).info("  count = " + clusterIdCt);
+          }
+          commitClearBegin();
+        }
       }
     }
+
+    commitClearBegin();
+    setTransactionPerOperation(false);
+    bin.setCreationTime(new Date().getTime() - startDate.getTime());
     updateWorkflowBin(bin);
 
     return bin;
@@ -1011,7 +1034,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       record.setProject(project);
       record.setTerminology(project.getTerminology());
       record.setTimestamp(new Date());
-      record.setVersion(getLatestVersion(project.getTerminology()));
+      record.setVersion(project.getVersion());
       final StringBuilder sb = new StringBuilder();
       for (final Long conceptId : entries.get(clusterId)) {
         final Concept concept = getConcept(conceptId);
@@ -1025,7 +1048,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       }
 
       record.setIndexedData(sb.toString());
-      computeTrackingRecordStatus(record);
+      record.setWorkflowStatus(computeTrackingRecordStatus(record, true));
       final TrackingRecord newRecord = addTrackingRecord(record);
 
       // Add the record to the checklist.
@@ -1097,16 +1120,55 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
   /* see superclass */
   @Override
-  public WorkflowStatus computeTrackingRecordStatus(TrackingRecord record)
-    throws Exception {
+  public WorkflowStatus computeTrackingRecordStatus(TrackingRecord record,
+    Boolean batch) throws Exception {
     // Bail if no atom components.
     if (record.getComponentIds().size() == 0) {
       return null;
     }
 
+    if (batch) {
+
+      // If the cache isn't populated, do so now
+      // Identify all of the concepts that would case a
+      // tracking-record to be NEEDS_REVIEW, and store all of its' atoms' ids
+      if (atomIdsForTrackingRecordNeedsReview == null) {
+        atomIdsForTrackingRecordNeedsReview = new HashSet<>();
+
+        final PfsParameter pfs = new PfsParameterJpa();
+        SearchResultList searchResults =
+            findConceptSearchResults(record.getTerminology(), null, Branch.ROOT,
+                "atoms.workflowStatus:NEEDS_REVIEW OR "
+                    + "workflowStatus:NEEDS_REVIEW OR "
+                    + "semanticTypes.workflowStatus:NEEDS_REVIEW",
+                pfs);
+
+        for (int i = 0; i < searchResults.getObjects().size(); i++) {
+          final Concept concept =
+              getConcept(searchResults.getObjects().get(i).getId());
+          final List<Long> atomIds = concept.getAtoms().stream()
+              .map(a -> a.getId()).collect(Collectors.toList());
+          atomIdsForTrackingRecordNeedsReview.addAll(atomIds);
+        }
+      }
+
+      // If tracking record contains any of the caches atom Ids, the tracking
+      // record should be NEEDS_REVIEW
+      for (final Long atomId : record.getComponentIds()) {
+        if (atomIdsForTrackingRecordNeedsReview.contains(atomId)) {
+          return WorkflowStatus.NEEDS_REVIEW;
+        }
+      }
+
+      return WorkflowStatus.READY_FOR_PUBLICATION;
+    }
+
+    // If not batch, run single query to determine this tracking records' status
+
     // Create a query
     final List<String> clauses = record.getComponentIds().stream()
         .map(l -> "atoms.id:" + l).collect(Collectors.toList());
+
     final String query = ConfigUtility.composeQuery("OR", clauses);
 
     WorkflowStatus status = WorkflowStatus.READY_FOR_PUBLICATION;
@@ -1118,7 +1180,9 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     pfs.setMaxResults(1);
     // NOTE: this is a simplification of the matrix initializer algortihm,
     // but generally good enough.
-    if (findConceptSearchResults(record.getTerminology(), null, Branch.ROOT,
+    if (
+
+    findConceptSearchResults(record.getTerminology(), null, Branch.ROOT,
         query + " AND (atoms.workflowStatus:NEEDS_REVIEW OR "
             + "workflowStatus:NEEDS_REVIEW OR "
             + "semanticTypes.workflowStatus:NEEDS_REVIEW)",

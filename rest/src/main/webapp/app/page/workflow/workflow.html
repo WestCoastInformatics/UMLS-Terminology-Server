@@ -22,6 +22,11 @@
         <span class="alert alert-danger"> DISCONNECTED</span>
         <button class="btn btn-xs btn-primary" ng-click="reconnect()">Reconnect</button>
       </span>
+      <br />
+      <span ng-show="selected.projectRole != 'AUTHOR'">Editing enabled 
+        <input type="checkbox" ng-model="selected.project.editingEnabled"
+        ng-change="updateProject(selected.project)">
+      </span>
       <span ng-show="selected.project && !selected.project.editingEnabled"
         style="display: block;" class="alert alert-danger">Editing is
         disabled.</span>
@@ -132,21 +137,20 @@
                     ng-change="toggleEnable(bin);" ng-model="bin.enabled"></input>
                   <i ng-click="openEditBinModal(bin)" ng-show="bin.enabled"
                     title="Edit Bin" class="noul glyphicon glyphicon-pencil"></i>
-                  <i ng-click="regenerateBin(bin)" ng-show="bin.enabled"
+                  <i ng-click="selectBin(bin, 'all'); regenerateBin(bin); $event.stopPropagation()" ng-show="bin.enabled"
                     title="Regenerate Bin"
                     class="noul glyphicon glyphicon-repeat"></i>
                   <i ng-click="openCloneBinModal(bin)" ng-show="bin.enabled"
                     title="Clone Bin" class="noul glyphicon glyphicon-copy"></i>
-                  <i
-                    confirm="Are you sure you want to remove the bin definition?"
-                    ng-click="removeBin(bin); $event.stopPropagation()"
+                  <i ng-click="removeBin(bin); $event.stopPropagation()"
                     ng-show="bin.enabled" title="Remove Bin"
                     class="noul glyphicon glyphicon-trash"></i>
                 </span>
               </td>
               <td rowspan="{{bin.stats.length+1}}">
-                Created: {{toDate(bin.creationTime)}} <br />Modified:
-                {{toDate(bin.lastModified)}}
+                Created: {{toDate(bin.timestamp)}} <br />Modified:
+                {{toDate(bin.lastModified)}} <br />Run Time:
+                {{(bin.creationTime / 1000)}} sec
                 <span ng-show="bin.required">
                   <br /> <b>REQUIRED</b>
                 </span>
@@ -162,8 +166,7 @@
               <td>{{stats.stats.assigned}}</td>
               <td>{{stats.stats.unassigned}}</td>
               <td class="nobreak">
-                <i confirm="Are you sure you want to regenerate the bin?"
-                  ng-show="stats.clusterType == 'all' && bin.enabled && hasPermissions('CreateChecklist')"
+                <i ng-show="stats.clusterType == 'all' && bin.enabled && hasPermissions('CreateChecklist')"
                   ng-click="regenerateBin(bin)" ng-show="bin.enabled"
                   title="Regenerate Bin" class="noul glyphicon glyphicon-repeat"></i>
                 <i

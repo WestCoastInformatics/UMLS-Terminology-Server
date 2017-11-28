@@ -41,12 +41,12 @@ RELOADING DATA
 
 # deploy data
 cd ~/snomed/data
-wget https://wci1.s3.amazonaws.com/TermServer/snomed.sql.gz
+wget https://wci1.s3.amazonaws.com/TermServer/snomedct-sql.zip
 mysqls < ~/snomed/code/admin/mojo/src/main/resources/truncate_all.sql
-gunzip -c snomed.sql.gz | mysqls &
+unzip -p snomedct-sql.zip "snomedct.sql" | mysqls &
 wait
 mysqls < ~/fixWindowsExportData.sql
-/bin/rm ~/snomed/data/snomed.sql.gz
+/bin/rm ~/snomed/data/snomed-sql.zip
 
 # recompute indexes (make sure latest code is built)
 /bin/rm -rf /var/lib/tomcat8/indexes/snomedct/*
@@ -69,3 +69,4 @@ mvn -Drun.config.label=ts -Dconfig.artifactId=term-server-config-prod-snomedct c
 /bin/rm -rf /var/lib/tomcat8/webapps/snomed-server-rest
 /bin/rm -rf /var/lib/tomcat8/webapps/snomed-server-rest.war
 /bin/cp -f ~/snomed/code/rest/target/umls-server-rest*war /var/lib/tomcat8/webapps/snomed-server-rest.war
+

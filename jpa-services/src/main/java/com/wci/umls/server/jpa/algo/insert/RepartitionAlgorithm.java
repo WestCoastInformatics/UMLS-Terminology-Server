@@ -31,6 +31,12 @@ public class RepartitionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   private String type;
 
   /**
+   * Flag for when this is being called by a UI rest run (rather than via a
+   * process).
+   */
+  private Boolean UIRun = false;
+
+  /**
    * Instantiates an empty {@link RepartitionAlgorithm}.
    * @throws Exception if anything goes wrong
    */
@@ -83,7 +89,7 @@ public class RepartitionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // Load the project and workflow config
     Project project = getProject();
     // verifyProject -> n/a because we're getting bins for a project
-    if (!project.isEditingEnabled()) {
+    if (!project.isEditingEnabled() && UIRun) {
       throw new LocalException(
           "Editing is disabled on project: " + getProject().getName());
     }
@@ -148,7 +154,8 @@ public class RepartitionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   public void reset() throws Exception {
     logInfo("Starting RESET " + getName());
     // n/a - No reset
-    logInfo("Finished RESET " + getName());  }
+    logInfo("Finished RESET " + getName());
+  }
 
   /* see superclass */
   @Override
@@ -161,6 +168,9 @@ public class RepartitionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   public void setProperties(Properties p) throws Exception {
     if (p.getProperty("type") != null) {
       type = String.valueOf(p.getProperty("type"));
+    }
+    if (p.getProperty("UIRun") != null) {
+      UIRun = Boolean.parseBoolean(p.getProperty("UIRun"));
     }
   }
 
@@ -195,6 +205,9 @@ public class RepartitionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         defaultValue);
     param.setPossibleValues(possibleValues);
     params.add(param);
+
+    // Don't need a parameter for UIrun - defaults to False, and only gets set
+    // to true when being called via WorkflowServiceRestImpl.regenerateBins
 
     return params;
   }

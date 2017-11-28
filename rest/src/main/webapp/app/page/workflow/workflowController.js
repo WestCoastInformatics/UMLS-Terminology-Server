@@ -213,6 +213,11 @@ tsApp.controller('WorkflowCtrl', [
 
     }
 
+    // update project
+    $scope.updateProject = function(project) {
+    	projectService.updateProject(project);
+    }
+    
     // Retrieve all projects
     $scope.getProjects = function() {
 
@@ -445,13 +450,17 @@ tsApp.controller('WorkflowCtrl', [
 
     // Regenerate single bin
     $scope.regenerateBin = function(bin) {
-      // send both id and name
-      workflowService.regenerateBin($scope.selected.project.id, bin.id, bin.name,
-        $scope.selected.config.type).then(
-      // Success
-      function(data) {
-        $scope.getBins($scope.selected.project.id, $scope.selected.config, bin);
-      });
+    	// Get confirmation before regenerating
+   		var	regenerate = confirm('This bin took ' + bin.creationTime/1000 + ' seconds to process last time it was run. \n\n Are you sure you want to regenerate now?');
+    	if (regenerate == true) {
+    		// send both id and name
+    	      workflowService.regenerateBin($scope.selected.project.id, bin.id, bin.name,
+    	    	        $scope.selected.config.type).then(
+    	    	      // Success
+    	    	      function(data) {
+    	    	        $scope.getBins($scope.selected.project.id, $scope.selected.config, bin);
+    	    	      });
+    	}
     };
 
     // Regenerate bins

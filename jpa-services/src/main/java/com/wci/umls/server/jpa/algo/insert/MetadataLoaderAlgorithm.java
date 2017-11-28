@@ -41,6 +41,7 @@ import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.TermTypeStyle;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.meta.UsageType;
+import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 
 /**
  * Implementation of an algorithm to import metadata.
@@ -109,7 +110,7 @@ public class MetadataLoaderAlgorithm
     // Validate AdditionalRelationshipType inverses
     //
     List<String> lines = loadFileIntoStringList(getSrcDirFile(), "MRDOC.RRF",
-        "RELA\\|(.*)", null);
+        "RELA\\|(.*)", null, null);
 
     final Set<String> relaMRDOC = new HashSet<>();
     final Set<String> inverseRelaMRDOC = new HashSet<>();
@@ -158,8 +159,8 @@ public class MetadataLoaderAlgorithm
     // in database's precedence list(getPrecedenceList(project.getTerm,
     // project.getVersion) or as a high term group on a different line of the
     // file.
-    lines =
-        loadFileIntoStringList(getSrcDirFile(), "termgroups.src", null, null);
+    lines = loadFileIntoStringList(getSrcDirFile(), "termgroups.src", null,
+        null, null);
     fields = new String[6];
 
     // Load all of the low and high term groups
@@ -211,7 +212,8 @@ public class MetadataLoaderAlgorithm
 
     // For sources.src, ensure that source_name (fields[0]) starts with the
     // stripped_source (fields[4])
-    lines = loadFileIntoStringList(getSrcDirFile(), "sources.src", null, null);
+    lines = loadFileIntoStringList(getSrcDirFile(), "sources.src", null, null,
+        null);
 
     fields = new String[20];
 
@@ -333,6 +335,14 @@ public class MetadataLoaderAlgorithm
 
       commitClearBegin();
 
+      // Clear the preferredNameHandler caches, since the terminologies and
+      // precedence lists have now changed.
+      final ComputePreferredNameHandler prefNameHandler =
+          getComputePreferredNameHandler(getProject().getTerminology());
+      prefNameHandler.clearCaches();
+
+      commitClearBegin();      
+      
       logInfo("Finished " + getName());
 
     } catch (Exception e) {
@@ -371,8 +381,8 @@ public class MetadataLoaderAlgorithm
     //
     // Load the sources.src file
     //
-    List<String> lines =
-        loadFileIntoStringList(getSrcDirFile(), "sources.src", null, null);
+    List<String> lines = loadFileIntoStringList(getSrcDirFile(), "sources.src",
+        null, null, null);
 
     String fields[] = new String[20];
 
@@ -618,8 +628,8 @@ public class MetadataLoaderAlgorithm
       //
       // Load the contexts.src file
       //
-      final List<String> lines =
-          loadFileIntoStringList(getSrcDirFile(), "contexts.src", null, null);
+      final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
+          "contexts.src", null, null, null);
 
       final String[] fields = new String[17];
 
@@ -751,7 +761,7 @@ public class MetadataLoaderAlgorithm
     // Load TTY lines from the MRDOC file
     //
     List<String> lines = loadFileIntoStringList(getSrcDirFile(), "MRDOC.RRF",
-        "TTY\\|(.*)", null);
+        "TTY\\|(.*)", null, null);
 
     String fields[] = new String[4];
 
@@ -836,8 +846,8 @@ public class MetadataLoaderAlgorithm
     // Load the termgroups.src file
     //
     logInfo("  Process termgroups.src");
-    lines =
-        loadFileIntoStringList(getSrcDirFile(), "termgroups.src", null, null);
+    lines = loadFileIntoStringList(getSrcDirFile(), "termgroups.src", null,
+        null, null);
 
     fields = new String[6];
 
@@ -1042,7 +1052,7 @@ public class MetadataLoaderAlgorithm
     // Load ATN lines from the MRDOC file
     //
     List<String> lines = loadFileIntoStringList(getSrcDirFile(), "MRDOC.RRF",
-        "ATN\\|(.*)", null);
+        "ATN\\|(.*)", null, null);
 
     String fields[] = new String[4];
 
@@ -1096,7 +1106,7 @@ public class MetadataLoaderAlgorithm
     // Load RELA lines from the MRDOC file
     //
     final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
-        "MRDOC.RRF", "RELA\\|(.*)", null);
+        "MRDOC.RRF", "RELA\\|(.*)", null, null);
     final String fields[] = new String[4];
     for (final String line : lines) {
       FieldedStringTokenizer.split(line, "|", 4, fields);

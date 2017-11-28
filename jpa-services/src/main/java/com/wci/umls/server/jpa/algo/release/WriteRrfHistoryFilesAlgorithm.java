@@ -626,10 +626,9 @@ public class WriteRrfHistoryFilesAlgorithm
         if (fact.getRelationshipType().equals("SY")) {
           type = "merge";
           concept2 = getConcept(fact.getReferencedTerminologyId(),
-              getProcess().getTerminology(), getProcess().getVersion(),
+              getProject().getTerminology(), getProject().getVersion(),
               Branch.ROOT);
-        }
-        if (!retiredCuis.contains(cui) && !splitCuis.contains(cui)) {
+        } else if (!retiredCuis.contains(cui) && !splitCuis.contains(cui)) {
           retiredCuis.add(cui);
           type = "retire";
         }
@@ -638,14 +637,39 @@ public class WriteRrfHistoryFilesAlgorithm
           // split, do nothing
         }
 
-        final Concept concept = getConcept(cui, getProject().getTerminology(),
-            getProject().getVersion(), Branch.ROOT);
+        // Get the dead concept's name
+        final Set<Atom> atoms = new HashSet<>();
+        for (final Concept concept : findConcepts(getProject().getTerminology(),
+            getProject().getVersion(),
+            Branch.ROOT, "atoms.conceptTerminologyIds:\""
+                + getProject().getTerminology() + "=" + cui + "\"",
+            null).getObjects()) {
+          // Add all atoms having a last release CUI matching the CUI
+          atoms.addAll(concept.getAtoms().stream()
+              .filter(a -> a.getConceptTerminologyIds()
+                  .get(getProject().getTerminology()).equals(cui))
+              .collect(Collectors.toSet()));
+
+        }
+        String oldConceptName = null;
+        if (atoms.size() == 0) {
+          final Concept concept = getConcept(cui, getProject().getTerminology(),
+              getProject().getVersion(), Branch.ROOT);
+          if (concept == null) {
+            throw new Exception("Unable to find name for dead cui = " + cui);
+          }
+          oldConceptName = concept.getName();
+        } else {
+          getComputePreferredNameHandler(getProject().getTerminology())
+              .computePreferredName(atoms, getPrecedenceList(
+                  getProject().getTerminology(), getProject().getVersion()));
+        }
 
         final StringBuilder sb = new StringBuilder();
         // 0 CUI1
         sb.append(fact.getTerminologyId()).append("|");
         // 1 NAME
-        sb.append(concept.getName()).append("|");
+        sb.append(oldConceptName).append("|");
         // 2 DATE
         sb.append(convertDate(getProcess().getVersion() + "01")).append("|");
         // 3 TYPE

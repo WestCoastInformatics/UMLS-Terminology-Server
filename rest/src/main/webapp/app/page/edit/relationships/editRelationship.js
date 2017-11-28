@@ -14,7 +14,7 @@ tsApp.controller('EditRelationshipModalCtrl', [
   function($scope, $uibModalInstance, $uibModal, utilService, metadataService, contentService,
     metaEditingService, selected, lists, user, action) {
     console.debug('Entered edit relationship modal control', lists, action);
-
+    
     // Scope vars
     $scope.selected = selected;
     $scope.lists = lists;
@@ -22,10 +22,13 @@ tsApp.controller('EditRelationshipModalCtrl', [
     $scope.action = action;
 
     $scope.toConcepts = [];
+    $scope.selectedToConcepts = {};
+    $scope.selectedToConceptObjects = [];
+    $scope.selectedConceptCount = 0;
     $scope.toConcept = null;
     $scope.overrideWarnings = false;
     $scope.selectedRelationshipType = 'RO';
-    $scope.acceptedRelationshipTypeStrings = [ 'RO', 'RB', 'RN', 'RQ'];
+    $scope.acceptedRelationshipTypeStrings = [ 'RO', 'RB', 'RN', 'BRO', 'BRB', 'BRN'];
     $scope.acceptedRelationshipTypes = [ {
       'key' : 'XR',
       'value' : '(none)'
@@ -36,6 +39,8 @@ tsApp.controller('EditRelationshipModalCtrl', [
     $scope.selectedWorkflowStatus = 'NEEDS_REVIEW';
     $scope.workflowStatuses = [ 'NEEDS_REVIEW', 'READY_FOR_PUBLICATION' ];
     $scope.defaultOrder = true;
+    
+    $scope.checkboxValue;
 
     // Callbacks for finder
     $scope.callbacks = {
@@ -54,7 +59,7 @@ tsApp.controller('EditRelationshipModalCtrl', [
       if ($scope.toConcepts.length == 1) {
         $scope.toConcept = $scope.toConcepts[0];
       }
-
+      
       // if selected relationship, add to prospective list
       // set default from_concept
       if ($scope.selected.relationship) {
@@ -93,69 +98,97 @@ tsApp.controller('EditRelationshipModalCtrl', [
     }
 
     // Perform insert rel
-    $scope.addRelationship = function() {
+    $scope.addRelationships = function() {
       $scope.errors = [];
+      relationships = [];
 
-      // Only allow bequeathal to publishable
-      if (!$scope.toConcept.publishable && $scope.selectedRelationshipType.match(/BR./)) {
-        $scope.errors
-          .push("Illegal attempt to create a bequeathal relationship to an unpublishable concept");
-        return;
+      // Must have at least one concept selected
+      if($scope.selectedToConceptObjects.length == 0){
+          $scope.errors
+          .push("Must select at least one To concept");
       }
-      
-      var relationship = {
-        assertedDirection : false,
-        fromId : $scope.selected.component.id,
-        fromName : $scope.selected.component.name,
-        fromTerminology : $scope.selected.component.terminology,
-        fromTerminologyId : $scope.selected.component.terminologyId,
-        fromVersion : $scope.selected.component.version,
-        group : null,
-        hierarchical : false,
-        inferred : false,
-        name : null,
-        obsolete : false,
-        published : false,
-        relationshipType : $scope.selectedRelationshipType,
-        additionalRelationshipType : '',
-        stated : false,
-        suppressible : false,
-        terminology : $scope.selected.project.terminology,
-        terminologyId : "",
-        toId : $scope.toConcept.id,
-        toName : $scope.toConcept.name,
-        toTerminology : $scope.toConcept.terminology,
-        toTerminologyId : $scope.toConcept.terminologyId,
-        toVersion : $scope.toConcept.version,
-        type : "RELATIONSHIP",
-        version : $scope.toConcept.version,
-        workflowStatus : $scope.selectedWorkflowStatus
-      };
 
-      metaEditingService.addRelationship($scope.selected.project.id, $scope.selected.activityId,
-        $scope.selected.component, relationship, $scope.overrideWarnings).then(
-      // Success
-      function(data) {
-        $scope.warnings = data.warnings;
-        $scope.errors = data.errors;
-        if ($scope.warnings.length > 0) {
-          $scope.overrideWarnings = true;
-        }
-        if ($scope.warnings.length == 0 && $scope.errors.length == 0) {
+      // Create relationships for each selected ToConcept
+      for (var i = 0; i < $scope.selectedToConceptObjects.length; i++) {
+    	  $scope.toConcept = $scope.selectedToConceptObjects[i];
+    	                	  
+	      // Only allow bequeathal to publishable
+	      if (!$scope.toConcept.publishable && $scope.selectedRelationshipType.match(/BR./)) {
+	        $scope.errors
+	          .push("Illegal attempt to create a bequeathal relationship to an unpublishable concept");
+	        return;
+	      }
+	      
+	      var relationship = {
+	        assertedDirection : false,
+	        fromId : $scope.selected.component.id,
+	        fromName : $scope.selected.component.name,
+	        fromTerminology : $scope.selected.component.terminology,
+	        fromTerminologyId : $scope.selected.component.terminologyId,
+	        fromVersion : $scope.selected.component.version,
+	        group : null,
+	        hierarchical : false,
+	        inferred : false,
+	        name : null,
+	        obsolete : false,
+	        published : false,
+	        relationshipType : $scope.selectedRelationshipType,
+	        additionalRelationshipType : '',
+	        stated : false,
+	        suppressible : false,
+	        terminology : $scope.selected.project.terminology,
+	        terminologyId : "",
+	        toId : $scope.toConcept.id,
+	        toName : $scope.toConcept.name,
+	        toTerminology : $scope.toConcept.terminology,
+	        toTerminologyId : $scope.toConcept.terminologyId,
+	        toVersion : $scope.toConcept.version,
+	        type : "RELATIONSHIP",
+	        version : $scope.toConcept.version,
+	        workflowStatus : $scope.selectedWorkflowStatus
+	      };
+	
+	      relationships.push(relationship);
+      }  
+      
+      //Once all relationships have been added to list, send the request
+         metaEditingService.addRelationships($scope.selected.project.id, $scope.selected.activityId,
+	        $scope.selected.component, relationships, $scope.overrideWarnings).then(
+	      // Success
+	      function(data) {
+	        $scope.warnings.push(data.warnings);
+	        $scope.errors.push(data.errors);
+	        if ($scope.warnings.length > 0) {
+	          $scope.overrideWarnings = true;
+	        }
+	      },
+	      // Error
+	      function(data) {
+	        utilService.handleDialogError($scope.errors, data);
+	      });
+      if ($scope.warnings.length == 0 && $scope.errors.length == 0) {
           $uibModalInstance.close();
-        }
-      },
-      // Error
-      function(data) {
-        utilService.handleDialogError($scope.errors, data);
-      });
+      }
     };
 
     // select the to concept
     $scope.selectToConcept = function(concept) {
-      $scope.toConcept = concept;
+    	if($scope.selectedToConcepts[concept.id]){
+    		$scope.selectedToConcepts[concept.id] = false;
+    		for (var i =0; i < $scope.selectedToConceptObjects.length; i++) {
+			   if ($scope.selectedToConceptObjects[i] == concept) {
+				   $scope.selectedToConceptObjects.splice(i,1);
+			      break;
+			   }
+    		}
+    	}
+    	else{
+    		$scope.selectedToConcepts[concept.id] = true;
+    	    $scope.selectedToConceptObjects.push(concept);
+    	}
+    	
     }
-
+    
     // Dismiss modal
     $scope.cancel = function() {
       $uibModalInstance.dismiss('cancel');
