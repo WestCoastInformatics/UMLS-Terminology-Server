@@ -51,7 +51,6 @@
     <module>prod-claml</module>
     <module>prod-owl</module>
     <module>prod-vet</module>
-    <module>prod-gene</module>
   </modules>
 
 </project>
