@@ -102,12 +102,12 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // and it was decided they didn't want them to be stamped after all. Based
     // on the activityId: chk_sct_new_approve, identify all molecular actions
     // and undo them
-    
+
     int successful = 0;
     int unsuccessful = 0;
     final String activityId = "chk_sct_new_approve";
-    
-    //Find all molecular actions associated with the activityId
+
+    // Find all molecular actions associated with the activityId
     final PfsParameter pfs = new PfsParameterJpa();
     pfs.setAscending(false);
     pfs.setSortField("lastModified");
@@ -120,34 +120,42 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       // Create and set up an undo action
       final UndoMolecularAction undoAction = new UndoMolecularAction();
 
-      try{
-      // Configure and run the undo action
-      undoAction.setProject(getProject());
-      undoAction.setActivityId(molecularAction.getActivityId());
-      undoAction.setConceptId(molecularAction.getComponentId());
-      undoAction.setConceptId2(molecularAction.getComponentId2());
-      undoAction.setLastModifiedBy(molecularAction.getLastModifiedBy());
-      undoAction.setTransactionPerOperation(false);
-      undoAction.setMolecularActionFlag(false);
-      undoAction.setChangeStatusFlag(true);
-      undoAction.setMolecularActionId(molecularAction.getId());
-      undoAction.setForce(false);
-      undoAction.performMolecularAction(undoAction, getLastModifiedBy(), false, false);
-      
-      successful++;
+      if (molecularAction.isUndoneFlag()) {
+        successful++;
+        continue;
       }
-      catch (Exception e){
-        logInfo("Could not undo molecularAction=" + molecularAction.getId() + ", for concept=" + molecularAction.getComponentId());
+
+      try {
+        // Configure and run the undo action
+        undoAction.setProject(getProject());
+        undoAction.setActivityId(molecularAction.getActivityId());
+        undoAction.setConceptId(molecularAction.getComponentId());
+        undoAction.setConceptId2(molecularAction.getComponentId2());
+        undoAction.setLastModifiedBy(molecularAction.getLastModifiedBy());
+        undoAction.setTransactionPerOperation(false);
+        undoAction.setMolecularActionFlag(false);
+        undoAction.setChangeStatusFlag(true);
+        undoAction.setMolecularActionId(molecularAction.getId());
+        undoAction.setForce(false);
+        undoAction.performMolecularAction(undoAction, getLastModifiedBy(),
+            false, false);
+
+        successful++;
+      } catch (Exception e) {
+        logInfo("Could not undo molecularAction=" + molecularAction.getId()
+            + ", for concept=" + molecularAction.getComponentId());
         unsuccessful++;
+      } finally {
+        if ((unsuccessful + successful) % 100 == 0) {
+          logInfo(" count=" + (unsuccessful + successful));
+        }
+        undoAction.close();
       }
-      undoAction.close();
     }
-    
-    
-    logInfo("[UndoStampings] " + successful
-        + " stampings successfully undone.");
-    logInfo("[UndoStampings] " + unsuccessful
-        + " stampings unable to undo.");
+
+    logInfo(
+        "[UndoStampings] " + successful + " stampings successfully undone.");
+    logInfo("[UndoStampings] " + unsuccessful + " stampings unable to undo.");
 
   }
 
@@ -259,7 +267,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     AlgorithmParameter param = new AlgorithmParameterJpa("Action Name",
         "actionName", "Name of Ad Hoc Action to be performed",
         "e.g. Fix Orphan Definitions", 200, AlgorithmParameter.Type.ENUM, "");
-    param.setPossibleValues(Arrays.asList("Fix Orphan Definitions", "Undo Stampings"));
+    param.setPossibleValues(
+        Arrays.asList("Fix Orphan Definitions", "Undo Stampings"));
     params.add(param);
 
     return params;
