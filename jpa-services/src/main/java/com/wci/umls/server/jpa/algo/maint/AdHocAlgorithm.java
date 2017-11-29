@@ -22,6 +22,7 @@ import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Definition;
+import com.wci.umls.server.services.RootService;
 
 /**
  * Implementation of an algorithm to execute an action based on a user-defined
@@ -151,6 +152,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         }
         undoAction.close();
       }
+      
+      logAndCommit(unsuccessful + successful, 100, 100);
+      
     }
 
     logInfo(
