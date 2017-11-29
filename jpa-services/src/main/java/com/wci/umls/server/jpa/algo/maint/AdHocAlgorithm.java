@@ -12,9 +12,14 @@ import java.util.UUID;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
+import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.model.actions.MolecularAction;
+import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Definition;
 
@@ -76,6 +81,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // Add all ad hoc actions to if-statement chain.
     if (actionName.equals("Fix Orphan Definitions")) {
       fixOrphanDefinitions();
+    } else if (actionName.equals("Undo Stampings")) {
+      undoStampings();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -87,6 +94,60 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("  activityId = " + getActivityId());
     logInfo("  user  = " + getLastModifiedBy());
     logInfo("Finished " + getName());
+
+  }
+
+  private void undoStampings() throws Exception {
+    // 11/29/2017 - A Stamping action was run on a checklist of 14,000 concepts,
+    // and it was decided they didn't want them to be stamped after all. Based
+    // on the activityId: chk_sct_new_approve, identify all molecular actions
+    // and undo them
+    
+    int successful = 0;
+    int unsuccessful = 0;
+    final String activityId = "chk_sct_new_approve";
+    
+    //Find all molecular actions associated with the activityId
+    final PfsParameter pfs = new PfsParameterJpa();
+    pfs.setAscending(false);
+    pfs.setSortField("lastModified");
+    final MolecularActionList molecularActions =
+        findMolecularActions(null, getProject().getTerminology(),
+            getProject().getVersion(), "activityId:" + activityId, pfs);
+
+    for (final MolecularAction molecularAction : molecularActions
+        .getObjects()) {
+      // Create and set up an undo action
+      final UndoMolecularAction undoAction = new UndoMolecularAction();
+
+      try{
+      // Configure and run the undo action
+      undoAction.setProject(getProject());
+      undoAction.setActivityId(molecularAction.getActivityId());
+      undoAction.setConceptId(molecularAction.getComponentId());
+      undoAction.setConceptId2(molecularAction.getComponentId2());
+      undoAction.setLastModifiedBy(molecularAction.getLastModifiedBy());
+      undoAction.setTransactionPerOperation(false);
+      undoAction.setMolecularActionFlag(false);
+      undoAction.setChangeStatusFlag(true);
+      undoAction.setMolecularActionId(molecularAction.getId());
+      undoAction.setForce(false);
+      undoAction.performMolecularAction(undoAction, getLastModifiedBy(), false, false);
+      
+      successful++;
+      }
+      catch (Exception e){
+        logInfo("Could not undo molecularAction=" + molecularAction.getId() + ", for concept=" + molecularAction.getComponentId());
+        unsuccessful++;
+      }
+      undoAction.close();
+    }
+    
+    
+    logInfo("[UndoStampings] " + successful
+        + " stampings successfully undone.");
+    logInfo("[UndoStampings] " + unsuccessful
+        + " stampings unable to undo.");
 
   }
 
@@ -126,7 +187,6 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     definitionIdAtomIdMap.put(40739L, 470079L);
     definitionIdAtomIdMap.put(75071L, 1446086L);
     definitionIdAtomIdMap.put(50708L, 685841L);
-
 
     for (Map.Entry<Long, Long> entry : definitionIdAtomIdMap.entrySet()) {
       final Long definitionId = entry.getKey();
@@ -199,7 +259,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     AlgorithmParameter param = new AlgorithmParameterJpa("Action Name",
         "actionName", "Name of Ad Hoc Action to be performed",
         "e.g. Fix Orphan Definitions", 200, AlgorithmParameter.Type.ENUM, "");
-    param.setPossibleValues(Arrays.asList("Fix Orphan Definitions"));
+    param.setPossibleValues(Arrays.asList("Fix Orphan Definitions", "Undo Stampings"));
     params.add(param);
 
     return params;
