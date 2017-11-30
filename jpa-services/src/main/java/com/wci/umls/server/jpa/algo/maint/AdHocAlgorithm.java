@@ -22,7 +22,6 @@ import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Definition;
-import com.wci.umls.server.services.RootService;
 
 /**
  * Implementation of an algorithm to execute an action based on a user-defined
@@ -122,39 +121,40 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       final UndoMolecularAction undoAction = new UndoMolecularAction();
 
       if (molecularAction.isUndoneFlag()) {
+        logInfo("Already undone: molecularAction=" + molecularAction.getId()
+        + ", for concept=" + molecularAction.getComponentId());          
         successful++;
-        continue;
-      }
+      } else {
 
-      try {
-        // Configure and run the undo action
-        undoAction.setProject(getProject());
-        undoAction.setActivityId(molecularAction.getActivityId());
-        undoAction.setConceptId(molecularAction.getComponentId());
-        undoAction.setConceptId2(molecularAction.getComponentId2());
-        undoAction.setLastModifiedBy(molecularAction.getLastModifiedBy());
-        undoAction.setTransactionPerOperation(false);
-        undoAction.setMolecularActionFlag(false);
-        undoAction.setChangeStatusFlag(true);
-        undoAction.setMolecularActionId(molecularAction.getId());
-        undoAction.setForce(false);
-        undoAction.performMolecularAction(undoAction, getLastModifiedBy(),
-            false, false);
+        try {
+          // Configure and run the undo action
+          undoAction.setProject(getProject());
+          undoAction.setActivityId(molecularAction.getActivityId());
+          undoAction.setConceptId(molecularAction.getComponentId());
+          undoAction.setConceptId2(molecularAction.getComponentId2());
+          undoAction.setLastModifiedBy(molecularAction.getLastModifiedBy());
+          undoAction.setTransactionPerOperation(false);
+          undoAction.setMolecularActionFlag(false);
+          undoAction.setChangeStatusFlag(true);
+          undoAction.setMolecularActionId(molecularAction.getId());
+          undoAction.setForce(false);
+          undoAction.performMolecularAction(undoAction, getLastModifiedBy(),
+              false, false);
 
-        successful++;
-      } catch (Exception e) {
-        logInfo("Could not undo molecularAction=" + molecularAction.getId()
-            + ", for concept=" + molecularAction.getComponentId());
-        unsuccessful++;
-      } finally {
-        if ((unsuccessful + successful) % 100 == 0) {
-          logInfo(" count=" + (unsuccessful + successful));
+          logInfo("Successful undo for molecularAction=" + molecularAction.getId()
+          + ", for concept=" + molecularAction.getComponentId());          
+          successful++;
+        } catch (Exception e) {
+          logInfo("Could not undo molecularAction=" + molecularAction.getId()
+              + ", for concept=" + molecularAction.getComponentId());
+          unsuccessful++;
+        } finally {
+          undoAction.close();
         }
-        undoAction.close();
       }
-      
+
       logAndCommit(unsuccessful + successful, 100, 100);
-      
+
     }
 
     logInfo(
