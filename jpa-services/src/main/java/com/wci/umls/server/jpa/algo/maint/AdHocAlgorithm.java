@@ -117,14 +117,16 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     for (final MolecularAction molecularAction : molecularActions
         .getObjects()) {
-      // Create and set up an undo action
-      final UndoMolecularAction undoAction = new UndoMolecularAction();
 
       if (molecularAction.isUndoneFlag()) {
         logInfo("Already undone: molecularAction=" + molecularAction.getId()
-        + ", for concept=" + molecularAction.getComponentId());          
+            + ", for concept=" + molecularAction.getComponentId());
         successful++;
-      } else {
+      }
+
+      else {
+        // Create and set up an undo action
+        final UndoMolecularAction undoAction = new UndoMolecularAction();
 
         try {
           // Configure and run the undo action
@@ -141,8 +143,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           undoAction.performMolecularAction(undoAction, getLastModifiedBy(),
               false, false);
 
-          logInfo("Successful undo for molecularAction=" + molecularAction.getId()
-          + ", for concept=" + molecularAction.getComponentId());          
+          logInfo(
+              "Successful undo for molecularAction=" + molecularAction.getId()
+                  + ", for concept=" + molecularAction.getComponentId());
           successful++;
         } catch (Exception e) {
           logInfo("Could not undo molecularAction=" + molecularAction.getId()
