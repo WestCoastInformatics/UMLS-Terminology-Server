@@ -110,7 +110,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // Find all molecular actions associated with the activityId
     final PfsParameter pfs = new PfsParameterJpa();
     pfs.setAscending(false);
-    pfs.setSortField("lastModified");
+    pfs.setSortField("timestamp");
     final MolecularActionList molecularActions =
         findMolecularActions(null, getProject().getTerminology(),
             getProject().getVersion(), "activityId:" + activityId, pfs);
@@ -139,7 +139,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           undoAction.setMolecularActionFlag(false);
           undoAction.setChangeStatusFlag(true);
           undoAction.setMolecularActionId(molecularAction.getId());
-          undoAction.setForce(false);
+          undoAction.setForce(true);
           undoAction.performMolecularAction(undoAction, getLastModifiedBy(),
               false, false);
 
