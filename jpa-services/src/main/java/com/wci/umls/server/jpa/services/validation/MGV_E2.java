@@ -50,8 +50,14 @@ public class MGV_E2 extends AbstractValidationCheck {
     // any connects the two concepts, it violates this check.
 
     for (final ConceptRelationship rel : source.getRelationships()) {
+      // Only consider publishable, project-terminology relationships.
       if (!(rel.isPublishable()
           && rel.getTerminology().equals(project.getTerminology()))) {
+        continue;
+      }
+      // Don't consider SY and RQ relationships.
+      if (rel.getRelationshipType().equals("SY")
+          || rel.getRelationshipType().equals("RQ")) {
         continue;
       }
       if (rel.getTo().getId() == target.getId()) {
