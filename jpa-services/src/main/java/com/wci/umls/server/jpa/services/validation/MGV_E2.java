@@ -60,6 +60,7 @@ public class MGV_E2 extends AbstractValidationCheck {
           || rel.getRelationshipType().equals("RQ")) {
         continue;
       }
+      
       if (rel.getTo().getId() == target.getId()) {
         result.getErrors()
             .add(getName() + ": Concepts are connected by a publishable, "
