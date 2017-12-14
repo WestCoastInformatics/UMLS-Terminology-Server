@@ -240,11 +240,13 @@ tsApp
                     // Success
                     function(response) {
                       console.debug('  inverse relationship type = ' + response.data);
+                      gpService.decrement();
                       deferred.resolve(response.data);
                     },
                     // Error
                     function(response) {
                       utilService.handleError(response);
+                      gpService.decrement();
                       deferred.reject(response.data);
                     });
                     return deferred.promise;
