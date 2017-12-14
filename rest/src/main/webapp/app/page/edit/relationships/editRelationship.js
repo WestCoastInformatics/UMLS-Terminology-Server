@@ -8,15 +8,17 @@ tsApp.controller('EditRelationshipModalCtrl', [
   'contentService',
   'metaEditingService',
   'selected',
+  'replaceRelationship',
   'lists',
   'user',
   'action',
   function($scope, $uibModalInstance, $uibModal, utilService, metadataService, contentService,
-    metaEditingService, selected, lists, user, action) {
+    metaEditingService, selected, replaceRelationship, lists, user, action) {
     console.debug('Entered edit relationship modal control', lists, action);
     
     // Scope vars
     $scope.selected = selected;
+    $scope.replaceRelationship = replaceRelationship;
     $scope.lists = lists;
     $scope.user = user;
     $scope.action = action;
@@ -60,9 +62,19 @@ tsApp.controller('EditRelationshipModalCtrl', [
         $scope.toConcept = $scope.toConcepts[0];
       }
       
-      // if selected relationship, add to prospective list
+      // if replacing, only keep that one relationship
+      if($scope.replaceRelationship){
+    	    $scope.toConcepts = [];
+          contentService.getConcept($scope.replaceRelationship.fromId, $scope.selected.project.id)
+          .then(function(data) {
+        	$scope.toConcepts.push(data);
+            $scope.toConcept = data;
+            $scope.selectedRelationshipType = $scope.replaceRelationship.relationshipType;
+          });
+      }
+      // if not replacing and if selected relationship, add to prospective list
       // set default from_concept
-      if ($scope.selected.relationship) {
+      else if (!$scope.replaceRelationship && $scope.selected.relationship) {
         contentService.getConcept($scope.selected.relationship.toId, $scope.selected.project.id)
           .then(function(data) {
             var found = false;
@@ -77,7 +89,6 @@ tsApp.controller('EditRelationshipModalCtrl', [
             $scope.toConcept = data;
             $scope.selectedRelationshipType = $scope.selected.relationship.relationshipType;
           });
-
       } else {
         $scope.toConcept = $scope.toConcepts[0];
       }
@@ -157,8 +168,7 @@ tsApp.controller('EditRelationshipModalCtrl', [
 		      };
 		
 		      relationships.push(relationship);
-	      }  
-      });  
+	      } 
       
       //Once all relationships have been added to list, send the request
          metaEditingService.addRelationships($scope.selected.project.id, $scope.selected.activityId,
@@ -175,10 +185,11 @@ tsApp.controller('EditRelationshipModalCtrl', [
 	      function(data) {
 	        utilService.handleDialogError($scope.errors, data);
 	      });
+      });
       if ($scope.warnings.length == 0 && $scope.errors.length == 0) {
           $uibModalInstance.close();
       }
-    };
+    }; 
 
     // select the to concept
     $scope.selectToConcept = function(concept) {

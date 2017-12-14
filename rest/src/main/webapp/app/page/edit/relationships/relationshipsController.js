@@ -325,6 +325,9 @@ tsApp
               selected : function() {
                 return $scope.selected;
               },
+              replaceRelationship : function() {
+                  return null;
+                },
               lists : function() {
                 return $scope.lists;
               },
@@ -343,6 +346,39 @@ tsApp
             $scope.getPagedRelationships();
           });
         };
+        
+        // Replace modal
+        $scope.openReplaceModal = function(relationship) {
+          var modalInstance = $uibModal.open({
+            templateUrl : 'app/page/edit/relationships/editRelationship.html',
+            controller : 'EditRelationshipModalCtrl',
+            backdrop : 'static',
+            resolve : {
+              selected : function() {
+                return $scope.selected;
+              },
+              replaceRelationship : function() {
+                return relationship;
+              },
+              lists : function() {
+                return $scope.lists;
+              },
+              user : function() {
+                return $scope.user;
+              },
+              action : function() {
+                return 'Replace';
+              }
+            }
+          });
+
+          modalInstance.result.then(
+          // Success
+          function(data) {     	  
+            $scope.getPagedRelationships();
+          });
+        };
+        
 
         //
         // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION
