@@ -156,6 +156,19 @@ public interface ContentServiceRest {
     String version, Long projectId, String authToken) throws Exception;
 
   /**
+   * Returns the inverse relationship type.
+   *
+   * @param relationshipType the relationship type
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return the inverse relationship type
+   * @throws Exception the exception
+   */
+  public String getInverseRelationshipType(String relationshipType,
+    String terminology, String version, String authToken) throws Exception;
+
+  /**
    * Gets the subset members for atom.
    *
    * @param terminologyId the terminology id
@@ -1043,9 +1056,9 @@ public interface ContentServiceRest {
    * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult validateConcept(Long projectId, ConceptJpa concept, String check,
-    String authToken) throws Exception;
-  
+  public ValidationResult validateConcept(Long projectId, ConceptJpa concept,
+    String check, String authToken) throws Exception;
+
   /**
    * Validate concepts.
    *
@@ -1055,8 +1068,8 @@ public interface ContentServiceRest {
    * @return the sets the
    * @throws Exception the exception
    */
-  public Set<Long> validateConcepts(Long projectId, String check, String authToken)
-    throws Exception;
+  public Set<Long> validateConcepts(Long projectId, String check,
+    String authToken) throws Exception;
 
   /**
    * Validate atom.
@@ -1179,7 +1192,5 @@ public interface ContentServiceRest {
   public ConceptList getConceptsForQuery(String terminology, String version,
     Long projectId, String query, PfsParameterJpa pfs, String authToken)
     throws Exception;
-
-
 
 }

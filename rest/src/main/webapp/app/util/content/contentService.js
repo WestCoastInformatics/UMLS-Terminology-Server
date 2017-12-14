@@ -222,6 +222,33 @@ tsApp
 
           return deferred.promise;
         };
+        
+        // Get the inverse of a relationship type
+        this.getInverseRelationshipType = function(relationshipType, terminology, version) {
+                console.debug('getInverseRelationshipType', relationshipType, terminology, version);
+
+                var deferred = $q.defer();
+                gpService.increment();
+                $http.get(
+                  contentUrl + '/inverseRelationshipType/' + terminology + '/' + version + '/' + relationshipType, {
+                      transformResponse : [ function(response) {
+                          // Data response is plain text at this point
+                          // So just return it, or do your parsing here
+                          return response;
+                        } ]
+                      }).then(
+                    // Success
+                    function(response) {
+                      console.debug('  inverse relationship type = ' + response.data);
+                      deferred.resolve(response.data);
+                    },
+                    // Error
+                    function(response) {
+                      utilService.handleError(response);
+                      deferred.reject(response.data);
+                    });
+                    return deferred.promise;
+        };
 
         //
         // Search history for preservation across route navigation

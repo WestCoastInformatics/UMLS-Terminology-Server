@@ -1645,6 +1645,26 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
+  /* see superclass */
+  @Override
+  public String getInverseRelationshipType(String terminology, String version,
+    String relationshipType) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - get the inverse for relationship type "
+            + relationshipType);
+
+    final String inverseRelType =
+        getRelationshipType(relationshipType, terminology, version).getInverse()
+            .getAbbreviation();
+
+    if (inverseRelType == null) {
+      throw new Exception(
+          "No inverse relationship found for type " + relationshipType);
+    } else {
+      return inverseRelType;
+    }
+  }
+
   @Override
   public Relationship<? extends ComponentInfo, ? extends ComponentInfo> getInverseRelationship(
     String terminology, String version,

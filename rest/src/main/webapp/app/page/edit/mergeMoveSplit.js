@@ -163,23 +163,31 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
         atomsList.push(atom);
       }
 
-      metaEditingService.splitConcept($scope.selected.project.id, $scope.selected.activityId,
-        $scope.selected.component, atomsList, $scope.copy, $scope.copy,
-        $scope.selectedRelationshipType, $scope.overrideWarnings).then(
-      // Success
-      function(data) {
-        $scope.warnings = data.warnings;
-        $scope.errors = data.errors;
-        if ($scope.warnings.length > 0) {
-          $scope.overrideWarnings = true;
-        }
-        if ($scope.warnings.length == 0 && $scope.errors.length == 0) {
-          $uibModalInstance.close();
-        }
-      },
-      // Error
-      function(data) {
-        utilService.handleDialogError($scope.errors, data);
+      // Reverse the relationship Type based on NCI request NE-429
+      var inverseRelationshipType = '';
+      contentService.getInverseRelationshipType($scope.selectedRelationshipType, $scope.selected.project.terminology, $scope.selected.project.version).then(
+      //Success
+      function(relType) {
+        inverseRelationshipType = relType;
+        
+	      metaEditingService.splitConcept($scope.selected.project.id, $scope.selected.activityId,
+	        $scope.selected.component, atomsList, $scope.copy, $scope.copy,
+	        inverseRelationshipType, $scope.overrideWarnings).then(
+	      // Success
+	      function(data) {
+	        $scope.warnings = data.warnings;
+	        $scope.errors = data.errors;
+	        if ($scope.warnings.length > 0) {
+	          $scope.overrideWarnings = true;
+	        }
+	        if ($scope.warnings.length == 0 && $scope.errors.length == 0) {
+	          $uibModalInstance.close();
+	        }
+	      },
+	      // Error
+	      function(data) {
+	        utilService.handleDialogError($scope.errors, data);
+	      });
       });
     };
 
