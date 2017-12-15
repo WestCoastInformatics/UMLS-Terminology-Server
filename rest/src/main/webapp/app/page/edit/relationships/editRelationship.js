@@ -75,7 +75,7 @@ tsApp.controller('EditRelationshipModalCtrl', [
       // if not replacing and if selected relationship, add to prospective list
       // set default from_concept
       else if (!$scope.replaceRelationship && $scope.selected.relationship) {
-        contentService.getConcept($scope.selected.relationship.toId, $scope.selected.project.id)
+        contentService.getConcept($scope.selected.relationship.fromId, $scope.selected.project.id)
           .then(function(data) {
             var found = false;
             for (var i = 0; i < $scope.toConcepts.length; i++) {

@@ -39,7 +39,7 @@ tsApp
         $scope.paging = {};
         $scope.paging['relationships'] = utilService.getPaging();
         $scope.paging['relationships'].sortField = 'lastModified';
-        $scope.paging['relationships'].pageSize = 10;
+        $scope.paging['relationships'].pageSize = 20;
         $scope.paging['relationships'].filterFields = {};
         $scope.paging['relationships'].filterFields.toName = 1;
         $scope.paging['relationships'].filterFields.fromName = 1;
