@@ -137,7 +137,7 @@
                     ng-change="toggleEnable(bin);" ng-model="bin.enabled"></input>
                   <i ng-click="openEditBinModal(bin)" ng-show="bin.enabled"
                     title="Edit Bin" class="noul glyphicon glyphicon-pencil"></i>
-                  <i ng-click="selectBin(bin, 'all'); regenerateBin(bin); $event.stopPropagation()" ng-show="bin.enabled"
+                  <i ng-click="selectBin(bin, 'all'); regenerateBin(bin); $event.stopPropagation()" ng-show="bin.enabled && selected.config.type != 'MUTUALLY_EXCLUSIVE'"
                     title="Regenerate Bin"
                     class="noul glyphicon glyphicon-repeat"></i>
                   <i ng-click="openCloneBinModal(bin)" ng-show="bin.enabled"
