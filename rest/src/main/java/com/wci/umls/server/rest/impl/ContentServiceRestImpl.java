@@ -1604,6 +1604,39 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     }
 
   }
+  
+  @Override
+  @GET
+  @Produces(MediaType.TEXT_PLAIN)
+  @Path("/inverseRelationshipType/{terminology}/{version}/{relationshipType}")
+  @ApiOperation(value = "Get inverse of a relationship type by type abbreviation, terminology, and version", notes = "Get the inverse relationship type abbreviation matching the specified parameters", response = String.class)
+  public String getInverseRelationshipType(
+    @ApiParam(value = "Project terminology name, e.g. MSH", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Project terminology version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Relationship Type abbreviation, e.g. RN", required = true) @PathParam("relationshipType") String relationshipType,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info("RESTful call (Content): /inverseRelationshipType/"
+        + terminology + "/" + version + "/" + relationshipType);
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeApp(securityService, authToken,
+          "retrieve the inverse relationship type", UserRole.VIEWER);
+
+      final String inverseRelType = contentService.getInverseRelationshipType(
+          terminology, version, relationshipType);
+
+      return inverseRelType;
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve an inverse relationship type");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }  
 
   /* see superclass */
 

@@ -1985,4 +1985,16 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public NormalizedStringHandler getNormalizedStringHandler() throws Exception;
+
+  /**
+   * Returns the inverse relationship type.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param relationshipType the relationship type
+   * @return the inverse relationship type
+   * @throws Exception the exception
+   */
+  String getInverseRelationshipType(String terminology, String version,
+    String relationshipType) throws Exception;
 }

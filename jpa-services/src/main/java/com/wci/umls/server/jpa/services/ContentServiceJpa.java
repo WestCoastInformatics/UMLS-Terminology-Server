@@ -1645,6 +1645,26 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
+  /* see superclass */
+  @Override
+  public String getInverseRelationshipType(String terminology, String version,
+    String relationshipType) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - get the inverse for relationship type "
+            + relationshipType);
+
+    final String inverseRelType =
+        getRelationshipType(relationshipType, terminology, version).getInverse()
+            .getAbbreviation();
+
+    if (inverseRelType == null) {
+      throw new Exception(
+          "No inverse relationship found for type " + relationshipType);
+    } else {
+      return inverseRelType;
+    }
+  }
+
   @Override
   public Relationship<? extends ComponentInfo, ? extends ComponentInfo> getInverseRelationship(
     String terminology, String version,
@@ -2852,7 +2872,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
       // Find lower name hashes that are ambiguous (e.g. in other concepts)
       final javax.persistence.Query query = manager.createQuery(
-          "select distinct a.lowerNameHash, a.stringClassId from ConceptJpa c join c.atoms a "
+          "select distinct a.lowerNameHash from ConceptJpa c join c.atoms a "
               + "where c.version = :version and c.terminology = :terminology "
               + " and a.lowerNameHash in (:lowerNameHashes)"
               + " and c.id != :conceptId");
@@ -2861,14 +2881,13 @@ public class ContentServiceJpa extends MetadataServiceJpa
       query.setParameter("conceptId", concept.getId());
       query.setParameter("lowerNameHashes", lowerNameHashes);
       final List<Object[]> results = query.getResultList();
-      final Map<String, String> suiToHash = new HashMap<>();
-      for (final Object[] result : results) {
-        suiToHash.put(result[0].toString(), result[1].toString());
+      final Set<String> ambigLowerNameHashes = new HashSet<>();
+      for (final Object result : results) {
+        ambigLowerNameHashes.add(result.toString());
       }
-      // Return atoms whose suis and lower name hashes were in the map
+      // Return atoms whose lower name hashes were in the set
       return concept.getAtoms().stream()
-          .filter(a -> suiToHash.containsKey(a.getStringClassId()) && suiToHash
-              .get(a.getStringClassId()).equals(a.getLowerNameHash()))
+          .filter(a -> ambigLowerNameHashes.contains(a.getLowerNameHash()))
           .map(a -> a.getId()).collect(Collectors.toList());
 
     } catch (NoResultException e) {

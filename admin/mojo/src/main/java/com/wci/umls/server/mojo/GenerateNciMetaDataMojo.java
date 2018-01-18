@@ -327,7 +327,9 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     // Fake some data as needs review
     //
     getLog().info("Fake some needs review content");
+    @SuppressWarnings("unused")
     ContentServiceRest contentService = new ContentServiceRestImpl();
+    @SuppressWarnings("unused")
     IntegrationTestServiceRest testService =
         new IntegrationTestServiceRestImpl();
 
@@ -335,6 +337,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     // // Demotions
     // //
     // getLog().info(" Add demotions");
+    @SuppressWarnings("unused")
     PfsParameterJpa pfs = new PfsParameterJpa();
     // pfs.setStartIndex(1000);
     // pfs.setMaxResults(80);

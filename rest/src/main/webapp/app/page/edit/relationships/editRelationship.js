@@ -8,15 +8,17 @@ tsApp.controller('EditRelationshipModalCtrl', [
   'contentService',
   'metaEditingService',
   'selected',
+  'replaceRelationship',
   'lists',
   'user',
   'action',
   function($scope, $uibModalInstance, $uibModal, utilService, metadataService, contentService,
-    metaEditingService, selected, lists, user, action) {
+    metaEditingService, selected, replaceRelationship, lists, user, action) {
     console.debug('Entered edit relationship modal control', lists, action);
     
     // Scope vars
     $scope.selected = selected;
+    $scope.replaceRelationship = replaceRelationship;
     $scope.lists = lists;
     $scope.user = user;
     $scope.action = action;
@@ -60,10 +62,20 @@ tsApp.controller('EditRelationshipModalCtrl', [
         $scope.toConcept = $scope.toConcepts[0];
       }
       
-      // if selected relationship, add to prospective list
+      // if replacing, only keep that one relationship
+      if($scope.replaceRelationship){
+    	    $scope.toConcepts = [];
+          contentService.getConcept($scope.replaceRelationship.fromId, $scope.selected.project.id)
+          .then(function(data) {
+        	$scope.toConcepts.push(data);
+            $scope.toConcept = data;
+            $scope.selectedRelationshipType = $scope.replaceRelationship.relationshipType;
+          });
+      }
+      // if not replacing and if selected relationship, add to prospective list
       // set default from_concept
-      if ($scope.selected.relationship) {
-        contentService.getConcept($scope.selected.relationship.toId, $scope.selected.project.id)
+      else if (!$scope.replaceRelationship && $scope.selected.relationship) {
+        contentService.getConcept($scope.selected.relationship.fromId, $scope.selected.project.id)
           .then(function(data) {
             var found = false;
             for (var i = 0; i < $scope.toConcepts.length; i++) {
@@ -77,7 +89,6 @@ tsApp.controller('EditRelationshipModalCtrl', [
             $scope.toConcept = data;
             $scope.selectedRelationshipType = $scope.selected.relationship.relationshipType;
           });
-
       } else {
         $scope.toConcept = $scope.toConcepts[0];
       }
@@ -108,48 +119,56 @@ tsApp.controller('EditRelationshipModalCtrl', [
           .push("Must select at least one To concept");
       }
 
-      // Create relationships for each selected ToConcept
-      for (var i = 0; i < $scope.selectedToConceptObjects.length; i++) {
-    	  $scope.toConcept = $scope.selectedToConceptObjects[i];
-    	                	  
-	      // Only allow bequeathal to publishable
-	      if (!$scope.toConcept.publishable && $scope.selectedRelationshipType.match(/BR./)) {
-	        $scope.errors
-	          .push("Illegal attempt to create a bequeathal relationship to an unpublishable concept");
-	        return;
-	      }
-	      
-	      var relationship = {
-	        assertedDirection : false,
-	        fromId : $scope.selected.component.id,
-	        fromName : $scope.selected.component.name,
-	        fromTerminology : $scope.selected.component.terminology,
-	        fromTerminologyId : $scope.selected.component.terminologyId,
-	        fromVersion : $scope.selected.component.version,
-	        group : null,
-	        hierarchical : false,
-	        inferred : false,
-	        name : null,
-	        obsolete : false,
-	        published : false,
-	        relationshipType : $scope.selectedRelationshipType,
-	        additionalRelationshipType : '',
-	        stated : false,
-	        suppressible : false,
-	        terminology : $scope.selected.project.terminology,
-	        terminologyId : "",
-	        toId : $scope.toConcept.id,
-	        toName : $scope.toConcept.name,
-	        toTerminology : $scope.toConcept.terminology,
-	        toTerminologyId : $scope.toConcept.terminologyId,
-	        toVersion : $scope.toConcept.version,
-	        type : "RELATIONSHIP",
-	        version : $scope.toConcept.version,
-	        workflowStatus : $scope.selectedWorkflowStatus
-	      };
-	
-	      relationships.push(relationship);
-      }  
+
+      // Reverse the relationship Type based on NCI request NE-429
+      var inverseRelationshipType = '';
+      contentService.getInverseRelationshipType($scope.selectedRelationshipType, $scope.selected.project.terminology, $scope.selected.project.version).then(
+      //Success
+      function(relType) {
+        inverseRelationshipType = relType;
+      
+	      // Create relationships for each selected ToConcept
+	      for (var i = 0; i < $scope.selectedToConceptObjects.length; i++) {
+	    	  $scope.toConcept = $scope.selectedToConceptObjects[i];
+	    	                	  
+		      // Only allow bequeathal to publishable
+		      if (!$scope.toConcept.publishable && $scope.selectedRelationshipType.match(/BR./)) {
+		        $scope.errors
+		          .push("Illegal attempt to create a bequeathal relationship to an unpublishable concept");
+		        return;
+		      }
+		      
+		      var relationship = {
+		        assertedDirection : false,
+		        fromId : $scope.selected.component.id,
+		        fromName : $scope.selected.component.name,
+		        fromTerminology : $scope.selected.component.terminology,
+		        fromTerminologyId : $scope.selected.component.terminologyId,
+		        fromVersion : $scope.selected.component.version,
+		        group : null,
+		        hierarchical : false,
+		        inferred : false,
+		        name : null,
+		        obsolete : false,
+		        published : false,
+		        relationshipType : inverseRelationshipType,
+		        additionalRelationshipType : '',
+		        stated : false,
+		        suppressible : false,
+		        terminology : $scope.selected.project.terminology,
+		        terminologyId : "",
+		        toId : $scope.toConcept.id,
+		        toName : $scope.toConcept.name,
+		        toTerminology : $scope.toConcept.terminology,
+		        toTerminologyId : $scope.toConcept.terminologyId,
+		        toVersion : $scope.toConcept.version,
+		        type : "RELATIONSHIP",
+		        version : $scope.toConcept.version,
+		        workflowStatus : $scope.selectedWorkflowStatus
+		      };
+		
+		      relationships.push(relationship);
+	      } 
       
       //Once all relationships have been added to list, send the request
          metaEditingService.addRelationships($scope.selected.project.id, $scope.selected.activityId,
@@ -166,10 +185,11 @@ tsApp.controller('EditRelationshipModalCtrl', [
 	      function(data) {
 	        utilService.handleDialogError($scope.errors, data);
 	      });
+      });
       if ($scope.warnings.length == 0 && $scope.errors.length == 0) {
           $uibModalInstance.close();
       }
-    };
+    }; 
 
     // select the to concept
     $scope.selectToConcept = function(concept) {

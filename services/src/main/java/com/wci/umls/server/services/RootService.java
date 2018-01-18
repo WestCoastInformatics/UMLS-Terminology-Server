@@ -1,5 +1,5 @@
 /*
- *    Copyright 2017 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.services;
 
@@ -461,6 +461,12 @@ public interface RootService extends Transactionable {
   public ValidationResult validateAction(MolecularActionAlgorithm action)
     throws Exception;
 
+  /**
+   * Returns the entity manager.
+   *
+   * @return the entity manager
+   * @throws Exception the exception
+   */
   public EntityManager getEntityManager() throws Exception;
 
   /**

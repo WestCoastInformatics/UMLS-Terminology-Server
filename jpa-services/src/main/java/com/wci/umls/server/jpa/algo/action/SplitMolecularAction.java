@@ -186,7 +186,7 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     // Copy atoms in "from" concept
     List<Atom> moveAtomsCopies = new ArrayList<>();
     for (final Atom atom : moveAtoms) {
-      moveAtomsCopies.add(new AtomJpa(atom));
+      moveAtomsCopies.add(new AtomJpa(atom, true));
     }
 
     // Copy stys in "from" concept

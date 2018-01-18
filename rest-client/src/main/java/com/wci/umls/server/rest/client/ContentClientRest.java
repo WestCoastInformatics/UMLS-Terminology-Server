@@ -432,6 +432,35 @@ public class ContentClientRest extends RootClientRest
     // converting to object
     return ConfigUtility.getGraphForString(resultString, DescriptorJpa.class);
   }
+  
+
+  /* see superclass */
+  @Override
+  public String getInverseRelationshipType(String terminology, String version,
+    String relationshipType, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Client - get inverse relationship type "
+        + relationshipType + ", " + terminology + ", " + version);
+    validateNotEmpty(relationshipType, "relationshipType");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/inverseRelationshipType/" + terminology + "/" + version + "/"
+        + relationshipType);
+    final Response response = target.request(MediaType.TEXT_PLAIN)
+        .header("Authorization", authToken).get();
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString, String.class);
+  }  
 
   /* see superclass */
   @Override
