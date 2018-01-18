@@ -180,7 +180,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       // Websocket notification
       final ChangeEvent event = new ChangeEventJpa("AddWorkflowConfig",
           authToken, "BINS", config.getId(), getProjectInfo(project));
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
       return config;
 
@@ -351,7 +351,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event =
           new ChangeEventJpa("UpdateWorkflowConfig", authToken, "BINS",
               config.getId(), getProjectInfo(oldConfig.getProject()));
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
     } catch (Exception e) {
       handleException(e, "trying to " + action);
     } finally {
@@ -398,7 +398,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event =
           new ChangeEventJpa("UpdateWorklist", authToken, "WORKLIST",
               worklist.getId(), getProjectInfo(origWorklist.getProject()));
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
     } catch (Exception e) {
       handleException(e, "trying to " + action);
@@ -449,7 +449,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event =
           new ChangeEventJpa("RemoveWorkflowConfig", authToken, "BINS",
               config.getId(), getProjectInfo(config.getProject()));
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
     } catch (Exception e) {
       handleException(e, "trying to remove a workflow config");
@@ -622,7 +622,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       // Websocket notification
       final ChangeEvent event = new ChangeEventJpa("RemoveWorklist", authToken,
           "WORKLIST", worklist.getId(), getProjectInfo(project));
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
     } catch (Exception e) {
       handleException(e, "trying to remove a worklist");
@@ -663,7 +663,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event =
           new ChangeEventJpa("RemoveChecklist", authToken, "CHECKLIST",
               checklist.getId(), getProjectInfo(checklist.getProject()));
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
     } catch (Exception e) {
       handleException(e, "trying to remove a checklist");
@@ -746,7 +746,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       // Websocket notification
       final ChangeEvent event = new ChangeEventJpa("AddWorkflowBinDefinition",
           authToken, "BINS", def.getId(), getProjectInfo(config.getProject()));
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
       return def;
     } catch (Exception e) {
@@ -891,7 +891,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event =
           new ChangeEventJpa("UpdateWorkflowBinDefinition", authToken, "BINS",
               def.getId(), getProjectInfo(project));
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
     } catch (Exception e) {
       handleException(e, "trying to update workflow bin definition");
@@ -950,7 +950,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event =
           new ChangeEventJpa("RemoveWorkflowBinDefinition", authToken, "BINS",
               def.getId(), getProjectInfo(project));
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
     } catch (Exception e) {
       handleException(e, "trying to remove a workflow bin definition");
     } finally {
@@ -987,7 +987,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       // Websocket notification
       final ChangeEvent event = new ChangeEventJpa("RemoveWorkflowBin",
           authToken, "BINS", bin.getId(), getProjectInfo(bin.getProject()));
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
     } catch (Exception e) {
       handleException(e, "trying to remove a workflow bin");
@@ -1161,7 +1161,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         // Websocket notification
         final ChangeEvent event = new ChangeEventJpa("RegenerateBins",
             authToken, "BINS", workflowConfig.getId(), getProjectInfo(project));
-        sendChangeEvent(event);
+        sendChangeEvent(userName, event);
 
       } catch (Exception e) {
         try {
@@ -1755,7 +1755,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       // Websocket notification
       final ChangeEvent event = new ChangeEventJpa("PerformWorkflowAction",
           authToken, "WORKLIST", worklist.getId(), getProjectInfo(project));
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
       return returnWorklist;
     } catch (Exception e) {
@@ -1897,7 +1897,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event =
           new ChangeEventJpa("ComputeChecklist", authToken, "CHECKLIST",
               newChecklist.getId(), getProjectInfo(project));
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
       return newChecklist;
     } catch (Exception e) {
@@ -2054,7 +2054,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         final ChangeEvent event =
             new ChangeEventJpa("ComputeWorklist", authToken, "WORKLIST",
                 newWorklist.getId(), getProjectInfo(project));
-        sendChangeEvent(event);
+        sendChangeEvent(userName, event);
 
         return newWorklist;
       } catch (Exception e) {
@@ -3060,7 +3060,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event =
           new ChangeEventJpa("AddChecklistNote", authToken, "CHECKLIST",
               checklist.getId(), getProjectInfo(checklist.getProject()));
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
       return newNote;
     } catch (Exception e) {
@@ -3119,7 +3119,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       // Websocket notification
       final ChangeEvent event = new ChangeEventJpa("AddWorklistNote", authToken,
           "WORKLIST", worklist.getId(), getProjectInfo(worklist.getProject()));
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
       return newNote;
     } catch (Exception e) {
@@ -3177,7 +3177,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event =
           new ChangeEventJpa("RemoveChecklistNote", authToken, "CHECKLIST",
               checklist.getId(), getProjectInfo(checklist.getProject()));
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
     } catch (Exception e) {
       handleException(e, "trying to remove a checklist note");
@@ -3232,7 +3232,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event =
           new ChangeEventJpa("RemoveWorklistNote", authToken, "WORKLIST",
               worklist.getId(), getProjectInfo(worklist.getProject()));
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
     } catch (Exception e) {
       handleException(e, "trying to remove a worklist note");
@@ -3364,7 +3364,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       // Websocket notification
       final ChangeEvent event = new ChangeEventJpa("ImportChecklist", authToken,
           "CHECKLIST", newChecklist.getId(), getProjectInfo(project));
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
       workflowService.commit();
 
@@ -3418,7 +3418,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event =
           new ChangeEventJpa("ComputeChecklist", authToken, "CHECKLIST",
               newChecklist.getId(), getProjectInfo(project));
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
       return newChecklist;
     } catch (Exception e) {

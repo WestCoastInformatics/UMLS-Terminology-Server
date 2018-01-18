@@ -608,7 +608,7 @@ tsApp
           if ($scope.value == 'Worklist') {
             $scope.parseStateHistory(worklist);
           }
-          $scope.getRecords(worklist, true);
+          $scope.getRecords(true);
           // Set activity id
           $scope.selected.activityId = worklist.name;
           $scope.user.userPreferences.properties['editWorklist'] = $scope.selected.worklist.id;

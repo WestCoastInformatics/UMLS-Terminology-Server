@@ -61,17 +61,16 @@ public class RootServiceRestImpl {
     }
     // throw the local exception as a web application exception
     if (e instanceof LocalException) {
-      throw new WebApplicationException(
-          Response.status(500).entity(message).build());
+      throw new WebApplicationException(Response.status(500).entity(message).build());
     }
 
     // throw the web application exception as-is, e.g. for 401 errors
     if (e instanceof WebApplicationException) {
       throw new WebApplicationException(message, e);
     }
-    throw new WebApplicationException(
-        Response.status(500).entity("\"Unexpected error " + whatIsHappening
-            + ". Please contact the administrator.\"").build());
+    throw new WebApplicationException(Response.status(500)
+        .entity("\"Unexpected error " + whatIsHappening + ". Please contact the administrator.\"")
+        .build());
 
   }
 
@@ -85,8 +84,8 @@ public class RootServiceRestImpl {
    * @return the string
    * @throws Exception the exception
    */
-  public static String authorizeApp(SecurityService securityService,
-    String authToken, String perform, UserRole authRole) throws Exception {
+  public static String authorizeApp(SecurityService securityService, String authToken,
+    String perform, UserRole authRole) throws Exception {
     // authorize call
     UserRole role = securityService.getApplicationRoleForToken(authToken);
     UserRole cmpRole = authRole;
@@ -95,8 +94,7 @@ public class RootServiceRestImpl {
     }
     if (!role.hasPrivilegesOf(cmpRole))
       throw new WebApplicationException(Response.status(401)
-          .entity("User does not have permissions to " + perform + ".")
-          .build());
+          .entity("User does not have permissions to " + perform + ".").build());
     return securityService.getUsernameForToken(authToken);
   }
 
@@ -112,16 +110,15 @@ public class RootServiceRestImpl {
    * @return the username
    * @throws Exception the exception
    */
-  public static String authorizeProject(ProjectService projectService,
-    Long projectId, SecurityService securityService, String authToken,
-    String perform, UserRole requiredProjectRole) throws Exception {
+  public static String authorizeProject(ProjectService projectService, Long projectId,
+    SecurityService securityService, String authToken, String perform, UserRole requiredProjectRole)
+    throws Exception {
 
     // Get userName
     final String userName = securityService.getUsernameForToken(authToken);
 
     // Allow application admin to do anything
-    final UserRole appRole =
-        securityService.getApplicationRoleForToken(authToken);
+    final UserRole appRole = securityService.getApplicationRoleForToken(authToken);
     if (appRole == UserRole.USER || appRole == UserRole.ADMINISTRATOR) {
       return userName;
     }
@@ -131,13 +128,11 @@ public class RootServiceRestImpl {
     if (project == null) {
       throw new Exception("Missing project for id" + projectId);
     }
-    final UserRole role =
-        project.getUserRoleMap().get(securityService.getUser(userName));
+    final UserRole role = project.getUserRoleMap().get(securityService.getUser(userName));
     final UserRole projectRole = (role == null) ? UserRole.VIEWER : role;
     if (!projectRole.hasPrivilegesOf(requiredProjectRole))
       throw new WebApplicationException(Response.status(401)
-          .entity("User does not have permissions to " + perform + ".")
-          .build());
+          .entity("User does not have permissions to " + perform + ".").build());
 
     // return username
     return userName;
@@ -176,36 +171,37 @@ public class RootServiceRestImpl {
    *
    * @param websocket2 the notification websocket
    */
-  public static void setNotificationWebsocket(
-    NotificationWebsocket websocket2) {
+  public static void setNotificationWebsocket(NotificationWebsocket websocket2) {
     websocket = websocket2;
   }
 
   /**
    * Send change event.
    *
+   * @param key the key
    * @param event the event
    * @throws Exception the exception
    */
-  public static void sendChangeEvent(ChangeEvent event) throws Exception {
+  public static void sendChangeEvent(String key, ChangeEvent event) throws Exception {
     if (websocket != null) {
-      websocket.send(ConfigUtility.getJsonForGraph(event));
+      websocket.send(key, ConfigUtility.getJsonForGraph(event));
     }
   }
 
   /**
    * Send change events.
    *
+   * @param key the key
    * @param events the events
    * @throws Exception the exception
    */
-  public static void sendChangeEvents(ChangeEvent... events) throws Exception {
+  public static void sendChangeEvents(String key, ChangeEvent... events) throws Exception {
     if (websocket != null) {
       final ChangeEventList list = new ChangeEventListJpa();
       for (final ChangeEvent event : events) {
         list.getObjects().add(event);
       }
-      websocket.send(ConfigUtility.getJsonForGraph(list));
+      websocket.send(key, ConfigUtility.getJsonForGraph(list));
     }
   }
 
@@ -216,13 +212,10 @@ public class RootServiceRestImpl {
    * @param projectId the project id
    * @throws Exception the exception
    */
-  public static void verifyProject(HasProject p, Long projectId)
-    throws Exception {
-    if (p == null || p.getProject() == null
-        || !p.getProject().getId().equals(projectId)) {
-      throw new Exception(
-          "Mismatched project ids: " + projectId + ", " + (p == null ? "null"
-              : (p.getProject() == null ? "null" : p.getProject().getId())));
+  public static void verifyProject(HasProject p, Long projectId) throws Exception {
+    if (p == null || p.getProject() == null || !p.getProject().getId().equals(projectId)) {
+      throw new Exception("Mismatched project ids: " + projectId + ", "
+          + (p == null ? "null" : (p.getProject() == null ? "null" : p.getProject().getId())));
     }
   }
 
@@ -240,17 +233,16 @@ public class RootServiceRestImpl {
    * @throws Exception the exception
    */
   @SuppressWarnings("static-method")
-  public PrecedenceList sortAtoms(SecurityService service,
-    ContentService contentService, String userName, AtomClass obj,
-    Project project) throws Exception {
+  public PrecedenceList sortAtoms(SecurityService service, ContentService contentService,
+    String userName, AtomClass obj, Project project) throws Exception {
     PrecedenceList list = null;
     final User user = service.getUser(userName);
     if (user.getUserPreferences() != null
         && user.getUserPreferences().getPrecedenceList() != null) {
       list = user.getUserPreferences().getPrecedenceList();
     } else if (project != null) {
-      final Project lproject = (project != null ? project : contentService
-          .getProject(user.getUserPreferences().getLastProjectId()));
+      final Project lproject = (project != null ? project
+          : contentService.getProject(user.getUserPreferences().getLastProjectId()));
       final PrecedenceList projectList = lproject.getPrecedenceList();
       if (projectList != null) {
         list = projectList;
@@ -258,13 +250,11 @@ public class RootServiceRestImpl {
     }
     // If nothing else, use the terminology/version of the object
     if (list == null) {
-      list = contentService.getPrecedenceList(obj.getTerminology(),
-          obj.getVersion());
+      list = contentService.getPrecedenceList(obj.getTerminology(), obj.getVersion());
     }
 
-    obj.setAtoms(
-        contentService.getComputePreferredNameHandler(obj.getTerminology())
-            .sortAtoms(obj.getAtoms(), list));
+    obj.setAtoms(contentService.getComputePreferredNameHandler(obj.getTerminology())
+        .sortAtoms(obj.getAtoms(), list));
     return list;
   }
 
