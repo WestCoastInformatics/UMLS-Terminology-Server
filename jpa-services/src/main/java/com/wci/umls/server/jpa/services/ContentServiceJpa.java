@@ -4799,7 +4799,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     for (final TreePosition tp : atomTrees.getObjects()) {
       // keep the first one encountered
       if (!nodesSeen.contains(tp.getNode().getId())) {
-        System.out.println("  add tp = " + tp);
         treePositionList.add(tp);
       }
       nodesSeen.add(tp.getNode().getId());
@@ -4851,7 +4850,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         if (treePos != null) {
           // handle lazy init
           treePos.setAttributes(new ArrayList<>(0));
-          System.out.println("  add tp = " + treePos);
           treePositionList.add(treePos);
         }
       }
@@ -4871,7 +4869,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     final TreePositionList list = new TreePositionListJpa();
     list.setTotalCount(totalCt[0]);
     list.getObjects().addAll((List) treePositionList);
-    System.out.println("  count = " + totalCt[0]);
 
     return list;
 

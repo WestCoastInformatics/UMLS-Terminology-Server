@@ -187,7 +187,7 @@ tsApp
 
           // one starts
           // changed concept is the selected one
-          if ($scope.selected.component.id == concept.id) {
+          if ($scope.selected.component && $scope.selected.component.id == concept.id) {
             contentService.getConcept(concept.id, $scope.selected.project.id).then(
             // Success - concept exists
             function(data) {
@@ -1146,7 +1146,6 @@ tsApp
 
         // open relationships editor window
         $scope.openRelationshipsWindow = function(width, height) {
-
           var newUrl = utilService.composeUrl('/edit/relationships');
           window.$windowScope = $scope;
           if (width == null && height == null

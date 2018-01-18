@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ * Copyright 2017 Ciitizen, Inc.
  */
 package com.wci.umls.server.rest.impl;
 
@@ -48,15 +48,15 @@ import io.swagger.annotations.SwaggerDefinition;
  */
 @Path("/configure")
 @Api(value = "/configure")
-@SwaggerDefinition(info = @Info(description = "Operations to configure application", title = "Configure API", version = "1.0.1"))
+@SwaggerDefinition(info = @Info(description = "Operations to configure application",
+    title = "Configure API", version = "1.0.1"))
 @Consumes({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
-public class ConfigureServiceRestImpl extends RootServiceRestImpl
-    implements ConfigureServiceRest {
+public class ConfigureServiceRestImpl extends RootServiceRestImpl implements ConfigureServiceRest {
 
   /**
    * Instantiates an empty {@link ConfigureServiceRestImpl}.
@@ -75,8 +75,7 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl
    * @throws Exception the exception
    */
   @SuppressWarnings("static-method")
-  private void validateProperty(String name, Properties props)
-    throws Exception {
+  private void validateProperty(String name, Properties props) throws Exception {
     if (props == null) {
       throw new Exception("Properties are null");
     }
@@ -85,8 +84,7 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl
     }
 
     if (props.getProperty(name).contains("${")) {
-      throw new Exception("Configurable value " + name + " not set: "
-          + props.getProperty(name));
+      throw new Exception("Configurable value " + name + " not set: " + props.getProperty(name));
     }
   }
 
@@ -100,15 +98,15 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl
   @GET
   @Override
   @Path("/configured")
-  @ApiOperation(value = "Checks if application is configured", notes = "Returns true if application is configured, false if not", response = Boolean.class)
+  @ApiOperation(value = "Checks if application is configured",
+      notes = "Returns true if application is configured, false if not", response = Boolean.class)
   public boolean isConfigured() throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Configure): /configure/configured");
+    Logger.getLogger(getClass()).info("RESTful call (Configure): /configure/configured");
 
     try {
       String configFileName = ConfigUtility.getLocalConfigFile();
-      boolean configured = ConfigUtility.getConfigProperties() != null
-          || (new File(configFileName).exists());
+      boolean configured =
+          ConfigUtility.getConfigProperties() != null || (new File(configFileName).exists());
       return configured;
 
     } catch (Exception e) {
@@ -121,21 +119,20 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl
   @POST
   @Override
   @Path("/configure")
-  @ApiOperation(value = "Checks if application is configured", notes = "Returns true if application is configured, false if not", response = Boolean.class)
-  public void configure(
-    @ApiParam(value = "Configuration parameters as JSON string", required = true) HashMap<String, String> parameters)
+  @ApiOperation(value = "Checks if application is configured",
+      notes = "Returns true if application is configured, false if not", response = Boolean.class)
+  public void configure(@ApiParam(value = "Configuration parameters as JSON string",
+      required = true) HashMap<String, String> parameters)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful call (Configure): /configure/configure with parameters "
-            + parameters.toString());
+        "RESTful call (Configure): /configure/configure with parameters " + parameters.toString());
 
     // NOTE: Configure calls do not require authorization
 
-    try {
+    try (final InputStream in =
+        ConfigureServiceRestImpl.class.getResourceAsStream("/config.properties.start")) {
 
       // get the starting configuration
-      InputStream in = ConfigureServiceRestImpl.class
-          .getResourceAsStream("/config.properties.start");
 
       if (in == null) {
         throw new Exception("Could not open starting configuration file");
@@ -145,8 +142,7 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl
       String configFileName = ConfigUtility.getLocalConfigFile();
 
       if (new File(configFileName).exists()) {
-        throw new LocalException(
-            "System is already configured from file: " + configFileName);
+        throw new LocalException("System is already configured from file: " + configFileName);
       }
 
       // get the starting properties
@@ -164,11 +160,9 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl
       for (final Object key : new HashSet<>(properties.keySet())) {
         for (final String param : parameters.keySet()) {
 
-          if (properties.getProperty(key.toString())
-              .contains("${" + param + "}")) {
-            properties.setProperty(key.toString(),
-                properties.getProperty(key.toString())
-                    .replace("${" + param + "}", parameters.get(param)));
+          if (properties.getProperty(key.toString()).contains("${" + param + "}")) {
+            properties.setProperty(key.toString(), properties.getProperty(key.toString())
+                .replace("${" + param + "}", parameters.get(param)));
           }
         }
       }
@@ -202,19 +196,18 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl
       if (!localFolder.exists()) {
         localFolder.mkdir();
       } else if (!localFolder.isDirectory()) {
-        throw new LocalException("Could not create local directory "
-            + ConfigUtility.getLocalConfigFolder());
+        throw new LocalException(
+            "Could not create local directory " + ConfigUtility.getLocalConfigFolder());
       }
 
       // prerequisite: application directory exists
       File f = new File(parameters.get("app.dir").toString());
       if (!f.exists()) {
-        throw new LocalException("Application directory does not exist: "
-            + parameters.get("app.dir"));
+        throw new LocalException(
+            "Application directory does not exist: " + parameters.get("app.dir"));
       }
 
-      Logger.getLogger(getClass())
-          .info("Writing configuration file: " + configFileName);
+      Logger.getLogger(getClass()).info("Writing configuration file: " + configFileName);
 
       File configFile = new File(configFileName);
 
@@ -222,13 +215,13 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl
       if (!configFile.getParentFile().exists()) {
         configFile.getParentFile().mkdirs();
       }
-      Writer writer = new FileWriter(configFile);
-      properties.store(writer, "User-configured settings");
-      writer.close();
+      
+      try (final Writer writer = new FileWriter(configFile)) {
+        properties.store(writer, "User-configured settings");
+      }
 
       // reset the config properties and test retrieval
-      System.setProperty("run.config." + ConfigUtility.getConfigLabel(),
-          configFileName);
+      System.setProperty("run.config." + ConfigUtility.getConfigLabel(), configFileName);
       if (ConfigUtility.getConfigProperties() == null) {
         throw new LocalException("Failed to retrieve newly written properties");
       }
@@ -248,8 +241,7 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl
       // Create the database
       //
       MetadataService metadataService = null;
-      ConfigUtility.getConfigProperties().setProperty("hibernate.hbm2ddl.auto",
-          "create");
+      ConfigUtility.getConfigProperties().setProperty("hibernate.hbm2ddl.auto", "create");
       try {
         metadataService = new MetadataServiceJpa();
       } catch (Exception e) {
@@ -258,8 +250,7 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl
         if (metadataService != null) {
           metadataService.close();
         }
-        ConfigUtility.getConfigProperties()
-            .setProperty("hibernate.hbm2ddl.auto", "update");
+        ConfigUtility.getConfigProperties().setProperty("hibernate.hbm2ddl.auto", "update");
       }
 
     } catch (Exception e) {
@@ -271,12 +262,13 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl
   @DELETE
   @Override
   @Path("/destroy")
-  @ApiOperation(value = "Destroys and rebuilds the database", notes = "Resets database to clean state and deletes any uploaded files", response = Boolean.class)
-  public void destroy(
-    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+  @ApiOperation(value = "Destroys and rebuilds the database",
+      notes = "Resets database to clean state and deletes any uploaded files",
+      response = Boolean.class)
+  public void destroy(@ApiParam(value = "Authorization token, e.g. 'author1'",
+      required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Configure): /configure/destroy");
+    Logger.getLogger(getClass()).info("RESTful call (Configure): /configure/destroy");
 
     // NOTE: Configure calls do not require authorization
 
@@ -288,12 +280,10 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl
       //
       // Check precondition: last source data object must have failed process
       //
-      List<SourceData> sourceDatas =
-          sourceDataService.getSourceDatas().getObjects();
+      List<SourceData> sourceDatas = sourceDataService.getSourceDatas().getObjects();
 
       if (sourceDatas.size() == 0) {
-        throw new Exception(
-            "Cannot destroy database: fail condition not detected");
+        throw new Exception("Cannot destroy database: fail condition not detected");
       }
 
       // sort source datas by descending last modified
@@ -311,16 +301,14 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl
           // do nothing
           break;
         default:
-          throw new LocalException(
-              "Cannot destroy database: fail condition not detected");
+          throw new LocalException("Cannot destroy database: fail condition not detected");
       }
 
       //
       // Delete all uploaded files using SourceDataServiceRet
       // NOTE: REST service used for file deletion
       //
-      final SourceDataServiceRest sourceDataServiceRest =
-          new SourceDataServiceRestImpl();
+      final SourceDataServiceRest sourceDataServiceRest = new SourceDataServiceRestImpl();
       for (final SourceData sd : sourceDatas) {
         sourceDataServiceRest.removeSourceData(sd.getId(), authToken);
       }
@@ -329,8 +317,7 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl
       // Recreate the database
       //
       MetadataService metadataService = null;
-      ConfigUtility.getConfigProperties().setProperty("hibernate.hbm2ddl.auto",
-          "create");
+      ConfigUtility.getConfigProperties().setProperty("hibernate.hbm2ddl.auto", "create");
       try {
         metadataService = new MetadataServiceJpa();
 
@@ -345,8 +332,7 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl
         }
 
         // return mode to update
-        ConfigUtility.getConfigProperties()
-            .setProperty("hibernate.hbm2ddl.auto", "update");
+        ConfigUtility.getConfigProperties().setProperty("hibernate.hbm2ddl.auto", "update");
 
       }
 
@@ -366,14 +352,14 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl
   @Produces({
       MediaType.APPLICATION_JSON
   })
-  @ApiOperation(value = "Get configuration properties", notes = "Gets user interface-relevant configuration properties", response = String.class, responseContainer = "Map")
+  @ApiOperation(value = "Get configuration properties",
+      notes = "Gets user interface-relevant configuration properties", response = String.class,
+      responseContainer = "Map")
   public Map<String, String> getConfigProperties() {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Configure): /configure/properties");
+    Logger.getLogger(getClass()).info("RESTful call (Configure): /configure/properties");
     try {
       Map<String, String> map = new HashMap<>();
-      for (final Map.Entry<Object, Object> o : ConfigUtility
-          .getUiConfigProperties().entrySet()) {
+      for (final Map.Entry<Object, Object> o : ConfigUtility.getUiConfigProperties().entrySet()) {
         map.put(o.getKey().toString(), o.getValue().toString());
       }
       return map;
