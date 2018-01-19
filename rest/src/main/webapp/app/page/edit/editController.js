@@ -608,7 +608,12 @@ tsApp
           if ($scope.value == 'Worklist') {
             $scope.parseStateHistory(worklist);
           }
-          $scope.getRecords(worklist, true);
+          if ($scope.user.userPreferences.properties['editWorklist'] == $scope.selected.worklist.id 
+            && $scope.user.userPreferences.properties['editRecord'] > 0) {
+            $scope.getRecords(false);
+          } else {
+            $scope.getRecords(true);
+          }
           // Set activity id
           $scope.selected.activityId = worklist.name;
           $scope.user.userPreferences.properties['editWorklist'] = $scope.selected.worklist.id;
@@ -842,7 +847,7 @@ tsApp
 
               // select previously selected record if saved in user
               // preferences
-              if ($scope.user.userPreferences.properties['editRecord'] & !selectFirst) {
+              if ($scope.user.userPreferences.properties['editRecord'] > 0 && !selectFirst) {
                 for (var i = 0; i < $scope.lists.records.length; i++) {
                   if (needToSelectRecord(i)) {
                     $scope.selectRecord($scope.lists.records[i]);
@@ -1026,7 +1031,10 @@ tsApp
             function(data) {
               successCt++;
               if (successCt == lastIndex) {
-                $scope.getRecords();
+                // removed this to resolve issue where approve/next was not reliably updating
+                // the concepts listed on the worklist page - likely due to race condition of
+                // $scope.getRecords() getting called for a second time in $scope.selectNextRecord(..)
+                //$scope.getRecords();
                 $scope.selectNextRecord($scope.selected.record);
               }
             });
