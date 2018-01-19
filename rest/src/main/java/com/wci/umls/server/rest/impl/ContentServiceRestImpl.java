@@ -3305,7 +3305,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
             mergedTree.mergeTree(wrappedChildTree, null);
           }
         }
-        mergedTree.setChildCt(mergedTree.getChildren().size());       ;
+        mergedTree.setChildCt(mergedTree.getChildren().size());
         rootTree = mergedTree;
       }
 
@@ -3483,7 +3483,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
             mergedTree.mergeTree(wrappedChildTree, null);
           }
         }
-        mergedTree.setChildCt(mergedTree.getChildren().size());       ;
+        mergedTree.setChildCt(mergedTree.getChildren().size());
         rootTree = mergedTree;
       }
 

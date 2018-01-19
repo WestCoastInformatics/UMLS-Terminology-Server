@@ -1,13 +1,12 @@
 /*
  *    Copyright 2015 West Coast Informatics, LLC
  */
-/*
- * 
- */
 package com.wci.umls.server.rest.impl;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.websocket.CloseReason;
@@ -34,8 +33,8 @@ import org.apache.log4j.Logger;
 public class NotificationWebsocket {
 
   /** The sessions. */
-  private Set<Session> sessions =
-      Collections.synchronizedSet(new HashSet<Session>());
+  private Map<String, Set<Session>> sessions =
+      Collections.synchronizedMap(new HashMap<String, Set<Session>>());
 
   /**
    * Instantiates an empty {@link NotificationWebsocket}.
@@ -50,23 +49,41 @@ public class NotificationWebsocket {
    * @param session the session
    */
   @OnOpen
-  public void onOpen(Session session) {
+  public void onOpen(final Session session) {
 
     // Add to sessions list
     synchronized (sessions) {
-      sessions.add(session);
+      // The username is passed in this way
+      final String key = session.getQueryString();
+      // Logger.getLogger(getClass()).info("  open websocket session = " + key);
+      if (!sessions.containsKey(key)) {
+        sessions.put(key, new HashSet<>());
+      }
+      sessions.get(key).add(session);
     }
   }
 
   /**
    * On close.
    *
-   * @param userSession the user session
+   * @param session the session
    * @param reason the reason
    */
   @OnClose
-  public void onClose(Session userSession, CloseReason reason) {
-    closeSession(userSession);
+  public void onClose(final Session session, final CloseReason reason) {
+    synchronized (sessions) {
+      try {
+        final String key = session.getQueryString();
+        if (sessions.containsKey(key)) {
+          Logger.getLogger(getClass()).info("  close websocket session = " + key);
+          session.close(reason);
+          sessions.get(key).remove(session);
+        }
+      } catch (final Throwable e) {
+        // Ignore
+      }
+    }
+
   }
 
   /**
@@ -77,9 +94,9 @@ public class NotificationWebsocket {
    * @throws Throwable the throwable
    */
   @OnError
-  public void onError(Session session, Throwable t) throws Throwable {
+  public void onError(final Session session, final Throwable t) throws Throwable {
     Logger.getLogger(getClass()).error(
-        "SimpleMonitor2: onError() invoked, Exception = " + t.getMessage());
+        "Unexpected websocket error with session " + session.getId() + " = " + t.getMessage());
   }
 
   /**
@@ -88,61 +105,48 @@ public class NotificationWebsocket {
    * @param text the text
    */
   @OnMessage
-  public void echoText(String text) {
-    Logger.getLogger(getClass()).debug("message: " + text);
+  public void echoText(final String text) {
+    // Logger.getLogger(getClass()).debug("message: " + text);
   }
 
   /**
    * Send.
    *
+   * @param key the websocket session key
    * @param message the message
    */
-  public void send(String message) {
+  public void send(final String key, String message) {
+
+    if (key == null || sessions.get(key) == null) {
+      return;
+    }
+
     // Remove closed sessions
-    final Set<Session> copy = new HashSet<>(sessions);
+    final Set<Session> copy = new HashSet<>(sessions.get(key));
     for (final Session session : copy) {
       if (!session.isOpen()) {
-        sessions.remove(session);
+        sessions.get(key).remove(session);
       }
     }
 
     // Send message to all listeners
 
-    for (final Session session : new HashSet<>(sessions)) {
+    for (final Session session : new HashSet<>(sessions.get(key))) {
       try {
-
-        // Send synch message
-        // TODO: performance not ideal
+        // Send synch message if for "all" or for specific ciitizen
         session.getBasicRemote().sendText(message);
-
-      } catch (Exception e) {
+      } catch (final Exception e) {
         e.printStackTrace();
         // if anything went wrong, close the session and remove it
         try {
-          session.close(
-              new CloseReason(CloseCodes.UNEXPECTED_CONDITION, "Closing"));
-        } catch (Exception e2) {
+          session.close(new CloseReason(CloseCodes.UNEXPECTED_CONDITION, "Closing"));
+        } catch (final Exception e2) {
           // do nothing
         }
-        sessions.remove(session);
+        sessions.get(key).remove(session);
       }
     }
 
   }
 
-  /**
-   * Close session.
-   *
-   * @param s the s
-   */
-  private void closeSession(Session s) {
-    synchronized (sessions) {
-      try {
-        s.close();
-      } catch (Throwable e) {
-        // Ignore
-      }
-      sessions.remove(s);
-    }
-  }
 }
