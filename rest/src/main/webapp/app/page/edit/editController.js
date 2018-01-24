@@ -670,6 +670,7 @@ tsApp
           for (var i = 0; i < $scope.lists.records.length - 1; i++) {
             if (record.id == $scope.lists.records[i].id) {
               $scope.selectRecord($scope.lists.records[++i]);
+              $scope.getRecords();
               return;
             }
           }
