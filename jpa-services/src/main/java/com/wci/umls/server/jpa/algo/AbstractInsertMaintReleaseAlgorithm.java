@@ -18,6 +18,8 @@ import java.util.Set;
 
 import javax.persistence.Query;
 
+import org.apache.log4j.Logger;
+
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
@@ -202,6 +204,10 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    */
   private static Map<String, Terminology> cachedTerminologies = new HashMap<>();
 
+  /**  The warning counts. */
+  private static Map<String,Integer> warningCounts = new HashMap<>();
+  
+  
   /**
    * Load file into string list.
    *
@@ -1335,6 +1341,21 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
         warningMessage + " Could not process the following line:\n\t" + line);
     updateProgress();
   }
+  
+  /**
+   * Log warn and update.
+   *
+   * @param line the line
+   * @param warningMessage the warning message
+   * @param warningGroup the warning group
+   * @throws Exception the exception
+   */
+  public void logWarnAndUpdate(String line, String warningMessage, String warningGroup)
+    throws Exception {
+    logWarn(
+        warningMessage + " Could not process the following line:\n\t" + line, warningGroup);
+    updateProgress();
+  }  
 
   /**
    * Update progress.
@@ -1382,6 +1403,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     descriptorIdCache.clear();
     relCachedTerms.clear();
     relIdCache.clear();
+    warningCounts.clear();
   }
 
   /**
@@ -1491,4 +1513,33 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     return version;
   }
 
+  /**
+   * Log warning to console and the database.
+   *
+   * @param message the message
+   * @param warningGroup the warning group
+   * @throws Exception the exception
+   */
+  public void logWarn(String message, String warningGroup) throws Exception {
+    //Initialize or increment warning count for this particular warning group
+    if(!warningCounts.containsKey(warningGroup)){
+      warningCounts.put(warningGroup, 0);
+    }
+    else{
+      warningCounts.put(warningGroup, warningCounts.get(warningGroup) + 1);
+    }
+    
+    //If we have fired less than 100 of this type of warning, send the warning as-is
+    if(warningCounts.get(warningGroup) <= 100){
+      logWarn(message);
+    }
+    //If we have fired 100 of this type of warning, send a message that we won't be firing any more of this type
+    else if(warningCounts.get(warningGroup) == 101){
+      logWarn("Limit of 100 " + warningGroup + " warnings has been reached. No further warnings will be displayed in the log.");
+    }
+    else{
+      // Otherwise do nothing
+    }
+  }  
+  
 }

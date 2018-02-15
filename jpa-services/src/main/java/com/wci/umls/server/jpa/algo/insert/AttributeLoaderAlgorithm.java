@@ -165,7 +165,7 @@ public class AttributeLoaderAlgorithm
               getCachedTerminology(terminologyAndVersion);
           if (terminology == null) {
             logWarn("WARNING - terminology not found: " + terminologyAndVersion
-                + ".");
+                + ".", "Attribute Loader: Terminology not found");
             continue;
           }
 
@@ -259,7 +259,7 @@ public class AttributeLoaderAlgorithm
         final Terminology setTerminology = getCachedTerminology(fields[5]);
         if (setTerminology == null) {
           logWarnAndUpdate(line,
-              "WARNING - terminology not found: " + fields[5] + ".");
+              "WARNING - terminology not found: " + fields[5] + ".", "Attribute Loader: Terminology not found");
           continue;
         }
 
@@ -292,7 +292,7 @@ public class AttributeLoaderAlgorithm
             logWarnAndUpdate(line,
                 "WARNING - could not find Component for type: " + fields[10]
                     + ", terminologyId: " + fields[1] + ", and terminology:"
-                    + fields[11]);
+                    + fields[11], "Attribute Loader: Could not find component");
             continue;
           }
           Atom atom = null;
@@ -308,7 +308,7 @@ public class AttributeLoaderAlgorithm
           } else {
             logWarnAndUpdate(line,
                 "WARNING - " + containerComponent.getClass().getName()
-                    + " is an unhandled type.");
+                    + " is an unhandled type.", "Attribute Loader: Unhandled type");
             continue;
           }
 
@@ -411,7 +411,7 @@ public class AttributeLoaderAlgorithm
             logWarnAndUpdate(line,
                 "WARNING - could not find Component for type: " + fields[10]
                     + ", terminologyId: " + fields[1] + ", and terminology:"
-                    + fields[11]);
+                    + fields[11], "Attribute Loader: Could not find component");
             continue;
           }
 
@@ -509,6 +509,10 @@ public class AttributeLoaderAlgorithm
       handler.rollback();
       handler.close();
       throw e;
+    } 
+    finally {
+      // Clear the caches to free up memory
+      clearCaches();
     }
 
   }

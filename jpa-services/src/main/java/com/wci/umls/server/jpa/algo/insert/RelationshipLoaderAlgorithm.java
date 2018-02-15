@@ -242,7 +242,7 @@ public class RelationshipLoaderAlgorithm
               getCachedTerminology(fromTermAndVersion);
           if (terminology == null) {
             logWarn(
-                "WARNING - terminology not found: " + fromTermAndVersion + ".");
+                "Terminology not found: " + fromTermAndVersion + ".", "Relationship Loader: Terminology not found");
             continue;
           }
 
@@ -463,6 +463,9 @@ public class RelationshipLoaderAlgorithm
       handler.rollback();
       handler.close();
       throw e;
+    } finally {
+      // Clear the caches to free up memory
+      clearCaches();
     }
 
   }
@@ -557,7 +560,7 @@ public class RelationshipLoaderAlgorithm
 
     if (fromComponent == null) {
       logWarnAndUpdate(line,
-          "Warning - could not find from Component for this line.");
+          "Could not find from Component for this line.", "Relationship Loader: Could not find from Component");
       return;
     }
 
@@ -569,7 +572,7 @@ public class RelationshipLoaderAlgorithm
 
     if (toComponent == null) {
       logWarnAndUpdate(line,
-          "Warning - could not find to Component for this line.");
+          "Could not find to Component for this line.", "Relationship Loader: Could not find to Component");
       return;
     }
 

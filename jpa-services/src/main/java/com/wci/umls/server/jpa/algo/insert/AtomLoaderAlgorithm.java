@@ -164,7 +164,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         final Terminology terminology = getCachedTerminology(fields[1]);
         if (terminology == null) {
           logWarnAndUpdate(line,
-              "WARNING - terminology not found: " + fields[1] + ".");
+              "Terminology not found: " + fields[1] + ".", "Atom Loader: Terminology not found");
           continue;
         } else {
           newAtom.setTerminology(terminology.getTerminology());
@@ -244,7 +244,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           final String oldLastReleaseCui = oldAtom.getConceptTerminologyIds()
               .get(getProcess().getTerminology() + previousVersion);
 
-          // If a last_releas_cui is found for the insertion's terminology and
+          // If a last_release_cui is found for the insertion's terminology and
           // version, it means this atom was already handled on a previous run
           // of AtomLoader.
           if (latestLastReleaseCui != null) {
@@ -255,7 +255,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           else if (oldLastReleaseCui == null) {
             logWarn("WARNING - last release cui not found for atom " + fields[7]
                 + " for terminology/version = " + getProcess().getTerminology()
-                + previousVersion);
+                + previousVersion, "Atom Loader: Last release cui not found for atom");
           } else if (!oldLastReleaseCui.equals(fields[14])) {
             makeNewAtom = true;
           }
@@ -438,9 +438,6 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       }
 
-      // Clear the caches to free up memory
-      clearCaches();
-
       commitClearBegin();
       handler.commit();
 
@@ -454,6 +451,10 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       handler.rollback();
       handler.close();
       throw e;
+    }
+    finally {
+      // Clear the caches to free up memory
+      clearCaches();
     }
 
   }
