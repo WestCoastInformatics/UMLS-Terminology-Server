@@ -18,6 +18,7 @@ import java.util.Set;
 
 import javax.persistence.Query;
 
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.PrecedenceList;
@@ -1403,23 +1404,35 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     final List<String> relationshipPrefixes =
         Arrays.asList("Code", "Concept", "Descriptor", "Atom", "ComponentInfo");
 
+    int count = 0;
+
     logInfo("[SourceLoader] Removing " + getProject().getTerminology() + "-SRC"
         + " Relationship Alternate Terminology Ids from database");
 
     for (final String relPrefix : relationshipPrefixes) {
 
-      final Query query = getEntityManager().createQuery("select a from "
+      final Query query = getEntityManager().createQuery("select a.id from "
           + relPrefix
           + "RelationshipJpa a join a.alternateTerminologyIds b where KEY(b)  = :terminology and a.publishable=true");
       query.setParameter("terminology", getProject().getTerminology() + "-SRC");
 
-      final List<Relationship<?, ?>> list = query.getResultList();
-      for (final Relationship<?, ?> relationship : list) {
+      final List<Long> list = query.getResultList();
+      for (final Long id : list) {
+        final Relationship<?, ?> relationship = getRelationship(id,
+            (Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>>) Class
+                .forName(relPrefix + "RelationshipJpa"));
         relationship.getAlternateTerminologyIds()
             .remove(getProject().getTerminology() + "-SRC");
         updateRelationship(relationship);
+        count++;
+
+        if (count % commitCt == 0) {
+          commitClearBegin();
+        }
       }
     }
+
+    commitClearBegin();
   }
 
   /**

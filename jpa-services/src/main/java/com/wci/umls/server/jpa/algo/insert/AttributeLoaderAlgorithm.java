@@ -484,12 +484,12 @@ public class AttributeLoaderAlgorithm
             RootService.commitCt);
       }
 
+      // Clear the caches to free up memory
+      clearCaches();
+
       // Now remove the alternate terminologies for relationships - we
       // don't need them anymore
       clearRelationshipAltTerminologies();
-
-      // Clear the caches to free up memory
-      clearCaches();
 
       commitClearBegin();
       handler.commit();
