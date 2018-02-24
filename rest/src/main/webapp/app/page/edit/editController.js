@@ -187,7 +187,7 @@ tsApp
 
           // one starts
           // changed concept is the selected one
-          if ($scope.selected.component.id == concept.id) {
+          if ($scope.selected.component && $scope.selected.component.id == concept.id) {
             contentService.getConcept(concept.id, $scope.selected.project.id).then(
             // Success - concept exists
             function(data) {
@@ -550,6 +550,12 @@ tsApp
 
         }
 
+        // update project
+        $scope.updateProject = function(project) {
+        	projectService.updateProject(project);
+        }
+
+        
         $scope.getAllMetadata = function() {
           // Initialize metadata - this also sets the model
           metadataService.getAllMetadata($scope.selected.project.terminology,
@@ -602,7 +608,12 @@ tsApp
           if ($scope.value == 'Worklist') {
             $scope.parseStateHistory(worklist);
           }
-          $scope.getRecords(worklist, true);
+          if ($scope.user.userPreferences.properties['editWorklist'] == $scope.selected.worklist.id 
+            && $scope.user.userPreferences.properties['editRecord'] > 0) {
+            $scope.getRecords(false);
+          } else {
+            $scope.getRecords(true);
+          }
           // Set activity id
           $scope.selected.activityId = worklist.name;
           $scope.user.userPreferences.properties['editWorklist'] = $scope.selected.worklist.id;
@@ -659,6 +670,7 @@ tsApp
           for (var i = 0; i < $scope.lists.records.length - 1; i++) {
             if (record.id == $scope.lists.records[i].id) {
               $scope.selectRecord($scope.lists.records[++i]);
+              $scope.getRecords();
               return;
             }
           }
@@ -836,7 +848,7 @@ tsApp
 
               // select previously selected record if saved in user
               // preferences
-              if ($scope.user.userPreferences.properties['editRecord'] & !selectFirst) {
+              if ($scope.user.userPreferences.properties['editRecord'] > 0 && !selectFirst) {
                 for (var i = 0; i < $scope.lists.records.length; i++) {
                   if (needToSelectRecord(i)) {
                     $scope.selectRecord($scope.lists.records[i]);
@@ -1020,7 +1032,10 @@ tsApp
             function(data) {
               successCt++;
               if (successCt == lastIndex) {
-                $scope.getRecords();
+                // removed this to resolve issue where approve/next was not reliably updating
+                // the concepts listed on the worklist page - likely due to race condition of
+                // $scope.getRecords() getting called for a second time in $scope.selectNextRecord(..)
+                //$scope.getRecords();
                 $scope.selectNextRecord($scope.selected.record);
               }
             });
@@ -1140,7 +1155,6 @@ tsApp
 
         // open relationships editor window
         $scope.openRelationshipsWindow = function(width, height) {
-
           var newUrl = utilService.composeUrl('/edit/relationships');
           window.$windowScope = $scope;
           if (width == null && height == null

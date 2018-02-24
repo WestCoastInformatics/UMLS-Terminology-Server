@@ -21,6 +21,11 @@
         <span class="alert alert-danger"> DISCONNECTED</span>
         <button class="btn btn-xs btn-primary" ng-click="reconnect()">Reconnect</button>
       </span>
+      <br />
+      <span ng-show="selected.projectRole != 'AUTHOR'">Editing enabled 
+        <input type="checkbox" ng-model="selected.project.editingEnabled"
+        ng-change="updateProject(selected.project)">
+      </span>
       <span ng-show="selected.project && !selected.project.editingEnabled"
         style="display: block;" class="alert alert-danger">Editing is
         disabled.</span>
@@ -262,7 +267,7 @@
           title="{{selected.metadata.hierarchiesLabel}}"
           ng-disabled="!selected.component" class="btn btn-xs btn-primary">Tree</button>
         <i ng-show="selected.component"
-          ng-click="focusWindows(); $event.stopPropagation(); " title="Focus"
+          ng-click="focusWindows(); $event.stopPropagation(); " title="Show Other Windows"
           class="ml10 noul glyphicon glyphicon-fullscreen"></i>
       </span>
       <!-- Concept actions -->

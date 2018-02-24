@@ -21,8 +21,10 @@ tsApp.directive('report', [ '$window', '$routeParams', function($window, $routeP
         function() {
           console.debug('selected.component', $scope.selected.component,
             $scope.selected.project);
-          $scope.tId = $scope.selected.component.terminologyId == $scope.selected.component.id ? 
-            '' : $scope.selected.component.terminologyId;
+          if ($scope.selected.component) {
+            $scope.tId = $scope.selected.component.terminologyId == $scope.selected.component.id ? 
+              '' : $scope.selected.component.terminologyId;
+          }
         });
       
 

@@ -31,7 +31,7 @@
       "timestamp": 1498226939000,
       "name": "norelease",
       "description": "Concepts where all atoms are unreleasable.",
-      "query": "published:false AND NOT atoms.published:true",
+      "query": "published:false AND NOT atoms.publishable:true",
       "queryType": "LUCENE",
       "editable": false,
       "enabled": true,

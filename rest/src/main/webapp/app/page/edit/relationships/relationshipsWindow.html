@@ -58,8 +58,13 @@
       <td>{{relationship.terminology}}</td>
       <td>{{relationship.lastModifiedBy}}</td>
       <td class="nobreak">
-
-        <i
+<!-- 
+        <i  style="margin-right: 5px"
+          ng-show="relationship.level != 'S' && relationship.workflowStatus != 'DEMOTION' && selected.project.editingEnabled"
+          ng-click="openReplaceModal(relationship); $event.stopPropagation()"
+          title="Replace" class="noul glyphicon glyphicon-retweet"></i>
+ -->          
+        <i   
           confirm="Are you sure you want to remove the relationship ({{relationship.name}})?"
           ng-show="relationship.level != 'S' && relationship.workflowStatus != 'DEMOTION' && selected.project.editingEnabled"
           ng-click="removeRelationshipFromConcept(relationship); $event.stopPropagation()"

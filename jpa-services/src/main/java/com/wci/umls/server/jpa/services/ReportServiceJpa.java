@@ -416,7 +416,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
     if (concept != null) {
       relList = findConceptDeepRelationships(concept.getTerminologyId(),
           concept.getTerminology(), concept.getVersion(), Branch.ROOT, null,
-          true, true, true, false, new PfsParameterJpa()).getObjects();
+          true, true, false, false, new PfsParameterJpa()).getObjects();
     }
 
     // Handle descriptor rels
@@ -713,9 +713,9 @@ public class ReportServiceJpa extends HistoryServiceJpa
   }
 
   private Object handleHtmlSymbols(String name) {
-    name.replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("'",
-        "&apos;");
-    return name;
+    final String name2 = name.replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+        .replaceAll("'", "&apos;");
+    return name2;
   }
 
   /**

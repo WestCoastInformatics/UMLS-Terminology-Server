@@ -141,7 +141,10 @@ tsApp
             function(data) {
               successCt++;
               if (successCt == lastIndex) {
-                $scope.parentWindowScope.getRecords();
+                  // removed this to resolve issue where approve/next was not reliably updating
+                  // the concepts listed on the worklist page - likely due to race condition of
+                  // $scope.getRecords() getting called for a second time in $scope.selectNextRecord(..)
+                //$scope.parentWindowScope.getRecords();
                 $scope.next();
               }
             });

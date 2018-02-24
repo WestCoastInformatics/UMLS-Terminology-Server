@@ -172,6 +172,9 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       handler.rollback();
       handler.close();
       throw e;
+    } finally {
+      // Clear the caches to free up memory
+      clearCaches();
     }
 
   }

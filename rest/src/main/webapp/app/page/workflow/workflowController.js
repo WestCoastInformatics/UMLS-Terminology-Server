@@ -98,7 +98,6 @@ tsApp.controller('WorkflowCtrl', [
         getPagedList : getPagedList
       };
     }
-    $scope.resetRecordPaging();
 
     $scope.resetBinPaging = function() {
       $scope.paging['bins'] = utilService.getPaging();
@@ -213,6 +212,11 @@ tsApp.controller('WorkflowCtrl', [
 
     }
 
+    // update project
+    $scope.updateProject = function(project) {
+    	projectService.updateProject(project);
+    }
+    
     // Retrieve all projects
     $scope.getProjects = function() {
 
@@ -386,6 +390,7 @@ tsApp.controller('WorkflowCtrl', [
         return;
       }
 
+      $scope.resetRecordPaging();
       if (clusterType && clusterType == 'default') {
         $scope.paging['records'].filter = ' NOT clusterType:[* TO *]';
       } else if (clusterType && clusterType != 'all') {
@@ -393,7 +398,6 @@ tsApp.controller('WorkflowCtrl', [
       } else if (clusterType == 'all') {
         $scope.paging['records'].filter = '';
       }
-      $scope.resetRecordPaging();
       getPagedList();
     };
 

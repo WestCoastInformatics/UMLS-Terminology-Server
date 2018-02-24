@@ -12,10 +12,10 @@
     <tr ng-show="defaultOrder">
       <td class="col-md-3 col-xs-3">
         <span ng-show="action == 'Move' || (action == 'Merge' && defaultOrder)">
-          <b>From Concept</b>
+          <b>Concept</b>
         </span>
         <span ng-show="action == 'Split'">
-          <b>Concept</b>
+          <b>Current Concept</b>
         </span>
       </td>
       <td class="col-md-9 col-xs-9">
@@ -132,7 +132,7 @@
     </tr>
     <tr ng-show="action == 'Split' || action == 'Insert'">
       <td>
-        <b>Relationship Type</b>
+        <b>Relationship To Current Concept</b>
       </td>
       <td>
         <span>

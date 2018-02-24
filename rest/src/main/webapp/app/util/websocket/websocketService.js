@@ -6,7 +6,8 @@ tsApp.service('websocketService',
     '$http',
     '$interval',
     'utilService',
-    function($rootScope, $location, $http, $interval, utilService) {
+    'securityService',
+    function($rootScope, $location, $http, $interval, utilService, securityService) {
 
       // Data model
       var data = {
@@ -50,7 +51,8 @@ tsApp.service('websocketService',
         url = url.replace('index.html', '');
         url = url.replace('index2.html', '');
         url = url.substring(0, url.indexOf('#'));
-        url = url + "/websocket";
+        var user = securityService.getUser();
+        url = url + "/websocket?" + user.userName;
         console.debug("Websocket URL " + url);
         return url;
       }
