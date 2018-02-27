@@ -123,6 +123,7 @@ public class TerminologyRf2SnapshotSampler extends AbstractMojo {
       sorter.setInputDir(inputDir);
       sorter.setOutputDir(sortDir.getPath());
       sorter.compute();
+      sorter.close();
 
       // Open readers
       getLog().info("  Open RF2 Readers");
