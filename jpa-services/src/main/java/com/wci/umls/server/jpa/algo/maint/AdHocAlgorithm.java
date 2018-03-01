@@ -257,7 +257,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // Get self-referential  relationships
       Query query = getEntityManager().createQuery("select a.id from "
           + "ConceptRelationshipJpa a "
-          + "where a.terminology = :terminology and a.version = :version and a.publishable=true and a.toId = a.fromId");
+          + "where a.terminology = :terminology and a.version = :version and a.publishable=true");
       query.setParameter("terminology", "MTH");
       query.setParameter("version", "2017AB");
 
