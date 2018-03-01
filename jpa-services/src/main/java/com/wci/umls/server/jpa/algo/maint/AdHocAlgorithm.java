@@ -286,7 +286,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       
       //If this is a self-referential relationship, remove it and its inverse
       if(rel.getFrom().getId().equals(rel.getTo().getId())){
-        ConceptRelationship inverseRel = (ConceptRelationshipJpa) getInverseRelationship(rel.getTerminology(), rel.getVersion(), rel);
+        ConceptRelationship inverseRel = (ConceptRelationshipJpa) getInverseRelationship(getProject().getTerminology(), getProject().getVersion(), rel);
         logInfo("[RemoveBadRelationships] Removing self-referential relationships: " + rel.getId() + " and " + inverseRel.getId());     
         removeRelationship(id, ConceptRelationshipJpa.class);
         removeRelationship(inverseRel.getId(), ConceptRelationshipJpa.class);
@@ -295,7 +295,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       //If this the concept-pair has been seen, remove this relationship and its inverse
       else if(seenRelIdPairs.contains(rel.getFrom().getId() + "|" + rel.getTo().getId())){
-        ConceptRelationship inverseRel = (ConceptRelationshipJpa) getInverseRelationship(rel.getTerminology(), rel.getVersion(), rel);
+        ConceptRelationship inverseRel = (ConceptRelationshipJpa) getInverseRelationship(getProject().getTerminology(), getProject().getVersion(), rel);
         logInfo("[RemoveBadRelationships] Removing overlapping relationships: " + rel.getId() + " and " + inverseRel.getId());     
         removeRelationship(id, ConceptRelationshipJpa.class);
         removeRelationship(inverseRel.getId(), ConceptRelationshipJpa.class);
