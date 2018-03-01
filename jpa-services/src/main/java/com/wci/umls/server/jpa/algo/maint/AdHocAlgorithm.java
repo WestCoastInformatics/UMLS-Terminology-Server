@@ -5,10 +5,14 @@ package com.wci.umls.server.jpa.algo.maint;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
+
+import javax.persistence.Query;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
@@ -17,11 +21,14 @@ import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
+import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Definition;
+import com.wci.umls.server.services.RootService;
 
 /**
  * Implementation of an algorithm to execute an action based on a user-defined
@@ -83,6 +90,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixOrphanDefinitions();
     } else if (actionName.equals("Undo Stampings")) {
       undoStampings();
+    } else if (actionName.equals("Remove Bad Relationships")) {
+      removeBadRelationships();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -235,6 +244,75 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   }
 
+  private void removeBadRelationships() throws Exception {
+    // 3/1/2018 Bug in RelationshipLoader during a UMLS insertion
+    // created multiple relationships between concepts.
+    // It also created a number of self-referential relationships.
+    // Identify and remove them.
+
+    int removals = 0;
+
+    Set<Long> relIds = new HashSet<>();
+    Set<String> seenRelIdPairs = new HashSet<>();
+    
+    // Get alternate terminology Ids for AtomRelationships, CodeRelationships,
+    // ConceptRelationships, etc.
+      Query query = getEntityManager().createQuery("select a.id from "
+          + "ConceptRelationshipJpa a "
+          + "where a.terminology = :terminology and a.version = :version and a.publishable=true");
+      query.setParameter("terminology", "MTH");
+      query.setParameter("version", "2017AB");
+
+      logInfo("[SourceLoader] Loading " 
+          + "ConceptRelationship ids for relationships created by the MTH 2017AB insertion");
+
+      List<Object[]> list = query.getResultList();
+      for (final Object[] entry : list) {
+        final Long id = Long.valueOf(entry[0].toString());
+        relIds.add(id);
+      }
+    
+    for (Long id : relIds) {
+      final ConceptRelationship rel = (ConceptRelationshipJpa) getRelationship(id, ConceptRelationshipJpa.class);
+
+      if (rel == null){
+        logWarn("Could not find concept relationship with id=" + id);
+        continue;        
+      }
+      
+      //If this is a self-referential relationship, remove it and its inverse
+      if(rel.getFrom().getId().equals(rel.getTo().getId())){
+        ConceptRelationship inverseRel = (ConceptRelationshipJpa) getInverseRelationship(rel.getTerminology(), rel.getVersion(), rel);
+        removeRelationship(id, ConceptRelationshipJpa.class);
+        removeRelationship(inverseRel.getId(), ConceptRelationshipJpa.class);
+        removals++;
+      }
+
+      //If this the concept-pair has been seen, remove this relationship and its inverse
+      else if(seenRelIdPairs.contains(rel.getFrom().getId() + "|" + rel.getTo().getId())){
+        ConceptRelationship inverseRel = (ConceptRelationshipJpa) getInverseRelationship(rel.getTerminology(), rel.getVersion(), rel);
+        removeRelationship(id, ConceptRelationshipJpa.class);
+        removeRelationship(inverseRel.getId(), ConceptRelationshipJpa.class);
+        removals++;
+      }
+
+      //Otherwise, log this concept-pair as seen.
+      else{
+        seenRelIdPairs.add(rel.getFrom().getId() + "|" + rel.getTo().getId());
+      }
+
+      //Occasionally commit
+      if(removals % RootService.commitCt == 0){
+        commitClearBegin();
+      }
+      
+    }
+
+    logInfo("[RemoveBadRelationships] " + removals
+        + " bad relationships successfully removed.");
+    
+  }  
+  
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -275,7 +353,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "actionName", "Name of Ad Hoc Action to be performed",
         "e.g. Fix Orphan Definitions", 200, AlgorithmParameter.Type.ENUM, "");
     param.setPossibleValues(
-        Arrays.asList("Fix Orphan Definitions", "Undo Stampings"));
+        Arrays.asList("Fix Orphan Definitions", "Undo Stampings", "Remove Bad Relationships"));
     params.add(param);
 
     return params;
