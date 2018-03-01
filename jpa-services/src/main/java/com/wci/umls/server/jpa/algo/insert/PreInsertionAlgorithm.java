@@ -75,6 +75,12 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     checkFileExist(srcFullPath, "sources.src");
     checkFileExist(srcFullPath, "termgroups.src");
 
+    // Checking for UMLS-specific files.
+    if (getProcess().getTerminology().equals("MTH")) {
+      checkFileExist(srcFullPath, "umlscui.txt");   
+      checkFileExist(srcFullPath, "bequeathal.relationships.src"); 
+    }
+    
     return validationResult;
   }
 

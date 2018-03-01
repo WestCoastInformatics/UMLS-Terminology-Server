@@ -141,6 +141,7 @@ public class Rf2FullSourceDataHandler extends AbstractSourceDataHandler {
       sourceDataService.unregisterSourceDataAlgorithm(sourceData.getId());
       sourceDataService.updateSourceData(sourceData);
       sourceDataService.close();
+      algo.close();
     }
   }
 

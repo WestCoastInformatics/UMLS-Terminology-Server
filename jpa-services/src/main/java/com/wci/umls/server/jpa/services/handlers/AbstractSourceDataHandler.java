@@ -112,6 +112,7 @@ public abstract class AbstractSourceDataHandler extends AbstractAlgorithm
       sourceData.setStatus(SourceData.Status.REMOVAL_FAILED);
       throw new Exception(e);
     } finally {
+      algo.close();
       sourceDataService.updateSourceData(sourceData);
       sourceDataService.unregisterSourceDataAlgorithm(sourceData.getId());
       sourceDataService.close();

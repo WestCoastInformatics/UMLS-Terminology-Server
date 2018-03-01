@@ -117,7 +117,6 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler {
     algorithm.setVersion(sourceData.getVersion());
     algorithm.setStyle(RrfLoaderAlgorithm.Style.SINGLE);
     algorithm.compute();
-    algorithm.close();
 
     // set to loading status and update the source data
     sourceData.setStatus(SourceData.Status.LOADING);
@@ -131,6 +130,7 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler {
     } finally {
       sourceDataService.updateSourceData(sourceData);
       sourceDataService.close();
+      algorithm.close();
     }
   }
 

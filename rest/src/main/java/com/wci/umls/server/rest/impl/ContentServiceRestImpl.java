@@ -215,7 +215,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     try {
       authorizeApp(securityService, authToken, "create ECL indexes",
-          UserRole.ADMINISTRATOR);
+          UserRole.VIEWER);
       EclExpressionHandler handler =
           new EclExpressionHandler(terminology, version);
       return handler.getCount(query);
@@ -245,7 +245,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     try {
       authorizeApp(securityService, authToken,
-          "checking query for expression syntax", UserRole.ADMINISTRATOR);
+          "checking query for expression syntax", UserRole.VIEWER);
       EclExpressionHandler handler =
           new EclExpressionHandler(terminology, version);
       return handler.resolve(query);
@@ -433,26 +433,23 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.compute();
       algo.close();
 
-      //
-      // Compute transitive closure - CURRENTLY DISABLED
-      //
+      // Compute transitive closure
       contentService = new ContentServiceJpa();
-      // final TerminologyList list =
-      // contentService.getTerminologyLatestVersions();
-      // for (final Terminology t : list.getObjects()) {
-      // // Only compute for organizing class types
-      // if (t.getOrganizingClassType() != null) {
-      // algo2 = new TransitiveClosureAlgorithm();
-      // algo2.setLastModifiedBy(userName);
-      // algo2.setTerminology(t.getTerminology());
-      // algo2.setVersion(t.getVersion());
-      // algo2.setIdType(t.getOrganizingClassType());
-      // // some terminologies may have cycles, allow these for now.
-      // algo2.setCycleTolerant(true);
-      // algo2.compute();
-      // algo2.close();
-      // }
-      // }
+		final TerminologyList list = contentService.getTerminologyLatestVersions();
+		for (final Terminology t : list.getObjects()) {
+			// Only compute for organizing class types
+			if (t.getOrganizingClassType() != null) {
+				algo2 = new TransitiveClosureAlgorithm();
+				algo2.setLastModifiedBy(userName);
+				algo2.setTerminology(t.getTerminology());
+				algo2.setVersion(t.getVersion());
+				algo2.setIdType(t.getOrganizingClassType());
+				// some terminologies may have cycles, allow these for now.
+				algo2.setCycleTolerant(true);
+				algo2.compute();
+				algo2.close();
+			}
+		}
 
       //
       // Compute tree positions
@@ -533,26 +530,24 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.compute();
       algo.close();
 
-      //
-      // Compute transitive closure - CURRENTLY DISABLED
-      //
+      // Compute transitive closure
       contentService = new ContentServiceJpa();
       final TerminologyList list =
           contentService.getTerminologyLatestVersions();
-      // for (final Terminology t : list.getObjects()) {
-      // // Only compute for organizing class types
-      // if (t.getOrganizingClassType() != null) {
-      // algo2 = new TransitiveClosureAlgorithm();
-      // algo2.setLastModifiedBy(userName);
-      // algo2.setTerminology(t.getTerminology());
-      // algo2.setVersion(t.getVersion());
-      // algo2.setIdType(t.getOrganizingClassType());
-      // // some terminologies may have cycles, allow these for now.
-      // algo2.setCycleTolerant(true);
-      // algo2.compute();
-      // algo2.close();
-      // }
-      // }
+		for (final Terminology t : list.getObjects()) {
+			// Only compute for organizing class types
+			if (t.getOrganizingClassType() != null) {
+				algo2 = new TransitiveClosureAlgorithm();
+				algo2.setLastModifiedBy(userName);
+				algo2.setTerminology(t.getTerminology());
+				algo2.setVersion(t.getVersion());
+				algo2.setIdType(t.getOrganizingClassType());
+				// some terminologies may have cycles, allow these for now.
+				algo2.setCycleTolerant(true);
+				algo2.compute();
+				algo2.close();
+			}
+		}
 
       //
       // Compute tree positions
@@ -678,18 +673,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.compute();
       algo.close();
 
-      //
-      // Compute transitive closure - CURRENTLY DISABLED
-      //
-      // algo2 = new TransitiveClosureAlgorithm();
-      // algo2.setLastModifiedBy(userName);
-      // algo2.setCycleTolerant(false);
-      // algo2.setIdType(IdType.CONCEPT);
-      // algo2.setTerminology(terminology);
-      // algo2.setVersion(terminology);
-      // algo2.reset();
-      // algo2.compute();
-      // algo2.close();
+      
+       //Compute transitive closure
+       algo2 = new TransitiveClosureAlgorithm();
+       algo2.setLastModifiedBy(userName);
+       algo2.setCycleTolerant(false);
+       algo2.setIdType(IdType.CONCEPT);
+       algo2.setTerminology(terminology);
+       algo2.setVersion(terminology);
+       algo2.reset();
+       algo2.compute();
+       algo2.close();
 
       // Compute label sets - after transitive closure
       // for each subset, compute the label set
@@ -787,18 +781,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.compute();
       algo.close();
 
-      //
-      // Compute transitive closure - CURRENTLY DISABLED
-      //
-      // algo2 = new TransitiveClosureAlgorithm();
-      // algo2.setLastModifiedBy(userName);
-      // algo2.setCycleTolerant(false);
-      // algo2.setIdType(IdType.CONCEPT);
-      // algo2.setTerminology(terminology);
-      // algo2.setVersion(version);
-      // algo2.reset();
-      // algo2.compute();
-      // algo2.close();
+       //Compute transitive closure
+       algo2 = new TransitiveClosureAlgorithm();
+       algo2.setLastModifiedBy(userName);
+       algo2.setCycleTolerant(false);
+       algo2.setIdType(IdType.CONCEPT);
+       algo2.setTerminology(terminology);
+       algo2.setVersion(version);
+       algo2.reset();
+       algo2.compute();
+       algo2.close();
 
       // Compute label sets - after transitive closure
       // for each subset, compute the label set
@@ -897,18 +889,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.compute();
       algo.close();
 
-      //
-      // Compute transitive closure - CURRENTLY DISABLED
-      //
-      // algo2 = new TransitiveClosureAlgorithm();
-      // algo2.setLastModifiedBy(userName);
-      // algo2.setCycleTolerant(false);
-      // algo2.setIdType(IdType.CONCEPT);
-      // algo2.setTerminology(terminology);
-      // algo2.setVersion(version);
-      // algo2.reset();
-      // algo2.compute();
-      // algo2.close();
+      //Compute transitive closure
+       algo2 = new TransitiveClosureAlgorithm();
+       algo2.setLastModifiedBy(userName);
+       algo2.setCycleTolerant(false);
+       algo2.setIdType(IdType.CONCEPT);
+       algo2.setTerminology(terminology);
+       algo2.setVersion(version);
+       algo2.reset();
+       algo2.compute();
+       algo2.close();
 
       // Compute label sets - after transitive closure
       // for each subset, compute the label set
@@ -1006,18 +996,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.compute();
       algo.close();
 
-      //
-      // Compute transitive closure - CURRENTLY DISABLED
-      //
-      // Logger.getLogger(getClass()).info("Start computing transtive closure");
-      // algo2 = new TransitiveClosureAlgorithm();
-      // algo2.setLastModifiedBy(userName);
-      // algo2.setIdType(IdType.CONCEPT);
-      // algo2.setCycleTolerant(false);
-      // algo2.setTerminology(terminology);
-      // algo2.setVersion(version);
-      // algo2.compute();
-      // algo2.close();
+
+      // Compute transitive closure
+      Logger.getLogger(getClass()).info("Start computing transtive closure");
+      algo2 = new TransitiveClosureAlgorithm();
+      algo2.setLastModifiedBy(userName);
+      algo2.setIdType(IdType.CONCEPT);
+      algo2.setCycleTolerant(false);
+      algo2.setTerminology(terminology);
+      algo2.setVersion(version);
+      algo2.compute();
+      algo2.close();
 
       // compute tree positions
       algo3 = new TreePositionAlgorithm();
@@ -1087,18 +1076,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.compute();
       algo.close();
 
-      //
-      // Compute transitive closure - CURRENTLY DISABLED
-      //
-      // Logger.getLogger(getClass()).info("Start computing transtive closure");
-      // algo2 = new TransitiveClosureAlgorithm();
-      // algo2.setLastModifiedBy(userName);
-      // algo2.setIdType(IdType.CONCEPT);
-      // algo2.setCycleTolerant(false);
-      // algo2.setTerminology(terminology);
-      // algo2.setVersion(version);
-      // algo2.compute();
-      // algo2.close();
+       //Compute transitive closure
+       Logger.getLogger(getClass()).info("Start computing transtive closure");
+       algo2 = new TransitiveClosureAlgorithm();
+       algo2.setLastModifiedBy(userName);
+       algo2.setIdType(IdType.CONCEPT);
+       algo2.setCycleTolerant(false);
+       algo2.setTerminology(terminology);
+       algo2.setVersion(version);
+       algo2.compute();
+       algo2.close();
 
       // compute tree positions
       algo3 = new TreePositionAlgorithm();

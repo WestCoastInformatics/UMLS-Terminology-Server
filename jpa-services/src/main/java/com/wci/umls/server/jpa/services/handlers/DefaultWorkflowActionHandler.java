@@ -337,6 +337,7 @@ public class DefaultWorkflowActionHandler extends AbstractConfigurable
         throw new LocalException("Stamping failed - " + result.getErrors());
       }
       algo.compute();
+      algo.close();
     }
 
     if (worklist.getWorkflowStatus() == WorkflowStatus.READY_FOR_PUBLICATION
