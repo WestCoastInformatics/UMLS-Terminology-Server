@@ -818,6 +818,10 @@ tsApp
         }
         function getRecords(selectFirst) {
           var paging = $scope.paging['records'];
+          
+          if (selectFirst) {
+            paging.page = 1;
+          }
 
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
