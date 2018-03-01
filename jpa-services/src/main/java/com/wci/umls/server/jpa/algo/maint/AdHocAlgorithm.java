@@ -28,7 +28,6 @@ import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Definition;
-import com.wci.umls.server.services.RootService;
 
 /**
  * Implementation of an algorithm to execute an action based on a user-defined
@@ -263,7 +262,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       query.setParameter("terminology", "MTH");
       query.setParameter("version", "2017AB");
 
-      logInfo("[SourceLoader] Loading " 
+      logInfo("[RemoveBadRelationships] Loading " 
           + "ConceptRelationship ids for relationships created by the MTH 2017AB insertion");
 
       List<Object> list = query.getResultList();
@@ -272,6 +271,11 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         relIds.add(id);
       }
     
+      setSteps(relIds.size());
+      
+      logInfo("[RemoveBadRelationships] " + relIds.size() + 
+          " ConceptRelationship ids loaded");     
+      
     for (Long id : relIds) {
       final ConceptRelationship rel = (ConceptRelationshipJpa) getRelationship(id, ConceptRelationshipJpa.class);
 
@@ -283,6 +287,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       //If this is a self-referential relationship, remove it and its inverse
       if(rel.getFrom().getId().equals(rel.getTo().getId())){
         ConceptRelationship inverseRel = (ConceptRelationshipJpa) getInverseRelationship(rel.getTerminology(), rel.getVersion(), rel);
+        logInfo("[RemoveBadRelationships] Removing self-referential relationships: " + rel.getId() + " and " + inverseRel.getId());     
         removeRelationship(id, ConceptRelationshipJpa.class);
         removeRelationship(inverseRel.getId(), ConceptRelationshipJpa.class);
         removals++;
@@ -291,6 +296,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       //If this the concept-pair has been seen, remove this relationship and its inverse
       else if(seenRelIdPairs.contains(rel.getFrom().getId() + "|" + rel.getTo().getId())){
         ConceptRelationship inverseRel = (ConceptRelationshipJpa) getInverseRelationship(rel.getTerminology(), rel.getVersion(), rel);
+        logInfo("[RemoveBadRelationships] Removing overlapping relationships: " + rel.getId() + " and " + inverseRel.getId());     
         removeRelationship(id, ConceptRelationshipJpa.class);
         removeRelationship(inverseRel.getId(), ConceptRelationshipJpa.class);
         removals++;
@@ -301,10 +307,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         seenRelIdPairs.add(rel.getFrom().getId() + "|" + rel.getTo().getId());
       }
 
-      //Occasionally commit
-      if(removals % RootService.commitCt == 0){
-        commitClearBegin();
-      }
+      updateProgress();
       
     }
 
