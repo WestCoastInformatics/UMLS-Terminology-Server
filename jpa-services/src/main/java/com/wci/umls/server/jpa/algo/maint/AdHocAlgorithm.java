@@ -254,11 +254,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     Set<Long> relIds = new HashSet<>();
     Set<String> seenRelIdPairs = new HashSet<>();
     
-    // Get alternate terminology Ids for AtomRelationships, CodeRelationships,
-    // ConceptRelationships, etc.
+    // Get self-referential  relationships
       Query query = getEntityManager().createQuery("select a.id from "
           + "ConceptRelationshipJpa a "
-          + "where a.terminology = :terminology and a.version = :version and a.publishable=true");
+          + "where a.terminology = :terminology and a.version = :version and a.publishable=true and a.toId = a.fromId");
       query.setParameter("terminology", "MTH");
       query.setParameter("version", "2017AB");
 
@@ -284,12 +283,11 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         continue;        
       }
       
-      //If this is a self-referential relationship, remove it and its inverse
+      //If this is a self-referential relationship, remove Only it
+      //Its inverse will be removed by a later run
       if(rel.getFrom().getId().equals(rel.getTo().getId())){
-        ConceptRelationship inverseRel = (ConceptRelationshipJpa) getInverseRelationship(getProject().getTerminology(), getProject().getVersion(), rel);
-        logInfo("[RemoveBadRelationships] Removing self-referential relationships: " + rel.getId() + " and " + inverseRel.getId());     
+        logInfo("[RemoveBadRelationships] Removing self-referential relationship: " + rel.getId());     
         removeRelationship(id, ConceptRelationshipJpa.class);
-        removeRelationship(inverseRel.getId(), ConceptRelationshipJpa.class);
         removals++;
       }
 
@@ -299,6 +297,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         logInfo("[RemoveBadRelationships] Removing overlapping relationships: " + rel.getId() + " and " + inverseRel.getId());     
         removeRelationship(id, ConceptRelationshipJpa.class);
         removeRelationship(inverseRel.getId(), ConceptRelationshipJpa.class);
+        removals++;
         removals++;
       }
 
