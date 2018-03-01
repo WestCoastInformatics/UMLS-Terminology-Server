@@ -213,6 +213,7 @@
           <span finder selected="selected" lists="lists" callbacks="callbacks"></span>
         </span>
       </div>
+      <div  style="height:200px; width:100%; overflow-y:auto;">
       <table class="slim table">
         <thead>
           <tr>
@@ -252,7 +253,10 @@
       </table>
       <span ng-show="lists.concepts.length == 0" style="display: block;"
         class="alert alert-warning">No concepts</span>
+      </div>
+     
       <!-- Open new windows -->
+      <div>
       <span style="float: left;">
         <button ng-click="openStyWindow(null, null)"
           title="{{selected.metadata.semanticTypesLabel}}"
@@ -285,6 +289,7 @@
           ng-disabled="!selected.component || editingDisabled()"
           class="btn btn-xs btn-primary">Merge</button>
       </span>
+      </div>
     </div>
     <div class="col-md-6 col-xs-12">
       <!-- CONCEPT REPORT -->
