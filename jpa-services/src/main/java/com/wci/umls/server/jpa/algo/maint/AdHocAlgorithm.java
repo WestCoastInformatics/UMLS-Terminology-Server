@@ -266,9 +266,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       logInfo("[SourceLoader] Loading " 
           + "ConceptRelationship ids for relationships created by the MTH 2017AB insertion");
 
-      List<Object[]> list = query.getResultList();
-      for (final Object[] entry : list) {
-        final Long id = Long.valueOf(entry[0].toString());
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
         relIds.add(id);
       }
     
