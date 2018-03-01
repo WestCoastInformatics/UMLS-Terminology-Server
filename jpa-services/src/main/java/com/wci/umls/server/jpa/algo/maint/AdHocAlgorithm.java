@@ -252,6 +252,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     int removals = 0;
 
     Set<Long> relIds = new HashSet<>();
+    Set<Long> alreadyRemovedRelIds = new HashSet<>();
     Set<String> seenRelIdPairs = new HashSet<>();
     
     // Get self-referential  relationships
@@ -278,8 +279,14 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     for (Long id : relIds) {
       final ConceptRelationship rel = (ConceptRelationshipJpa) getRelationship(id, ConceptRelationshipJpa.class);
 
+      if(alreadyRemovedRelIds.contains(id)){
+        updateProgress();
+        continue;            
+      }
+      
       if (rel == null){
         logWarn("Could not find concept relationship with id=" + id);
+        updateProgress();
         continue;        
       }
       
@@ -293,12 +300,24 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       //If this the concept-pair has been seen, remove this relationship and its inverse
       else if(seenRelIdPairs.contains(rel.getFrom().getId() + "|" + rel.getTo().getId())){
-        ConceptRelationship inverseRel = (ConceptRelationshipJpa) getInverseRelationship(getProject().getTerminology(), getProject().getVersion(), rel);
-        logInfo("[RemoveBadRelationships] Removing overlapping relationships: " + rel.getId() + " and " + inverseRel.getId());     
+        logInfo("[RemoveBadRelationships] Removing overlapping relationship: " + rel.getId());     
         removeRelationship(id, ConceptRelationshipJpa.class);
+        alreadyRemovedRelIds.add(id);
+        removals++;
+
+        ConceptRelationship inverseRel = null;
+        try {
+          inverseRel = (ConceptRelationshipJpa) getInverseRelationship(getProject().getTerminology(), getProject().getVersion(), rel);
+        } catch(Exception e){
+          logInfo("[RemoveBadRelationships] Could not find inverse relationship for: " + rel.getId());
+        }        
+        
+        if(inverseRel != null){
+        logInfo("[RemoveBadRelationships] Removing overlapping inverse relationship: " + inverseRel.getId());     
         removeRelationship(inverseRel.getId(), ConceptRelationshipJpa.class);
+        alreadyRemovedRelIds.add(inverseRel.getId());
         removals++;
-        removals++;
+        }
       }
 
       //Otherwise, log this concept-pair as seen.
@@ -313,8 +332,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("[RemoveBadRelationships] " + removals
         + " bad relationships successfully removed.");
     
-  }  
-  
+  }
+
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -354,8 +373,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     AlgorithmParameter param = new AlgorithmParameterJpa("Action Name",
         "actionName", "Name of Ad Hoc Action to be performed",
         "e.g. Fix Orphan Definitions", 200, AlgorithmParameter.Type.ENUM, "");
-    param.setPossibleValues(
-        Arrays.asList("Fix Orphan Definitions", "Undo Stampings", "Remove Bad Relationships"));
+    param.setPossibleValues(Arrays.asList("Fix Orphan Definitions",
+        "Undo Stampings", "Remove Bad Relationships"));
     params.add(param);
 
     return params;
