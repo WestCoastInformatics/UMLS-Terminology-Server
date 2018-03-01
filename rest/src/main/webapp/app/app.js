@@ -8,7 +8,7 @@ var $routeProviderReference;
 var tsApp = angular.module(
   'tsApp',
   [ 'ngRoute', 'ui.bootstrap', 'ui.tree', 'ngFileUpload', 'ui.tinymce', 'ngCookies', 'ngTable',
-    'angularFileUpload' ]).config(function($rootScopeProvider, $routeProvider) {
+    'angularFileUpload', 'cfp.hotkeys' ]).config(function($rootScopeProvider, $routeProvider) {
 
   // Set recursive digest limit higher to handle very deep trees.
   $rootScopeProvider.digestTtl(15);

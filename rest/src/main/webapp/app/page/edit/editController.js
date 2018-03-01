@@ -10,6 +10,7 @@ tsApp
       '$q',
       '$uibModal',
       '$window',
+      'hotkeys',
       'tabService',
       'utilService',
       'configureService',
@@ -22,7 +23,7 @@ tsApp
       'contentService',
       'reportService',
       'metaEditingService',
-      function($scope, $location, $window, $interval, $q, $uibModal, $window, tabService,
+      function($scope, $location, $window, $interval, $q, $uibModal, $window, hotkeys, tabService,
         utilService, configureService, securityService, websocketService, workflowService,
         configureService, projectService, metadataService, contentService, reportService,
         metaEditingService) {
@@ -170,6 +171,15 @@ tsApp
 
         });
 
+        hotkeys.bindTo($scope).add({
+          combo: 'ctrl+z',
+          description: 'Approve/Next',
+          callback: function() {
+            $scope.approveNext();
+          }
+        });
+        
+        
         // reconnect
         $scope.reconnect = function() {
           $window.location.reload();
