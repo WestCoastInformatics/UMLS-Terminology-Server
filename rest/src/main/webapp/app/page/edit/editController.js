@@ -303,32 +303,41 @@ tsApp
         // Set worklist mode
         $scope.setWorklistMode = function(mode) {
           $scope.selected.worklistMode = mode;
-          $scope.getWorklists();
+          $scope.getWorklists(true);
           securityService.saveProperty($scope.user.userPreferences, 'worklistModeTab',
             $scope.selected.worklistMode);
         }
 
         // Get $scope.lists.worklists
         // switch based on type
-        $scope.getWorklists = function(worklist) {
-          getWorklists(worklist);
+        $scope.getWorklists = function(recoverPreferences) {
+          getWorklists(recoverPreferences);
         }
-        function getWorklists(worklist) {
+        function getWorklists(recoverPreferences) {
           $scope.clearLists();
           if ($scope.selected.worklistMode == 'Available') {
-            $scope.getAvailableWorklists();
+            $scope.getAvailableWorklists(recoverPreferences);
           } else if ($scope.selected.worklistMode == 'Assigned') {
-            $scope.getAssignedWorklists();
+            $scope.getAssignedWorklists(recoverPreferences);
           } else if ($scope.selected.worklistMode == 'Done') {
-            $scope.getDoneWorklists();
+            $scope.getDoneWorklists(recoverPreferences);
           } else if ($scope.selected.worklistMode == 'Checklists') {
-            $scope.getChecklists();
+            $scope.getChecklists(recoverPreferences);
           }
         }
 
         // Get all available worklists with project and type
-        $scope.getAvailableWorklists = function() {
+        $scope.getAvailableWorklists = function(recoverPreferences) {
           var paging = $scope.paging['worklists'];
+          
+          if (recoverPreferences) {
+            paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPaging']);
+            angular.copy(paging, $scope.paging['worklists']);
+            $scope.paging['worklists'].callbacks = {
+              getPagedList : getWorklists
+            };            
+          }
+          
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
             maxResults : paging.pageSize,
@@ -353,7 +362,7 @@ tsApp
                 if ($scope.user.userPreferences.properties['editWorklist']) {
                   for (var i = 0; i < $scope.lists.worklists.length; i++) {
                     if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklist']) {
-                      $scope.selectWorklist($scope.lists.worklists[i]);
+                      $scope.selectWorklist($scope.lists.worklists[i], recoverPreferences);
                     }
                     ;
                   }
@@ -375,8 +384,17 @@ tsApp
         };
 
         // Get assigned worklists with project and type
-        $scope.getAssignedWorklists = function() {
+        $scope.getAssignedWorklists = function(recoverPreferences) {
           var paging = $scope.paging['worklists'];
+          
+          if (recoverPreferences) {
+            paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPaging']);
+            angular.copy(paging, $scope.paging['worklists']);
+            $scope.paging['worklists'].callbacks = {
+              getPagedList : getWorklists
+            };            
+          }
+          
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
             maxResults : paging.pageSize,
@@ -402,7 +420,7 @@ tsApp
                 if ($scope.user.userPreferences.properties['editWorklist']) {
                   for (var i = 0; i < $scope.lists.worklists.length; i++) {
                     if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklist']) {
-                      $scope.selectWorklist($scope.lists.worklists[i]);
+                      $scope.selectWorklist($scope.lists.worklists[i], recoverPreferences);
                     }
                     ;
                   }
@@ -423,8 +441,17 @@ tsApp
         };
 
         // Get done worklists with project and type
-        $scope.getDoneWorklists = function() {
+        $scope.getDoneWorklists = function(recoverPreferences) {
           var paging = $scope.paging['worklists'];
+          
+          if (recoverPreferences) {
+            paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPaging']);
+            angular.copy(paging, $scope.paging['worklists']);
+            $scope.paging['worklists'].callbacks = {
+              getPagedList : getWorklists
+            };            
+          }
+          
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
             maxResults : paging.pageSize,
@@ -450,7 +477,7 @@ tsApp
                 if ($scope.user.userPreferences.properties['editWorklist']) {
                   for (var i = 0; i < $scope.lists.worklists.length; i++) {
                     if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklist']) {
-                      $scope.selectWorklist($scope.lists.worklists[i]);
+                      $scope.selectWorklist($scope.lists.worklists[i], recoverPreferences);
                     }
                     ;
                   }
@@ -471,8 +498,17 @@ tsApp
         };
 
         // Find checklists
-        $scope.getChecklists = function() {
+        $scope.getChecklists = function(recoverPreferences) {
           var paging = $scope.paging['worklists'];
+          
+          if (recoverPreferences) {
+            paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPaging']);
+            angular.copy(paging, $scope.paging['worklists']);
+            $scope.paging['worklists'].callbacks = {
+              getPagedList : getWorklists
+            };            
+          }
+          
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
             maxResults : paging.pageSize,
@@ -497,7 +533,7 @@ tsApp
                 if ($scope.user.userPreferences.properties['editWorklist']) {
                   for (var i = 0; i < $scope.lists.worklists.length; i++) {
                     if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklist']) {
-                      $scope.selectWorklist($scope.lists.worklists[i]);
+                      $scope.selectWorklist($scope.lists.worklists[i], recoverPreferences);
                     }
                     ;
                   }
@@ -612,7 +648,7 @@ tsApp
 
         // Selects a worklist (setting $scope.selected.worklist).
         // Looks up current release info and records.
-        $scope.selectWorklist = function(worklist) {
+        $scope.selectWorklist = function(worklist, recoverPreferences) {
           $scope.selected.worklist = worklist;
           $scope.selected.component = null;
           if ($scope.value == 'Worklist') {
@@ -620,7 +656,7 @@ tsApp
           }
           if ($scope.user.userPreferences.properties['editWorklist'] == $scope.selected.worklist.id 
             && $scope.user.userPreferences.properties['editRecord'] > 0) {
-            $scope.getRecords(false);
+            $scope.getRecords(false, recoverPreferences);
           } else {
             $scope.getRecords(true);
           }
@@ -813,14 +849,20 @@ tsApp
         };
 
         // Get $scope.lists.records
-        $scope.getRecords = function(selectFirst) {
-          getRecords(selectFirst);
+        $scope.getRecords = function(selectFirst, recoverPreferences) {
+          getRecords(selectFirst, recoverPreferences);
         }
-        function getRecords(selectFirst) {
+        function getRecords(selectFirst, recoverPreferences) {
           var paging = $scope.paging['records'];
           
           if (selectFirst) {
             paging.page = 1;
+          } else if (recoverPreferences){
+            paging = JSON.parse($scope.user.userPreferences.properties['editRecordPaging']);
+            angular.copy(paging, $scope.paging['records']);
+            $scope.paging['records'].callbacks = {
+              getPagedList : getRecords
+            };
           }
 
           var pfs = {
