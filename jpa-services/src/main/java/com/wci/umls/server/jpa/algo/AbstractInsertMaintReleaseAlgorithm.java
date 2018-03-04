@@ -18,8 +18,6 @@ import java.util.Set;
 
 import javax.persistence.Query;
 
-import org.apache.log4j.Logger;
-
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
@@ -1432,13 +1430,16 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
         + " Relationship Alternate Terminology Ids from database");
 
     for (final String relPrefix : relationshipPrefixes) {
-
+      
       final Query query = getEntityManager().createQuery("select a.id from "
           + relPrefix
           + "RelationshipJpa a join a.alternateTerminologyIds b where KEY(b)  = :terminology and a.publishable=true");
       query.setParameter("terminology", getProject().getTerminology() + "-SRC");
 
       final List<Long> list = query.getResultList();
+      logInfo("[SourceLoader] Removing " + list.size() + " " + relPrefix + "RelationshipJpa"
+          + " Alternate Terminology Ids");
+
       for (final Long id : list) {
         final Relationship<?, ?> relationship = getRelationship(id,
             (Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>>) Class
@@ -1448,13 +1449,13 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
         updateRelationship(relationship);
         count++;
 
-        if (count % commitCt == 0) {
+        if (count % RootService.commitCt == 0) {
           commitClearBegin();
         }
       }
+      commitClearBegin();
     }
 
-    commitClearBegin();
   }
 
   /**
