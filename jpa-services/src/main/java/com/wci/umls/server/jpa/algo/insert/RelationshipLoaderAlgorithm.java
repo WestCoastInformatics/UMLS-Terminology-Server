@@ -28,6 +28,8 @@ import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Component;
+import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.RelationshipType;
@@ -241,8 +243,8 @@ public class RelationshipLoaderAlgorithm
           final Terminology terminology =
               getCachedTerminology(fromTermAndVersion);
           if (terminology == null) {
-            logWarn(
-                "Terminology not found: " + fromTermAndVersion + ".", "Relationship Loader: Terminology not found");
+            logWarn("Terminology not found: " + fromTermAndVersion + ".",
+                "Relationship Loader: Terminology not found");
             continue;
           }
 
@@ -559,8 +561,8 @@ public class RelationshipLoaderAlgorithm
             null);
 
     if (fromComponent == null) {
-      logWarnAndUpdate(line,
-          "Could not find from Component for this line.", "Relationship Loader: Could not find from Component");
+      logWarnAndUpdate(line, "Could not find from Component for this line.",
+          "Relationship Loader: Could not find from Component");
       return;
     }
 
@@ -571,8 +573,8 @@ public class RelationshipLoaderAlgorithm
             null);
 
     if (toComponent == null) {
-      logWarnAndUpdate(line,
-          "Could not find to Component for this line.", "Relationship Loader: Could not find to Component");
+      logWarnAndUpdate(line, "Could not find to Component for this line.",
+          "Relationship Loader: Could not find to Component");
       return;
     }
 
@@ -691,15 +693,42 @@ public class RelationshipLoaderAlgorithm
 
     // If no relationships with the same RUI exists, add this new
     // relationship
+    boolean dontCreateRel = false;
     if (oldRelationship == null) {
-      newRelationship.getAlternateTerminologyIds()
-          .put(getProject().getTerminology(), newRelationshipRui);
-      newRelationship = addRelationship(newRelationship);
 
-      addCount++;
-      putComponent(newRelationship, newRelationshipRui);
-      if (!ConfigUtility.isEmpty(newRelationship.getTerminologyId())) {
-        putComponent(newRelationship, newRelationship.getTerminologyId());
+      // Don't add a relationship between project-terminology concepts if:
+      if (relClass.equals(ConceptRelationshipJpa.class)
+          && newRelationship.getFrom().getTerminology().equals(getProject().getTerminology())
+          && newRelationship.getTo().getTerminology().equals(getProject().getTerminology())) {
+        // ...it is self-referential
+        if (newRelationship.getFrom().getId()
+            .equals(newRelationship.getTo().getId())) {
+          dontCreateRel = true;
+        }
+        // ... there is already an existing rel between the two concepts
+        if (!dontCreateRel) {
+          List<ConceptRelationship> conceptRelList =
+              ((Concept) newRelationship.getFrom()).getRelationships();
+          for (ConceptRelationship conceptRel : conceptRelList) {
+            if (conceptRel.getTo().getId()
+                .equals(newRelationship.getTo().getId())) {
+              dontCreateRel = true;
+              break;
+            }
+          }
+        }
+      }
+
+      if (!dontCreateRel) {
+        newRelationship.getAlternateTerminologyIds()
+            .put(getProject().getTerminology(), newRelationshipRui);
+        newRelationship = addRelationship(newRelationship);
+
+        addCount++;
+        putComponent(newRelationship, newRelationshipRui);
+        if (!ConfigUtility.isEmpty(newRelationship.getTerminologyId())) {
+          putComponent(newRelationship, newRelationship.getTerminologyId());
+        }
       }
 
       // No need to explicitly attach to component - will be done
@@ -764,16 +793,20 @@ public class RelationshipLoaderAlgorithm
     // If no inverse relationships with the same RUI exists, add the new
     // inverse relationship
     if (oldInverseRelationship == null) {
-      newInverseRelationship.getAlternateTerminologyIds()
-          .put(getProject().getTerminology(), newInverseRelationshipRui);
-      final Component newComp = addRelationship(newInverseRelationship);
+      // If the oldRelationship flagged dontCreateRel, also don't create the
+      // inverse
+      if (!dontCreateRel) {
 
-      addCount++;
-      putComponent(newComp, newInverseRelationshipRui);
-      if (!ConfigUtility.isEmpty(newComp.getTerminologyId())) {
-        putComponent(newComp, newComp.getTerminologyId());
+        newInverseRelationship.getAlternateTerminologyIds()
+            .put(getProject().getTerminology(), newInverseRelationshipRui);
+        final Component newComp = addRelationship(newInverseRelationship);
+
+        addCount++;
+        putComponent(newComp, newInverseRelationshipRui);
+        if (!ConfigUtility.isEmpty(newComp.getTerminologyId())) {
+          putComponent(newComp, newComp.getTerminologyId());
+        }
       }
-
       // No need to explicitly attach to component - will be done
       // automatically by addRelationship.
 
