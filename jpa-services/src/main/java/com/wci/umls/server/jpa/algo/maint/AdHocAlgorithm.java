@@ -91,6 +91,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       undoStampings();
     } else if (actionName.equals("Remove Bad Relationships")) {
       removeBadRelationships();
+    } else if (actionName.equals("Remove Orphaned Tracking Records")) {
+      removeOrphanedTrackingRecords();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -334,6 +336,44 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     
   }
 
+  private void removeOrphanedTrackingRecords() throws Exception {
+    // 3/5/2018 Bug identified where tracking records exist that are not associated with any bin, worklist, or checklist.
+    // Get rid of them.
+
+    int removals = 0;
+
+    Set<Long> trackingRecordIds = new HashSet<>();
+    
+    // Get self-referential  relationships
+      Query query = getEntityManager().createNativeQuery("select tr.id from tracking_records tr left join checklists_tracking_records ctr on tr.id=ctr.trackingRecords_id left join worklists_tracking_records wtr on tr.id=wtr.trackingRecords_id left join workflow_bins_tracking_records wbtr on tr.id=wbtr.trackingRecords_id where ctr.trackingRecords_id is null and wtr.trackingRecords_id is null and wbtr.trackingRecords_id is null");
+
+      logInfo("[RemoveOrphanedTrackingRecords] Loading " 
+          + "TrackingRecord ids for orphaned tracking records");
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        trackingRecordIds.add(id);
+      }
+    
+      setSteps(trackingRecordIds.size());
+      
+      logInfo("[RemoveOrphanedTrackingRecords] " + trackingRecordIds.size() + 
+          " Orphaned TrackingRecord ids loaded");     
+      
+    for (Long id : trackingRecordIds) {
+
+      removeTrackingRecord(id);  
+      updateProgress();
+      
+    }
+
+    logInfo("[RemoveOrphanedTrackingRecords] " + removals
+        + " orphaned tracking records successfully removed.");
+    
+  }
+  
+  
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -374,7 +414,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "actionName", "Name of Ad Hoc Action to be performed",
         "e.g. Fix Orphan Definitions", 200, AlgorithmParameter.Type.ENUM, "");
     param.setPossibleValues(Arrays.asList("Fix Orphan Definitions",
-        "Undo Stampings", "Remove Bad Relationships"));
+        "Undo Stampings", "Remove Bad Relationships", "Remove Orphaned Tracking Records"));
     params.add(param);
 
     return params;

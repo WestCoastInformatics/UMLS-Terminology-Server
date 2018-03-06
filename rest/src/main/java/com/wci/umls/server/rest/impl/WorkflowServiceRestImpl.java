@@ -595,7 +595,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
       final String userName = authorizeProject(workflowService, projectId, securityService,
-          authToken, "remove workflow config", UserRole.AUTHOR);
+          authToken, "remove worklist", UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
       // do all of this in one transaction
       workflowService.setTransactionPerOperation(false);
