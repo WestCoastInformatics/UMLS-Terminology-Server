@@ -855,9 +855,7 @@ tsApp
         function getRecords(selectFirst, recoverPreferences) {
           var paging = $scope.paging['records'];
           
-          if (selectFirst) {
-            paging.page = 1;
-          } else if (recoverPreferences){
+          if (recoverPreferences){
             paging = JSON.parse($scope.user.userPreferences.properties['editRecordPaging']);
             angular.copy(paging, $scope.paging['records']);
             $scope.paging['records'].callbacks = {
