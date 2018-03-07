@@ -3,6 +3,10 @@
  */
 package com.wci.umls.server.jpa.algo.maint;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,17 +21,36 @@ import javax.persistence.Query;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
+import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
+import com.wci.umls.server.jpa.content.AtomSubsetJpa;
+import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
+import com.wci.umls.server.jpa.content.AttributeJpa;
+import com.wci.umls.server.jpa.content.CodeJpa;
+import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
+import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
+import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
+import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
+import com.wci.umls.server.jpa.content.DefinitionJpa;
+import com.wci.umls.server.jpa.content.DescriptorJpa;
+import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
+import com.wci.umls.server.jpa.content.MapSetJpa;
+import com.wci.umls.server.jpa.content.MappingJpa;
+import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Definition;
+import com.wci.umls.server.model.meta.Terminology;
 
 /**
  * Implementation of an algorithm to execute an action based on a user-defined
@@ -93,6 +116,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       removeBadRelationships();
     } else if (actionName.equals("Remove Orphaned Tracking Records")) {
       removeOrphanedTrackingRecords();
+    } else if (actionName.equals("Inactivate Old SRC atoms and AtomRels")) {
+      inactivateOldSRCContent();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -373,6 +398,130 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     
   }
   
+  private void inactivateOldSRCContent() throws Exception {
+    // 3/7/2018 Bug identified where old SRC atoms and AtomRelationships were not getting caught by UpdateReleasibility.
+    // Set them to publishable = false.
+
+    try {
+
+      logInfo("  Making all old version content unpublishable");
+      
+      // Mark all non-current SRC atoms as unpublishable.
+      String query = "SELECT a.id " + "FROM AtomJpa a, TerminologyJpa t "
+          + "WHERE a.terminology='SRC' AND a.publishable=true AND t.current = false AND a.codeId=CONCAT('V-',t.terminology,'_',t.version)";
+
+      // Perform a QueryActionAlgorithm using the class and query
+      QueryActionAlgorithm queryAction = new QueryActionAlgorithm();
+      try {
+        queryAction.setLastModifiedBy(getLastModifiedBy());
+        queryAction.setLastModifiedFlag(isLastModifiedFlag());
+        queryAction.setProcess(getProcess());
+        queryAction.setProject(getProject());
+        queryAction.setTerminology(getTerminology());
+        queryAction.setVersion(getVersion());
+        queryAction.setWorkId(getWorkId());
+        queryAction.setActivityId(getActivityId());
+
+        queryAction.setObjectTypeClass(AtomJpa.class);
+        queryAction.setAction("Make Unpublishable");
+        queryAction.setQueryType(QueryType.JPQL);
+        queryAction.setQuery(query);
+
+        queryAction.setTransactionPerOperation(false);
+        queryAction.beginTransaction();
+
+        //
+        // Check prerequisites
+        //
+        ValidationResult validationResult = queryAction.checkPreconditions();
+        // if prerequisites fail, return validation result
+        if (!validationResult.getErrors().isEmpty()
+            || (!validationResult.getWarnings().isEmpty())) {
+          // rollback -- unlocks the concept and closes transaction
+          queryAction.rollback();
+        }
+        assertTrue(validationResult.getErrors().isEmpty());
+
+        //
+        // Perform the algorithm
+        //
+        queryAction.compute();
+
+        // Commit the algorithm.
+        queryAction.commit();
+
+      } catch (Exception e) {
+        queryAction.rollback();
+        e.printStackTrace();
+        fail("Unexpected exception thrown - please review stack trace.");
+      } finally {
+        // Close algorithm for each loop
+        queryAction.close();
+      }
+      
+      // Mark all SRC-owned atom relationships to unpublishable, if either of their atoms are unpublishable.
+      query = "SELECT a.id " + "FROM AtomRelationshipJpa a "
+          + "WHERE a.terminology='SRC' AND a.publishable=true AND (a.from.publishable=false OR a.to.publishable=false)";
+
+      // Perform a QueryActionAlgorithm using the class and query
+      queryAction = new QueryActionAlgorithm();
+      try {
+        queryAction.setLastModifiedBy(getLastModifiedBy());
+        queryAction.setLastModifiedFlag(isLastModifiedFlag());
+        queryAction.setProcess(getProcess());
+        queryAction.setProject(getProject());
+        queryAction.setTerminology(getTerminology());
+        queryAction.setVersion(getVersion());
+        queryAction.setWorkId(getWorkId());
+        queryAction.setActivityId(getActivityId());
+
+        queryAction.setObjectTypeClass(AtomRelationshipJpa.class);
+        queryAction.setAction("Make Unpublishable");
+        queryAction.setQueryType(QueryType.JPQL);
+        queryAction.setQuery(query);
+
+        queryAction.setTransactionPerOperation(false);
+        queryAction.beginTransaction();
+
+        //
+        // Check prerequisites
+        //
+        ValidationResult validationResult = queryAction.checkPreconditions();
+        // if prerequisites fail, return validation result
+        if (!validationResult.getErrors().isEmpty()
+            || (!validationResult.getWarnings().isEmpty())) {
+          // rollback -- unlocks the concept and closes transaction
+          queryAction.rollback();
+        }
+        assertTrue(validationResult.getErrors().isEmpty());
+
+        //
+        // Perform the algorithm
+        //
+        queryAction.compute();
+
+        // Commit the algorithm.
+        queryAction.commit();
+
+      } catch (Exception e) {
+        queryAction.rollback();
+        e.printStackTrace();
+        fail("Unexpected exception thrown - please review stack trace.");
+      } finally {
+        // Close algorithm for each loop
+        queryAction.close();
+      }
+
+      logInfo("Finished " + getName());
+
+    } catch (
+
+    Exception e) {
+      logError("Unexpected problem - " + e.getMessage());
+      throw e;
+    }
+    
+  }
   
   /* see superclass */
   @Override
@@ -414,7 +563,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "actionName", "Name of Ad Hoc Action to be performed",
         "e.g. Fix Orphan Definitions", 200, AlgorithmParameter.Type.ENUM, "");
     param.setPossibleValues(Arrays.asList("Fix Orphan Definitions",
-        "Undo Stampings", "Remove Bad Relationships", "Remove Orphaned Tracking Records"));
+        "Undo Stampings", "Remove Bad Relationships", "Remove Orphaned Tracking Records", "Inactivate Old SRC atoms and AtomRels"));
     params.add(param);
 
     return params;
