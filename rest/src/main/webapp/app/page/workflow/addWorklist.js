@@ -63,7 +63,7 @@ tsApp.controller('WorklistModalCtrl', [
       var pfs = {
         maxResults : $scope.clusterCt,
         startIndex : $scope.skipClusterCt,
-        sortField : $scope.sortorder
+        sortField : $scope.sortOrder
       };
 
       // Create worklist
