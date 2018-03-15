@@ -2050,8 +2050,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
 
         final PfsParameter localPfs =
             pfs == null ? new PfsParameterJpa() : new PfsParameterJpa(pfs);
-        // Always work in clusterId order
-        localPfs.setSortField("clusterId");
+        // Always work in clusterId order, unless specified by user
+        localPfs.setSortField("clusterId");            
+        if(pfs != null && !ConfigUtility.isEmpty(pfs.getSortField())){
+          localPfs.setSortField(pfs.getSortField());
+        }
         final TrackingRecordList recordResultList =
             workflowService.findTrackingRecords(project, sb.toString(), localPfs);
 
