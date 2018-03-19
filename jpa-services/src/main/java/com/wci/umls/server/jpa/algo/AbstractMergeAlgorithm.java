@@ -117,7 +117,7 @@ public abstract class AbstractMergeAlgorithm
     }
 
     // Identify the from and to concepts, and from/to Atoms
-    // FromConcept will be the smaller concept (least number of atoms)
+    // FromConcept will be the newer concept (higher conceptId)
     Concept fromConcept = null;
     Concept toConcept = null;
     Atom fromAtom = null;
@@ -127,7 +127,7 @@ public abstract class AbstractMergeAlgorithm
     final Concept concept = getConcept(conceptId);
     final Concept concept2 = getConcept(conceptId2);
 
-    if (concept.getAtoms().size() < concept2.getAtoms().size()) {
+    if (concept.getId() > concept2.getId()) {
       fromConcept = concept;
       fromAtoms = concept.getAtoms();
       fromAtom = getAtom(atomId);
@@ -141,7 +141,7 @@ public abstract class AbstractMergeAlgorithm
       toAtom = getAtom(atomId);
     }
 
-    // Otherwise, create and set up a merge action
+    // Create and set up a merge action
     final MergeMolecularAction action = new MergeMolecularAction();
 
     try {
