@@ -1449,8 +1449,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   @Path("/concept")
   @ApiOperation(value = "Find concepts matching a lucene or JPQL search query", notes = "Gets a list of search results that match the lucene or JPQL query for the root branch", response = SearchResultListJpa.class)
   public SearchResultList findConceptsForGeneralQuery(
-    @ApiParam(value = "Lucene Query", required = true) @QueryParam("query") String query,
-    @ApiParam(value = "JPQL Query", required = true) @QueryParam("JPQL") String JPQL,
+    @ApiParam(value = "Lucene Query", required = false) @QueryParam("query") String query,
+    @ApiParam(value = "JPQL Query", required = false) @QueryParam("JPQL") String JPQL,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -2571,7 +2571,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Subset id, e.g. 341823003", required = true) @PathParam("subsetId") String subsetId,
     @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query, e.g. 'iron'", required = true) @QueryParam("query") String query,
+    @ApiParam(value = "Query, e.g. 'iron'", required = false) @QueryParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -2613,7 +2613,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Subset id, e.g. 341823003", required = true) @PathParam("subsetId") String subsetId,
     @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query, e.g. 'iron'", required = true) @QueryParam("query") String query,
+    @ApiParam(value = "Query, e.g. 'iron'", required = false) @QueryParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
