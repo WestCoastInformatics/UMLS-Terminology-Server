@@ -18,7 +18,7 @@ public enum QueryType {
   LUCENE,
 
   /**
-   * TODO: allow programmatic queries, they return List<Object[]> from some
+   * TODO: allow programmatic queries, they return List(Object[]) from some
    * interface (need a way to inject parameters)
    */
   PROGRAM;
