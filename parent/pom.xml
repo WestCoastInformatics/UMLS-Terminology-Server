@@ -6,7 +6,7 @@
   <!-- Module Metadata -->
   <groupId>com.wcinformatics.umls.server</groupId>
   <artifactId>term-server-parent</artifactId>
-  <version>1.5.1-SNAPSHOT</version>
+  <version>1.5.1-fg-rc</version>
   <packaging>pom</packaging>
   <name>Terminology server parent.</name>
   <description>Parent project. Used to define versions of third party modules</description>
@@ -35,6 +35,24 @@
     <developer>
       <name>Patrick Granvold</name>
       <email>pgranvold@westcoastinformatics.com</email>
+      <organization>West Coast Informatics, LLC</organization>
+      <organizationUrl>http://www.westcoastinformatics.com</organizationUrl>
+    </developer>
+    <developer>
+      <name>Nuno Marques</name>
+      <email>nmarques@westcoastinformatics.com</email>
+      <organization>West Coast Informatics, LLC</organization>
+      <organizationUrl>http://www.westcoastinformatics.com</organizationUrl>
+    </developer>
+    <developer>
+      <name>Rick Wood</name>
+      <email>rwood@westcoastinformatics.com</email>
+      <organization>West Coast Informatics, LLC</organization>
+      <organizationUrl>http://www.westcoastinformatics.com</organizationUrl>
+    </developer>
+    <developer>
+      <name>Jesse Efron</name>
+      <email>jefron@westcoastinformatics.com</email>
       <organization>West Coast Informatics, LLC</organization>
       <organizationUrl>http://www.westcoastinformatics.com</organizationUrl>
     </developer>
@@ -441,7 +459,7 @@
         <plugin>
           <groupId>org.sonatype.plugins</groupId>
           <artifactId>nexus-staging-maven-plugin</artifactId>
-          <version>1.6.7</version>
+          <version>1.6.8</version>
           <extensions>true</extensions>
           <configuration>
             <serverId>ossrh</serverId>
@@ -468,7 +486,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
-            <version>3.0.0</version>
+            <version>3.0.1</version>
             <executions>
               <execution>
                 <id>attach-sources</id>
@@ -481,7 +499,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.10.3</version>
+            <version>3.0.0</version>
             <configuration>
               <tags>
                 <tag>
@@ -536,6 +554,12 @@
   <!-- configure Maven to deploy to the OSSRH Nexus Repository Manager with the Nexus 
     Staging Maven plugin (see plugins) -->
   <distributionManagement>
+<!--      
+	<snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+ -->
     <repository>
       <id>ossrh</id>
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
