@@ -4,6 +4,8 @@
 package com.wci.umls.server.jpa.algo.insert;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -58,9 +60,9 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         ConfigUtility.getConfigProperties().getProperty("source.data.dir") + "/"
             + getProcess().getInputPath();
 
-    final Path realPath = Paths.get(srcFullPath).toRealPath();    
+    final Path realPath = Paths.get(srcFullPath).toRealPath();
     setSrcDirFile(new File(realPath.toString()));
-    
+
     if (!getSrcDirFile().exists()) {
       throw new LocalException(
           "Specified input directory does not exist - " + srcFullPath);
@@ -77,10 +79,25 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     // Checking for UMLS-specific files.
     if (getProcess().getTerminology().equals("MTH")) {
-      checkFileExist(srcFullPath, "umlscui.txt");   
-      checkFileExist(srcFullPath, "bequeathal.relationships.src"); 
+      checkFileExist(srcFullPath, "umlscui.txt");
+      checkFileExist(srcFullPath, "bequeathal.relationships.src");
     }
-    
+
+    // Ensure permissions are sufficient to write files
+    try {
+      final File outputFile = new File(srcFullPath, "testFile.txt");
+
+      final PrintWriter out = new PrintWriter(new FileWriter(outputFile));
+      out.print("Test");
+      out.close();
+
+      // Remove test file
+      outputFile.delete();
+    } catch (Exception e) {
+      throw new LocalException("Unable to write files to " + srcFullPath
+          + " - update permissions before continuing insertion.");
+    }
+
     return validationResult;
   }
 
@@ -230,7 +247,8 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   public void reset() throws Exception {
     logInfo("Starting RESET " + getName());
     // n/a - No reset
-    logInfo("Finished RESET " + getName());  }
+    logInfo("Finished RESET " + getName());
+  }
 
   /* see superclass */
   @Override
