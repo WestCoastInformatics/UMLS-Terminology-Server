@@ -83,16 +83,6 @@ public abstract class AbstractHasLastModified implements HasLastModified {
     return lastModified;
   }
 
-  /**
-   * Returns the last modified in yyyymmdd format.
-   *
-   * @XmlTransient
-   * @Field(name = "lastModifiedYYYYMMDD", index = Index.YES, analyze =
-   *             Analyze.NO, store = Store.NO) public String
-   *             getLastModifiedYYYYMMDD() { return lastModified == null ? null
-   *             : ConfigUtility.DATE_FORMAT.format(lastModified); }
-   */
-
   /* see superclass */
   @Override
   public void setLastModified(Date lastModified) {
