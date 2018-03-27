@@ -4,6 +4,7 @@
 package com.wci.umls.server.jpa.algo.report;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import javax.persistence.Query;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractReportAlgorithm;
@@ -67,10 +69,10 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
     final Map<String, String> queries = new TreeMap<>();
 
     // collect queries from "MID_VALIDATION" workflow config
-    final WorkflowConfig config =
+    final WorkflowConfig workflowConfig =
         getWorkflowConfig(getProject(), "MID_VALIDATION");
-    if (config != null) {
-      for (final WorkflowBinDefinition definition : config
+    if (workflowConfig != null) {
+      for (final WorkflowBinDefinition definition : workflowConfig
           .getWorkflowBinDefinitions()) {
         if (definition.getQueryType() != QueryType.SQL) {
           throw new Exception(
@@ -83,10 +85,10 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
         queries.put(definition.getName(), definition.getQuery());
       }
     }
-    final WorkflowConfig config2 =
+    final WorkflowConfig workflowConfig2 =
         getWorkflowConfig(getProject(), "MID_VALIDATION_OTHER");
-    if (config2 != null) {
-      for (final WorkflowBinDefinition definition : config2
+    if (workflowConfig2 != null) {
+      for (final WorkflowBinDefinition definition : workflowConfig2
           .getWorkflowBinDefinitions()) {
         if (definition.getQueryType() != QueryType.SQL) {
           throw new Exception(
@@ -111,7 +113,7 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
       try {
         // Get and execute query (truncate any trailing semi-colon)
         final Query query = manager.createNativeQuery(queryStr);
-        query.setParameter("terminology", getProject().getTerminology());
+        //query.setParameter("terminology", getProject().getTerminology());
         if (queryStr.contains(":terminology")) {
           query.setParameter("terminology", getProject().getTerminology());
         }
@@ -166,9 +168,47 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
 
       }
       logInfo("  SEND EMAIL");
+      
+      // Send email if configured.
+      if (!ConfigUtility.isEmpty(getEmail())) {
+        String from = null;
+        if (config.containsKey("mail.smtp.from")) {
+          from = config.getProperty("mail.smtp.from");
+        } else {
+          from = config.getProperty("mail.smtp.user");
+        }
+        try {
+          ConfigUtility.sendEmail(
+              "MEME Mid Validation Report - "
+                  + ConfigUtility.DATE_YYYYMMDD.format(new Date()),
+              from, getEmail(), msg.toString(), config);
+        } catch (Exception e) {
+          e.printStackTrace();
+          // do nothing - this just means email couldn't be sent
+        }
+      }
 
     } else {
       logInfo("  NO errors");
+      
+      // Send email if configured.
+      if (!ConfigUtility.isEmpty(getEmail())) {
+        String from = null;
+        if (config.containsKey("mail.smtp.from")) {
+          from = config.getProperty("mail.smtp.from");
+        } else {
+          from = config.getProperty("mail.smtp.user");
+        }
+        try {
+          ConfigUtility.sendEmail(
+              "MEME Mid Validation Report - "
+                  + ConfigUtility.DATE_YYYYMMDD.format(new Date()),
+              from, getEmail(), "No errors found!", config);
+        } catch (Exception e) {
+          e.printStackTrace();
+          // do nothing - this just means email couldn't be sent
+        }
+      }      
     }
 
     logInfo("Done ...");
