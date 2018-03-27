@@ -6,7 +6,6 @@ package com.wci.umls.server.jpa.algo.maint;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,29 +27,13 @@ import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
-import com.wci.umls.server.jpa.content.AtomSubsetJpa;
-import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
-import com.wci.umls.server.jpa.content.AttributeJpa;
-import com.wci.umls.server.jpa.content.CodeJpa;
-import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
-import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
-import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
-import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
-import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
-import com.wci.umls.server.jpa.content.DefinitionJpa;
-import com.wci.umls.server.jpa.content.DescriptorJpa;
-import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
-import com.wci.umls.server.jpa.content.MapSetJpa;
-import com.wci.umls.server.jpa.content.MappingJpa;
-import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Definition;
-import com.wci.umls.server.model.meta.Terminology;
 
 /**
  * Implementation of an algorithm to execute an action based on a user-defined
@@ -118,6 +101,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       removeOrphanedTrackingRecords();
     } else if (actionName.equals("Inactivate Old SRC atoms and AtomRels")) {
       inactivateOldSRCContent();
+    } else if (actionName.equals("Fix SRC_ATOM_IDs")) {
+      fixScrAtomIds();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -281,131 +266,146 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     Set<Long> relIds = new HashSet<>();
     Set<Long> alreadyRemovedRelIds = new HashSet<>();
     Set<String> seenRelIdPairs = new HashSet<>();
-    
-    // Get self-referential  relationships
-      Query query = getEntityManager().createQuery("select a.id from "
-          + "ConceptRelationshipJpa a "
-          + "where a.terminology = :terminology and a.version = :version and a.publishable=true");
-      query.setParameter("terminology", "MTH");
-      query.setParameter("version", "2017AB");
 
-      logInfo("[RemoveBadRelationships] Loading " 
-          + "ConceptRelationship ids for relationships created by the MTH 2017AB insertion");
+    // Get self-referential relationships
+    Query query = getEntityManager().createQuery("select a.id from "
+        + "ConceptRelationshipJpa a "
+        + "where a.terminology = :terminology and a.version = :version and a.publishable=true");
+    query.setParameter("terminology", "MTH");
+    query.setParameter("version", "2017AB");
 
-      List<Object> list = query.getResultList();
-      for (final Object entry : list) {
-        final Long id = Long.valueOf(entry.toString());
-        relIds.add(id);
-      }
-    
-      setSteps(relIds.size());
-      
-      logInfo("[RemoveBadRelationships] " + relIds.size() + 
-          " ConceptRelationship ids loaded");     
-      
+    logInfo("[RemoveBadRelationships] Loading "
+        + "ConceptRelationship ids for relationships created by the MTH 2017AB insertion");
+
+    List<Object> list = query.getResultList();
+    for (final Object entry : list) {
+      final Long id = Long.valueOf(entry.toString());
+      relIds.add(id);
+    }
+
+    setSteps(relIds.size());
+
+    logInfo("[RemoveBadRelationships] " + relIds.size()
+        + " ConceptRelationship ids loaded");
+
     for (Long id : relIds) {
-      final ConceptRelationship rel = (ConceptRelationshipJpa) getRelationship(id, ConceptRelationshipJpa.class);
+      final ConceptRelationship rel =
+          (ConceptRelationshipJpa) getRelationship(id,
+              ConceptRelationshipJpa.class);
 
-      if(alreadyRemovedRelIds.contains(id)){
+      if (alreadyRemovedRelIds.contains(id)) {
         updateProgress();
-        continue;            
+        continue;
       }
-      
-      if (rel == null){
+
+      if (rel == null) {
         logWarn("Could not find concept relationship with id=" + id);
         updateProgress();
-        continue;        
+        continue;
       }
-      
-      //If this is a self-referential relationship, remove Only it
-      //Its inverse will be removed by a later run
-      if(rel.getFrom().getId().equals(rel.getTo().getId())){
-        logInfo("[RemoveBadRelationships] Removing self-referential relationship: " + rel.getId());     
+
+      // If this is a self-referential relationship, remove Only it
+      // Its inverse will be removed by a later run
+      if (rel.getFrom().getId().equals(rel.getTo().getId())) {
+        logInfo(
+            "[RemoveBadRelationships] Removing self-referential relationship: "
+                + rel.getId());
         removeRelationship(id, ConceptRelationshipJpa.class);
         removals++;
       }
 
-      //If this the concept-pair has been seen, remove this relationship and its inverse
-      else if(seenRelIdPairs.contains(rel.getFrom().getId() + "|" + rel.getTo().getId())){
-        logInfo("[RemoveBadRelationships] Removing overlapping relationship: " + rel.getId());     
+      // If this the concept-pair has been seen, remove this relationship and
+      // its inverse
+      else if (seenRelIdPairs
+          .contains(rel.getFrom().getId() + "|" + rel.getTo().getId())) {
+        logInfo("[RemoveBadRelationships] Removing overlapping relationship: "
+            + rel.getId());
         removeRelationship(id, ConceptRelationshipJpa.class);
         alreadyRemovedRelIds.add(id);
         removals++;
 
         ConceptRelationship inverseRel = null;
         try {
-          inverseRel = (ConceptRelationshipJpa) getInverseRelationship(getProject().getTerminology(), getProject().getVersion(), rel);
-        } catch(Exception e){
-          logInfo("[RemoveBadRelationships] Could not find inverse relationship for: " + rel.getId());
-        }        
-        
-        if(inverseRel != null){
-        logInfo("[RemoveBadRelationships] Removing overlapping inverse relationship: " + inverseRel.getId());     
-        removeRelationship(inverseRel.getId(), ConceptRelationshipJpa.class);
-        alreadyRemovedRelIds.add(inverseRel.getId());
-        removals++;
+          inverseRel = (ConceptRelationshipJpa) getInverseRelationship(
+              getProject().getTerminology(), getProject().getVersion(), rel);
+        } catch (Exception e) {
+          logInfo(
+              "[RemoveBadRelationships] Could not find inverse relationship for: "
+                  + rel.getId());
+        }
+
+        if (inverseRel != null) {
+          logInfo(
+              "[RemoveBadRelationships] Removing overlapping inverse relationship: "
+                  + inverseRel.getId());
+          removeRelationship(inverseRel.getId(), ConceptRelationshipJpa.class);
+          alreadyRemovedRelIds.add(inverseRel.getId());
+          removals++;
         }
       }
 
-      //Otherwise, log this concept-pair as seen.
-      else{
+      // Otherwise, log this concept-pair as seen.
+      else {
         seenRelIdPairs.add(rel.getFrom().getId() + "|" + rel.getTo().getId());
       }
 
       updateProgress();
-      
+
     }
 
     logInfo("[RemoveBadRelationships] " + removals
         + " bad relationships successfully removed.");
-    
+
   }
 
   private void removeOrphanedTrackingRecords() throws Exception {
-    // 3/5/2018 Bug identified where tracking records exist that are not associated with any bin, worklist, or checklist.
+    // 3/5/2018 Bug identified where tracking records exist that are not
+    // associated with any bin, worklist, or checklist.
     // Get rid of them.
 
     int removals = 0;
 
     Set<Long> trackingRecordIds = new HashSet<>();
-    
-    // Get self-referential  relationships
-      Query query = getEntityManager().createNativeQuery("select tr.id from tracking_records tr left join checklists_tracking_records ctr on tr.id=ctr.trackingRecords_id left join worklists_tracking_records wtr on tr.id=wtr.trackingRecords_id left join workflow_bins_tracking_records wbtr on tr.id=wbtr.trackingRecords_id where ctr.trackingRecords_id is null and wtr.trackingRecords_id is null and wbtr.trackingRecords_id is null");
 
-      logInfo("[RemoveOrphanedTrackingRecords] Loading " 
-          + "TrackingRecord ids for orphaned tracking records");
+    // Get self-referential relationships
+    Query query = getEntityManager().createNativeQuery(
+        "select tr.id from tracking_records tr left join checklists_tracking_records ctr on tr.id=ctr.trackingRecords_id left join worklists_tracking_records wtr on tr.id=wtr.trackingRecords_id left join workflow_bins_tracking_records wbtr on tr.id=wbtr.trackingRecords_id where ctr.trackingRecords_id is null and wtr.trackingRecords_id is null and wbtr.trackingRecords_id is null");
 
-      List<Object> list = query.getResultList();
-      for (final Object entry : list) {
-        final Long id = Long.valueOf(entry.toString());
-        trackingRecordIds.add(id);
-      }
-    
-      setSteps(trackingRecordIds.size());
-      
-      logInfo("[RemoveOrphanedTrackingRecords] " + trackingRecordIds.size() + 
-          " Orphaned TrackingRecord ids loaded");     
-      
+    logInfo("[RemoveOrphanedTrackingRecords] Loading "
+        + "TrackingRecord ids for orphaned tracking records");
+
+    List<Object> list = query.getResultList();
+    for (final Object entry : list) {
+      final Long id = Long.valueOf(entry.toString());
+      trackingRecordIds.add(id);
+    }
+
+    setSteps(trackingRecordIds.size());
+
+    logInfo("[RemoveOrphanedTrackingRecords] " + trackingRecordIds.size()
+        + " Orphaned TrackingRecord ids loaded");
+
     for (Long id : trackingRecordIds) {
 
-      removeTrackingRecord(id);  
+      removeTrackingRecord(id);
       updateProgress();
-      
+
     }
 
     logInfo("[RemoveOrphanedTrackingRecords] " + removals
         + " orphaned tracking records successfully removed.");
-    
+
   }
-  
+
   private void inactivateOldSRCContent() throws Exception {
-    // 3/7/2018 Bug identified where old SRC atoms and AtomRelationships were not getting caught by UpdateReleasibility.
+    // 3/7/2018 Bug identified where old SRC atoms and AtomRelationships were
+    // not getting caught by UpdateReleasibility.
     // Set them to publishable = false.
 
     try {
 
       logInfo("  Making all old version content unpublishable");
-      
+
       // Mark all non-current SRC atoms as unpublishable.
       String query = "SELECT a.id " + "FROM AtomJpa a, TerminologyJpa t "
           + "WHERE a.terminology='SRC' AND a.publishable=true AND t.current = false AND a.codeId=CONCAT('V-',t.terminology,'_',t.version)";
@@ -458,8 +458,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         // Close algorithm for each loop
         queryAction.close();
       }
-      
-      // Mark all SRC-owned atom relationships to unpublishable, if either of their atoms are unpublishable.
+
+      // Mark all SRC-owned atom relationships to unpublishable, if either of
+      // their atoms are unpublishable.
       query = "SELECT a.id " + "FROM AtomRelationshipJpa a "
           + "WHERE a.terminology='SRC' AND a.publishable=true AND (a.from.publishable=false OR a.to.publishable=false)";
 
@@ -520,9 +521,100 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       logError("Unexpected problem - " + e.getMessage());
       throw e;
     }
-    
+
   }
-  
+
+  private void fixScrAtomIds() throws Exception {
+    // 3/26/2018 Bug identified where atom alternate Ids were imported
+    // incorrectly from MEME4
+    // Use identified list to fix and update
+
+    logInfo(" Fix incorrect atom alternate terminology Ids");
+
+    int successful = 0;
+
+    // Find atoms based on old NCIMTH-SRC alternateTerminologyIds
+    final String queryBase =
+        "select a.id from AtomJpa a join a.alternateTerminologyIds b where ( KEY(b)  = 'NCIMTH-SRC' and b =";
+
+    final Map<String, String> oldIdToNewIdMap = new HashMap<>();
+
+    // Test data set
+//    oldIdToNewIdMap.put("258167703","999999999");
+
+    // Real data set
+     oldIdToNewIdMap.put("257175511", "261357780");
+     oldIdToNewIdMap.put("238431363", "259982165");
+     oldIdToNewIdMap.put("238431363", "259982165");
+     oldIdToNewIdMap.put("251796731", "258986997");
+     oldIdToNewIdMap.put("251796726", "258986991");
+     oldIdToNewIdMap.put("251796727", "258986992");
+     oldIdToNewIdMap.put("254102219", "261309548");
+     oldIdToNewIdMap.put("257269628", "261896942");
+     oldIdToNewIdMap.put("257269626", "261896940");
+     oldIdToNewIdMap.put("256903433", "260700556");
+     oldIdToNewIdMap.put("256629133", "260214361");
+     oldIdToNewIdMap.put("256629132", "260214360");
+     oldIdToNewIdMap.put("256629133", "260214361");
+     oldIdToNewIdMap.put("256629132", "260214360");
+     oldIdToNewIdMap.put("256080093", "258986711");
+     oldIdToNewIdMap.put("255240539", "257847398");
+     oldIdToNewIdMap.put("255240538", "257847397");
+     oldIdToNewIdMap.put("255670330", "258297786");
+     oldIdToNewIdMap.put("255670328", "258297784");
+     oldIdToNewIdMap.put("256328534", "259642255");
+     oldIdToNewIdMap.put("256328532", "259642253");
+     oldIdToNewIdMap.put("256328533", "259642254");
+     oldIdToNewIdMap.put("251627436", "258814569");
+     oldIdToNewIdMap.put("251627434", "258814567");
+     oldIdToNewIdMap.put("251627431", "258814564");
+     oldIdToNewIdMap.put("256174404", "259226265");
+     oldIdToNewIdMap.put("256174402", "259226263");
+     oldIdToNewIdMap.put("256174400", "259226261");
+     oldIdToNewIdMap.put("256174401", "259226262");
+     oldIdToNewIdMap.put("257222505", "261668814");
+     oldIdToNewIdMap.put("257222508", "261668817");
+     oldIdToNewIdMap.put("257222507", "261668816");
+     oldIdToNewIdMap.put("257222506", "261668815");
+     oldIdToNewIdMap.put("251553070", "258741488");
+     oldIdToNewIdMap.put("251553071", "258741489");
+     oldIdToNewIdMap.put("251553072", "258741490");
+     oldIdToNewIdMap.put("256082432", "258987136");
+     oldIdToNewIdMap.put("256082430", "258987134");
+     oldIdToNewIdMap.put("239859246", "261335544");
+     oldIdToNewIdMap.put("239859242", "261335540");
+     oldIdToNewIdMap.put("239859244", "261335542");
+     oldIdToNewIdMap.put("256082438", "258987142");
+     oldIdToNewIdMap.put("256082433", "258987137");
+     oldIdToNewIdMap.put("256082436", "258987140");
+
+    for (Map.Entry<String, String> entry : oldIdToNewIdMap.entrySet()) {
+      final String oldId = entry.getKey();
+      final String newId = entry.getValue();
+
+      final String fullQuery = queryBase + " '" + oldId + "')";
+
+      final Query query = getEntityManager().createQuery(fullQuery);
+
+      final Long atomId = Long.valueOf(query.getSingleResult().toString());
+
+      final Atom atom = getAtom(atomId);
+      if (atom == null) {
+        logWarn("Could not find atom with alternate terminology id=" + oldId);
+        continue;
+      }
+
+      // Replace old alternateTerminologyId with new alternateTerminologyId
+      atom.getAlternateTerminologyIds().put("NCIMTH-SRC", newId);
+
+      updateAtom(atom);
+      successful++;
+    }
+
+    logInfo("[FixSrcAtomIds] " + successful
+        + " SRC atom Id successfully updated.");
+  }
+
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -562,8 +654,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     AlgorithmParameter param = new AlgorithmParameterJpa("Action Name",
         "actionName", "Name of Ad Hoc Action to be performed",
         "e.g. Fix Orphan Definitions", 200, AlgorithmParameter.Type.ENUM, "");
-    param.setPossibleValues(Arrays.asList("Fix Orphan Definitions",
-        "Undo Stampings", "Remove Bad Relationships", "Remove Orphaned Tracking Records", "Inactivate Old SRC atoms and AtomRels"));
+    param.setPossibleValues(
+        Arrays.asList("Fix Orphan Definitions", "Undo Stampings",
+            "Remove Bad Relationships", "Remove Orphaned Tracking Records",
+            "Inactivate Old SRC atoms and AtomRels", "Fix SRC_ATOM_IDs"));
     params.add(param);
 
     return params;
