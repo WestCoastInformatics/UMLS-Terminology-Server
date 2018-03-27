@@ -65,7 +65,9 @@ import com.wci.umls.server.services.helpers.PushBackReader;
  * Implementation of an algorithm to import data from two files.
  * 
  * <pre>
- * 1. a conceptId|type|pt[|sy]* file 2. a par/chd relationships file
+ * 1. a conceptId|type|pt[|sy]* file 
+ * 2. a par/chd relationships file
+ * </pre>
  */
 public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 

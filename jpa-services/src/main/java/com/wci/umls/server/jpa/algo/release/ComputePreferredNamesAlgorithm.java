@@ -21,7 +21,7 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 
 /**
  * Algorithm for computing preferred names and publication status for a project
- * terminology. TODO: change this package to "rel" => "release (fix config
+ * terminology. TODO: change this package to "rel" =&gt; "release (fix config
  * files)
  */
 public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {

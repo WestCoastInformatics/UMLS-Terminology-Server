@@ -439,7 +439,7 @@ public class Rf2SnapshotLoaderAlgorithm
 
   /**
    * Gets the RF2 extension (and optional namespace information)
-   * @return the extension & namespace string
+   * @return the extension and namespace string
    * @throws Exception
    */
   public String getFileExtensionInfo() throws Exception {
