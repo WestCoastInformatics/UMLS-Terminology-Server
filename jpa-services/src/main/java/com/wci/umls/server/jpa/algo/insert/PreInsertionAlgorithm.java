@@ -98,6 +98,11 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           + " - update permissions before continuing insertion.");
     }
 
+    // Makes sure editing is turned off before continuing
+    if(getProject().isEditingEnabled()){
+      throw new LocalException("Editing is turned on - disable before continuing insertion.");
+    }
+    
     return validationResult;
   }
 
