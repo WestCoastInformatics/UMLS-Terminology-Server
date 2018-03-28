@@ -103,6 +103,11 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       throw new LocalException("Editing is turned on - disable before continuing insertion.");
     }
     
+    // Makes sure automations are turned off before continuing
+    if(getProject().isAutomationsEnabled()){
+      throw new LocalException("Automations are turned on - disable before continuing insertion.");
+    }
+    
     return validationResult;
   }
 
