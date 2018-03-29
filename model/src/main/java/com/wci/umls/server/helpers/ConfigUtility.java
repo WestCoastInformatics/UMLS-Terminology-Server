@@ -835,6 +835,50 @@ public class ConfigUtility {
   }
 
   /**
+   * Sends email with attachment.
+   *
+   * @param subject the subject
+   * @param from the from
+   * @param recipients the recipients
+   * @param body the body
+   * @param details the details
+   * @param attachmentFileName the attachment file name
+   * @throws Exception the exception
+   */
+  public static void sendEmail(String subject, String from, String recipients,
+    String body, Properties details, String attachmentFileName) throws Exception {
+    // avoid sending mail if disabled
+    if ("false".equals(details.getProperty("mail.enabled"))) {
+      // do nothing
+      return;
+    }
+    Session session = null;
+    if ("true".equals(config.get("mail.smtp.auth"))) {
+      Authenticator auth = new SMTPAuthenticator();
+      session = Session.getInstance(details, auth);
+    } else {
+      session = Session.getInstance(details);
+    }
+
+    MimeMessage msg = new MimeMessage(session);
+    if (body.contains("<html")) {
+      msg.setContent(body.toString(), "text/html; charset=utf-8");
+    } else {
+      msg.setText(body.toString());
+    }
+    msg.setSubject(subject);
+    msg.setFrom(new InternetAddress(from));
+    final String[] recipientsArray = recipients.split(";");
+    for (final String recipient : recipientsArray) {
+      msg.addRecipient(Message.RecipientType.TO,
+          new InternetAddress(recipient));
+    }
+    msg.setFileName(attachmentFileName);
+    Transport.send(msg);
+  }
+  
+  
+  /**
    * SMTPAuthenticator.
    */
   public static class SMTPAuthenticator extends javax.mail.Authenticator {
