@@ -414,9 +414,14 @@ public class ReportServiceJpa extends HistoryServiceJpa
         new ArrayList<>(0);
     // Handle concept rels
     if (concept != null) {
+      // For concept relationships, sort by relationshipType
+      // This is a bit of a hack to ensure that Bequeathal rels take precedence over other rel types
+      PfsParameter pfs = new PfsParameterJpa();
+      pfs.setAscending(true);
+      pfs.setSortField("relationshipType");
       relList = findConceptDeepRelationships(concept.getTerminologyId(),
           concept.getTerminology(), concept.getVersion(), Branch.ROOT, null,
-          true, true, false, false, new PfsParameterJpa()).getObjects();
+          true, true, false, false, pfs).getObjects();
     }
 
     // Handle descriptor rels
