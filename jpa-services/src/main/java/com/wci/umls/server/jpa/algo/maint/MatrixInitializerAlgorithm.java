@@ -286,7 +286,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
           logAndCommit(stepsCompleted, RootService.logCt, RootService.commitCt);
         }
 
-        action.commit();
+        action.commitClearBegin();
 
       } catch (Exception e) {
         action.rollback();

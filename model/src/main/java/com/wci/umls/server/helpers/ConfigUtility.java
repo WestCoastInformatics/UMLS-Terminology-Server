@@ -32,13 +32,20 @@ import java.util.Scanner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
 import javax.mail.Authenticator;
+import javax.mail.BodyPart;
 import javax.mail.Message;
+import javax.mail.Multipart;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
@@ -860,12 +867,9 @@ public class ConfigUtility {
       session = Session.getInstance(details);
     }
 
+    Multipart multipart = new MimeMultipart();
+
     MimeMessage msg = new MimeMessage(session);
-    if (body.contains("<html")) {
-      msg.setContent(body.toString(), "text/html; charset=utf-8");
-    } else {
-      msg.setText(body.toString());
-    }
     msg.setSubject(subject);
     msg.setFrom(new InternetAddress(from));
     final String[] recipientsArray = recipients.split(";");
@@ -873,7 +877,29 @@ public class ConfigUtility {
       msg.addRecipient(Message.RecipientType.TO,
           new InternetAddress(recipient));
     }
-    msg.setFileName(attachmentFileName);
+    
+    // Create the message part
+    BodyPart messageBodyPart = new MimeBodyPart();
+    
+    if (body.contains("<html")) {
+      messageBodyPart.setContent(body.toString(), "text/html; charset=utf-8");
+    } else {
+      messageBodyPart.setText(body.toString());
+    }
+    
+    multipart.addBodyPart(messageBodyPart);
+
+    // Part two is attachment
+    messageBodyPart = new MimeBodyPart();
+    DataSource source = new FileDataSource(attachmentFileName);
+    messageBodyPart.setDataHandler(new DataHandler(source));
+    messageBodyPart.setFileName(attachmentFileName);
+    multipart.addBodyPart(messageBodyPart);
+
+    // Send the complete message parts
+    msg.setContent(multipart);    
+    
+    // Send message
     Transport.send(msg);
   }
   
