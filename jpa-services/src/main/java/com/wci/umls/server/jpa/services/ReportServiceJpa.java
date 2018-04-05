@@ -415,7 +415,8 @@ public class ReportServiceJpa extends HistoryServiceJpa
     // Handle concept rels
     if (concept != null) {
       // For concept relationships, sort by relationshipType
-      // This is a bit of a hack to ensure that Bequeathal rels take precedence over other rel types
+      // This is a bit of a hack to ensure that Bequeathal rels take precedence
+      // over other rel types
       PfsParameter pfs = new PfsParameterJpa();
       pfs.setAscending(true);
       pfs.setSortField("relationshipType");
@@ -854,7 +855,18 @@ public class ReportServiceJpa extends HistoryServiceJpa
       sb.append("|");
       sb.append(getTerminologyAndVersion(rel));
       sb.append("|");
-      sb.append(rel.getLastModifiedBy());
+      // Print responsible entity
+      // For demotions and c-level rels, this is the editor who most recently
+      // modified the rel.
+      // For s-level rels, this is the terminology/version of the insertion that
+      // created it
+      if (rel.getWorkflowStatus() == WorkflowStatus.DEMOTION
+          || rel.getTerminology().equals(rel.getTo().getTerminology())) {
+        sb.append(rel.getLastModifiedBy());
+      } else {
+        sb.append(getTerminologyAndVersion(rel));
+      }
+
       sb.append("]");
 
       sb.append(" {");
