@@ -658,6 +658,7 @@ tsApp
             && $scope.user.userPreferences.properties['editRecord'] > 0) {
             $scope.getRecords(false, recoverPreferences);
           } else {
+            $scope.paging['records'].page = 1;
             $scope.getRecords(true);
           }
           // Set activity id
@@ -861,7 +862,7 @@ tsApp
             $scope.paging['records'].callbacks = {
               getPagedList : getRecords
             };
-          }
+          } 
 
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
