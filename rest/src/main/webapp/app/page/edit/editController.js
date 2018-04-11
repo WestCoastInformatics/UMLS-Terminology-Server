@@ -331,7 +331,7 @@ tsApp
           var paging = $scope.paging['worklists'];
           
           if (recoverPreferences) {
-            paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPaging']);
+            paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPagingAvailable']);
             angular.copy(paging, $scope.paging['worklists']);
             $scope.paging['worklists'].callbacks = {
               getPagedList : getWorklists
@@ -359,9 +359,9 @@ tsApp
                 $scope.getDoneWorklistCt();
                 $scope.getChecklistCt();
                 // select previously selected list if saved in user preferences
-                if ($scope.user.userPreferences.properties['editWorklist']) {
+                if ($scope.user.userPreferences.properties['editWorklistAvailable']) {
                   for (var i = 0; i < $scope.lists.worklists.length; i++) {
-                    if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklist']) {
+                    if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklistAvailable']) {
                       $scope.selectWorklist($scope.lists.worklists[i], recoverPreferences);
                     }
                     ;
@@ -388,7 +388,7 @@ tsApp
           var paging = $scope.paging['worklists'];
           
           if (recoverPreferences) {
-            paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPaging']);
+            paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPagingAssigned']);
             angular.copy(paging, $scope.paging['worklists']);
             $scope.paging['worklists'].callbacks = {
               getPagedList : getWorklists
@@ -417,9 +417,9 @@ tsApp
                 $scope.getDoneWorklistCt();
                 $scope.getChecklistCt();
                 // select previously selected list if saved in user preferences
-                if ($scope.user.userPreferences.properties['editWorklist']) {
+                if ($scope.user.userPreferences.properties['editWorklistAssigned']) {
                   for (var i = 0; i < $scope.lists.worklists.length; i++) {
-                    if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklist']) {
+                    if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklistAssigned']) {
                       $scope.selectWorklist($scope.lists.worklists[i], recoverPreferences);
                     }
                     ;
@@ -444,8 +444,8 @@ tsApp
         $scope.getDoneWorklists = function(recoverPreferences) {
           var paging = $scope.paging['worklists'];
           
-          if (recoverPreferences) {
-            paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPaging']);
+          if (recoverPreferences && $scope.user.userPreferences.properties['editWorklistPagingDone']) {
+            paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPagingDone']);
             angular.copy(paging, $scope.paging['worklists']);
             $scope.paging['worklists'].callbacks = {
               getPagedList : getWorklists
@@ -474,9 +474,9 @@ tsApp
                 $scope.getAvailableWorklistCt();
                 $scope.getChecklistCt();
                 // select previously selected list if saved in user preferences
-                if ($scope.user.userPreferences.properties['editWorklist']) {
+                if ($scope.user.userPreferences.properties['editWorklistDone']) {
                   for (var i = 0; i < $scope.lists.worklists.length; i++) {
-                    if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklist']) {
+                    if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklistDone']) {
                       $scope.selectWorklist($scope.lists.worklists[i], recoverPreferences);
                     }
                     ;
@@ -501,8 +501,8 @@ tsApp
         $scope.getChecklists = function(recoverPreferences) {
           var paging = $scope.paging['worklists'];
           
-          if (recoverPreferences) {
-            paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPaging']);
+          if (recoverPreferences && $scope.user.userPreferences.properties['editWorklistPagingChecklists']) {
+            paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPagingChecklists']);
             angular.copy(paging, $scope.paging['worklists']);
             $scope.paging['worklists'].callbacks = {
               getPagedList : getWorklists
@@ -530,9 +530,9 @@ tsApp
                 $scope.getAvailableWorklistCt();
                 $scope.getDoneWorklistCt();
                 // select previously selected list if saved in user preferences
-                if ($scope.user.userPreferences.properties['editWorklist']) {
+                if ($scope.user.userPreferences.properties['editWorklistChecklists']) {
                   for (var i = 0; i < $scope.lists.worklists.length; i++) {
-                    if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklist']) {
+                    if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklistChecklists']) {
                       $scope.selectWorklist($scope.lists.worklists[i], recoverPreferences);
                     }
                     ;
@@ -654,8 +654,7 @@ tsApp
           if ($scope.value == 'Worklist') {
             $scope.parseStateHistory(worklist);
           }
-          if ($scope.user.userPreferences.properties['editWorklist'] == $scope.selected.worklist.id 
-            && $scope.user.userPreferences.properties['editRecord'] > 0) {
+          if ($scope.user.userPreferences.properties['editRecord' + $scope.selected.worklist.id] > 0) {
             $scope.getRecords(false, recoverPreferences);
           } else {
             $scope.paging['records'].page = 1;
@@ -663,8 +662,8 @@ tsApp
           }
           // Set activity id
           $scope.selected.activityId = worklist.name;
-          $scope.user.userPreferences.properties['editWorklist'] = $scope.selected.worklist.id;
-          $scope.user.userPreferences.properties['editWorklistPaging'] = JSON
+          $scope.user.userPreferences.properties['editWorklist'+ $scope.selected.worklistMode] = $scope.selected.worklist.id;
+          $scope.user.userPreferences.properties['editWorklistPaging' + $scope.selected.worklistMode] = JSON
             .stringify($scope.paging['worklists']);
           securityService.updateUserPreferences($scope.user.userPreferences);
         };
@@ -677,8 +676,8 @@ tsApp
           if ($scope.worklistMode != 'Available') {
             $scope.getConcepts(record, true);
           }
-          $scope.user.userPreferences.properties['editRecord'] = $scope.selected.record.id;
-          $scope.user.userPreferences.properties['editRecordPaging'] = JSON
+          $scope.user.userPreferences.properties['editRecord'+ $scope.selected.worklist.id] = $scope.selected.record.id;
+          $scope.user.userPreferences.properties['editRecordPaging' + $scope.selected.worklist.id] = JSON
             .stringify($scope.paging['records']);
           securityService.updateUserPreferences($scope.user.userPreferences);
         }
@@ -857,7 +856,7 @@ tsApp
           var paging = $scope.paging['records'];
           
           if (recoverPreferences){
-            paging = JSON.parse($scope.user.userPreferences.properties['editRecordPaging']);
+            paging = JSON.parse($scope.user.userPreferences.properties['editRecordPaging' + $scope.selected.worklist.id]);
             angular.copy(paging, $scope.paging['records']);
             $scope.paging['records'].callbacks = {
               getPagedList : getRecords
@@ -903,7 +902,8 @@ tsApp
 
               // select previously selected record if saved in user
               // preferences
-              if ($scope.user.userPreferences.properties['editRecord'] > 0 && !selectFirst) {
+              var worklistId = $scope.user.userPreferences.properties['editWorklist'+ $scope.selected.worklistMode];
+              if ($scope.user.userPreferences.properties['editRecord'+ worklistId] > 0 && !selectFirst) {
                 for (var i = 0; i < $scope.lists.records.length; i++) {
                   if (needToSelectRecord(i)) {
                     $scope.selectRecord($scope.lists.records[i]);
@@ -924,7 +924,7 @@ tsApp
 
               // select previously selected record if saved in user
               // preferences
-              if ($scope.user.userPreferences.properties['editRecord']) {
+              if ($scope.user.userPreferences.properties['editRecord'+ $scope.selected.worklist.id]) {
                 for (var i = 0; i < $scope.lists.records.length; i++) {
                   if (needToSelectRecord(i)) {
                     $scope.selectRecord($scope.lists.records[i]);
@@ -942,7 +942,7 @@ tsApp
 
         // Predicate for whether a record needs to be selected
         function needToSelectRecord(i) {
-          return $scope.lists.records[i].id == $scope.user.userPreferences.properties['editRecord']
+          return $scope.lists.records[i].id == $scope.user.userPreferences.properties['editRecord'+ $scope.selected.worklist.id]
             && (!$scope.selected.record || $scope.lists.records[i].id != $scope.selected.record.id);
         }
 
@@ -1702,17 +1702,18 @@ tsApp
               $scope.getProjects();
 
               // reinitialize paging saved in user preferences
-              if ($scope.user.userPreferences.properties['editWorklistPaging']) {
+              if ($scope.user.userPreferences.properties['editWorklistPaging' + $scope.selected.worklistMode]) {
                 var savedPaging = JSON
-                  .parse($scope.user.userPreferences.properties['editWorklistPaging']);
+                  .parse($scope.user.userPreferences.properties['editWorklistPaging' + $scope.selected.worklistMode]);
                 angular.copy(savedPaging, $scope.paging['worklists']);
                 $scope.paging['worklists'].callbacks = {
                   getPagedList : getWorklists
                 };
               }
-              if ($scope.user.userPreferences.properties['editRecordPaging']) {
+              var worklistId = $scope.user.userPreferences.properties['editWorklist' + $scope.selected.worklistMode];
+              if ($scope.user.userPreferences.properties['editRecordPaging' + worklistId]) {
                 var savedPaging = JSON
-                  .parse($scope.user.userPreferences.properties['editRecordPaging']);
+                  .parse($scope.user.userPreferences.properties['editRecordPaging' + worklistId]);
                 angular.copy(savedPaging, $scope.paging['records']);
                 $scope.paging['records'].callbacks = {
                   getPagedList : getRecords
