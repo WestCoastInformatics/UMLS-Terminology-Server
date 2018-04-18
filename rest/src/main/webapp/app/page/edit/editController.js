@@ -330,7 +330,7 @@ tsApp
         $scope.getAvailableWorklists = function(recoverPreferences) {
           var paging = $scope.paging['worklists'];
           
-          if (recoverPreferences) {
+          if (recoverPreferences && $scope.user.userPreferences.properties['editWorklistPagingAvailable']) {
             paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPagingAvailable']);
             angular.copy(paging, $scope.paging['worklists']);
             $scope.paging['worklists'].callbacks = {
@@ -387,7 +387,7 @@ tsApp
         $scope.getAssignedWorklists = function(recoverPreferences) {
           var paging = $scope.paging['worklists'];
           
-          if (recoverPreferences) {
+          if (recoverPreferences && $scope.user.userPreferences.properties['editWorklistPagingAssigned']) {
             paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPagingAssigned']);
             angular.copy(paging, $scope.paging['worklists']);
             $scope.paging['worklists'].callbacks = {
