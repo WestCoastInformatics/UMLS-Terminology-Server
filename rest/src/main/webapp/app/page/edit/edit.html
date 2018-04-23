@@ -78,7 +78,7 @@
         </thead>
         <tbody>
           <tr ng-repeat="worklist in lists.worklists"
-            ng-click="selectWorklist(worklist, true);"
+            ng-click="selectWorklist(worklist);"
             ng-class="{selected: worklist.id == selected.worklist.id}">
             <td>{{worklist.name}}</td>
             <td>
