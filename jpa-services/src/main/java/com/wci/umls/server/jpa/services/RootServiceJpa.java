@@ -1830,7 +1830,7 @@ public abstract class RootServiceJpa implements RootService {
     }
 
     // check for correct number and type of returned objects
-    // only look up to the first case of FROM, to avoid problems with nexted queries
+    // only look up to the first case of FROM, to avoid problems with nested queries
     if (!query.toUpperCase().replaceAll("[\\n\\r]", "").substring(0, query.toUpperCase().indexOf("FROM"))
         .matches("SELECT.*ID.*")
         || query.toUpperCase().replaceAll("[\\n\\r]", "").substring(0, query.toUpperCase().indexOf("FROM"))
