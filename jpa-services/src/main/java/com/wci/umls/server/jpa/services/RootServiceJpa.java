@@ -1830,10 +1830,11 @@ public abstract class RootServiceJpa implements RootService {
     }
 
     // check for correct number and type of returned objects
-    if (!query.toUpperCase().replaceAll("[\\n\\r]", "")
-        .matches("SELECT.*ID.*FROM.*")
-        || query.toUpperCase().replaceAll("[\\n\\r]", "")
-            .matches("SELECT.*ID.*ID.*FROM.*")) {
+    // only look up to the first case of FROM, to avoid problems with nexted queries
+    if (!query.toUpperCase().replaceAll("[\\n\\r]", "").substring(0, query.toUpperCase().indexOf("FROM"))
+        .matches("SELECT.*ID.*")
+        || query.toUpperCase().replaceAll("[\\n\\r]", "").substring(0, query.toUpperCase().indexOf("FROM"))
+            .matches("SELECT.*ID.*ID.*")) {
       throw new LocalException(
           "Query must be constructed to return a single id");
     }
