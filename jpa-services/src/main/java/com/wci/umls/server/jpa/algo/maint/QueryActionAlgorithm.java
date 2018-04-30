@@ -215,6 +215,13 @@ public class QueryActionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         fromAtom.getRelationships().remove(atomRelationship);
         toAtom.getRelationships().remove(inverseAtomRelationship);
 
+        if(fromAtom.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)){
+          fromAtom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+        }
+        if(toAtom.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)){
+          toAtom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+        }
+        
         updateAtom(fromAtom);
         updateAtom(toAtom);
 
