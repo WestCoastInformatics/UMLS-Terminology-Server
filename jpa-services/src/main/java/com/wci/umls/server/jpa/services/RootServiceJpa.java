@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -1508,6 +1509,27 @@ public abstract class RootServiceJpa implements RootService {
         service.close();
       }
 
+      // If this project is set up with validation checks that no user should
+      // ever be able to override, add those back to errors, and remove from
+      // warnings
+      final String unoverridableCheckString =
+          ConfigUtility.getConfigProperties()
+              .getProperty("validation.service.handler.unoverridableChecks");
+      if (unoverridableCheckString != null) {
+        final List<String> unoverridableCheckList =
+            Arrays.asList(unoverridableCheckString.split(","));
+        for (final String message : new HashSet<String>(
+            validationResult.getWarnings())) {
+          for (final String checkName : unoverridableCheckList) {
+            if (message.contains(checkName)) {
+              validationResult.getWarnings().remove(message);
+              validationResult.getErrors().add(message);
+              break;
+            }
+          }
+        }
+      }
+
       // Check again in case all errors were turned into warnings and we're
       // overriding warnings
       if (!validationResult.isValid()
@@ -1830,10 +1852,13 @@ public abstract class RootServiceJpa implements RootService {
     }
 
     // check for correct number and type of returned objects
-    // only look up to the first case of FROM, to avoid problems with nested queries
-    if (!query.toUpperCase().replaceAll("[\\n\\r]", "").substring(0, query.toUpperCase().indexOf("FROM"))
+    // only look up to the first case of FROM, to avoid problems with nested
+    // queries
+    if (!query.toUpperCase().replaceAll("[\\n\\r]", "")
+        .substring(0, query.toUpperCase().indexOf("FROM"))
         .matches("SELECT.*ID.*")
-        || query.toUpperCase().replaceAll("[\\n\\r]", "").substring(0, query.toUpperCase().indexOf("FROM"))
+        || query.toUpperCase().replaceAll("[\\n\\r]", "")
+            .substring(0, query.toUpperCase().indexOf("FROM"))
             .matches("SELECT.*ID.*ID.*")) {
       throw new LocalException(
           "Query must be constructed to return a single id");
@@ -2487,7 +2512,7 @@ public abstract class RootServiceJpa implements RootService {
     }
     // Iterate through all children, add and recurse
     for (final Long chd : parChd.get(par)) {
-      if(!result.contains(chd)){
+      if (!result.contains(chd)) {
         getDescendants(chd, parChd, result);
       }
       result.add(chd);
