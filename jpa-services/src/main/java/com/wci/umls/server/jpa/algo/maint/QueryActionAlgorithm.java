@@ -220,6 +220,9 @@ public class QueryActionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
                   logError("    error = " + error);
                 }
               }
+              else{
+                componentChanged = true;
+              }
             } catch (Exception e) {
               action.rollback();
             } finally {
