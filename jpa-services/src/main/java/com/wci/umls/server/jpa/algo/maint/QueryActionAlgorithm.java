@@ -19,11 +19,15 @@ import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
+import com.wci.umls.server.jpa.algo.action.AbstractMolecularAction;
+import com.wci.umls.server.jpa.algo.action.ApproveMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Component;
+import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -185,8 +189,48 @@ public class QueryActionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
         // Handle Approve
         else if (action.equals("Approve")) {
-          componentChanged = changeComponentApprovalStatus(component,
-              WorkflowStatus.READY_FOR_PUBLICATION);
+          // If approving a concept, run it through the approveMolecularAction,
+          // so all of the associated content is also affected.
+          if (ConceptJpa.class.isAssignableFrom(objectTypeClass)) {
+            AbstractMolecularAction action = new ApproveMolecularAction();
+            try {
+              // set workflowStatus action to NEEDS_REVIEW
+              final Concept concept = action.getConcept(componentId);
+              // Configure the action
+              action.setProject(getProject());
+              action.setActivityId(getActivityId());
+              action.setConceptId(concept.getId());
+              action.setConceptId2(null);
+              action.setLastModifiedBy(getLastModifiedBy());
+              action.setLastModified(concept.getLastModified().getTime());
+              action.setOverrideWarnings(true);
+              action.setTransactionPerOperation(false);
+              action.setMolecularActionFlag(true);
+              action.setChangeStatusFlag(true);
+
+              // Perform the action
+              final ValidationResult validationResult =
+                  action.performMolecularAction(action, getLastModifiedBy(),
+                      true, false);
+
+              // If the action failed, bail out now.
+              if (!validationResult.isValid()) {
+                logError("  unable to approve " + concept.getId());
+                for (final String error : validationResult.getErrors()) {
+                  logError("    error = " + error);
+                }
+              }
+            } catch (Exception e) {
+              action.rollback();
+            } finally {
+              action.close();
+            }
+          }
+          // Otherwise, only approve the object returned by the query
+          else {
+            componentChanged = changeComponentApprovalStatus(component,
+                WorkflowStatus.READY_FOR_PUBLICATION);
+          }
         }
 
         // Handle Unapprove
@@ -215,13 +259,13 @@ public class QueryActionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         fromAtom.getRelationships().remove(atomRelationship);
         toAtom.getRelationships().remove(inverseAtomRelationship);
 
-        if(fromAtom.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)){
+        if (fromAtom.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
           fromAtom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
         }
-        if(toAtom.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)){
+        if (toAtom.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
           toAtom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
         }
-        
+
         updateAtom(fromAtom);
         updateAtom(toAtom);
 
