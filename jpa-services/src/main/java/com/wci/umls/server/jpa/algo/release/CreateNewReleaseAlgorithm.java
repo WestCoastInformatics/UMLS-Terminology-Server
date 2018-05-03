@@ -256,7 +256,10 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     logInfo("  release = " + releaseInfo.getVersion());
     final ReleaseInfo prevReleaseInfo =
         getPreviousReleaseInfo(getProject().getTerminology());
-    logInfo("  prev release = " + prevReleaseInfo != null ? prevReleaseInfo.getVersion() : "");
+    if (prevReleaseInfo != null) {
+      logInfo("  prev release = " + prevReleaseInfo.getVersion());
+    }
+
     for (final Terminology terminology : getTerminologies().getObjects()) {
       // Mark unpublished current terminologies with "first" release as this
       // release
@@ -271,7 +274,7 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
       // Mark non-current terminologies, previously published, with "last"
       // release as previous release
       else if (!terminology.isCurrent()
-          && !terminology.getLastReleases().isEmpty()
+          && !terminology.getLastReleases().isEmpty() && prevReleaseInfo != null
           && terminology.getLastReleases().get(releaseInfo.getTerminology())
               .equals(prevReleaseInfo.getVersion())) {
         logInfo("  reset lastRelease = " + prevReleaseInfo.getVersion() + " "
