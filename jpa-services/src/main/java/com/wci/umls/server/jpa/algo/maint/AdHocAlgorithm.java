@@ -8,7 +8,6 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,12 +18,8 @@ import java.util.UUID;
 
 import javax.persistence.Query;
 
-import org.apache.lucene.queryparser.classic.QueryParserBase;
-
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.Identity;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
@@ -37,7 +32,6 @@ import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa;
-import com.wci.umls.server.jpa.services.handlers.DefaultSearchHandler;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
@@ -45,7 +39,6 @@ import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.meta.RelationshipIdentity;
 import com.wci.umls.server.services.UmlsIdentityService;
-import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
  * Implementation of an algorithm to execute an action based on a user-defined
@@ -117,10 +110,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixScrAtomIds();
     } else if (actionName.equals("Redo Molecular Actions")) {
       redoMolecularActions();
-    } else if (actionName.equals("Remove Duplicate Identities")) {
-      removeDuplicateIdentities();
-    } else if (actionName.equals("Remove Bad Inverse Identities")) {
-      removeBadInverseIdentities();
+    } else if (actionName.equals("Fix Bad Relationship Identities")) {
+      fixBadRelationshipIdentities();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -929,485 +920,284 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
   }
 
-  private void removeDuplicateIdentities() throws Exception {
-    // 5/4/2018 Duplicate MTH relationship identities were identified as having
-    // been
-    // imported from MEME4 - remove them
+  private void fixBadRelationshipIdentities() throws Exception {
+    // 5/7/2018 Issues with MTH relationship identities imported from
+    // MEME4 were identified.
 
-    logInfo(" Removing duplicate identities");
+    logInfo(" Fix bad relationship identities");
 
-    SearchHandler searchHandler = new DefaultSearchHandler();
-    UmlsIdentityService identityService = new UmlsIdentityServiceJpa();
-
-    int removedIdentities = 0;
-
-    try {
-
-      List<Long> relationshipIdentityIds = new ArrayList<>(Arrays.asList(
-          39739324L, 39742032L, 39745667L, 39745800L, 39746256L, 39763691L,
-          39763693L, 39777764L, 39778536L, 39783284L, 39783330L, 40217728L,
-          87813201L, 87810462L, 87814418L, 39807919L, 39791406L, 39746740L,
-          87808197L, 39719040L, 115596444L, 39728676L, 39742010L, 39731442L,
-          39811981L, 39740108L, 40144508L, 49939494L, 39740923L, 39739493L,
-          39743114L, 39799540L, 39799598L, 39793201L, 39725679L, 87809674L,
-          39738115L, 39783833L, 39741262L, 39797949L, 39732617L, 39738077L,
-          39799541L, 39746741L, 39741165L, 39803376L, 39783834L, 39743489L,
-          39728696L, 39802933L, 39746585L, 39792728L, 40144228L, 39739889L,
-          39739890L, 39739723L, 39797950L, 39773430L, 39946700L, 39985286L,
-          40009921L, 40009953L, 40045100L, 40083778L, 40121945L, 40127971L,
-          40131906L, 40171918L, 39732619L, 39770257L, 39802062L, 39955974L,
-          39956041L, 39956276L, 39956287L, 40025644L, 39721547L, 39799577L,
-          40192970L, 78151551L, 39736643L, 39955159L, 40189512L, 39799542L,
-          40113223L, 40114718L, 40159718L, 40179587L, 40179589L, 39745712L,
-          39803157L, 39955392L, 39743900L, 89549790L, 42024786L, 40738864L,
-          40738863L, 39804785L, 39745717L, 44185889L, 40013346L, 39776668L,
-          39733305L, 39740732L, 40185651L, 40185656L, 40185641L, 42543709L,
-          39763730L, 39810826L, 39729390L, 40052256L, 39821320L, 40107105L,
-          39777050L, 39777140L, 39740970L, 39746807L, 39803525L, 39797798L,
-          39834804L, 39988889L, 39741166L, 39751498L, 42057988L, 39725314L,
-          87810920L, 87809501L, 39804435L, 82315706L, 40043111L, 40030560L,
-          40098501L, 84427142L, 39726180L, 39812088L, 49905056L, 39733095L,
-          40181323L, 39975278L, 39980588L, 40261012L, 40166323L, 39754518L,
-          39719856L, 39738067L, 39780596L, 39778695L, 39804786L, 39820991L,
-          42543346L, 39750620L, 39768203L, 78136472L, 40024336L, 40094614L,
-          40094637L, 40094649L, 40094653L, 40094904L, 40094911L, 39725680L,
-          39802713L, 39721072L, 118155119L, 39721073L, 39730607L, 40182676L,
-          39809022L, 39812640L, 40039086L, 39833433L, 39833434L, 39763773L,
-          39799462L, 39982598L, 39990052L, 40012176L, 40038811L, 40115744L,
-          40122130L, 42028035L, 107826295L, 39811032L, 39741384L, 39777467L,
-          40108051L, 40141970L, 40180022L, 40180025L, 40286415L, 39991268L,
-          40041324L, 48014409L, 40128142L, 87813668L, 84431259L, 39743271L,
-          39729916L, 39992806L, 39789148L, 39728697L, 39742011L, 39778415L,
-          39778358L, 39748044L, 39802120L, 39999940L, 39817536L, 39721946L,
-          39794910L, 40113924L, 40113927L, 40113930L, 40113933L, 40115042L,
-          40159875L, 40161166L, 40172641L, 39996354L, 39794774L, 39744600L,
-          39735157L, 40041224L, 40081103L, 87809973L, 39954133L, 39994308L,
-          40068642L, 39797617L, 39770258L, 39802935L, 39797847L, 39731845L,
-          39888426L, 107507800L, 39746363L, 39821303L, 39778578L, 40065212L,
-          40180266L, 39882759L, 40159944L, 40115139L, 40217040L, 40114138L,
-          40217046L, 39838235L, 40125969L, 39738078L, 39739891L, 39726538L,
-          39811762L, 39729431L, 39732996L, 40003846L, 40003275L, 40100364L,
-          40192703L, 40217101L, 39812101L, 39743216L, 39778631L, 42543971L,
-          39763708L, 39821446L, 40052475L, 40179722L, 40179725L, 40179728L,
-          40179731L, 40179734L, 40179737L, 39782316L, 39735158L, 39803209L,
-          39802979L, 39741870L, 39797882L, 39746097L, 39802980L, 39794816L,
-          39740137L, 39740971L, 40066333L, 84426815L, 39794815L, 39812251L,
-          39794727L, 39721074L, 39730608L, 39777468L, 39735920L, 39740045L,
-          39741719L, 39745206L, 39745290L, 39745470L, 39745472L, 39746708L,
-          39764004L, 39728698L, 39797462L, 39739161L, 39721349L, 39996935L,
-          39975645L, 40083721L, 39767886L, 40000862L, 40184987L, 39719164L,
-          39735166L, 39736673L, 39996895L, 39735172L, 78148470L, 39876626L,
-          39876629L, 40030561L, 40049187L, 39743170L, 39730609L, 39745512L,
-          39731721L, 39753993L, 87810135L, 42050795L, 39763709L, 39777569L,
-          39738084L, 39721868L, 39812559L, 39777669L, 39740348L, 39745662L,
-          39744015L, 87809782L, 39793525L, 47988368L, 39732620L, 39802936L,
-          47993805L, 39978230L, 40114563L, 39738086L, 39883174L, 39880479L,
-          39803510L, 40108802L, 40108805L, 40108808L, 40128602L, 40137110L,
-          40180519L, 39816672L, 39777670L, 39802470L, 39727424L, 39802636L,
-          39733097L, 88655069L, 44193366L, 39734195L, 87809495L, 87810161L,
-          39804804L, 40179595L, 40128606L, 40144505L, 39978231L, 39874614L,
-          39782498L, 99048157L, 39852274L, 39978232L, 39746684L, 39978233L,
-          39746467L, 117865963L, 39834652L, 40044215L, 42057994L, 39802577L,
-          39777689L, 40108362L, 40108363L, 40108364L, 40128613L, 40136996L,
-          39978234L, 39817080L, 39978235L, 40141943L, 39861486L, 39860162L,
-          39746300L, 39805057L, 39777673L, 39821386L, 40180065L, 40180068L,
-          40180071L, 40180074L, 39833547L, 39863657L, 120835038L, 39861178L,
-          39817681L, 39746567L, 39867846L, 39804061L, 99047841L, 40188631L,
-          39799537L, 87811833L, 39908417L, 39881697L, 39835550L, 39908419L,
-          40107768L, 40180387L, 40014081L, 39777367L, 39739726L, 82382607L,
-          39794726L, 86649364L, 39978236L, 40039101L, 39848119L, 39778627L,
-          40094531L, 40094803L, 40094923L, 39763925L, 39992058L, 40031593L,
-          39770283L, 39926939L, 39978237L, 39744337L, 39812759L, 39955707L,
-          87808283L, 111381163L, 40270802L, 40022236L, 39978238L, 39978239L,
-          39930566L, 39992509L, 40181405L, 87812100L, 39880392L, 40065198L,
-          39791454L, 40113956L, 39978240L, 39978241L, 39978242L, 39740356L,
-          39978243L, 39978244L, 39978245L, 39978246L, 39978247L, 39978248L,
-          39835322L, 40098514L, 40098517L, 39745314L, 39911715L, 39778571L,
-          39805403L, 40031940L, 39805404L, 40053990L, 40067733L, 42544123L,
-          40114484L, 40108768L, 39859868L, 120809573L, 107916478L, 40030562L,
-          40089459L, 39799472L, 39969295L, 86942359L, 40004811L, 40185775L,
-          39978871L, 39983564L, 40041889L, 40049747L, 42544063L, 39726181L,
-          39869555L, 40052433L, 40180120L, 39978250L, 87810286L, 39728926L,
-          40236730L, 40139388L, 40139391L, 40143678L, 39994945L, 39777968L,
-          39950447L, 99060867L, 39876632L, 40729791L, 49909576L, 39868561L,
-          87808485L, 39847344L, 39978251L, 39888533L, 42543821L, 39777492L,
-          39868390L, 48015646L, 39946153L, 39999943L, 40021188L, 39823682L,
-          42047263L, 39876636L, 44186970L, 39753686L, 40034760L, 40125970L,
-          121075774L, 39817011L, 39816673L, 39797952L, 39797954L, 39978252L,
-          39782211L, 40044814L, 39849882L, 40181639L, 39994119L, 39869198L,
-          39975757L, 40050217L, 39957336L, 40039399L, 40083942L, 107317646L,
-          39740936L, 39745705L, 39769871L, 40039524L, 39845226L, 40215645L,
-          42544121L, 40179713L, 40181419L, 40052249L, 39821393L, 39874885L,
-          40152257L, 39724233L, 39724232L, 39763731L, 39727628L, 39743491L,
-          39986909L, 101370236L, 39912301L, 39743996L, 39763811L, 40052486L,
-          39821425L, 39902719L, 40175616L, 40175617L, 107377592L, 40003284L,
-          39930389L, 39828670L, 40067454L, 88438538L, 107935111L, 39969789L,
-          39979228L, 40016106L, 42535680L, 42049863L, 44179471L, 39805573L,
-          99061444L, 40185783L, 39995437L, 40032052L, 40032053L, 40032054L,
-          40044823L, 40044824L, 39946036L, 40034119L, 39975019L, 40002614L,
-          40028152L, 40028154L, 39975020L, 40043526L, 40044827L, 40024589L,
-          40028155L, 40067309L, 40067310L, 40067311L, 40067312L, 42053311L,
-          40144367L, 39955969L, 42015052L, 42015053L, 40083944L, 39777456L,
-          39783452L, 40205666L, 48006256L, 40058761L, 40124082L, 40184531L,
-          39876639L, 40044828L, 82315843L, 39948879L, 40133646L, 40032056L,
-          40044830L, 40032057L, 40044831L, 40068368L, 40068369L, 40068370L,
-          40120655L, 40120657L, 40184510L, 40067313L, 39948880L, 42549054L,
-          39836060L, 39874208L, 39796250L, 39835319L, 40179442L, 40217878L,
-          40179444L, 40198986L, 40214724L, 107527463L, 40107260L, 107516665L,
-          39740972L, 39819215L, 39874814L, 82383193L, 40012387L, 39976797L,
-          39976810L, 39744826L, 40002617L, 40002618L, 40185682L, 40028185L,
-          40107055L, 40052470L, 40167590L, 39983540L, 40013851L, 40045578L,
-          39924161L, 40080950L, 39777164L, 40001778L, 39777379L, 77279175L,
-          77278990L, 77278991L, 48020796L, 39978253L, 39998803L, 44187399L,
-          39731467L, 39799474L, 40083897L, 39783193L, 42397614L, 40217149L,
-          40155913L, 39950329L, 108084595L, 40032059L, 40167457L, 40004812L,
-          40004813L, 40004814L, 40004815L, 40004816L, 40004817L, 40184333L,
-          40184334L, 40184338L, 40002624L, 77278999L, 77279002L, 40029600L,
-          40029601L, 40186406L, 39969987L, 87810918L, 87813007L, 40022818L,
-          39969990L, 40185697L, 40185698L, 40155915L, 40084738L, 40096052L,
-          39811530L, 40182673L, 87813140L, 40165552L, 40184536L, 40184538L,
-          39960834L, 82383916L, 40193228L, 39872357L, 40217242L, 115818303L,
-          120542973L, 40180255L, 40212061L, 40217010L, 40215799L, 39850050L,
-          39887250L, 40179608L, 40179603L, 40179957L, 40172643L, 39847311L,
-          40083946L, 40738799L, 40738800L, 77278717L, 40185636L, 40185638L,
-          40185639L, 40122251L, 87811197L, 40196246L, 87810933L, 40215317L,
-          39841529L, 87809512L, 40180476L, 40208579L, 40217756L, 40012390L,
-          40184350L, 87809506L, 39864904L, 39855881L, 39727426L, 88712873L,
-          39916797L, 39738970L, 40035962L, 40187056L, 87810949L, 39887124L,
-          42032970L, 39874871L, 87811391L, 39726182L, 99059835L, 39830358L,
-          39860520L, 87814207L, 39887552L, 39746899L, 40185869L, 39803782L,
-          40185664L, 39929785L, 40003851L, 40189627L, 40176521L, 40176522L,
-          40176523L, 40186396L, 40186230L, 40155918L, 40185802L, 40041693L,
-          42029443L, 39828854L, 40008971L, 40094511L, 48019846L, 40037023L,
-          40037024L, 39990750L, 40041065L, 40180165L, 39835829L, 78148179L,
-          39955973L, 40074348L, 87810235L, 39817732L, 39745317L, 39745547L,
-          39746059L, 40114501L, 40115302L, 40030563L, 40184342L, 39936665L,
-          39965426L, 39989669L, 120466811L, 40067854L, 39970006L, 39960766L,
-          39960775L, 40185770L, 40185773L, 87812413L, 40186233L, 39960350L,
-          40095158L, 40095165L, 40189385L, 40189386L, 40034068L, 39988794L,
-          120796859L, 40035208L, 40035209L, 40012450L, 40012452L, 39978255L,
-          40185684L, 40185685L, 40185784L, 40035954L, 40184344L, 40003852L,
-          40186397L, 77279008L, 77279009L, 40037643L, 40736825L, 40024592L,
-          40035210L, 40035211L, 40185785L, 77279010L, 87809507L, 78146140L,
-          87810367L, 40035161L, 40018962L, 87813521L, 42544128L, 39816631L,
-          78150494L, 40225475L, 115889238L, 39850535L, 87810174L, 39888089L,
-          42061522L, 42061528L, 42060950L, 42060951L, 39885139L, 39869539L,
-          40035955L, 40175588L, 39850547L, 40101150L, 40075158L, 39968430L,
-          39846041L, 40072216L, 40072197L, 40073717L, 40229096L, 40134423L,
-          39999355L, 44196449L, 40122489L, 40103887L, 115730978L, 44188162L,
-          39937886L, 40155216L, 39963745L, 44186248L, 40034123L, 40270384L,
-          40287094L, 48006083L, 87808892L, 39848263L, 39803378L, 40095256L,
-          115960415L, 110372001L, 40188363L, 78146181L, 44186345L, 42535443L,
-          101098381L, 78150367L, 40736908L, 40730520L, 42057292L, 40238722L,
-          42535908L, 42535909L, 42047884L, 88643990L, 115865619L, 44179847L,
-          39985827L, 44186984L, 44186845L, 99048596L, 49913357L, 120593624L,
-          115683710L, 78144095L, 39957330L, 89080030L, 118178800L, 47996678L,
-          39933690L, 39832121L, 115620145L, 99048164L, 86614070L, 86687171L,
-          101268003L, 88529616L, 115651693L, 120695821L, 78153212L, 110372039L,
-          107297728L, 39804171L, 39819193L, 40219718L, 107417392L, 107536689L,
-          115588947L, 40188632L, 115643553L, 116254174L, 39741227L, 39743615L,
-          39745209L, 39745553L, 39745925L, 39745927L, 39745929L, 39745931L,
-          39745933L, 39746354L, 39770373L, 39798581L, 39798591L, 39798594L,
-          118354676L, 118482862L, 118211054L, 120517460L, 39943547L, 44185470L,
-          39943594L));
-
-      for (final Long id : relationshipIdentityIds) {
-        Identity identity = identityService.getRelationshipIdentity(id);
-
-        // Set up the "full text query" to find the duplicates
-        final List<Long> results =
-            searchHandler.getIdResults(null, null, Branch.ROOT,
-                "identityCode:\""
-                    + QueryParserBase.escape(identity.getIdentityCode()) + "\"",
-                null, identity.getClass(), null, new int[1], manager);
-
-        if (results.size() <= 1) {
-          logWarn("Couldn't find duplicates for identity="
-              + identity.getIdentityCode());
-        }
-
-        // Keep the identity with the smallest id - remove the rest
-        Collections.sort(results);
-        Long keepId = results.get(0);
-        for (final Long resultId : results) {
-          if (resultId != keepId) {
-            identityService.removeRelationshipIdentity(resultId);
-            removedIdentities++;
-          }
-        }
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-      fail("Unexpected exception thrown - please review stack trace.");
-    } finally {
-      identityService.close();
-    }
-
-    logInfo(
-        "Removed " + removedIdentities + " duplicate relationship identities.");
-    logInfo("Finished " + getName());
-  }
-
-  private void removeBadInverseIdentities() throws Exception {
-    // 5/7/2018 More issues with MTH relationship identities imported from
-    // MEME4were identified.
-    // These identities have bad inverse values. For example:
-    //
-    // +----------+----------------------------+----------+-----------------+----------+-----------+------------------+-------------+---------------+----------+---------------+---------+
-    // | id | additionalRelationshipType | fromId | fromTerminology | fromType |
-    // inverseId | relationshipType | terminology | terminologyId | toId |
-    // toTerminology | toType |
-    // +----------+----------------------------+----------+-----------------+----------+-----------+------------------+-------------+---------------+----------+---------------+---------+
-    // | 39831324 | | C0045260 | NCIMTH | CONCEPT | 39930425 | RN | MTH | |
-    // C0000294 | NCIMTH | CONCEPT |
-    // | 39930425 | | C0045260 | NCIMTH | CONCEPT | 39831324 | RN | MTH | |
-    // C0000294 | NCIMTH | CONCEPT |
-    // +----------+----------------------------+----------+-----------------+----------+-----------+------------------+-------------+---------------+----------+---------------+---------+
-
-    // These identities think they are inverses of each other, but are actually
-    // identical relationships.
-    // What needs to happen, is identity 39831324 needs to be removed, and
-    // 39930425 needs to be updated to point to its 'true' inverse:
-
-    // +----------+----------------------------+----------+-----------------+----------+-----------+------------------+-------------+---------------+----------+---------------+---------+
-    // | id | additionalRelationshipType | fromId | fromTerminology | fromType |
-    // inverseId | relationshipType | terminology | terminologyId | toId |
-    // toTerminology | toType |
-    // +----------+----------------------------+----------+-----------------+----------+-----------+------------------+-------------+---------------+----------+---------------+---------+
-    // | 39739324 | | C0000294 | NCIMTH | CONCEPT | 39930425 | RB | MTH | |
-    // C0045260 | NCIMTH | CONCEPT |
-    // +----------+----------------------------+----------+-----------------+----------+-----------+------------------+-------------+---------------+----------+---------------+---------+
-
-    logInfo(" Removing duplicate identities");
-
-    SearchHandler searchHandler = new DefaultSearchHandler();
     UmlsIdentityService identityService = new UmlsIdentityServiceJpa();
 
     int removedIdentities = 0;
     int updatedIdentities = 0;
+    List<RelationshipIdentity> relationshipIdentities = new ArrayList<>();
 
     try {
 
-      List<Long> relationshipIdentityIds = new ArrayList<>(Arrays.asList(
-          39833371L, 39876624L, 39810509L, 40109973L, 40068214L, 39954139L,
-          39728674L, 40167640L, 78145832L, 107825981L, 39855489L, 40189631L,
-          40133667L, 40152249L, 111510672L, 39725092L, 40179495L, 39743115L,
-          39816671L, 42025113L, 39999938L, 39859368L, 39859447L, 39874960L,
-          39732618L, 99048289L, 40189508L, 39961944L, 42040416L, 40041404L,
-          39876625L, 40121423L, 40210940L, 39955956L, 39955957L, 39955958L,
-          39955959L, 39839479L, 40030559L, 40090296L, 40197655L, 39881309L,
-          44196420L, 40215567L, 40199830L, 40215265L, 40184171L, 40261616L,
-          87810625L, 39777135L, 40056257L, 39822327L, 40229139L, 77278645L,
-          40050189L, 39802392L, 39912053L, 39912054L, 40103448L, 39743888L,
-          39802934L, 39802331L, 87815558L, 39850185L, 39821537L, 40113588L,
-          40114892L, 39980587L, 40012381L, 40087378L, 39835334L, 39858532L,
-          40039278L, 40039279L, 39740160L, 40052632L, 40091220L, 39869675L,
-          39980591L, 89022115L, 39988162L, 39884423L, 39933726L, 39975223L,
-          40052742L, 39912100L, 44193648L, 39855465L, 82405668L, 39954140L,
-          87811636L, 40054321L, 39746886L, 39741723L, 84426711L, 40095925L,
-          49942401L, 44198399L, 39835898L, 39863520L, 39876558L, 39742086L,
-          40216528L, 39972937L, 39896748L, 39989729L, 39988163L, 87810661L,
-          39869764L, 49911868L, 39991513L, 84428538L, 40039397L, 39863256L,
-          40043123L, 39992769L, 107707124L, 40086146L, 40065186L, 39859505L,
-          39876187L, 39878165L, 40107696L, 99058834L, 39996361L, 40012382L,
-          40012383L, 39834192L, 40053960L, 40236768L, 48012965L, 39878979L,
-          39764175L, 40012384L, 39769968L, 40172092L, 39771466L, 39821369L,
-          39835539L, 39838255L, 39882712L, 40114142L, 40159937L, 40159941L,
-          40180263L, 39753587L, 39869876L, 39852463L, 39884797L, 39846127L,
-          40052495L, 40206562L, 39885269L, 39954141L, 39954142L, 87808294L,
-          107576913L, 39988164L, 39735164L, 39735174L, 39763301L, 39767893L,
-          39787840L, 39867510L, 39872127L, 40157457L, 40186815L, 39876627L,
-          39876628L, 39965479L, 39975224L, 40037635L, 107745729L, 39876382L,
-          40104486L, 42548812L, 44199236L, 42053501L, 40171885L, 39840078L,
-          40220342L, 39876630L, 39745650L, 40079092L, 39743117L, 40042840L,
-          42542428L, 39882220L, 40181283L, 39732621L, 39983584L, 39855509L,
-          39835543L, 39869549L, 40115334L, 40217786L, 120682140L, 39835416L,
-          39956245L, 40114580L, 40114585L, 40115343L, 44199237L, 40162894L,
-          39908259L, 39934140L, 42549914L, 42549915L, 39876631L, 39831324L,
-          39834658L, 87812952L, 87809663L, 87809664L, 39836874L, 39888024L,
-          39836367L, 39836374L, 39869569L, 42065915L, 40039398L, 39876445L,
-          40037701L, 107587944L, 40108402L, 40108403L, 40108404L, 40137011L,
-          40139733L, 40179596L, 39834315L, 39839800L, 39934689L, 39846181L,
-          39911547L, 39848338L, 39874654L, 39925224L, 39835945L, 39942792L,
-          39835915L, 39849857L, 39886707L, 40216031L, 39835547L, 40083519L,
-          39876446L, 121113625L, 39874109L, 87815822L, 39834918L, 39835823L,
-          39840994L, 40216634L, 40216636L, 40218051L, 40218053L, 40226518L,
-          39831325L, 39802344L, 39874023L, 39874256L, 40107577L, 40216950L,
-          40218082L, 40053223L, 39812667L, 40208553L, 40208556L, 42015511L,
-          99053167L, 39834818L, 39877809L, 40217493L, 40739939L, 39863244L,
-          39812043L, 49906576L, 39835918L, 39912132L, 44190268L, 39852821L,
-          116340924L, 39988165L, 39731964L, 39987806L, 40039088L, 39842969L,
-          39912556L, 40091087L, 39882135L, 40095058L, 39888900L, 87811035L,
-          39860003L, 40053318L, 40208896L, 39999612L, 39991514L, 39925499L,
-          78152027L, 86722208L, 39876448L, 39852822L, 39876449L, 39929271L,
-          39975018L, 39876450L, 39876451L, 39878886L, 39929273L, 39852823L,
-          40115052L, 39831327L, 39841143L, 39843823L, 39831328L, 39852824L,
-          39852825L, 39852826L, 39852827L, 39852828L, 39929274L, 39831329L,
-          40172678L, 39852829L, 39882061L, 39886509L, 39870212L, 39887458L,
-          39836040L, 87816785L, 39886356L, 39874224L, 78154267L, 39876561L,
-          39833321L, 39835927L, 40183136L, 40108766L, 40108767L, 40115287L,
-          40128625L, 40137101L, 40139805L, 39848369L, 86760299L, 39926541L,
-          39954143L, 39850066L, 39867249L, 39975225L, 120974070L, 39864277L,
-          40013560L, 40053512L, 39857961L, 40122713L, 42056190L, 39969954L,
-          39956997L, 40053758L, 40097861L, 39994358L, 42047255L, 40044812L,
-          39879928L, 39879031L, 40124085L, 40043524L, 40002612L, 40009347L,
-          39778636L, 39870104L, 40119375L, 40119382L, 40119390L, 40119395L,
-          40145032L, 40102919L, 39831331L, 39831332L, 39870527L, 39879561L,
-          42397873L, 39912058L, 42053370L, 39903356L, 40044813L, 44200521L,
-          39876568L, 40214738L, 39868679L, 40231281L, 40074346L, 40229097L,
-          39876634L, 39999615L, 39857962L, 39852172L, 40012385L, 39954144L,
-          40175021L, 39743118L, 39743119L, 39835943L, 39867969L, 39883071L,
-          39838363L, 39867954L, 39888611L, 39852830L, 40183614L, 39838110L,
-          39844347L, 40206897L, 40039131L, 39983585L, 39983586L, 39983587L,
-          39983588L, 40039132L, 108283665L, 39983589L, 39983590L, 40039133L,
-          40215646L, 118828010L, 40215660L, 39848271L, 40290482L, 39864178L,
-          40192965L, 78137844L, 39929170L, 39861492L, 39876221L, 40181658L,
-          39777469L, 39903581L, 39881701L, 39884346L, 87813788L, 39887151L,
-          39886805L, 39831333L, 39934216L, 47996689L, 39863699L, 39831334L,
-          39890450L, 84426690L, 39869052L, 39888436L, 39870313L, 39976053L,
-          39831997L, 107547529L, 44188326L, 40227286L, 89389379L, 40239131L,
-          39855639L, 99057260L, 39952403L, 39970673L, 40156367L, 39864637L,
-          39908730L, 78145503L, 39870929L, 39866472L, 40037638L, 39886074L,
-          39989031L, 40034051L, 40034052L, 40034053L, 40044825L, 40024727L,
-          40024728L, 40024729L, 39960330L, 39995276L, 39995277L, 39995278L,
-          39995279L, 40043525L, 40002613L, 40044826L, 40172190L, 40024588L,
-          39960331L, 39995280L, 40002615L, 40172191L, 39988166L, 82564204L,
-          40144298L, 40144302L, 40144306L, 40144363L, 40144370L, 39954147L,
-          39988167L, 39882081L, 39930341L, 40185662L, 39831335L, 39831336L,
-          87815802L, 115754870L, 115580886L, 39916869L, 40237865L, 39835501L,
-          39835930L, 40124088L, 40002616L, 40083520L, 39954148L, 39991532L,
-          40024730L, 40032055L, 40034054L, 118330605L, 120517467L, 78145499L,
-          39954149L, 39852820L, 39863476L, 40231931L, 40034055L, 40024731L,
-          40064358L, 40064359L, 40034143L, 39989032L, 40064360L, 39951338L,
-          40120656L, 40032097L, 39890107L, 40095506L, 42534175L, 42533699L,
-          42541833L, 42534957L, 120580911L, 42536306L, 42545265L, 42536188L,
-          42536017L, 87808564L, 40260742L, 40046554L, 99049694L, 40179443L,
-          40181570L, 40196334L, 42063760L, 40181034L, 40181376L, 40215147L,
-          40202401L, 40746181L, 42029775L, 40179672L, 87808830L, 99046196L,
-          48005996L, 39960333L, 39995281L, 40002619L, 39995282L, 39980647L,
-          39744181L, 39876643L, 39954152L, 39868028L, 77278989L, 77278992L,
-          77279158L, 77279159L, 77279165L, 39887997L, 39995599L, 40185825L,
-          39907920L, 39852831L, 39852832L, 39852833L, 39812870L, 78152301L,
-          39860951L, 39779786L, 39892144L, 39930125L, 40192985L, 40192988L,
-          40192990L, 40155912L, 40155914L, 39960334L, 39960335L, 40032058L,
-          40184533L, 40184535L, 40095162L, 39990748L, 39989033L, 39989035L,
-          40035203L, 40035204L, 40035205L, 40035206L, 40053759L, 40209676L,
-          40002625L, 77279000L, 77279001L, 40037639L, 40186407L, 40024732L,
-          39979617L, 40043316L, 40095163L, 87810236L, 40216988L, 40226514L,
-          39838898L, 39864325L, 87809271L, 40215288L, 40215293L, 39849300L,
-          39929118L, 40179905L, 40179906L, 40187267L, 40125974L, 40184092L,
-          40184095L, 39847487L, 40208621L, 39864658L, 39821334L, 40180361L,
-          40180362L, 40181442L, 40181444L, 40012389L, 39884354L, 40192011L,
-          40160800L, 40216888L, 40216890L, 87811461L, 40185867L, 87810932L,
-          87812198L, 40180475L, 39883224L, 39848976L, 40189413L, 39934798L,
-          87810936L, 39932275L, 39874435L, 39831839L, 39860949L, 39855853L,
-          87808979L, 39885828L, 39887140L, 39916189L, 39890544L, 39890636L,
-          39843675L, 39847348L, 40292289L, 48010055L, 40036025L, 40217754L,
-          39861209L, 39737873L, 39887498L, 39869686L, 40215985L, 40215990L,
-          39834252L, 40189509L, 87813246L, 87815869L, 87813942L, 87811922L,
-          39881522L, 39888138L, 39859031L, 118010102L, 116198678L, 39888919L,
-          40185801L, 115707372L, 40155921L, 40122532L, 48019845L, 40186411L,
-          39883482L, 39908378L, 39887548L, 40216792L, 40216797L, 39874532L,
-          39890245L, 39886842L, 82495828L, 39911841L, 39868046L, 40091242L,
-          40121950L, 40185364L, 40229168L, 40229166L, 39835558L, 39837643L,
-          39908414L, 39908446L, 39887360L, 78144314L, 89182854L, 40155926L,
-          49912493L, 87814403L, 40095157L, 40184361L, 48015049L, 40002630L,
-          40002632L, 40176524L, 39874446L, 39925263L, 39944684L, 40186412L,
-          40155928L, 40294693L, 39825815L, 39938197L, 89217298L, 39856403L,
-          40225395L, 82407156L, 118602980L, 77279013L, 42060948L, 42061526L,
-          42061527L, 42060952L, 39869063L, 39848015L, 39887156L, 39934214L,
-          39912836L, 39932059L, 40211413L, 39906419L, 99050121L, 112049440L,
-          86833534L, 40238721L, 78154425L, 44187001L, 39980636L, 40270386L,
-          40042696L, 42040417L, 39930030L, 39915014L, 39991195L, 40731937L,
-          78154464L, 39935150L, 42030533L, 40282479L, 44192755L, 115714987L,
-          82360880L, 86945510L, 42543685L, 40732779L, 44182565L, 44185086L,
-          39975253L, 40012540L, 40045930L, 40211541L, 108054671L, 118026172L,
-          89286063L, 116111831L, 107796516L, 101697243L, 40111137L, 40263102L,
-          102306841L, 115691385L, 40136275L, 40219099L, 117938087L, 111037312L,
-          40212750L, 116246378L, 116063713L, 39852138L, 39895287L, 39934262L,
-          40024536L, 40032115L, 40032626L, 40033126L, 40034088L, 40034114L,
-          40038580L, 40040134L, 40042973L, 40042974L, 40043538L, 40043609L,
-          40043672L, 40043739L, 40043749L, 40043750L, 40043767L, 40043797L,
-          40043798L, 40053951L, 40067635L, 40084605L, 40172698L, 40216876L,
-          101754089L, 121050218L, 39944043L, 39944279L, 44185514L));
+      // Identify all relationship identities that have duplicates
+      // REAL QUERY
+      Query query = getEntityManager().createNativeQuery(
+          "select id from relationship_identity where terminology='MTH' group by "
+              + "additionalRelationshipType,fromId,fromTerminology,fromType,"
+              + "relationshipType,terminology,terminologyId,toId,toTerminology,toType "
+              + "having count(*) > 1");
 
-      for (final Long identityId : relationshipIdentityIds) {
-        RelationshipIdentity identity =
-            identityService.getRelationshipIdentity(identityId);
+      // TEST QUERY
+      // Query query = getEntityManager().createNativeQuery(
+      // "select id from relationship_identity where fromId='C0002335' and
+      // toId='C0593527' group by "
+      // + "additionalRelationshipType,fromId,fromTerminology,fromType,"
+      // + "relationshipType,terminology,terminologyId,toId,toTerminology,toType
+      // "
+      // + " having count(*) > 1");
 
-        List<Long> duplicateIds = new ArrayList<>();
-        // find duplicate identities
-        Query query = getEntityManager().createQuery("select r.id from "
+      logInfo("[FixBadRelationshipIdentities] Identifying "
+          + "duplicate relationship identities");
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        relationshipIdentities.add(identityService.getRelationshipIdentity(id));
+      }
+
+      setSteps(relationshipIdentities.size());
+
+      logInfo("[FixBadRelationshipIdentities] " + relationshipIdentities.size()
+          + " RelationshipIdentity duplicates identified");
+
+      for (final RelationshipIdentity identity : relationshipIdentities) {
+
+        List<RelationshipIdentity> duplicateRelationshipIdentities =
+            new ArrayList<>();
+        List<Long> duplicateRelationshipIds = new ArrayList<>();
+
+        // get the identity's duplicate(s)
+        query = getEntityManager().createQuery("select r.id from "
             + "RelationshipIdentityJpa r "
-            + "where r.terminology = :terminology and r.fromId = :fromId and r.toId = :toId");
+            + "where r.terminology = :terminology and r.fromId = :fromId and r.toId = :toId and r.relationshipType = :relationshipType");
         query.setParameter("terminology", "MTH");
         query.setParameter("fromId", identity.getFromId());
         query.setParameter("toId", identity.getToId());
+        query.setParameter("relationshipType", identity.getRelationshipType());
 
-        List<Object> list = query.getResultList();
-        for (final Object entry : list) {
+        List<Object> list2 = query.getResultList();
+        for (final Object entry : list2) {
           final Long id = Long.valueOf(entry.toString());
-          duplicateIds.add(id);
+          RelationshipIdentity duplicateRelationshipIdentity =
+              identityService.getRelationshipIdentity(id);
+          if (duplicateRelationshipIdentity != null) {
+            duplicateRelationshipIds.add(id);
+            duplicateRelationshipIdentities.add(duplicateRelationshipIdentity);
+          }
         }
 
-        // There should only be one two duplicates. If not, this case will
-        // require manual editing.
-        if (duplicateIds.size() != 2) {
-          logWarn("Unexepected number of duplicates (" + duplicateIds.size()
-              + ") found for " + identity.getIdentityCode());
+        // It is possible that no duplicates will be identified (they may have
+        // been removed by an earlier iteration). If so, skip.
+        if (duplicateRelationshipIds.size() < 2) {
+          updateProgress();
           continue;
         }
 
-        List<Long> inverseIds = new ArrayList<>();
-        // Look up the true inverse identity (reverse To/From values)
+        List<RelationshipIdentity> inverseRelationshipIdentities =
+            new ArrayList<>();
+        List<Long> inverseRelationshipIds = new ArrayList<>();
+
+        // Look up the inverse identity(s) (reverse To/From values, and
+        // inverse relationship types)
         query = getEntityManager().createQuery("select r.id from "
             + "RelationshipIdentityJpa r "
-            + "where r.terminology = :terminology and r.fromId = :fromId and r.toId = :toId");
+            + "where r.terminology = :terminology and r.fromId = :fromId and r.toId = :toId and r.relationshipType = :inverseRelationshipType");
         query.setParameter("terminology", "MTH");
         query.setParameter("fromId", identity.getToId());
         query.setParameter("toId", identity.getFromId());
+        query.setParameter("inverseRelationshipType",
+            getInverseRelationshipType(getProject().getTerminology(),
+                getProject().getVersion(), identity.getRelationshipType()));
 
         list = query.getResultList();
         for (final Object entry : list) {
           final Long id = Long.valueOf(entry.toString());
-          inverseIds.add(id);
-        }
-
-        // There should only be one true inverse. If not, this case will require
-        // manual editing.
-        if (inverseIds.size() != 1) {
-          logWarn("Unexepected number of inverses (" + inverseIds.size()
-              + ") found for " + identity.getIdentityCode());
-          continue;
-        }
-
-        RelationshipIdentity inverseIdentity =
-            identityService.getRelationshipIdentity(inverseIds.get(0));
-
-        // If the inverse identity doesn't point back to either of the duplicate
-        // identities, skip it.
-        if (!duplicateIds.contains(inverseIdentity.getInverseId())) {
-          logWarn(
-              "The inverse identity does not point back to either of the duplicate identities for "
-                  + identity.getIdentityCode());
-          continue;
-        }
-
-        // Whichever identity the true inverse points to, update it to point
-        // back to the inverse.
-        // Drop the other identity.
-        for (final Long duplicateId : duplicateIds) {
-          if (inverseIdentity.getInverseId().equals(duplicateId)) {
-            RelationshipIdentity updateIdentity =
-                identityService.getRelationshipIdentity(duplicateId);
-            updateIdentity.setInverseId(inverseIdentity.getId());
-            identityService.updateRelationshipIdentity(updateIdentity);
-            updatedIdentities++;
-          } else {
-            identityService.removeRelationshipIdentity(duplicateId);
-            removedIdentities++;
+          RelationshipIdentity inverseRelationshipIdentity =
+              identityService.getRelationshipIdentity(id);
+          if (inverseRelationshipIdentity != null) {
+            inverseRelationshipIds.add(id);
+            inverseRelationshipIdentities.add(inverseRelationshipIdentity);
           }
         }
+
+        List<String> RUIs = new ArrayList<>();
+
+        // If an existing concept relationship uses any of these identities for
+        // its RUI, that is the identity we need to keep
+        query = getEntityManager().createQuery("select value(a) from "
+            + "ConceptRelationshipJpa r join r.from c1 join r.to c2 join r.alternateTerminologyIds a "
+            + "where KEY(a) = :projectTerminology "
+            + "and r.terminology = :terminology and c1.terminologyId = :fromId and c2.terminologyId = :toId and r.relationshipType = :relationshipType");
+        query.setParameter("projectTerminology", "NCIMTH");
+        query.setParameter("terminology", "MTH");
+        query.setParameter("fromId", identity.getFromId());
+        query.setParameter("toId", identity.getToId());
+        query.setParameter("relationshipType", identity.getRelationshipType());
+
+        list = query.getResultList();
+        for (final Object entry : list) {
+          RUIs.add(entry.toString());
+        }
+
+        // And do again for the inverse
+        query = getEntityManager().createQuery("select value(a) from "
+            + "ConceptRelationshipJpa r join r.from c1 join r.to c2 join r.alternateTerminologyIds a "
+            + "where KEY(a) = :projectTerminology "
+            + "and r.terminology = :terminology and c1.terminologyId = :fromId and c2.terminologyId = :toId and r.relationshipType = :inverseRelationshipType");
+        query.setParameter("projectTerminology", "NCIMTH");
+        query.setParameter("terminology", "MTH");
+        query.setParameter("fromId", identity.getToId());
+        query.setParameter("toId", identity.getFromId());
+        query.setParameter("inverseRelationshipType",
+            getInverseRelationshipType(getProject().getTerminology(),
+                getProject().getVersion(), identity.getRelationshipType()));
+
+        list = query.getResultList();
+        for (final Object entry : list) {
+          RUIs.add(entry.toString());
+        }
+
+        // For any identitified RUI, parse out the numeric part of it, and
+        // recast as Long. These are the ids of the relationship_identity(s) we
+        // need to keep.
+        final List<Long> keepList = new ArrayList<>();
+        for (final String RUI : RUIs) {
+          keepList.add(Long.parseLong(RUI.substring(1)));
+        }
+
+        // Identify which identity is linked to the existing relationship(if
+        // any)
+        RelationshipIdentity keepDuplicateIdentity = null;
+
+        //System.out.println("KeepList= " + keepList);
+        for (RelationshipIdentity duplicateIdentity : duplicateRelationshipIdentities) {
+          if (keepList.contains(duplicateIdentity.getId())) {
+            keepDuplicateIdentity = duplicateIdentity;
+          }
+        }
+
+        RelationshipIdentity keepInverseIdentity = null;
+
+        for (RelationshipIdentity inverseIdentity : inverseRelationshipIdentities) {
+          if (keepList.contains(inverseIdentity.getId())) {
+            keepInverseIdentity = inverseIdentity;
+          }
+        }
+
+        // If a duplicate identity is linked but not an inverse
+        if (keepDuplicateIdentity != null && keepInverseIdentity == null) {
+          // Check if duplicate points to a valid inverse
+          if (inverseRelationshipIds
+              .contains(keepDuplicateIdentity.getInverseId())) {
+            keepInverseIdentity = identityService
+                .getRelationshipIdentity(keepDuplicateIdentity.getInverseId());
+          }
+          // Otherwise, look for an inverse that points to the duplicate
+          else {
+            for (RelationshipIdentity relationshipIdentity : inverseRelationshipIdentities) {
+              if (relationshipIdentity.getInverseId()
+                  .equals(keepDuplicateIdentity.getId())) {
+                keepInverseIdentity = relationshipIdentity;
+              }
+            }
+          }
+        }
+
+        // if an inverse identity is linked but not a duplicate
+        else if (keepInverseIdentity != null && keepDuplicateIdentity == null) {
+          // Check if inverse points to a valid duplicate
+          if (duplicateRelationshipIds
+              .contains(keepInverseIdentity.getInverseId())) {
+            keepDuplicateIdentity = identityService
+                .getRelationshipIdentity(keepInverseIdentity.getInverseId());
+          }
+          // Otherwise, look for a duplicate that points to the inverse
+          else {
+            for (RelationshipIdentity relationshipIdentity : duplicateRelationshipIdentities) {
+              if (relationshipIdentity.getInverseId()
+                  .equals(keepInverseIdentity.getId())) {
+                keepDuplicateIdentity = relationshipIdentity;
+              }
+            }
+          }
+        }
+
+        // If none of the identities are linked to an existing
+        // relationship, try to find ones that point to each other
+        else if (keepInverseIdentity == null && keepDuplicateIdentity == null) {
+          for (RelationshipIdentity duplicateRelationshipIdentity : duplicateRelationshipIdentities) {
+            if (keepDuplicateIdentity != null) {
+              break;
+            }
+            for (RelationshipIdentity inverseRelationshipIdentity : inverseRelationshipIdentities) {
+              if (duplicateRelationshipIdentity.getInverseId()
+                  .equals(inverseRelationshipIdentity.getId())
+                  || inverseRelationshipIdentity.getInverseId()
+                      .equals(duplicateRelationshipIdentity.getId())) {
+                keepDuplicateIdentity = duplicateRelationshipIdentity;
+                keepInverseIdentity = inverseRelationshipIdentity;
+                break;
+              }
+            }
+          }
+
+          // If nothing was found that points to each other, just choose
+          // arbitrarily
+          if (keepDuplicateIdentity == null && keepInverseIdentity == null) {
+            keepDuplicateIdentity = duplicateRelationshipIdentities.get(0);
+            keepInverseIdentity = inverseRelationshipIdentities.get(0);
+          }
+        }
+
+        // Now that we've identified which identities to keep, make sure they
+        // point to each other, and remove the rest
+        if (keepDuplicateIdentity != null && keepInverseIdentity != null) {
+          if (!keepDuplicateIdentity.getInverseId()
+              .equals(keepInverseIdentity.getId())) {
+            keepDuplicateIdentity.setInverseId(keepInverseIdentity.getId());
+            identityService.updateRelationshipIdentity(keepInverseIdentity);
+            updatedIdentities++;
+          }
+          if (!keepInverseIdentity.getInverseId()
+              .equals(keepDuplicateIdentity.getId())) {
+            keepInverseIdentity.setInverseId(keepDuplicateIdentity.getId());
+            identityService.updateRelationshipIdentity(keepDuplicateIdentity);
+            updatedIdentities++;
+          }
+          // Remove the superfluous duplicate identities
+          for (final RelationshipIdentity relationshipIdentity : duplicateRelationshipIdentities) {
+            if (relationshipIdentity.getId()
+                .equals(keepDuplicateIdentity.getId())) {
+              continue;
+            } else {
+              identityService
+                  .removeRelationshipIdentity(relationshipIdentity.getId());
+              removedIdentities++;
+            }
+          }
+          // Remove the superfluous inverse identities
+          for (final RelationshipIdentity relationshipIdentity : inverseRelationshipIdentities) {
+            if (relationshipIdentity.getId()
+                .equals(keepInverseIdentity.getId())) {
+              continue;
+            } else {
+              identityService
+                  .removeRelationshipIdentity(relationshipIdentity.getId());
+              removedIdentities++;
+            }
+          }
+        }
+        // We should never get here
+        else {
+          logError("WHAT HAPPENED!!!????");
+        }
+
+        updateProgress();
 
       }
     } catch (Exception e) {
@@ -1420,7 +1210,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Removed " + removedIdentities
         + " bad inverse relationship identities.");
     logInfo("Updated " + updatedIdentities
-        + " relationship identities to point to their true inverses.");
+        + " relationship identities updated to point to their true inverses.");
     logInfo("Finished " + getName());
   }
 
@@ -1467,8 +1257,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         Arrays.asList("Fix Orphan Definitions", "Undo Stampings",
             "Remove Bad Relationships", "Remove Orphaned Tracking Records",
             "Inactivate Old SRC atoms and AtomRels", "Fix SRC_ATOM_IDs",
-            "Redo Molecular Actions", "Remove Duplicate Identities",
-            "Remove Bad Inverse Identities"));
+            "Redo Molecular Actions", "Fix Bad Relationship Identities"));
     params.add(param);
 
     return params;
