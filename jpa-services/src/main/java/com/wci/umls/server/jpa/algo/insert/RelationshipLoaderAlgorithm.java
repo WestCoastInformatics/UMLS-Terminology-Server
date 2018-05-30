@@ -21,6 +21,7 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
+import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
@@ -661,6 +662,21 @@ public class RelationshipLoaderAlgorithm
     newRelationship.setTo(toComponent);
     newRelationship.setWorkflowStatus(lookupWorkflowStatus(workflowStatusStr));
 
+    // For ComponentInfoRelationships that point to SRC_ATOM_IDs, have the
+    // terminologyId point to the Atom's AUI
+    if (relClass.equals(ComponentInfoRelationshipJpa.class)) {
+      if (fromClassIdType.equals("SRC_ATOM_ID")) {
+        ((ComponentInfoRelationshipJpa) newRelationship).setFromTerminologyId(
+            ((AtomJpa) fromComponent).getAlternateTerminologyIds()
+                .get(getProject().getTerminology() + "-SRC"));
+      }
+      if (toClassIdType.equals("SRC_ATOM_ID")) {
+        ((ComponentInfoRelationshipJpa) newRelationship).setToTerminologyId(
+            ((AtomJpa) toComponent).getAlternateTerminologyIds()
+                .get(getProject().getTerminology() + "-SRC"));
+      }      
+    }
+
     // Calculate inverseRel and inverseAdditionalRel types, to use in the
     // RUI handler and the inverse relationship creation
     final String inverseRelType =
@@ -698,8 +714,10 @@ public class RelationshipLoaderAlgorithm
 
       // Don't add a relationship between project-terminology concepts if:
       if (relClass.equals(ConceptRelationshipJpa.class)
-          && newRelationship.getFrom().getTerminology().equals(getProject().getTerminology())
-          && newRelationship.getTo().getTerminology().equals(getProject().getTerminology())) {
+          && newRelationship.getFrom().getTerminology()
+              .equals(getProject().getTerminology())
+          && newRelationship.getTo().getTerminology()
+              .equals(getProject().getTerminology())) {
         // ...it is self-referential
         if (newRelationship.getFrom().getId()
             .equals(newRelationship.getTo().getId())) {

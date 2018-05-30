@@ -145,88 +145,61 @@ public class ComponentInfoRelationshipJpa
     fromName = component.getName();
   }
 
-  /**
-   * Returns the from terminology.
-   *
-   * @return the from terminology
-   */
+  /* see superclass */
+  @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getFromTerminology() {
     return fromTerminology;
   }
 
-  /**
-   * Sets the from terminology.
-   *
-   * @param terminology the from terminology
-   */
+  /* see superclass */
+  @Override
   public void setFromTerminology(String terminology) {
     fromTerminology = terminology;
   }
 
-  /**
-   * Returns the from version.
-   *
-   * @return the from version
-   */
+  /* see superclass */
+  @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getFromVersion() {
     return fromVersion;
   }
 
-  /**
-   * Sets the from version.
-   *
-   * @param version the from version
-   */
+  /* see superclass */
+  @Override
   public void setFromVersion(String version) {
     fromVersion = version;
   }
 
-  /**
-   * Returns the from type.
-   *
-   * @return the from type
-   */
+  /* see superclass */
+  @Override
   @FieldBridge(impl = EnumBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public IdType getFromType() {
     return fromType;
   }
 
-  /**
-   * Sets the from type.
-   *
-   * @param type the from type
-   */
+  /* see superclass */
+  @Override
   public void setFromType(IdType type) {
     fromType = type;
   }
 
-  /**
-   * Returns the from terminology id.
-   *
-   * @return the from terminology id
-   */
+  /* see superclass */
+  @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getFromTerminologyId() {
     return fromTerminologyId;
   }
 
-  /**
-   * Sets the from terminology id.
-   *
-   * @param terminologyId the from terminology id
-   */
+  /* see superclass */
+  @Override
   public void setFromTerminologyId(String terminologyId) {
     fromTerminologyId = terminologyId;
   }
 
-  /**
-   * Returns the from name.
-   *
-   * @return the from name
-   */
+  /* see superclass */
+  @Override
   @Fields({
       @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO, analyzer = @Analyzer(definition = "noStopWord")),
       @Field(name = "fromNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
@@ -235,11 +208,8 @@ public class ComponentInfoRelationshipJpa
     return fromName;
   }
 
-  /**
-   * Sets the from name.
-   *
-   * @param term the from name
-   */
+  /* see superclass */
+  @Override
   public void setFromName(String term) {
     fromName = term;
   }
@@ -267,88 +237,61 @@ public class ComponentInfoRelationshipJpa
     toTerminologyId = component.getTerminologyId();
   }
 
-  /**
-   * Returns the to terminology id.
-   *
-   * @return the to terminology id
-   */
+  /* see superclass */
+  @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getToTerminologyId() {
     return toTerminologyId;
   }
 
-  /**
-   * Sets the to terminology id.
-   *
-   * @param terminologyId the to terminology id
-   */
+  /* see superclass */
+  @Override
   public void setToTerminologyId(String terminologyId) {
     toTerminologyId = terminologyId;
   }
 
-  /**
-   * Returns the to terminology.
-   *
-   * @return the to terminology
-   */
+  /* see superclass */
+  @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getToTerminology() {
     return toTerminology;
   }
 
-  /**
-   * Sets the to terminology.
-   *
-   * @param terminology the to terminology
-   */
+  /* see superclass */
+  @Override
   public void setToTerminology(String terminology) {
     toTerminology = terminology;
   }
 
-  /**
-   * Returns the to version.
-   *
-   * @return the to version
-   */
+  /* see superclass */
+  @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getToVersion() {
     return toVersion;
   }
 
-  /**
-   * Sets the to version.
-   *
-   * @param version the to version
-   */
+  /* see superclass */
+  @Override
   public void setToVersion(String version) {
     toVersion = version;
   }
 
-  /**
-   * Returns the to type.
-   *
-   * @return the to type
-   */
+  /* see superclass */
+  @Override
   @FieldBridge(impl = EnumBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public IdType getToType() {
     return toType;
   }
 
-  /**
-   * Sets the to type.
-   *
-   * @param type the to type
-   */
+  /* see superclass */
+  @Override
   public void setToType(IdType type) {
     toType = type;
   }
 
-  /**
-   * Returns the to name.
-   *
-   * @return the to name
-   */
+  /* see superclass */
+  @Override
   @Fields({
       @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
       @Field(name = "toNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
@@ -357,11 +300,8 @@ public class ComponentInfoRelationshipJpa
     return toName;
   }
 
-  /**
-   * Sets the to name.
-   *
-   * @param term the to name
-   */
+  /* see superclass */
+  @Override
   public void setToName(String term) {
     toName = term;
   }
