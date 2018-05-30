@@ -20,6 +20,7 @@ import javax.persistence.Query;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
@@ -29,12 +30,14 @@ import com.wci.umls.server.jpa.algo.action.RedoMolecularAction;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
+import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.ComponentInfoRelationship;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.meta.RelationshipIdentity;
@@ -112,6 +115,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       redoMolecularActions();
     } else if (actionName.equals("Fix Bad Relationship Identities")) {
       fixBadRelationshipIdentities();
+    } else if (actionName.equals("Fix Component Info Relationships")) {
+      fixComponentInfoRelationships();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -1074,7 +1079,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         // any)
         RelationshipIdentity keepDuplicateIdentity = null;
 
-        //System.out.println("KeepList= " + keepList);
+        // System.out.println("KeepList= " + keepList);
         for (RelationshipIdentity duplicateIdentity : duplicateRelationshipIdentities) {
           if (keepList.contains(duplicateIdentity.getId())) {
             keepDuplicateIdentity = duplicateIdentity;
@@ -1214,6 +1219,74 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
   }
 
+  private void fixComponentInfoRelationships() throws Exception {
+    // 5/23/2018 Issues identified where componentInfoRelationships had blank
+    // to/from terminologyIds. These all were associated with a single Atom:
+    // terminology='NCIMTH', name= 'NCI Thesaurus', AUI=31926003
+    // Update to componentInfoRelationships to have to/from TerminologyIds point
+    // to the AUI 31926003
+
+    logInfo(" Fix Component Info Relationships");
+
+    int updatedRelationships = 0;
+
+    final List<ComponentInfoRelationshipJpa> componentInfoRelationships =
+        new ArrayList<>();
+
+    try {
+      Query query = getEntityManager().createNativeQuery(
+          "select id from component_info_relationships where fromTerminologyId='' or toTerminologyId=''");
+
+      logInfo("[FixComponentInfoRelationships] Identifying "
+          + "ComponentInfoRelationships with blank from/to Terminology Ids");
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        componentInfoRelationships
+            .add((ComponentInfoRelationshipJpa) getRelationship(id,
+                ComponentInfoRelationshipJpa.class));
+      }
+
+      setSteps(componentInfoRelationships.size());
+
+      logInfo("[FixComponentInfoRelationships] "
+          + componentInfoRelationships.size()
+          + " ComponentInfoRelationships with blank from/to Terminology Ids identified");
+
+      for (final ComponentInfoRelationship componentInfoRelationship : componentInfoRelationships) {
+        if (ConfigUtility
+            .isEmpty(componentInfoRelationship.getFromTerminologyId())
+            && componentInfoRelationship.getFromName()
+                .equals("NCI Thesaurus")) {
+          componentInfoRelationship.setFromTerminologyId("31926003");
+          updateRelationship(componentInfoRelationship);
+          updatedRelationships++;
+        } else if (ConfigUtility
+            .isEmpty(componentInfoRelationship.getToTerminologyId())
+            && componentInfoRelationship.getToName().equals("NCI Thesaurus")) {
+          componentInfoRelationship.setToTerminologyId("31926003");
+          updateRelationship(componentInfoRelationship);
+          updatedRelationships++;
+        } else {
+          logError(
+              "ComponentInfoRelationship with unexpected blank to/from TerminologyId identified: "
+                  + componentInfoRelationship);
+        }
+
+        updateProgress();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+    }
+
+    logInfo(
+        "Updated " + updatedRelationships + " component info relationships.");
+    logInfo("Finished " + getName());
+  }
+
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -1257,7 +1330,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         Arrays.asList("Fix Orphan Definitions", "Undo Stampings",
             "Remove Bad Relationships", "Remove Orphaned Tracking Records",
             "Inactivate Old SRC atoms and AtomRels", "Fix SRC_ATOM_IDs",
-            "Redo Molecular Actions", "Fix Bad Relationship Identities"));
+            "Redo Molecular Actions", "Fix Bad Relationship Identities",
+            "Fix Component Info Relationships"));
     params.add(param);
 
     return params;
