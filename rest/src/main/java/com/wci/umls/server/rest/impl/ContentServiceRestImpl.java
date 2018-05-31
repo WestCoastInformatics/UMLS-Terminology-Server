@@ -2035,7 +2035,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /descriptor/" + terminology + "/"
-            + version + terminologyId + "/ancestors with PFS parameter "
+            + version + terminologyId + "/ancestors/" + parentsOnly + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -2118,8 +2118,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful call (Content): /code/" + terminology + "/" + version
-            + terminologyId + "/ancestors with PFS parameter "
+        .info("RESTful call (Content): /code/" + terminology + "/" + version + "/"
+            + terminologyId + "/ancestors/" + parentsOnly + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -2160,7 +2160,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /code/" + terminology + "/" + version
-            + terminologyId + "/descendants with PFS parameter "
+            + terminologyId + "/descendants/" + childrenOnly + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     final ContentService contentService = new ContentServiceJpa();
     try {
