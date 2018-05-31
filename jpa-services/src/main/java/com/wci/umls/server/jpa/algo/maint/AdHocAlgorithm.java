@@ -117,6 +117,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixBadRelationshipIdentities();
     } else if (actionName.equals("Fix Component Info Relationships")) {
       fixComponentInfoRelationships();
+    } else if (actionName
+        .equals("Set Component Info Relationships To Publishable")) {
+      setComponentInfoRelationshipsToPublishable();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -1287,6 +1290,59 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
   }
 
+  private void setComponentInfoRelationshipsToPublishable() throws Exception {
+    // 5/30/2018 A bad release test run set a bunch of
+    // ComponentInfoRelationships to unpublishable. Set them back to
+    // publishable.
+
+    logInfo(" Set Component Info Relationships To Publishable");
+
+    int updatedRelationships = 0;
+
+    final List<ComponentInfoRelationshipJpa> componentInfoRelationships =
+        new ArrayList<>();
+
+    try {
+      Query query = getEntityManager().createNativeQuery(
+          "select id from component_info_relationships where lastModifiedBy='NCIMTH_201805'");
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        componentInfoRelationships
+            .add((ComponentInfoRelationshipJpa) getRelationship(id,
+                ComponentInfoRelationshipJpa.class));
+      }
+
+      setSteps(componentInfoRelationships.size());
+
+      logInfo("[SetComponentInfoRelationshipsToPublishable] "
+          + componentInfoRelationships.size()
+          + " ComponentInfoRelationships that need to be set to publishable");
+
+      for (final ComponentInfoRelationship componentInfoRelationship : componentInfoRelationships) {
+        if (!componentInfoRelationship.isPublishable()) {
+          componentInfoRelationship.setPublishable(true);
+          updateRelationship(componentInfoRelationship);
+          updatedRelationships++;
+        } else {
+          logError("ComponentInfoRelationship was already set to publishable: "
+              + componentInfoRelationship);
+        }
+
+        updateProgress();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+    }
+
+    logInfo(
+        "Updated " + updatedRelationships + " component info relationships.");
+    logInfo("Finished " + getName());
+  }
+
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -1331,7 +1387,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Remove Bad Relationships", "Remove Orphaned Tracking Records",
             "Inactivate Old SRC atoms and AtomRels", "Fix SRC_ATOM_IDs",
             "Redo Molecular Actions", "Fix Bad Relationship Identities",
-            "Fix Component Info Relationships"));
+            "Fix Component Info Relationships",
+            "Set Component Info Relationships To Publishable"));
     params.add(param);
 
     return params;

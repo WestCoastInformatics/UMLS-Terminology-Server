@@ -90,10 +90,11 @@ public class ComponentInfoRelRemapperAlgorithm
       // Get from component
       final ComponentInfo fromComponentInfo =
           componentInfoRelationship.getFrom();
-      final Component fromComponent =
-          getComponent(getType(componentInfoRelationship.getFrom().getType()),
-              fromComponentInfo.getTerminologyId(),
-              fromComponentInfo.getTerminology(), null);
+      final Component fromComponent = getComponent(
+          getType(componentInfoRelationship.getFrom().getType(),
+              fromComponentInfo.getTerminologyId()),
+          fromComponentInfo.getTerminologyId(),
+          fromComponentInfo.getTerminology(), null);
 
       // If from component doesn't exist, mark the relationship as unpublishable
       // (and warn)
@@ -120,10 +121,11 @@ public class ComponentInfoRelRemapperAlgorithm
 
       // Get to object
       final ComponentInfo toComponentInfo = componentInfoRelationship.getTo();
-      final Component toComponent =
-          getComponent(getType(toComponentInfo.getType()),
-              toComponentInfo.getTerminologyId(),
-              toComponentInfo.getTerminology(), null);
+      final Component toComponent = getComponent(
+          getType(toComponentInfo.getType(),
+              toComponentInfo.getTerminologyId()),
+          toComponentInfo.getTerminologyId(), toComponentInfo.getTerminology(),
+          null);
 
       // If to component doesn't exist, mark the relationship as unpublishable
       // (and warn)
@@ -174,11 +176,15 @@ public class ComponentInfoRelRemapperAlgorithm
    * @throws Exception the exception
    */
   @SuppressWarnings("static-method")
-  private String getType(IdType idType) throws Exception {
+  private String getType(IdType idType, String terminologyId) throws Exception {
     final String stringType;
     switch (idType) {
       case ATOM:
-        stringType = "AUI";
+        if (terminologyId.startsWith("A")) {
+          stringType = "AUI";
+        } else {
+          stringType = "SRC_ATOM_ID";
+        }
         break;
       case DESCRIPTOR:
         stringType = "SOURCE_DUI";
