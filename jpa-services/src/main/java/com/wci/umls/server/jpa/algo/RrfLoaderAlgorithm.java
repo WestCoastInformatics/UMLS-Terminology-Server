@@ -2563,8 +2563,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           final AtomTreePosition tp = new AtomTreePositionJpa();
           tp.setAdditionalRelationshipType(fields[5]);
           tp.setAncestorPath(ancPath);
-          tp.setChildCt(childCt.get(ptrKey));
-          tp.setDescendantCt(descCt.get(ptrKey));
+          tp.setChildCt(childCt.containsKey(ptrKey) ? childCt.get(ptrKey) : 0);
+          tp.setDescendantCt(childCt.containsKey(ptrKey) ? descCt.get(ptrKey) : 0);
           tp.setLastModified(releaseVersionDate);
           tp.setLastModifiedBy(loader);
           tp.setNode(atom);
