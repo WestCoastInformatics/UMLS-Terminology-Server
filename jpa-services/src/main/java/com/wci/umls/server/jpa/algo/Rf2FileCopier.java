@@ -74,7 +74,7 @@ public class Rf2FileCopier {
     dirMap.put("sct2_TextDefinition_", "/Terminology");
     dirMap.put("Refset_Simple", "/Refset/Content");
     dirMap.put("AttributeValue", "/Refset/Content");
-    dirMap.put("AssociationReference", "/Refset/Content");
+    dirMap.put("Association", "/Refset/Content");
     dirMap.put("ExtendedMap", "/Refset/Map");
     dirMap.put("SimpleMap", "/Refset/Map");
     dirMap.put("Language", "/Refset/Language");
@@ -90,7 +90,7 @@ public class Rf2FileCopier {
     keyMap.put("sct2_TextDefinition_", 4);
     keyMap.put("Refset_Simple", 5);
     keyMap.put("AttributeValue", 5);
-    keyMap.put("AssociationReference", 5);
+    keyMap.put("Association", 5);
     keyMap.put("ExtendedMap", 5);
     keyMap.put("SimpleMap", 5);
     keyMap.put("Language", 5);

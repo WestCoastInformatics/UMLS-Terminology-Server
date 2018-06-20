@@ -302,7 +302,7 @@ public class Rf2SnapshotLoaderAlgorithm
       // load AssocationReference RefSets (Content)
       //
       logInfo("  Loading Association Reference Ref Sets...");
-      loadAssociationReferenceRefSets();
+      loadAssociationRefSets();
       commitClearBegin();
 
       //
@@ -1006,7 +1006,7 @@ public class Rf2SnapshotLoaderAlgorithm
    * 
    * @throws Exception the exception
    */
-  private void loadAssociationReferenceRefSets() throws Exception {
+  private void loadAssociationRefSets() throws Exception {
 
     String line = "";
     objectCt = 0;

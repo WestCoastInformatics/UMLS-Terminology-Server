@@ -344,7 +344,7 @@ public class Rf2DeltaLoaderAlgorithm
     // Load association reference refset members
     //
     logInfo("    Loading Association Reference Ref Sets...");
-    loadAssociationReferenceRefSetMembers();
+    loadAssociationRefSetMembers();
 
     commitClearBegin();
 
@@ -2096,7 +2096,7 @@ public class Rf2DeltaLoaderAlgorithm
    *
    * @throws Exception the exception
    */
-  private void loadAssociationReferenceRefSetMembers() throws Exception {
+  private void loadAssociationRefSetMembers() throws Exception {
 
     Set<Concept> modifiedConcepts = new HashSet<>();
 

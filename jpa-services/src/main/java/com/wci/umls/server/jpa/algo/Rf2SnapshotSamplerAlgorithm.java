@@ -148,7 +148,7 @@ public class Rf2SnapshotSamplerAlgorithm extends AbstractAlgorithm {
         Logger.getLogger(getClass())
             .info("    count (after attribute value) = " + concepts.size());
 
-        addAssociationReferenceMetadata(concepts, descriptions);
+        addAssociationMetadata(concepts, descriptions);
         Logger.getLogger(getClass()).info(
             "    count (after association reference) = " + concepts.size());
 
@@ -352,7 +352,7 @@ public class Rf2SnapshotSamplerAlgorithm extends AbstractAlgorithm {
    * @param descriptions the descriptions
    * @throws Exception the exception
    */
-  private void addAssociationReferenceMetadata(Set<String> concepts,
+  private void addAssociationMetadata(Set<String> concepts,
     Set<String> descriptions) throws Exception {
 
     String line = "";

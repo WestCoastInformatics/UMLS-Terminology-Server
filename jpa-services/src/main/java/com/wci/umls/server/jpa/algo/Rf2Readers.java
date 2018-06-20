@@ -96,7 +96,7 @@ public class Rf2Readers {
     readers.put(Keys.RELATIONSHIP,
         getReader("relationshipsAllBySourceConcept.sort"));
     readers.put(Keys.ASSOCIATION_REFERENCE,
-        getReader("associationReferenceRefsetsByRefCompId.sort"));
+        getReader("associationRefsetsByRefCompId.sort"));
     readers.put(Keys.ATTRIBUTE_VALUE,
         getReader("attributeValueRefsetsByRefCompId.sort"));
 //    readers.put(Keys.COMPLEX_MAP, getReader("complexMapRefsetsByConcept.sort"));
