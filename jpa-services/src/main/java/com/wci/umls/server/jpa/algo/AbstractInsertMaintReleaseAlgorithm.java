@@ -506,8 +506,9 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   }
 
   /**
-   * Cache existing terminologies. Key = Terminology_Version, or just
-   * Terminology if version = "latest". Also cache Key = TerminologyVersion
+   * Cache existing terminologies. Keys = Terminology_Version, or just
+   * Terminology if version = "latest" or if id_type is ROOT_SOURCE_CUI. 
+   * Also cache Key = TerminologyVersion
    * without the underscore (some terminologies don't follow the normal
    * convention, e.g. MVX2016_09_07)
    *
@@ -519,14 +520,11 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       // lazy init
       term.getSynonymousNames().size();
       term.getRootTerminology().getTerminology();
-      if (term.getVersion().equals("latest")) {
         cachedTerminologies.put(term.getTerminology(), term);
-      } else {
         cachedTerminologies.put(term.getTerminology() + "_" + term.getVersion(),
             term);
         cachedTerminologies.put(term.getTerminology() + term.getVersion(),
             term);
-      }
     }
   }
 
@@ -854,7 +852,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       return getComponent(componentId, CodeJpa.class);
     }
 
-    else if (type.equals("SOURCE_CUI")) {
+    else if (type.equals("SOURCE_CUI") || type.equals("ROOT_SOURCE_CUI")) {
       if (!conceptCachedTerms.contains(terminology)) {
         cacheExistingConceptIds(terminology);
       }

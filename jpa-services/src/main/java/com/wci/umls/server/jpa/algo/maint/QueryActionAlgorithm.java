@@ -194,7 +194,7 @@ public class QueryActionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           if (ConceptJpa.class.isAssignableFrom(objectTypeClass)) {
             AbstractMolecularAction action = new ApproveMolecularAction();
             try {
-              // set workflowStatus action to NEEDS_REVIEW
+              // set workflowStatus action to READY_FOR_PUBLICATION
               final Concept concept = action.getConcept(componentId);
               // Configure the action
               action.setProject(getProject());
