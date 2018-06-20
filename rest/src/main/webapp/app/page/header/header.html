@@ -3,7 +3,7 @@
 <nav id="navBar" ng-if="isShowing()"
   style="background: #00008A url('images/background.jpg');"
   class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <!-- Brand and toggle get grouped for better mobile display -->
+  <!-- Brand and toggle get grouped for better mobile display -->        
   <div class="container-fluid">
     <div class="navbar-header">
       <table>
@@ -23,6 +23,10 @@
                 href="swagger.html"
                 style="color: white; text-decoration: underline" target="_blank">API)</a>
             </b>
+          </td>
+          <td>
+            <!-- Show global planned maintenance message -->
+            <div ng-include src="'app/page/general/notification.html'"></div>
           </td>
         </tr>
       </table>
