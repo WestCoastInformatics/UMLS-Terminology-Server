@@ -609,6 +609,7 @@ public class RelationshipLoaderAlgorithm
         toComponent.setVersion(getProject().getVersion());
       }
     } else if (fromClassIdType.equals("SOURCE_CUI")
+        || fromClassIdType.equals("ROOT_SOURCE_CUI")
         || fromClassIdType.equals("CUI")
         || fromClassIdType.equals("CUI_CURRENT")) {
       relClass = ConceptRelationshipJpa.class;
