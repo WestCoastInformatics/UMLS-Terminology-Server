@@ -41,6 +41,8 @@ import com.wci.umls.server.model.content.ComponentInfoRelationship;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.meta.RelationshipIdentity;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
+import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.services.UmlsIdentityService;
 
 /**
@@ -120,6 +122,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     } else if (actionName
         .equals("Set Component Info Relationships To Publishable")) {
       setComponentInfoRelationshipsToPublishable();
+    } else if (actionName
+        .equals("Set Stamped Worklists To Ready For Publication")) {
+      setStampedWorklistsToReadyForPublication();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -1343,6 +1348,49 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
   }
 
+  private void setStampedWorklistsToReadyForPublication() throws Exception {
+    // 6/25/2018 It was determined that a previous code change left Stamped
+    // worklists in a non-terminal state: "REVIEW_DONE". Identify these
+    // worklists, and update them to "READY_FOR_PUBLICATION"
+
+    logInfo(" Set Stamped Worklists To Ready For Publication");
+
+    int updatedRelationships = 0;
+
+    final List<Worklist> stampedWorklists = new ArrayList<>();
+
+    try {
+      Query query = getEntityManager().createNativeQuery(
+          "select id from worklists where workflowStatus='REVIEW_DONE'");
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        stampedWorklists.add(getWorklist(id));
+      }
+
+      setSteps(stampedWorklists.size());
+
+      logInfo("[SetStampedWorklistsToReadyForPublication] "
+          + stampedWorklists.size()
+          + " Stamped Worklists that need to be set to READY_FOR_PUBLICATION");
+
+      for (final Worklist worklist : stampedWorklists) {
+        worklist.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+        updatedRelationships++;
+        updateProgress();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+    }
+
+    logInfo(
+        "Updated " + updatedRelationships + " Stamped worklists' workflow status.");
+    logInfo("Finished " + getName());
+  }
+
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -1388,7 +1436,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Inactivate Old SRC atoms and AtomRels", "Fix SRC_ATOM_IDs",
             "Redo Molecular Actions", "Fix Bad Relationship Identities",
             "Fix Component Info Relationships",
-            "Set Component Info Relationships To Publishable"));
+            "Set Component Info Relationships To Publishable",
+            "Set Stamped Worklists To Ready For Publication"));
     params.add(param);
 
     return params;

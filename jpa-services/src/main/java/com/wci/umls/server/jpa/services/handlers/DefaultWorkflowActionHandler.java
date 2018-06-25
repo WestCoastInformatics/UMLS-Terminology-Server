@@ -288,7 +288,7 @@ public class DefaultWorkflowActionHandler extends AbstractConfigurable
         if (EnumSet
             .of(WorkflowStatus.REVIEW_NEW, WorkflowStatus.REVIEW_IN_PROGRESS)
             .contains(worklist.getWorkflowStatus())) {
-          worklist.setWorkflowStatus(WorkflowStatus.REVIEW_DONE);
+          worklist.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
           worklist.getWorkflowStateHistory().put("Stamped", new Date());
         }
 
@@ -321,7 +321,7 @@ public class DefaultWorkflowActionHandler extends AbstractConfigurable
     service.updateWorklist(worklist);
 
     // Stamp the worklist when we send it for publication.
-    if (worklist.getWorkflowStatus() == WorkflowStatus.REVIEW_DONE
+    if (worklist.getWorkflowStatus() == WorkflowStatus.READY_FOR_PUBLICATION
         && workflowAction == WorkflowAction.APPROVE) {
       final StampingAlgorithm algo = new StampingAlgorithm();
 
