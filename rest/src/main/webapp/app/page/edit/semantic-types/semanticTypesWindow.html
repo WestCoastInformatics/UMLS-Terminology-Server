@@ -9,13 +9,15 @@
 <table class="slim table">
   <thead>
     <tr>
-      <th class="col-md-11 col-xs-11">Semantic Types</th>
+      <th class="col-md-7 col-xs-7">Semantic Types</th>
+      <th class="col-md-4 col-xs-4">Last Modified By</th>
       <th class="col-md-1 col-xs-1"></th>
     </tr>
   </thead>
   <tbody>
     <tr ng-repeat="semanticType in selected.component.semanticTypes">
       <td class="{{semanticType.workflowStatus}}">{{semanticType.semanticType}}</td>
+      <td class="{{semanticType.workflowStatus}}">{{semanticType.lastModifiedBy}}</td>
       <td>
         <i ng-click="removeSemanticTypeFromConcept(semanticType); "
           ng-disabled="editingDisabled()" title="Remove Semantic Type"
