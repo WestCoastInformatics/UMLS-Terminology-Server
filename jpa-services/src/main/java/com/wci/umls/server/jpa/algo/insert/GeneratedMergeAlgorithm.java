@@ -156,18 +156,18 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
       List<Long[]> atomIdPairs = executeComponentIdPairQuery(query, queryType,
           params, AtomJpa.class, false);
       statsMap.put("atomPairsReturnedByQuery", atomIdPairs.size());
-      
+
       logInfo("  atom pairs returned by query count = "
           + statsMap.get("atomPairsReturnedByQuery"));
       commitClearBegin();
-      
+
       // Remove all atom pairs caught by the filters
       final List<Pair<Long, Long>> filteredAtomIdPairs =
           applyFilters(atomIdPairs, params, filterQueryType, filterQuery,
               newAtomsOnly, statsMap);
       statsMap.put("atomPairsRemainingAfterFilters",
           filteredAtomIdPairs.size());
-      
+
       logInfo("  atom pairs removed by filters count = "
           + statsMap.get("atomPairsRemovedByFilters"));
       logInfo("  atom pairs remaining after filters count = "
@@ -254,8 +254,9 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
       undoAction.setChangeStatusFlag(true);
       undoAction.setMolecularActionId(molecularAction.getId());
       undoAction.setForce(false);
-      undoAction.performMolecularAction(undoAction, getLastModifiedBy(), false, false);
-      
+      undoAction.performMolecularAction(undoAction, getLastModifiedBy(), false,
+          false);
+
       undoAction.close();
     }
     logInfo("Finished RESET " + getName());
@@ -359,8 +360,10 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
     param = new AlgorithmParameterJpa("Filter Query Type", "filterQueryType",
         "The language the filter query is written in", "e.g. JPQL", 200,
         AlgorithmParameter.Type.ENUM, "");
-    param.setPossibleValues(EnumSet.allOf(QueryType.class).stream()
+    List<String> possibleValues = new ArrayList<>(Arrays.asList(""));
+    possibleValues.addAll(EnumSet.allOf(QueryType.class).stream()
         .map(e -> e.toString()).collect(Collectors.toList()));
+    param.setPossibleValues(possibleValues);
     params.add(param);
 
     // filter query
