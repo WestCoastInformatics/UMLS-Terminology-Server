@@ -1409,13 +1409,11 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     try {
 
-      //REAL QUERY
       Query query = getEntityManager().createNativeQuery(
           "select c.id from concepts c, concepts_atoms ca, atoms a "
           + "where ca.concepts_id = c.id and ca.atoms_id = a.id and "
           + "c.terminology='NCIMTH' and a.terminology='SNOMEDCT_US' and "
-          + "a.name like 'Mesna (product)' and a.termType='FN'");
-
+          + "a.name like '%(disposition)' and a.termType='FN'");
       
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
