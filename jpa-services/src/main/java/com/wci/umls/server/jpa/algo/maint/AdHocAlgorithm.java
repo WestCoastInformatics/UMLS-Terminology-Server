@@ -1408,12 +1408,15 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     final List<Concept> concepts = new ArrayList<>();
 
     try {
+
+      //REAL QUERY
       Query query = getEntityManager().createNativeQuery(
           "select c.id from concepts c, concepts_atoms ca, atoms a "
           + "where ca.concepts_id = c.id and ca.atoms_id = a.id and "
           + "c.terminology='NCIMTH' and a.terminology='SNOMEDCT_US' and "
-          + "a.name like '%(disposition)' and a.termType='FN'");
+          + "a.name like 'Mesna (product)' and a.termType='FN'");
 
+      
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
@@ -1431,7 +1434,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         int dispositionAtomCount = 0;
         int ncimthpnAtomCount = 0;
         for (Atom atom : concept.getAtoms()) {
-          if (atom.getName().matches(".*(disposition)")) {
+          if (atom.getName().matches(".*\\(disposition\\)")) {
             dispositionAtom = atom;
             dispositionAtomCount++;
           }
@@ -1463,10 +1466,14 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
         Atom atomToAdd = new AtomJpa();
         atomToAdd.setTerminology("NCIMTH");
+        atomToAdd.setVersion("latest");
         atomToAdd.setTermType("PN");
-        atomToAdd.setLanguage("English");
+        atomToAdd.setLanguage("ENG");
         atomToAdd.setName(dispositionAtom.getName());
         atomToAdd.setCodeId("NOCODE");
+        atomToAdd.setConceptId("");
+        atomToAdd.setDescriptorId("");
+        atomToAdd.setTerminologyId("");
         atomToAdd.setPublishable(true);
         atomToAdd.setPublished(false);
 
@@ -1480,7 +1487,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           action.setConceptId(concept.getId());
           action.setConceptId2(null);
           action.setLastModifiedBy("admin");
-          action.setLastModified(new Date().getTime());
+          action.setLastModified(concept.getLastModified().getTime());
           action.setOverrideWarnings(false);
           action.setTransactionPerOperation(false);
           action.setMolecularActionFlag(true);
