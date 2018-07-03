@@ -8,6 +8,7 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -26,6 +27,7 @@ import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
+import com.wci.umls.server.jpa.algo.action.AddAtomMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RedoMolecularAction;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
@@ -38,6 +40,7 @@ import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.ComponentInfoRelationship;
+import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.meta.RelationshipIdentity;
@@ -125,6 +128,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     } else if (actionName
         .equals("Set Stamped Worklists To Ready For Publication")) {
       setStampedWorklistsToReadyForPublication();
+    } else if (actionName.equals("Add Disposition Atoms")) {
+      addDispositionAtoms();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -1386,8 +1391,132 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     } finally {
     }
 
-    logInfo(
-        "Updated " + updatedRelationships + " Stamped worklists' workflow status.");
+    logInfo("Updated " + updatedRelationships
+        + " Stamped worklists' workflow status.");
+    logInfo("Finished " + getName());
+  }
+
+  private void addDispositionAtoms() throws Exception {
+    // 7/3/2018 Add an NCIMTH/PN atom to every concept that has a SNOMEDCT_US/FN
+    // atom in it with the word (disposition) at the end of the name.
+
+    logInfo(" Add Disposition NCIMTH/PN Atoms");
+
+    int addedAtomsCount = 0;
+    int skippedConceptCount = 0;
+
+    final List<Concept> concepts = new ArrayList<>();
+
+    try {
+      Query query = getEntityManager().createNativeQuery(
+          "select c.id from concepts c, concepts_atoms ca, atoms a "
+          + "where ca.concepts_id = c.id and ca.atoms_id = a.id and "
+          + "c.terminology='NCIMTH' and a.terminology='SNOMEDCT_US' and "
+          + "a.name like '%(disposition)' and a.termType='FN''");
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        concepts.add(getConcept(id));
+      }
+
+      setSteps(concepts.size());
+
+      logInfo("[AddDispositionNCIMTHPNAtoms] " + concepts.size()
+          + " Concepts that need an NCIMTH/PN disposition atom");
+
+      for (final Concept concept : concepts) {
+        // Identify the SNOMEDCT_US (disposition) atom
+        Atom dispositionAtom = null;
+        int dispositionAtomCount = 0;
+        int ncimthpnAtomCount = 0;
+        for (Atom atom : concept.getAtoms()) {
+          if (atom.getName().matches(".*(disposition)")) {
+            dispositionAtom = atom;
+            dispositionAtomCount++;
+          }
+          if(atom.getTerminology().equals("NCIMTH") && atom.getTermType().equals("PN")){
+            ncimthpnAtomCount++;
+          }
+        }
+        
+        if(dispositionAtom == null){
+          logError("No disposition atoms found for concept " + concept);
+          skippedConceptCount++;
+          updateProgress();
+          continue;
+        }
+        
+        if(dispositionAtomCount>1){
+          logWarn("More than one disposition atom - skipping concept " + concept);
+          skippedConceptCount++;
+          updateProgress();
+          continue;
+        }
+        
+        if(ncimthpnAtomCount>0){
+          logWarn("There is already an NCIMTH/PN atom - skipping concept " + concept);
+          skippedConceptCount++;
+          updateProgress();
+          continue;
+        }
+
+        Atom atomToAdd = new AtomJpa();
+        atomToAdd.setTerminology("NCIMTH");
+        atomToAdd.setTermType("PN");
+        atomToAdd.setLanguage("English");
+        atomToAdd.setName(dispositionAtom.getName());
+        atomToAdd.setCodeId("NOCODE");
+        atomToAdd.setPublishable(true);
+        atomToAdd.setPublished(false);
+
+        // Instantiate services
+        final AddAtomMolecularAction action = new AddAtomMolecularAction();
+        try {
+
+          // Configure the action
+          action.setProject(getProject());
+          action.setActivityId("AddDispositionNCIMTHPNAtoms");
+          action.setConceptId(concept.getId());
+          action.setConceptId2(null);
+          action.setLastModifiedBy("admin");
+          action.setLastModified(new Date().getTime());
+          action.setOverrideWarnings(false);
+          action.setTransactionPerOperation(false);
+          action.setMolecularActionFlag(true);
+          action.setChangeStatusFlag(true);
+
+          action.setAtom(atomToAdd);
+
+          // Perform the action
+          final ValidationResult validationResult =
+              action.performMolecularAction(action, "admin", true, false);
+
+          // If the action failed, bail out now.
+          if (!validationResult.isValid()) {
+            logError("Unexpected problem - " + validationResult);
+          }
+
+          // Otherwise, increment the successful add-atom count
+          addedAtomsCount++;
+
+        } catch (Exception e) {
+          e.printStackTrace();
+          fail("Unexpected exception thrown - please review stack trace.");
+        } finally {
+          action.close();
+        }
+
+        updateProgress();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+    }
+
+    logInfo("Added " + addedAtomsCount + " disposition NCIMTH/PN atoms.");
+    logInfo("Skipped " + skippedConceptCount + " concepts that had more than one disposition atom.");
     logInfo("Finished " + getName());
   }
 
@@ -1437,7 +1566,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Redo Molecular Actions", "Fix Bad Relationship Identities",
             "Fix Component Info Relationships",
             "Set Component Info Relationships To Publishable",
-            "Set Stamped Worklists To Ready For Publication"));
+            "Set Stamped Worklists To Ready For Publication",
+            "Add Disposition Atoms"));
     params.add(param);
 
     return params;
