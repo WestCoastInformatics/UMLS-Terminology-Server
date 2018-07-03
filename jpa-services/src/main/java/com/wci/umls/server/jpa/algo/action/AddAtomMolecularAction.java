@@ -90,10 +90,21 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
     }
 
     // Duplicate check
+    // Restriction removed 20180703 per NCI's request
+    // for (final Atom a : getConcept().getAtoms()) {
+    // if (a.getName().equals(atom.getName())) {
+    // rollback();
+    // throw new LocalException("Duplicate atom - " + atom.getName());
+    // }
+    // }
+
+    // Terminology / TermType check
     for (final Atom a : getConcept().getAtoms()) {
-      if (a.getName().equals(atom.getName())) {
+      if (a.getTerminology().equals(atom.getTerminology())
+          && a.getTermType().equals(atom.getTermType())) {
         rollback();
-        throw new LocalException("Duplicate atom - " + atom.getName());
+        throw new LocalException("This concept already has a "
+            + atom.getTerminology() + "/" + atom.getTermType() + " atom");
       }
     }
 
