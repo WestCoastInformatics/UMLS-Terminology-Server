@@ -87,10 +87,10 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
 
     final List<Atom> sortedAtoms = new ArrayList<>(atoms);
     // Get each atom rank
-    final Map<Atom, String> atomRanks = new HashMap<>();
+    final Map<Long, String> atomRanks = new HashMap<>();
     for (final Atom atom : atoms) {
       final String rank = getRank(atom, list);
-      atomRanks.put(atom, rank);
+      atomRanks.put(atom.getId(), rank);
     }
     // Sort by atom rank - this works because atom ranks are designed to be
     // fixed-length strings that are directly comparable where higher
@@ -98,7 +98,7 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
     Collections.sort(sortedAtoms, new Comparator<Atom>() {
       @Override
       public int compare(Atom o1, Atom o2) {
-        return atomRanks.get(o2).compareTo(atomRanks.get(o1));
+        return atomRanks.get(o2.getId()).compareTo(atomRanks.get(o1.getId()));
       }
     });
 
