@@ -614,7 +614,8 @@ public class WriteRrfContentFilesAlgorithm
     logInfo(
         "  Determine preferred atoms for all codes, and cache code->AUI maps");
     final List<Long> codeIds = executeSingleComponentIdQuery(
-        "select c.id from CodeJpa c where publishable = true", QueryType.JPQL,
+        "select c.id from CodeJpa c join c.atoms a where c.publishable = true "
+            + "and a.publishable = true", QueryType.JPQL,
         getDefaultQueryParams(getProject()), CodeJpa.class, false);
     commitClearBegin();
     ct = 0;
