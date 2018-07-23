@@ -728,8 +728,10 @@ public class WriteRrfContentFilesAlgorithm
               + "where a.publishable = true and a.to.publishable = true");
       ct = 0;
       for (final Long id : (List<Long>) query.getResultList()) {
-        map.get(id).markRelationships();
-        logAndCommit(ct++, RootService.logCt, RootService.commitCt);
+        if (map.get(id) != null) {
+          map.get(id).markRelationships();
+          logAndCommit(ct++, RootService.logCt, RootService.commitCt);
+        }
       }
       logInfo("      ct = " + ct);
 
