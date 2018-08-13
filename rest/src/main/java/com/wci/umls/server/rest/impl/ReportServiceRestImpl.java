@@ -104,8 +104,8 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
 
       // Sort atoms
       if (concept != null) {
-        reportService.getGraphResolutionHandler(concept.getTerminology())
-            .resolve(concept);
+//        reportService.getGraphResolutionHandler(concept.getTerminology())
+//            .resolve(concept);
         final PrecedenceList list = sortAtoms(securityService, reportService,
             userName, concept, project);
         return reportService.getConceptReport(project, concept, list, true);
