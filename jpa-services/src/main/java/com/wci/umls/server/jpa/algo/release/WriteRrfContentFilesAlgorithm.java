@@ -215,6 +215,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractInsertMaintReleaseAlg
               }
               prev = line;
             }
+            writerMap.get("MRSAT.RRF").flush();
             if (ct++ % RootService.commitCt == 0) {
               checkCancel();
               service.commitClearBegin();
