@@ -3,11 +3,8 @@
  */
 package com.wci.umls.server.jpa.content;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -16,7 +13,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -49,16 +45,6 @@ import com.wci.umls.server.model.content.Relationship;
 @XmlRootElement(name = "atomRelationship")
 public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     implements AtomRelationship {
-
-  /**  The rela map. */
-  @Transient
-  private final Set<String> relaMap = new HashSet<>(Arrays.asList(new String[] {
-      "transliterated_form_of", "british_form_of", "has_alias",
-      "permuted_term_of", "sort_version_of", "common_name_of",
-      "mth_british_form_of", "plain_text_form_of", "expanded_form_of",
-      "mth_has_plain_text_form", "mth_has_xml_form", "mth_expanded_form_of",
-      "entry_version_of", "translation_of"
-  }));
 
   /** The from atom. */
   @ManyToOne(targetEntity = AtomJpa.class, optional = false)
@@ -334,7 +320,8 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
   @XmlTransient
   public boolean isShortFormLongForm() {
     return getRelationshipType().equals("SY")
-        && relaMap.contains(getAdditionalRelationshipType());
+        && (getAdditionalRelationshipType().startsWith("mth_")
+            || getAdditionalRelationshipType().contains("expanded_form"));
   }
 
   // Use superclass toString()
