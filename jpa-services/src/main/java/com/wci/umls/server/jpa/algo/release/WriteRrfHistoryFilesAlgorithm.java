@@ -934,7 +934,7 @@ public class WriteRrfHistoryFilesAlgorithm
           final Set<ComponentHistory> newFacts = new HashSet<>();
           for (final ComponentHistory fact : relFacts) {
             final Set<ComponentHistory> cui2Facts =
-                getFacts(syFacts.iterator().next().getReferencedTerminologyId(),
+                getFacts(fact.getReferencedTerminologyId(),
                     previousCuis, currentCuis);
 
             // If single SY, then just update CUI2 and add to newFacts
