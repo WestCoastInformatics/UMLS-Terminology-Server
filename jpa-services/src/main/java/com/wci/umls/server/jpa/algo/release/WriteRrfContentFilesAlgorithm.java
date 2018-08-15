@@ -29,7 +29,6 @@ import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.content.ConceptList;
-import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.CodeJpa;
@@ -48,6 +47,7 @@ import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.ComponentInfoRelationship;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.ConceptTreePosition;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
@@ -57,7 +57,6 @@ import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
-import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.meta.Terminology;
@@ -68,8 +67,7 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 /**
  * Algorithm to write the RRF content files.
  */
-public class WriteRrfContentFilesAlgorithm
-    extends AbstractInsertMaintReleaseAlgorithm {
+public class WriteRrfContentFilesAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   /** The sem type map. */
   private Map<String, SemanticType> semTypeMap = new HashMap<>(10000);
@@ -126,8 +124,7 @@ public class WriteRrfContentFilesAlgorithm
   private Set<String> terminologyUsingSrcRoot = new HashSet<>();
 
   /** The component info rel map. */
-  private Map<String, List<ComponentInfoRelationship>> componentInfoRelMap =
-      new HashMap<>();
+  private Map<String, List<ComponentInfoRelationship>> componentInfoRelMap = new HashMap<>();
 
   /** The precedence list. */
   private PrecedenceList precedenceList;
@@ -178,19 +175,18 @@ public class WriteRrfContentFilesAlgorithm
             + "where c.terminology = :terminology "
             + "  and c.version = :version and a.publishable = true "
             + "  and c.publishable = true order by c.terminologyId",
-        QueryType.JPQL, getDefaultQueryParams(getProject()), ConceptJpa.class,
-        false);
+        QueryType.JPQL, getDefaultQueryParams(getProject()), ConceptJpa.class, false);
     commitClearBegin();
     setSteps(conceptIds.size());
 
-    //TESTTEST - run only MRSAT for now.   
-    
-//    // Write AMBIG files
-//    writeAmbig();
-//
-//    // Close Ambig writers
-//    writerMap.get("AMBIGSUI.RRF").close();
-//    writerMap.get("AMBIGLUI.RRF").close();
+    // TESTTEST - run only MRSAT for now.
+
+    // // Write AMBIG files
+    // writeAmbig();
+    //
+    // // Close Ambig writers
+    // writerMap.get("AMBIGSUI.RRF").close();
+    // writerMap.get("AMBIGLUI.RRF").close();
 
     // Parallelize output
     final Thread[] threads = new Thread[1];
@@ -219,6 +215,7 @@ public class WriteRrfContentFilesAlgorithm
               }
               prev = line;
             }
+            writerMap.get("MRSAT.RRF").flush();
             if (ct++ % RootService.commitCt == 0) {
               checkCancel();
               service.commitClearBegin();
@@ -244,144 +241,143 @@ public class WriteRrfContentFilesAlgorithm
     threads[0] = t;
     t.start();
 
-//    Thread t = new Thread(new Runnable() {
-//      @Override
-//      public void run() {
-//        WriteRrfContentFilesAlgorithm service = null;
-//        try {
-//          service = new WriteRrfContentFilesAlgorithm();
-//          service.setTransactionPerOperation(false);
-//          service.beginTransaction();
-//
-//          service.setProject(getProject());
-//          service.setProcess(getProcess());
-//
-//          int ct = 0;
-//          for (final Long conceptId : conceptIds) {
-//            final Concept c = service.getConcept(conceptId);
-//
-//            String prev = "";
-//            for (final String line : writeMrrel(c, service)) {
-//              if (!line.equals(prev)) {
-//                writerMap.get("MRREL.RRF").print(line);
-//              }
-//              prev = line;
-//            }
-//
-//            if (ct++ % RootService.commitCt == 0) {
-//              checkCancel();
-//              service.commitClearBegin();
-//            }
-//          }
-//          service.commit();
-//          service.close();
-//          Logger.getLogger(getClass()).info("After MRREL completes.");
-//
-//        } catch (Exception e) {
-//          Logger.getLogger(getClass()).error(e.getMessage(), e);
-//          exceptions[0] = e;
-//        } finally {
-//          writerMap.get("MRREL.RRF").close();
-//          try {
-//            service.close();
-//          } catch (Exception e) {
-//            exceptions[0] = e;
-//          }
-//        }
-//      }
-//    });
-//    threads[0] = t;
-//    t.start();
-//
-//    t = new Thread(new Runnable() {
-//      @Override
-//      public void run() {
-//        WriteRrfContentFilesAlgorithm service = null;
-//        try {
-//          service = new WriteRrfContentFilesAlgorithm();
-//          service.setTransactionPerOperation(false);
-//          service.beginTransaction();
-//
-//          service.setProject(getProject());
-//          service.setProcess(getProcess());
-//
-//          int ct = 0;
-//          for (final Long conceptId : conceptIds) {
-//            final Concept c = service.getConcept(conceptId);
-//
-//            String prev = "";
-//            for (final String line : writeMrhier(c, service)) {
-//              if (!line.equals(prev)) {
-//                writerMap.get("MRHIER.RRF").print(line);
-//              }
-//              prev = line;
-//            }
-//
-//            if (ct++ % RootService.commitCt == 0) {
-//              checkCancel();
-//              service.commitClearBegin();
-//            }
-//          }
-//          service.commit();
-//          service.close();
-//          Logger.getLogger(getClass()).info("After MRHIER completes.");
-//
-//        } catch (Exception e) {
-//          Logger.getLogger(getClass()).error(e.getMessage(), e);
-//          exceptions[1] = e;
-//        } finally {
-//          writerMap.get("MRHIER.RRF").close();
-//          try {
-//            service.close();
-//          } catch (Exception e) {
-//            exceptions[1] = e;
-//          }
-//        }
-//      }
-//    });
-//    threads[1] = t;
-//    t.start();
-//
-//    // Start writing other files
-//    try {
-//      for (final Long conceptId : conceptIds) {
-//        final Concept c = getConcept(conceptId);
-//        String prev = "";
-//        for (final String line : writeMrconso(c)) {
-//          if (!line.equals(prev)) {
-//            writerMap.get("MRCONSO.RRF").print(line);
-//          }
-//          prev = line;
-//        }
-//
-//        prev = "";
-//        for (final String line : writeMrdef(c)) {
-//          if (!line.equals(prev)) {
-//            writerMap.get("MRDEF.RRF").print(line);
-//          }
-//          prev = line;
-//        }
-//
-//        prev = "";
-//        for (final String line : writeMrsty(c)) {
-//          if (!line.equals(prev)) {
-//            writerMap.get("MRSTY.RRF").print(line);
-//          }
-//          prev = line;
-//        }
-//        updateProgress();
-//      }
-//    } catch (Exception e) {
-//      Logger.getLogger(getClass()).error(e.getMessage(), e);
-//      exceptions[2] = e;
-//    }
-//    finally{
-//      // Close final writers
-//      writerMap.get("MRCONSO.RRF").close();
-//      writerMap.get("MRDEF.RRF").close();
-//      writerMap.get("MRSTY.RRF").close();     
-//    }
-
+    // Thread t = new Thread(new Runnable() {
+    // @Override
+    // public void run() {
+    // WriteRrfContentFilesAlgorithm service = null;
+    // try {
+    // service = new WriteRrfContentFilesAlgorithm();
+    // service.setTransactionPerOperation(false);
+    // service.beginTransaction();
+    //
+    // service.setProject(getProject());
+    // service.setProcess(getProcess());
+    //
+    // int ct = 0;
+    // for (final Long conceptId : conceptIds) {
+    // final Concept c = service.getConcept(conceptId);
+    //
+    // String prev = "";
+    // for (final String line : writeMrrel(c, service)) {
+    // if (!line.equals(prev)) {
+    // writerMap.get("MRREL.RRF").print(line);
+    // }
+    // prev = line;
+    // }
+    //
+    // if (ct++ % RootService.commitCt == 0) {
+    // checkCancel();
+    // service.commitClearBegin();
+    // }
+    // }
+    // service.commit();
+    // service.close();
+    // Logger.getLogger(getClass()).info("After MRREL completes.");
+    //
+    // } catch (Exception e) {
+    // Logger.getLogger(getClass()).error(e.getMessage(), e);
+    // exceptions[0] = e;
+    // } finally {
+    // writerMap.get("MRREL.RRF").close();
+    // try {
+    // service.close();
+    // } catch (Exception e) {
+    // exceptions[0] = e;
+    // }
+    // }
+    // }
+    // });
+    // threads[0] = t;
+    // t.start();
+    //
+    // t = new Thread(new Runnable() {
+    // @Override
+    // public void run() {
+    // WriteRrfContentFilesAlgorithm service = null;
+    // try {
+    // service = new WriteRrfContentFilesAlgorithm();
+    // service.setTransactionPerOperation(false);
+    // service.beginTransaction();
+    //
+    // service.setProject(getProject());
+    // service.setProcess(getProcess());
+    //
+    // int ct = 0;
+    // for (final Long conceptId : conceptIds) {
+    // final Concept c = service.getConcept(conceptId);
+    //
+    // String prev = "";
+    // for (final String line : writeMrhier(c, service)) {
+    // if (!line.equals(prev)) {
+    // writerMap.get("MRHIER.RRF").print(line);
+    // }
+    // prev = line;
+    // }
+    //
+    // if (ct++ % RootService.commitCt == 0) {
+    // checkCancel();
+    // service.commitClearBegin();
+    // }
+    // }
+    // service.commit();
+    // service.close();
+    // Logger.getLogger(getClass()).info("After MRHIER completes.");
+    //
+    // } catch (Exception e) {
+    // Logger.getLogger(getClass()).error(e.getMessage(), e);
+    // exceptions[1] = e;
+    // } finally {
+    // writerMap.get("MRHIER.RRF").close();
+    // try {
+    // service.close();
+    // } catch (Exception e) {
+    // exceptions[1] = e;
+    // }
+    // }
+    // }
+    // });
+    // threads[1] = t;
+    // t.start();
+    //
+    // // Start writing other files
+    // try {
+    // for (final Long conceptId : conceptIds) {
+    // final Concept c = getConcept(conceptId);
+    // String prev = "";
+    // for (final String line : writeMrconso(c)) {
+    // if (!line.equals(prev)) {
+    // writerMap.get("MRCONSO.RRF").print(line);
+    // }
+    // prev = line;
+    // }
+    //
+    // prev = "";
+    // for (final String line : writeMrdef(c)) {
+    // if (!line.equals(prev)) {
+    // writerMap.get("MRDEF.RRF").print(line);
+    // }
+    // prev = line;
+    // }
+    //
+    // prev = "";
+    // for (final String line : writeMrsty(c)) {
+    // if (!line.equals(prev)) {
+    // writerMap.get("MRSTY.RRF").print(line);
+    // }
+    // prev = line;
+    // }
+    // updateProgress();
+    // }
+    // } catch (Exception e) {
+    // Logger.getLogger(getClass()).error(e.getMessage(), e);
+    // exceptions[2] = e;
+    // }
+    // finally{
+    // // Close final writers
+    // writerMap.get("MRCONSO.RRF").close();
+    // writerMap.get("MRDEF.RRF").close();
+    // writerMap.get("MRSTY.RRF").close();
+    // }
 
     // Wait for threads
     for (final Thread thread : threads) {
@@ -389,8 +385,8 @@ public class WriteRrfContentFilesAlgorithm
     }
 
     // close print writers (if any are still open)
-    closeWriters();    
-    
+    closeWriters();
+
     // Report exceptions
     for (final Exception e : exceptions) {
       if (e != null) {
@@ -412,14 +408,12 @@ public class WriteRrfContentFilesAlgorithm
   private void prepareMaps() throws Exception {
 
     // Precedencelist
-    precedenceList = getPrecedenceList(getProject().getTerminology(),
-        getProject().getVersion());
+    precedenceList = getPrecedenceList(getProject().getTerminology(), getProject().getVersion());
 
     // make semantic types map
     logInfo("  Prepare semantic type map");
-    for (final SemanticType semType : getSemanticTypes(
-        getProject().getTerminology(), getProject().getVersion())
-            .getObjects()) {
+    for (final SemanticType semType : getSemanticTypes(getProject().getTerminology(),
+        getProject().getVersion()).getObjects()) {
       semTypeMap.put(semType.getExpandedForm(), semType);
     }
 
@@ -430,14 +424,12 @@ public class WriteRrfContentFilesAlgorithm
     }
     for (final Terminology term : getTerminologyLatestVersions().getObjects()) {
       Atom srcRhtAtom = null;
-      SearchResultList searchResults = findConceptSearchResults(
-          getProject().getTerminology(), getProject().getVersion(),
-          getProject().getBranch(), " atoms.codeId:V-" + term.getTerminology()
-              + " AND atoms.terminology:SRC AND atoms.termType:RPT",
+      SearchResultList searchResults = findConceptSearchResults(getProject().getTerminology(),
+          getProject().getVersion(), getProject().getBranch(), " atoms.codeId:V-"
+              + term.getTerminology() + " AND atoms.terminology:SRC AND atoms.termType:RPT",
           null);
       if (searchResults.size() == 1) {
-        final Concept concept =
-            getConcept(searchResults.getObjects().get(0).getId());
+        final Concept concept = getConcept(searchResults.getObjects().get(0).getId());
         for (final Atom a : concept.getAtoms()) {
           if (a.getTermType().equals("RHT") && a.isPublishable()) {
             srcRhtAtom = a;
@@ -451,8 +443,7 @@ public class WriteRrfContentFilesAlgorithm
           // concept
           boolean found = false;
           for (final Atom a : concept.getAtoms()) {
-            if (a.getTerminology().equals(term.getTerminology())
-                && a.isPublishable()
+            if (a.getTerminology().equals(term.getTerminology()) && a.isPublishable()
                 && a.getName().equals(srcRhtAtom.getName())) {
               found = true;
               break;
@@ -462,8 +453,8 @@ public class WriteRrfContentFilesAlgorithm
             terminologyUsingSrcRoot.add(term.getTerminology());
           }
 
-          final String srcAui = srcRhtAtom.getAlternateTerminologyIds()
-              .get(getProject().getTerminology());
+          final String srcAui =
+              srcRhtAtom.getAlternateTerminologyIds().get(getProject().getTerminology());
           final String name = srcRhtAtom.getName();
           terminologyToSrcRhtNameMap.put(term.getTerminology(), name);
           terminologyToSrcAuiMap.put(term.getTerminology(), srcAui);
@@ -475,16 +466,16 @@ public class WriteRrfContentFilesAlgorithm
 
     final ComputePreferredNameHandler handler =
         getComputePreferredNameHandler(getProject().getTerminology());
-    final PrecedenceList list = getPrecedenceList(getProject().getTerminology(),
-        getProject().getVersion());
+    final PrecedenceList list =
+        getPrecedenceList(getProject().getTerminology(), getProject().getVersion());
     // Lazy init
     list.getPrecedence().getKeyValuePairs().size();
 
     // Atom -> AUI map
     // Load alternateTerminologyIds
     logInfo("  Cache atom->AUI map");
-    Query query = getEntityManager().createQuery(
-        "select a.id, value(b) from AtomJpa a join a.alternateTerminologyIds b "
+    Query query = getEntityManager()
+        .createQuery("select a.id, value(b) from AtomJpa a join a.alternateTerminologyIds b "
             + "where KEY(b) = :terminology and a.publishable=true");
     query.setParameter("terminology", getProject().getTerminology());
     final List<Object[]> results2 = query.getResultList();
@@ -499,8 +490,8 @@ public class WriteRrfContentFilesAlgorithm
 
     // Attribute -> ATUI map
     logInfo("  Cache attribute->ATUI map");
-    query = getEntityManager().createQuery(
-        "select a.id, value(b) from AttributeJpa a join a.alternateTerminologyIds b "
+    query = getEntityManager()
+        .createQuery("select a.id, value(b) from AttributeJpa a join a.alternateTerminologyIds b "
             + "where KEY(b) = :terminology and a.publishable=true");
     query.setParameter("terminology", getProject().getTerminology());
     final List<Object[]> results3 = query.getResultList();
@@ -566,12 +557,10 @@ public class WriteRrfContentFilesAlgorithm
     }
 
     // Determine preferred atoms for all concepts
-    logInfo(
-        "  Determine preferred atoms for all concepts, and cache concept->AUI maps");
-    final List<Long> conceptIds = executeSingleComponentIdQuery(
-        "select c.id from ConceptJpa c where publishable = true",
-        QueryType.JPQL, getDefaultQueryParams(getProject()), ConceptJpa.class,
-        false);
+    logInfo("  Determine preferred atoms for all concepts, and cache concept->AUI maps");
+    final List<Long> conceptIds =
+        executeSingleComponentIdQuery("select c.id from ConceptJpa c where publishable = true",
+            QueryType.JPQL, getDefaultQueryParams(getProject()), ConceptJpa.class, false);
     commitClearBegin();
     ct = 0;
     for (Long conceptId : conceptIds) {
@@ -583,8 +572,7 @@ public class WriteRrfContentFilesAlgorithm
         // Put all AUIs in the map
         for (final Atom atom2 : concept.getAtoms()) {
           if (atom2.isPublishable()) {
-            auiCuiMap.put(atomContentsMap.get(atom2.getId()).getAui(),
-                concept.getTerminologyId());
+            auiCuiMap.put(atomContentsMap.get(atom2.getId()).getAui(), concept.getTerminologyId());
           }
         }
       }
@@ -599,18 +587,15 @@ public class WriteRrfContentFilesAlgorithm
                 + atom.getId() + ", " + concept.getId());
       }
       initContents(conceptContentsMap, concept.getId());
-      conceptContentsMap.get(concept.getId())
-          .setAui(atomContentsMap.get(atom.getId()).getAui());
+      conceptContentsMap.get(concept.getId()).setAui(atomContentsMap.get(atom.getId()).getAui());
       logAndCommit(ct++, RootService.logCt, RootService.commitCt);
     }
 
     // Determine preferred atoms for all descriptors
-    logInfo(
-        "  Determine preferred atoms for all descriptors, and cache descriptor->AUI maps");
-    final List<Long> descriptorIds = executeSingleComponentIdQuery(
-        "select d.id from DescriptorJpa d where publishable = true",
-        QueryType.JPQL, getDefaultQueryParams(getProject()),
-        DescriptorJpa.class, false);
+    logInfo("  Determine preferred atoms for all descriptors, and cache descriptor->AUI maps");
+    final List<Long> descriptorIds =
+        executeSingleComponentIdQuery("select d.id from DescriptorJpa d where publishable = true",
+            QueryType.JPQL, getDefaultQueryParams(getProject()), DescriptorJpa.class, false);
     commitClearBegin();
     ct = 0;
     for (Long descriptorId : descriptorIds) {
@@ -635,13 +620,11 @@ public class WriteRrfContentFilesAlgorithm
     }
 
     // Determine preferred atoms for all codes
-    logInfo(
-        "  Determine preferred atoms for all codes, and cache code->AUI maps");
+    logInfo("  Determine preferred atoms for all codes, and cache code->AUI maps");
     final List<Long> codeIds = executeSingleComponentIdQuery(
         "select c.id from CodeJpa c join c.atoms a where c.publishable = true "
             + "and a.publishable = true",
-        QueryType.JPQL, getDefaultQueryParams(getProject()), CodeJpa.class,
-        false);
+        QueryType.JPQL, getDefaultQueryParams(getProject()), CodeJpa.class, false);
     commitClearBegin();
     ct = 0;
     for (Long codeId : codeIds) {
@@ -655,16 +638,15 @@ public class WriteRrfContentFilesAlgorithm
       }
       atomContentsMap.get(atom.getId()).setCodeId(code.getId());
       initContents(codeContentsMap, code.getId());
-      codeContentsMap.get(code.getId())
-          .setAui(atomContentsMap.get(atom.getId()).getAui());
+      codeContentsMap.get(code.getId()).setAui(atomContentsMap.get(atom.getId()).getAui());
       logAndCommit(ct++, RootService.logCt, RootService.commitCt);
     }
 
     // Determine terminologies that have relationship attributes
     logInfo("  Determine all terminologies with relationship attributes");
-    query = manager.createQuery("select distinct r.terminology "
-        + "from ConceptRelationshipJpa r join r.attributes a "
-        + "where r.terminology != :terminology");
+    query = manager.createQuery(
+        "select distinct r.terminology " + "from ConceptRelationshipJpa r join r.attributes a "
+            + "where r.terminology != :terminology");
     query.setParameter("terminology", getProject().getTerminology());
     final List<String> results = query.getResultList();
     for (final String result : results) {
@@ -701,16 +683,15 @@ public class WriteRrfContentFilesAlgorithm
 
     // Cache component info relationships
     logInfo("  Cache component info relationships");
-    query = manager.createQuery(
-        "select r from ComponentInfoRelationshipJpa r where publishable = true");
+    query = manager
+        .createQuery("select r from ComponentInfoRelationshipJpa r where publishable = true");
     final List<ComponentInfoRelationship> rels = query.getResultList();
     for (final ComponentInfoRelationship rel : rels) {
       String key = rel.getTo().getTerminologyId() + rel.getTo().getTerminology()
           + rel.getTo().getVersion() + rel.getTo().getType();
       if (rel.getTo().getType() == IdType.ATOM) {
         // AUI+terminology+type
-        key = rel.getTo().getTerminologyId() + rel.getTo().getTerminology()
-            + rel.getTo().getType();
+        key = rel.getTo().getTerminologyId() + rel.getTo().getTerminology() + rel.getTo().getType();
       }
       if (!componentInfoRelMap.containsKey(key)) {
         componentInfoRelMap.put(key, new ArrayList<>());
@@ -737,9 +718,8 @@ public class WriteRrfContentFilesAlgorithm
       logInfo("  Determine " + type + " contents");
 
       logInfo("    attributes");
-      query = manager.createQuery(
-          "select distinct a.id from " + type + "Jpa a join a.attributes b "
-              + "where a.publishable = true and b.publishable = true");
+      query = manager.createQuery("select distinct a.id from " + type + "Jpa a join a.attributes b "
+          + "where a.publishable = true and b.publishable = true");
       ct = 0;
       for (final Long id : (List<Long>) query.getResultList()) {
         map.get(id).markAttributes();
@@ -748,9 +728,8 @@ public class WriteRrfContentFilesAlgorithm
       logInfo("      ct = " + ct);
 
       logInfo("    relationships");
-      query = manager.createQuery(
-          "select distinct a.to.id from " + type + "RelationshipJpa a "
-              + "where a.publishable = true and a.to.publishable = true");
+      query = manager.createQuery("select distinct a.to.id from " + type + "RelationshipJpa a "
+          + "where a.publishable = true and a.to.publishable = true");
       ct = 0;
       for (final Long id : (List<Long>) query.getResultList()) {
         if (map.get(id) != null) {
@@ -761,9 +740,8 @@ public class WriteRrfContentFilesAlgorithm
       logInfo("      ct = " + ct);
 
       logInfo("    tree positions");
-      query = manager.createQuery(
-          "select distinct a.node.id from " + type + "TreePositionJpa a "
-              + "where a.publishable = true and a.node.publishable = true");
+      query = manager.createQuery("select distinct a.node.id from " + type + "TreePositionJpa a "
+          + "where a.publishable = true and a.node.publishable = true");
       ct = 0;
       for (final Long id : (List<Long>) query.getResultList()) {
         map.get(id).markTreePositions();
@@ -772,11 +750,10 @@ public class WriteRrfContentFilesAlgorithm
       logInfo("      ct = " + ct);
 
       // Only concepts and atoms have subset members
-      if (type.equals("concept") || type.equals("Atom")) {
+      if (type.equals("Concept") || type.equals("Atom")) {
         logInfo("    members");
-        query = manager.createQuery(
-            "select distinct a.member.id from " + type + "SubsetMemberJpa a "
-                + "where a.publishable = true and a.member.publishable = true");
+        query = manager.createQuery("select distinct a.member.id from " + type
+            + "SubsetMemberJpa a " + "where a.publishable = true and a.member.publishable = true");
         ct = 0;
         for (final Long id : (List<Long>) query.getResultList()) {
           map.get(id).markMembers();
@@ -831,32 +808,30 @@ public class WriteRrfContentFilesAlgorithm
    */
   private void openWriters() throws Exception {
     final File dir = new File(config.getProperty("source.data.dir") + "/"
-        + getProcess().getInputPath() + "/" + getProcess().getVersion() + "/"
-        + "META");
+        + getProcess().getInputPath() + "/" + getProcess().getVersion() + "/" + "META");
 
-    //TESTTEST - only run on MRSAT for now.
-//    writerMap.put("AMBIGSUI.RRF",
-//        new PrintWriter(new FileWriter(new File(dir, "AMBIGSUI.RRF"))));
-//    writerMap.put("AMBIGLUI.RRF",
-//        new PrintWriter(new FileWriter(new File(dir, "AMBIGLUI.RRF"))));
-//    writerMap.put("MRCONSO.RRF",
-//        new PrintWriter(new FileWriter(new File(dir, "MRCONSO.RRF"))));
-//    writerMap.put("MRDEF.RRF",
-//        new PrintWriter(new FileWriter(new File(dir, "MRDEF.RRF"))));
-//    writerMap.put("MRREL.RRF",
-//        new PrintWriter(new FileWriter(new File(dir, "MRREL.RRF"))));
-//    writerMap.put("MRSTY.RRF",
-//        new PrintWriter(new FileWriter(new File(dir, "MRSTY.RRF"))));
-    writerMap.put("MRSAT.RRF",
-        new PrintWriter(new FileWriter(new File(dir, "MRSAT.RRF"))));
-//    writerMap.put("MRHIER.RRF",
-//        new PrintWriter(new FileWriter(new File(dir, "MRHIER.RRF"))));
-//    writerMap.put("MRHIST.RRF",
-//        new PrintWriter(new FileWriter(new File(dir, "MRHIST.RRF"))));
-//    writerMap.put("MRMAP.RRF",
-//        new PrintWriter(new FileWriter(new File(dir, "MRMAP.RRF"))));
-//    writerMap.put("MRSMAP.RRF",
-//        new PrintWriter(new FileWriter(new File(dir, "MRSMAP.RRF"))));
+    // TESTTEST - only run on MRSAT for now.
+    // writerMap.put("AMBIGSUI.RRF",
+    // new PrintWriter(new FileWriter(new File(dir, "AMBIGSUI.RRF"))));
+    // writerMap.put("AMBIGLUI.RRF",
+    // new PrintWriter(new FileWriter(new File(dir, "AMBIGLUI.RRF"))));
+    // writerMap.put("MRCONSO.RRF",
+    // new PrintWriter(new FileWriter(new File(dir, "MRCONSO.RRF"))));
+    // writerMap.put("MRDEF.RRF",
+    // new PrintWriter(new FileWriter(new File(dir, "MRDEF.RRF"))));
+    // writerMap.put("MRREL.RRF",
+    // new PrintWriter(new FileWriter(new File(dir, "MRREL.RRF"))));
+    // writerMap.put("MRSTY.RRF",
+    // new PrintWriter(new FileWriter(new File(dir, "MRSTY.RRF"))));
+    writerMap.put("MRSAT.RRF", new PrintWriter(new FileWriter(new File(dir, "MRSAT.RRF"))));
+    // writerMap.put("MRHIER.RRF",
+    // new PrintWriter(new FileWriter(new File(dir, "MRHIER.RRF"))));
+    // writerMap.put("MRHIST.RRF",
+    // new PrintWriter(new FileWriter(new File(dir, "MRHIST.RRF"))));
+    // writerMap.put("MRMAP.RRF",
+    // new PrintWriter(new FileWriter(new File(dir, "MRMAP.RRF"))));
+    // writerMap.put("MRSMAP.RRF",
+    // new PrintWriter(new FileWriter(new File(dir, "MRSMAP.RRF"))));
   }
 
   /**
@@ -990,18 +965,18 @@ public class WriteRrfContentFilesAlgorithm
       // STR
       sb.append(a.getName()).append("|");
       // SRL
-      sb.append(termMap.get(a.getTerminology()).getRootTerminology()
-          .getRestrictionLevel()).append("|");
+      sb.append(termMap.get(a.getTerminology()).getRootTerminology().getRestrictionLevel())
+          .append("|");
       // SUPPRESS
       if (a.isObsolete()) {
         sb.append("O");
       } else if (a.isSuppressible()
-          && getTermType(a.getTermType(), getProject().getTerminology(),
-              getProject().getVersion()).isSuppressible()) {
+          && getTermType(a.getTermType(), getProject().getTerminology(), getProject().getVersion())
+              .isSuppressible()) {
         sb.append("Y");
       } else if (a.isSuppressible()
-          && !getTermType(a.getTermType(), getProject().getTerminology(),
-              getProject().getVersion()).isSuppressible()) {
+          && !getTermType(a.getTermType(), getProject().getTerminology(), getProject().getVersion())
+              .isSuppressible()) {
         sb.append("E");
       } else {
         sb.append("N");
@@ -1012,8 +987,8 @@ public class WriteRrfContentFilesAlgorithm
 
       // Collect the mapset concepts and cache
       if (a.getTermType().equals("XM")) {
-        final MapSet mapSet = getMapSet(a.getCodeId(), a.getTerminology(),
-            a.getVersion(), Branch.ROOT);
+        final MapSet mapSet =
+            getMapSet(a.getCodeId(), a.getTerminology(), a.getVersion(), Branch.ROOT);
 
         if (mapSet.isPublishable()) {
           for (final String line : writeMrmap(mapSet, c.getTerminologyId())) {
@@ -1072,8 +1047,7 @@ public class WriteRrfContentFilesAlgorithm
         final String aui = atomContentsMap.get(a.getId()).getAui();
         sb.append(aui).append("|");
         // ATUI
-        final String atui =
-            d.getAlternateTerminologyIds().get(getProject().getTerminology());
+        final String atui = d.getAlternateTerminologyIds().get(getProject().getTerminology());
         sb.append(atui).append("|");
         // SATUI
         sb.append(d.getTerminologyId()).append("|");
@@ -1191,10 +1165,8 @@ public class WriteRrfContentFilesAlgorithm
       // MAPRANK
       sb.append(mapping.getRank()).append("|");
       // MAPID
-      if (mapping.getAlternateTerminologyIds()
-          .containsKey(getProject().getTerminology())) {
-        sb.append(mapping.getAlternateTerminologyIds()
-            .get(getProject().getTerminology()));
+      if (mapping.getAlternateTerminologyIds().containsKey(getProject().getTerminology())) {
+        sb.append(mapping.getAlternateTerminologyIds().get(getProject().getTerminology()));
       }
       sb.append("|");
       // MAPSID
@@ -1202,15 +1174,15 @@ public class WriteRrfContentFilesAlgorithm
       // FROMID
       if (mapping.getAlternateTerminologyIds()
           .containsKey(getProject().getTerminology() + "-FROMID")) {
-        sb.append(mapping.getAlternateTerminologyIds()
-            .get(getProject().getTerminology() + "-FROMID"));
+        sb.append(
+            mapping.getAlternateTerminologyIds().get(getProject().getTerminology() + "-FROMID"));
       }
       sb.append("|");
       // FROMSID
       if (mapping.getAlternateTerminologyIds()
           .containsKey(getProject().getTerminology() + "-FROMSID")) {
-        sb.append(mapping.getAlternateTerminologyIds()
-            .get(getProject().getTerminology() + "-FROMSID"));
+        sb.append(
+            mapping.getAlternateTerminologyIds().get(getProject().getTerminology() + "-FROMSID"));
       }
       sb.append("|");
       // FROMEXPR
@@ -1218,8 +1190,8 @@ public class WriteRrfContentFilesAlgorithm
       // FROMTYPE
       if (mapping.getFromIdType().toString().equals("DESCRIPTOR")) {
         sb.append("SDUI");
-      } else if (mapping.getFromIdType().toString().equals("CONCEPT") && mapset
-          .getFromTerminology().equals(getProject().getTerminology())) {
+      } else if (mapping.getFromIdType().toString().equals("CONCEPT")
+          && mapset.getFromTerminology().equals(getProject().getTerminology())) {
         sb.append("CUI");
       } else if (mapping.getFromIdType().toString().equals("CONCEPT")) {
         sb.append("SCUI");
@@ -1248,15 +1220,15 @@ public class WriteRrfContentFilesAlgorithm
       // TOID
       if (mapping.getAlternateTerminologyIds()
           .containsKey(getProject().getTerminology() + "-TOID")) {
-        sb.append(mapping.getAlternateTerminologyIds()
-            .get(getProject().getTerminology() + "-TOID"));
+        sb.append(
+            mapping.getAlternateTerminologyIds().get(getProject().getTerminology() + "-TOID"));
       }
       sb.append("|");
       // TOSID
       if (mapping.getAlternateTerminologyIds()
           .containsKey(getProject().getTerminology() + "-TOSID")) {
-        sb.append(mapping.getAlternateTerminologyIds()
-            .get(getProject().getTerminology() + "-TOSID"));
+        sb.append(
+            mapping.getAlternateTerminologyIds().get(getProject().getTerminology() + "-TOSID"));
       }
       sb.append("|");
       // TOEXPR
@@ -1292,8 +1264,7 @@ public class WriteRrfContentFilesAlgorithm
       // MAPRES
       sb.append(mapping.getAdvice()).append("|");
       // MAPTYPE
-      sb.append(mapset.getMapType() != null ? mapset.getMapType() : "")
-          .append("|");
+      sb.append(mapset.getMapType() != null ? mapset.getMapType() : "").append("|");
       // MAPATN && MAPATV
       if (mapping.getTerminology().equals("SNOMEDCT_US")) {
         sb.append("ACTIVE").append("|");
@@ -1360,10 +1331,8 @@ public class WriteRrfContentFilesAlgorithm
       // MAPSETSAB
       sb.append(mapset.getTerminology()).append("|");
       // MAPID
-      if (mapping.getAlternateTerminologyIds()
-          .containsKey(getProject().getTerminology())) {
-        sb.append(mapping.getAlternateTerminologyIds()
-            .get(getProject().getTerminology()));
+      if (mapping.getAlternateTerminologyIds().containsKey(getProject().getTerminology())) {
+        sb.append(mapping.getAlternateTerminologyIds().get(getProject().getTerminology()));
       }
       sb.append("|");
       // MAPSID
@@ -1374,8 +1343,8 @@ public class WriteRrfContentFilesAlgorithm
       // FROMTYPE
       if (mapping.getFromIdType().toString().equals("DESCRIPTOR")) {
         sb.append("SDUI");
-      } else if (mapping.getFromIdType().toString().equals("CONCEPT") && mapset
-          .getFromTerminology().equals(getProject().getTerminology())) {
+      } else if (mapping.getFromIdType().toString().equals("CONCEPT")
+          && mapset.getFromTerminology().equals(getProject().getTerminology())) {
         sb.append("CUI");
       } else if (mapping.getFromIdType().toString().equals("CONCEPT")) {
         sb.append("SCUI");
@@ -1440,8 +1409,7 @@ public class WriteRrfContentFilesAlgorithm
       // TUI
       sb.append(semTypeMap.get(sty.getSemanticType()).getTypeId()).append("|");
       // STN
-      sb.append(semTypeMap.get(sty.getSemanticType()).getTreeNumber())
-          .append("|");
+      sb.append(semTypeMap.get(sty.getSemanticType()).getTreeNumber()).append("|");
       // STY
       sb.append(sty.getSemanticType()).append("|");
       // ATUI
@@ -1462,8 +1430,7 @@ public class WriteRrfContentFilesAlgorithm
    * @return the list
    * @throws Exception the exception
    */
-  List<String> writeMrrel(Concept c, WriteRrfContentFilesAlgorithm service)
-    throws Exception {
+  List<String> writeMrrel(Concept c, WriteRrfContentFilesAlgorithm service) throws Exception {
     // Field description
     // 0 CUI1
     // 1 AUI1
@@ -1499,14 +1466,13 @@ public class WriteRrfContentFilesAlgorithm
           continue;
         }
 
-        lines.add(getRelLine(rel, cui1, "", "CUI",
-            rel.getFrom().getTerminologyId(), "", "CUI", relConceptRuiMap));
+        lines.add(getRelLine(rel, cui1, "", "CUI", rel.getFrom().getTerminologyId(), "", "CUI",
+            relConceptRuiMap));
       }
     }
 
     // CUI->AUI component info relationships
-    String key = c.getTerminologyId() + c.getTerminology() + c.getVersion()
-        + c.getType();
+    String key = c.getTerminologyId() + c.getTerminology() + c.getVersion() + c.getType();
     for (final ComponentInfoRelationship rel : getComponentInfoRels(key)) {
       if (!rel.isPublishable()) {
         continue;
@@ -1515,8 +1481,7 @@ public class WriteRrfContentFilesAlgorithm
       // determine aui2
       String aui2 = null;
       String stype2 = null;
-      final Component from =
-          service.findComponent(rel.getFrom(), atomContentsMap);
+      final Component from = service.findComponent(rel.getFrom(), atomContentsMap);
       if (from.getType() == IdType.CONCEPT) {
         aui2 = conceptContentsMap.get(from.getId()).getAui();
         stype2 = "SCUI";
@@ -1532,8 +1497,7 @@ public class WriteRrfContentFilesAlgorithm
       }
       relCompRuiMap.put(rel.getId(),
           rel.getAlternateTerminologyIds().get(getProject().getTerminology()));
-      lines.add(
-          getRelLine(rel, cui1, "", "CUI", null, aui2, stype2, relCompRuiMap));
+      lines.add(getRelLine(rel, cui1, "", "CUI", null, aui2, stype2, relCompRuiMap));
 
     }
 
@@ -1554,14 +1518,12 @@ public class WriteRrfContentFilesAlgorithm
             continue;
           }
           final String aui2 = atomContentsMap.get(r.getFrom().getId()).getAui();
-          lines.add(getRelLine(r, cui1, aui1, "AUI", null, aui2, "AUI",
-              relAtomRuiMap));
+          lines.add(getRelLine(r, cui1, aui1, "AUI", null, aui2, "AUI", relAtomRuiMap));
         }
       }
 
       // look up component info relationships where STYPE1=AUI
-      key = atomContentsMap.get(a.getId()).getAui()
-          + getProject().getTerminology() + a.getType();
+      key = atomContentsMap.get(a.getId()).getAui() + getProject().getTerminology() + a.getType();
       for (final ComponentInfoRelationship rel : getComponentInfoRels(key)) {
         if (!rel.isPublishable()) {
           continue;
@@ -1571,13 +1533,10 @@ public class WriteRrfContentFilesAlgorithm
         String aui2 = null;
         String stype2 = null;
         String cui2 = null;
-        final Component from =
-            service.findComponent(rel.getFrom(), atomContentsMap);
+        final Component from = service.findComponent(rel.getFrom(), atomContentsMap);
         if (from.getType() == IdType.CONCEPT) {
-          stype2 = from.getTerminology().equals(getProject().getTerminology())
-              ? "CUI" : "SCUI";
-          aui2 = stype2.equals("CUI") ? ""
-              : conceptContentsMap.get(from.getId()).getAui();
+          stype2 = from.getTerminology().equals(getProject().getTerminology()) ? "CUI" : "SCUI";
+          aui2 = stype2.equals("CUI") ? "" : conceptContentsMap.get(from.getId()).getAui();
           cui2 = stype2.equals("CUI") ? from.getTerminologyId() : null;
         } else if (from.getType() == IdType.CODE) {
           aui2 = codeContentsMap.get(from.getId()).getAui();
@@ -1586,10 +1545,9 @@ public class WriteRrfContentFilesAlgorithm
           aui2 = descriptorContentsMap.get(from.getId()).getAui();
           stype2 = "SDUI";
         }
-        relCompRuiMap.put(rel.getId(), rel.getAlternateTerminologyIds()
-            .get(getProject().getTerminology()));
-        lines.add(getRelLine(rel, cui1, aui1, "AUI", cui2, aui2, stype2,
-            relCompRuiMap));
+        relCompRuiMap.put(rel.getId(),
+            rel.getAlternateTerminologyIds().get(getProject().getTerminology()));
+        lines.add(getRelLine(rel, cui1, aui1, "AUI", cui2, aui2, stype2, relCompRuiMap));
 
       }
 
@@ -1597,8 +1555,7 @@ public class WriteRrfContentFilesAlgorithm
       // e.g.
       // C0000097|A3134287|SCUI|PAR|C0576798|A3476803|SCUI|inverse_isa|R96279727|107042028|SNOMEDCT_US|SNOMEDCT_US|0|N|N||
       if (atomContentsMap.get(a.getId()).getConceptId() != null) {
-        final Concept scui =
-            service.getConcept(atomContentsMap.get(a.getId()).getConceptId());
+        final Concept scui = service.getConcept(atomContentsMap.get(a.getId()).getConceptId());
 
         if (conceptContentsMap.containsKey(scui.getId())
             && conceptContentsMap.get(scui.getId()).hasRelationships()) {
@@ -1608,16 +1565,13 @@ public class WriteRrfContentFilesAlgorithm
               continue;
             }
 
-            final String aui2 =
-                conceptContentsMap.get(rel.getFrom().getId()).getAui();
-            lines.add(getRelLine(rel, cui1, aui1, "SCUI", null, aui2, "SCUI",
-                relConceptRuiMap));
+            final String aui2 = conceptContentsMap.get(rel.getFrom().getId()).getAui();
+            lines.add(getRelLine(rel, cui1, aui1, "SCUI", null, aui2, "SCUI", relConceptRuiMap));
           }
         }
 
         // look up component info relationships where STYPE1=SCUI
-        key = scui.getTerminologyId() + scui.getTerminology()
-            + scui.getVersion() + scui.getType();
+        key = scui.getTerminologyId() + scui.getTerminology() + scui.getVersion() + scui.getType();
         for (final ComponentInfoRelationship rel : getComponentInfoRels(key)) {
           if (!rel.isPublishable()) {
             continue;
@@ -1625,8 +1579,7 @@ public class WriteRrfContentFilesAlgorithm
 
           String aui2 = null;
           String stype2 = null;
-          final Component from =
-              service.findComponent(rel.getFrom(), atomContentsMap);
+          final Component from = service.findComponent(rel.getFrom(), atomContentsMap);
           if (from.getType() == IdType.CODE) {
             aui2 = codeContentsMap.get(from.getId()).getAui();
             stype2 = "CODE";
@@ -1637,16 +1590,14 @@ public class WriteRrfContentFilesAlgorithm
             aui2 = atomContentsMap.get(((Atom) from).getId()).getAui();
             stype2 = "AUI";
           }
-          relCompRuiMap.put(rel.getId(), rel.getAlternateTerminologyIds()
-              .get(getProject().getTerminology()));
-          lines.add(getRelLine(rel, cui1, aui1, "SCUI", null, aui2, stype2,
-              relCompRuiMap));
+          relCompRuiMap.put(rel.getId(),
+              rel.getAlternateTerminologyIds().get(getProject().getTerminology()));
+          lines.add(getRelLine(rel, cui1, aui1, "SCUI", null, aui2, stype2, relCompRuiMap));
         }
       }
 
       if (atomContentsMap.get(a.getId()).getCodeId() != null) {
-        final Code code =
-            service.getCode(atomContentsMap.get(a.getId()).getCodeId());
+        final Code code = service.getCode(atomContentsMap.get(a.getId()).getCodeId());
 
         if (codeContentsMap.containsKey(code.getId())
             && codeContentsMap.get(code.getId()).hasRelationships()) {
@@ -1655,16 +1606,13 @@ public class WriteRrfContentFilesAlgorithm
               continue;
             }
 
-            final String aui2 =
-                codeContentsMap.get(rel.getFrom().getId()).getAui();
-            lines.add(getRelLine(rel, cui1, aui1, "CODE", null, aui2, "CODE",
-                relCodeRuiMap));
+            final String aui2 = codeContentsMap.get(rel.getFrom().getId()).getAui();
+            lines.add(getRelLine(rel, cui1, aui1, "CODE", null, aui2, "CODE", relCodeRuiMap));
           }
         }
 
         // look up component info relationships where STYPE1=CODE
-        key = code.getTerminologyId() + code.getTerminology()
-            + code.getVersion() + code.getType();
+        key = code.getTerminologyId() + code.getTerminology() + code.getVersion() + code.getType();
         for (final ComponentInfoRelationship rel : getComponentInfoRels(key)) {
 
           if (!rel.isPublishable()) {
@@ -1674,8 +1622,7 @@ public class WriteRrfContentFilesAlgorithm
           // determine aui2
           String aui2 = null;
           String stype2 = null;
-          final Component from =
-              service.findComponent(rel.getFrom(), atomContentsMap);
+          final Component from = service.findComponent(rel.getFrom(), atomContentsMap);
           if (from.getType() == IdType.CONCEPT) {
             aui2 = conceptContentsMap.get(from.getId()).getAui();
             stype2 = "SCUI";
@@ -1686,35 +1633,30 @@ public class WriteRrfContentFilesAlgorithm
             aui2 = descriptorContentsMap.get(from.getId()).getAui();
             stype2 = "SDUI";
           }
-          relCompRuiMap.put(rel.getId(), rel.getAlternateTerminologyIds()
-              .get(getProject().getTerminology()));
-          lines.add(getRelLine(rel, cui1, aui1, "CODE", null, aui2, stype2,
-              relCompRuiMap));
+          relCompRuiMap.put(rel.getId(),
+              rel.getAlternateTerminologyIds().get(getProject().getTerminology()));
+          lines.add(getRelLine(rel, cui1, aui1, "CODE", null, aui2, stype2, relCompRuiMap));
 
         }
       }
 
       if (atomContentsMap.get(a.getId()).getDescriptorId() != null) {
-        final Descriptor sdui = service
-            .getDescriptor(atomContentsMap.get(a.getId()).getDescriptorId());
+        final Descriptor sdui =
+            service.getDescriptor(atomContentsMap.get(a.getId()).getDescriptorId());
         if (descriptorContentsMap.containsKey(sdui.getId())
             && descriptorContentsMap.get(sdui.getId()).hasRelationships()) {
-          for (final DescriptorRelationship rel : sdui
-              .getInverseRelationships()) {
+          for (final DescriptorRelationship rel : sdui.getInverseRelationships()) {
             if (!rel.isPublishable()) {
               continue;
             }
 
-            final String aui2 =
-                descriptorContentsMap.get(rel.getFrom().getId()).getAui();
-            lines.add(getRelLine(rel, cui1, aui1, "SDUI", null, aui2, "SDUI",
-                relDescriptorRuiMap));
+            final String aui2 = descriptorContentsMap.get(rel.getFrom().getId()).getAui();
+            lines.add(getRelLine(rel, cui1, aui1, "SDUI", null, aui2, "SDUI", relDescriptorRuiMap));
           }
         }
 
         // look up component info relationships where STYPE1=SDUI
-        key = sdui.getTerminologyId() + sdui.getTerminology()
-            + sdui.getVersion() + sdui.getType();
+        key = sdui.getTerminologyId() + sdui.getTerminology() + sdui.getVersion() + sdui.getType();
         for (final ComponentInfoRelationship rel : getComponentInfoRels(key)) {
           if (!rel.isPublishable()) {
             continue;
@@ -1723,8 +1665,7 @@ public class WriteRrfContentFilesAlgorithm
           // determine aui2
           String aui2 = null;
           String stype2 = rel.getFrom().getType().toString();
-          final Component from =
-              service.findComponent(rel.getFrom(), atomContentsMap);
+          final Component from = service.findComponent(rel.getFrom(), atomContentsMap);
           if (from.getType() == IdType.CONCEPT) {
             aui2 = conceptContentsMap.get(from.getId()).getAui();
             stype2 = "SCUI";
@@ -1735,10 +1676,9 @@ public class WriteRrfContentFilesAlgorithm
             aui2 = atomContentsMap.get(from.getId()).getAui();
             stype2 = "AUI";
           }
-          relCompRuiMap.put(rel.getId(), rel.getAlternateTerminologyIds()
-              .get(getProject().getTerminology()));
-          lines.add(getRelLine(rel, cui1, aui1, "SDUI", null, aui2, stype2,
-              relCompRuiMap));
+          relCompRuiMap.put(rel.getId(),
+              rel.getAlternateTerminologyIds().get(getProject().getTerminology()));
+          lines.add(getRelLine(rel, cui1, aui1, "SDUI", null, aui2, stype2, relCompRuiMap));
         }
       }
     } // end for(Atom... concept.getAtoms())
@@ -1762,26 +1702,22 @@ public class WriteRrfContentFilesAlgorithm
   private Component findComponent(ComponentInfo componentInfo,
     Map<Long, AtomContents> atomContentsMap) throws Exception {
     if (componentInfo.getType() == IdType.CONCEPT) {
-      return getConcept(componentInfo.getTerminologyId(),
-          componentInfo.getTerminology(), componentInfo.getVersion(),
-          Branch.ROOT);
+      return getConcept(componentInfo.getTerminologyId(), componentInfo.getTerminology(),
+          componentInfo.getVersion(), Branch.ROOT);
     } else if (componentInfo.getType() == IdType.CODE) {
-      return getCode(componentInfo.getTerminologyId(),
-          componentInfo.getTerminology(), componentInfo.getVersion(),
-          Branch.ROOT);
+      return getCode(componentInfo.getTerminologyId(), componentInfo.getTerminology(),
+          componentInfo.getVersion(), Branch.ROOT);
     } else if (componentInfo.getType() == IdType.DESCRIPTOR) {
-      return getDescriptor(componentInfo.getTerminologyId(),
-          componentInfo.getTerminology(), componentInfo.getVersion(),
-          Branch.ROOT);
+      return getDescriptor(componentInfo.getTerminologyId(), componentInfo.getTerminology(),
+          componentInfo.getVersion(), Branch.ROOT);
     } else if (componentInfo.getType() == IdType.ATOM) {
       final ConceptList list = findConcepts(getProject().getTerminology(),
-          getProject().getVersion(), Branch.ROOT,
-          "atoms.alternateTerminologyIds:\"" + getProject().getTerminology()
-              + "=" + componentInfo.getTerminologyId() + "\"",
+          getProject().getVersion(), Branch.ROOT, "atoms.alternateTerminologyIds:\""
+              + getProject().getTerminology() + "=" + componentInfo.getTerminologyId() + "\"",
           null);
       if (list.size() != 1) {
-        logError("ERROR: unexpected number of concepts with AUI "
-            + componentInfo.getTerminologyId() + ", " + list.size());
+        logError("ERROR: unexpected number of concepts with AUI " + componentInfo.getTerminologyId()
+            + ", " + list.size());
         return null;
       }
       for (final Atom atom : list.getObjects().get(0).getAtoms()) {
@@ -1822,9 +1758,8 @@ public class WriteRrfContentFilesAlgorithm
    * @param relRuiMap the rel rui map
    * @return the rel line
    */
-  private String getRelLine(Relationship<?, ?> rel, String cui1, String aui1,
-    String stype1, String cui2, String aui2, String stype2,
-    Map<Long, String> relRuiMap) {
+  private String getRelLine(Relationship<?, ?> rel, String cui1, String aui1, String stype1,
+    String cui2, String aui2, String stype2, Map<Long, String> relRuiMap) {
     final StringBuilder sb = new StringBuilder(200);
     // 0 CUI1
     sb.append(cui1).append("|");
@@ -1855,10 +1790,8 @@ public class WriteRrfContentFilesAlgorithm
     // 12 RG
     sb.append(rel.getGroup()).append("|");
     // 13 DIR
-    final boolean asserts =
-        termMap.get(rel.getTerminology()).isAssertsRelDirection();
-    sb.append(asserts ? (rel.isAssertedDirection() ? "Y" : "N") : "")
-        .append("|");
+    final boolean asserts = termMap.get(rel.getTerminology()).isAssertsRelDirection();
+    sb.append(asserts ? (rel.isAssertedDirection() ? "Y" : "N") : "").append("|");
     // 14 SUPPRESS
     if (rel.isObsolete()) {
       sb.append("O");
@@ -1908,8 +1841,7 @@ public class WriteRrfContentFilesAlgorithm
 
       // If the atom is an SRC/RHT atom for a terminology that uses SRC root
       // atoms
-      if (atom.getTerminology().equals("SRC")
-          && atom.getTermType().equals("RHT")
+      if (atom.getTerminology().equals("SRC") && atom.getTermType().equals("RHT")
           && terminologyUsingSrcRoot.contains(atom.getCodeId().substring(2))) {
         final StringBuilder sb = new StringBuilder(200);
         sb.append(c.getTerminologyId()).append("|");
@@ -1932,8 +1864,7 @@ public class WriteRrfContentFilesAlgorithm
           final StringBuilder ptr = new StringBuilder(200);
           String paui = null;
           String root = null;
-          for (final String atomId : FieldedStringTokenizer
-              .split(treepos.getAncestorPath(), "~")) {
+          for (final String atomId : FieldedStringTokenizer.split(treepos.getAncestorPath(), "~")) {
             if (paui != null) {
               ptr.append(".");
             }
@@ -1952,15 +1883,13 @@ public class WriteRrfContentFilesAlgorithm
           // A3684559.A3886745.A2880798.A3512117.A3082701.A3316611|||
           final StringBuilder sb = new StringBuilder(200);
           // If the root string doesn't equal SRC/RHT, write tree-top SRC atom
-          final String srcRhtName =
-              terminologyToSrcRhtNameMap.get(treepos.getTerminology());
+          final String srcRhtName = terminologyToSrcRhtNameMap.get(treepos.getTerminology());
           if ((root != null && !root.equals(srcRhtName))
               || (root == null && !atom.getName().equals(srcRhtName))) {
             sb.append(c.getTerminologyId()).append("|");
             sb.append(aui).append("|");
             sb.append("" + ct++).append("|");
-            sb.append(terminologyToSrcAuiMap.get(treepos.getTerminology()))
-                .append("|");
+            sb.append(terminologyToSrcAuiMap.get(treepos.getTerminology())).append("|");
             sb.append(treepos.getTerminology()).append("|");
             sb.append(treepos.getAdditionalRelationshipType()).append("|");
             sb.append(terminologyToSrcAuiMap.get(treepos.getTerminology()));
@@ -1985,17 +1914,15 @@ public class WriteRrfContentFilesAlgorithm
 
       // Try for concept treepos
       final Long cId = atomContentsMap.get(atom.getId()).getConceptId();
-      if (conceptContentsMap.containsKey(cId)
-          && conceptContentsMap.get(cId).hasTreePositions()) {
-        final Concept scui = service
-            .getConcept(atomContentsMap.get(atom.getId()).getConceptId());
+      if (conceptContentsMap.containsKey(cId) && conceptContentsMap.get(cId).hasTreePositions()) {
+        final Concept scui = service.getConcept(atomContentsMap.get(atom.getId()).getConceptId());
         for (final ConceptTreePosition treepos : scui.getTreePositions()) {
 
           final StringBuilder ptr = new StringBuilder(200);
           String paui = null;
           String root = null;
-          for (final String conceptId : FieldedStringTokenizer
-              .split(treepos.getAncestorPath(), "~")) {
+          for (final String conceptId : FieldedStringTokenizer.split(treepos.getAncestorPath(),
+              "~")) {
             if (paui != null) {
               ptr.append(".");
             }
@@ -2006,8 +1933,7 @@ public class WriteRrfContentFilesAlgorithm
 
             ptr.append(paui);
             if (root == null) {
-              final Concept concept2 =
-                  service.getConcept(Long.valueOf(conceptId));
+              final Concept concept2 = service.getConcept(Long.valueOf(conceptId));
               root = concept2.getName();
             }
           }
@@ -2016,15 +1942,13 @@ public class WriteRrfContentFilesAlgorithm
           // A3684559.A3886745.A2880798.A3512117.A3082701.A3316611|||
           final StringBuilder sb = new StringBuilder(200);
           // If the root string doesn't equal SRC/RHT, write tree-top SRC atom
-          final String srcRhtName =
-              terminologyToSrcRhtNameMap.get(treepos.getTerminology());
+          final String srcRhtName = terminologyToSrcRhtNameMap.get(treepos.getTerminology());
           if ((root != null && !root.equals(srcRhtName))
               || (root == null && !atom.getName().equals(srcRhtName))) {
             sb.append(c.getTerminologyId()).append("|");
             sb.append(aui).append("|");
             sb.append("" + ct++).append("|");
-            sb.append(terminologyToSrcAuiMap.get(treepos.getTerminology()))
-                .append("|");
+            sb.append(terminologyToSrcAuiMap.get(treepos.getTerminology())).append("|");
             sb.append(treepos.getTerminology()).append("|");
             sb.append(treepos.getAdditionalRelationshipType()).append("|");
             sb.append(terminologyToSrcAuiMap.get(treepos.getTerminology()));
@@ -2053,28 +1977,25 @@ public class WriteRrfContentFilesAlgorithm
       final Long dId = atomContentsMap.get(atom.getId()).getDescriptorId();
       if (descriptorContentsMap.containsKey(dId)
           && descriptorContentsMap.get(dId).hasTreePositions()) {
-        final Descriptor sdui = service
-            .getDescriptor(atomContentsMap.get(atom.getId()).getDescriptorId());
+        final Descriptor sdui =
+            service.getDescriptor(atomContentsMap.get(atom.getId()).getDescriptorId());
         for (final DescriptorTreePosition treepos : sdui.getTreePositions()) {
 
           final StringBuilder ptr = new StringBuilder(200);
           String paui = null;
           String root = null;
-          for (final String descriptorId : FieldedStringTokenizer
-              .split(treepos.getAncestorPath(), "~")) {
+          for (final String descriptorId : FieldedStringTokenizer.split(treepos.getAncestorPath(),
+              "~")) {
             if (paui != null) {
               ptr.append(".");
             }
-            paui =
-                descriptorContentsMap.get(Long.valueOf(descriptorId)).getAui();
+            paui = descriptorContentsMap.get(Long.valueOf(descriptorId)).getAui();
             if (paui == null) {
-              throw new Exception(
-                  "descriptor from ptr is null " + descriptorId);
+              throw new Exception("descriptor from ptr is null " + descriptorId);
             }
             ptr.append(paui);
             if (root == null) {
-              final Descriptor descriptor2 =
-                  service.getDescriptor(Long.valueOf(descriptorId));
+              final Descriptor descriptor2 = service.getDescriptor(Long.valueOf(descriptorId));
               root = descriptor2.getName();
             }
           }
@@ -2083,15 +2004,13 @@ public class WriteRrfContentFilesAlgorithm
           // A3684559.A3886745.A2880798.A3512117.A3082701.A3316611|||
           final StringBuilder sb = new StringBuilder(200);
           // If the root string doesn't equal SRC/RHT, write tree-top SRC atom
-          final String srcRhtName =
-              terminologyToSrcRhtNameMap.get(treepos.getTerminology());
+          final String srcRhtName = terminologyToSrcRhtNameMap.get(treepos.getTerminology());
           if ((root != null && !root.equals(srcRhtName))
               || (root == null && !atom.getName().equals(srcRhtName))) {
             sb.append(c.getTerminologyId()).append("|");
             sb.append(aui).append("|");
             sb.append("" + ct++).append("|");
-            sb.append(terminologyToSrcAuiMap.get(treepos.getTerminology()))
-                .append("|");
+            sb.append(terminologyToSrcAuiMap.get(treepos.getTerminology())).append("|");
             sb.append(treepos.getTerminology()).append("|");
             sb.append(treepos.getAdditionalRelationshipType()).append("|");
             sb.append(terminologyToSrcAuiMap.get(treepos.getTerminology()));
@@ -2119,18 +2038,15 @@ public class WriteRrfContentFilesAlgorithm
 
       // Try for code treepos
       final Long cdId = atomContentsMap.get(atom.getId()).getCodeId();
-      if (codeContentsMap.containsKey(cdId)
-          && codeContentsMap.get(cdId).hasTreePositions()) {
+      if (codeContentsMap.containsKey(cdId) && codeContentsMap.get(cdId).hasTreePositions()) {
 
-        final Code code =
-            service.getCode(atomContentsMap.get(atom.getId()).getCodeId());
+        final Code code = service.getCode(atomContentsMap.get(atom.getId()).getCodeId());
         for (final CodeTreePosition treepos : code.getTreePositions()) {
 
           final StringBuilder ptr = new StringBuilder(200);
           String paui = null;
           String root = null;
-          for (final String codeId : FieldedStringTokenizer
-              .split(treepos.getAncestorPath(), "~")) {
+          for (final String codeId : FieldedStringTokenizer.split(treepos.getAncestorPath(), "~")) {
             if (paui != null) {
               ptr.append(".");
             }
@@ -2149,15 +2065,13 @@ public class WriteRrfContentFilesAlgorithm
           // A3684559.A3886745.A2880798.A3512117.A3082701.A3316611|||
           final StringBuilder sb = new StringBuilder(200);
           // If the root string doesn't equal SRC/RHT, write tree-top SRC atom
-          final String srcRhtName =
-              terminologyToSrcRhtNameMap.get(treepos.getTerminology());
+          final String srcRhtName = terminologyToSrcRhtNameMap.get(treepos.getTerminology());
           if ((root != null && !root.equals(srcRhtName))
               || (root == null && !atom.getName().equals(srcRhtName))) {
             sb.append(c.getTerminologyId()).append("|");
             sb.append(aui).append("|");
             sb.append("" + ct++).append("|");
-            sb.append(terminologyToSrcAuiMap.get(treepos.getTerminology()))
-                .append("|");
+            sb.append(terminologyToSrcAuiMap.get(treepos.getTerminology())).append("|");
             sb.append(treepos.getTerminology()).append("|");
             sb.append(treepos.getAdditionalRelationshipType()).append("|");
             sb.append(terminologyToSrcAuiMap.get(treepos.getTerminology()));
@@ -2248,8 +2162,7 @@ public class WriteRrfContentFilesAlgorithm
         final String atui = attAtuiMap.get(att.getId());
         sb.append(atui != null ? atui : "").append("|");
         // SATUI
-        sb.append(att.getTerminologyId() != null ? att.getTerminologyId() : "")
-            .append("|");
+        sb.append(att.getTerminologyId() != null ? att.getTerminologyId() : "").append("|");
         // ATN
         sb.append(att.getName()).append("|");
         // SAB
@@ -2305,9 +2218,7 @@ public class WriteRrfContentFilesAlgorithm
           final String atui = attAtuiMap.get(att.getId());
           sb.append(atui != null ? atui : "").append("|");
           // SATUI
-          sb.append(
-              att.getTerminologyId() != null ? att.getTerminologyId() : "")
-              .append("|");
+          sb.append(att.getTerminologyId() != null ? att.getTerminologyId() : "").append("|");
           // ATN
           sb.append(att.getName()).append("|");
           // SAB
@@ -2358,8 +2269,8 @@ public class WriteRrfContentFilesAlgorithm
             final String atui = attAtuiMap.get(attribute.getId());
             sb.append(atui != null ? atui : "").append("|");
             // SATUI
-            sb.append(attribute.getTerminologyId() != null
-                ? attribute.getTerminologyId() : "").append("|");
+            sb.append(attribute.getTerminologyId() != null ? attribute.getTerminologyId() : "")
+                .append("|");
             // ATN
             sb.append(attribute.getName()).append("|");
             // SAB
@@ -2389,8 +2300,7 @@ public class WriteRrfContentFilesAlgorithm
       // C0000052|L3853359|S4536829|A23245828|AUI|58488005|AT166631006|
       // cf28ec3d-cf07-59cb-944a-10ef4f43b725|SUBSET_MEMBER|SNOMEDCT|
       // 450828004|N||
-      if (atomContentsMap.containsKey(a.getId())
-          && atomContentsMap.get(a.getId()).hasMembers()) {
+      if (atomContentsMap.containsKey(a.getId()) && atomContentsMap.get(a.getId()).hasMembers()) {
 
         for (final AtomSubsetMember member : a.getMembers()) {
           if (!member.isPublishable()) {
@@ -2438,8 +2348,7 @@ public class WriteRrfContentFilesAlgorithm
       // If this is the preferred atom id of the scui
       if (atomContentsMap.get(a.getId()).getConceptId() != null) {
 
-        final Concept scui =
-            service.getConcept(atomContentsMap.get(a.getId()).getConceptId());
+        final Concept scui = service.getConcept(atomContentsMap.get(a.getId()).getConceptId());
 
         if (conceptContentsMap.containsKey(scui.getId())
             && conceptContentsMap.get(scui.getId()).hasAttributes()) {
@@ -2458,8 +2367,8 @@ public class WriteRrfContentFilesAlgorithm
             sb.append(a.getCodeId()).append("|");
             final String atui = attAtuiMap.get(attribute.getId());
             sb.append(atui != null ? atui : "").append("|");
-            sb.append(attribute.getTerminologyId() != null
-                ? attribute.getTerminologyId() : "").append("|");
+            sb.append(attribute.getTerminologyId() != null ? attribute.getTerminologyId() : "")
+                .append("|");
             sb.append(attribute.getName()).append("|");
             sb.append(attribute.getTerminology()).append("|");
             sb.append(attribute.getValue()).append("|");
@@ -2496,8 +2405,8 @@ public class WriteRrfContentFilesAlgorithm
               sb.append("|");
               final String atui = attAtuiMap.get(attribute.getId());
               sb.append(atui != null ? atui : "").append("|");
-              sb.append(attribute.getTerminologyId() != null
-                  ? attribute.getTerminologyId() : "").append("|");
+              sb.append(attribute.getTerminologyId() != null ? attribute.getTerminologyId() : "")
+                  .append("|");
               sb.append(attribute.getName()).append("|");
               sb.append(attribute.getTerminology()).append("|");
               sb.append(attribute.getValue()).append("|");
@@ -2517,11 +2426,10 @@ public class WriteRrfContentFilesAlgorithm
 
         // Concept subset members
         // C0000102|L0121443|S1286670|A3714229|SCUI|13579002|AT109859972|cbe76318-0356-54e6-9935-03962bd340eb|SUBSET_MEMBER|SNOMEDCT_US|900000000000498005~MAPTARGET~C-29040|N||
-        SubsetMemberList list =
-            service.getConceptSubsetMembers(scui.getTerminologyId(),
-                scui.getTerminology(), scui.getVersion(), Branch.ROOT);
-        if (conceptContentsMap.containsKey(scui.getId()) && list.size() > 0) {
-          for (SubsetMember member : list.getObjects()) {
+        if (conceptContentsMap.containsKey(scui.getId())
+            && conceptContentsMap.get(scui.getId()).hasMembers()) {
+
+          for (final ConceptSubsetMember member : scui.getMembers()) {
 
             if (!member.isPublishable()) {
               continue;
@@ -2570,8 +2478,7 @@ public class WriteRrfContentFilesAlgorithm
       // C0010654|L1371351|S2026553|A10006797|SCUI|NPO_384|AT73054966||CODE|NPO|NPO_384|N||
       // If atom is the preferred atom of the CODE
       if (atomContentsMap.get(a.getId()).getCodeId() != null) {
-        final Code code =
-            service.getCode(atomContentsMap.get(a.getId()).getCodeId());
+        final Code code = service.getCode(atomContentsMap.get(a.getId()).getCodeId());
 
         if (codeContentsMap.containsKey(code.getId())
             && codeContentsMap.get(code.getId()).hasAttributes()) {
@@ -2597,8 +2504,8 @@ public class WriteRrfContentFilesAlgorithm
             final String atui = attAtuiMap.get(attribute.getId());
             sb.append(atui).append("|");
             // SATUI
-            sb.append(attribute.getTerminologyId() != null
-                ? attribute.getTerminologyId() : "").append("|");
+            sb.append(attribute.getTerminologyId() != null ? attribute.getTerminologyId() : "")
+                .append("|");
             // ATN
             sb.append(attribute.getName()).append("|");
             // SAB
@@ -2627,8 +2534,8 @@ public class WriteRrfContentFilesAlgorithm
       // Source Descriptor attributes
       // if atom is preferred atom of the descriptor
       if (atomContentsMap.get(a.getId()).getDescriptorId() != null) {
-        final Descriptor sdui = service
-            .getDescriptor(atomContentsMap.get(a.getId()).getDescriptorId());
+        final Descriptor sdui =
+            service.getDescriptor(atomContentsMap.get(a.getId()).getDescriptorId());
         if (descriptorContentsMap.containsKey(sdui.getId())
             && descriptorContentsMap.get(sdui.getId()).hasAttributes()) {
 
@@ -2645,8 +2552,8 @@ public class WriteRrfContentFilesAlgorithm
             sb.append(a.getCodeId()).append("|");
             final String atui = attAtuiMap.get(attribute.getId());
             sb.append(atui != null ? atui : "").append("|");
-            sb.append(attribute.getTerminologyId() != null
-                ? attribute.getTerminologyId() : "").append("|");
+            sb.append(attribute.getTerminologyId() != null ? attribute.getTerminologyId() : "")
+                .append("|");
             sb.append(attribute.getName()).append("|");
             sb.append(attribute.getTerminology()).append("|");
             sb.append(attribute.getValue()).append("|");
@@ -2680,13 +2587,12 @@ public class WriteRrfContentFilesAlgorithm
   private void writeAmbig() throws Exception {
     // Find ambig SUIs, write them out.
     logInfo("  Write AMBIGSUI.RRF");
-    Query query = manager
-        .createQuery("select distinct a.stringClassId, c.terminologyId from "
-            + "ConceptJpa c join c.atoms a, ConceptJpa c2 join c2.atoms a2 "
-            + "where c.id != c2.id and a.stringClassId = a2.stringClassId"
-            + "  and c.terminology = :terminology and c2.terminology = :terminology"
-            + "  and c.version = :version and c2.version = :version"
-            + "  and a.publishable = true and a2.publishable = true order by 1,2");
+    Query query = manager.createQuery("select distinct a.stringClassId, c.terminologyId from "
+        + "ConceptJpa c join c.atoms a, ConceptJpa c2 join c2.atoms a2 "
+        + "where c.id != c2.id and a.stringClassId = a2.stringClassId"
+        + "  and c.terminology = :terminology and c2.terminology = :terminology"
+        + "  and c.version = :version and c2.version = :version"
+        + "  and a.publishable = true and a2.publishable = true order by 1,2");
     query.setParameter("terminology", getProject().getTerminology());
     query.setParameter("version", getProject().getVersion());
     List<Object[]> results = query.getResultList();
@@ -2697,14 +2603,12 @@ public class WriteRrfContentFilesAlgorithm
 
     // Find ambig LUIs, write them out.
     logInfo("  Write AMBIGLUI.RRF");
-    query = manager
-        .createQuery("select distinct a.lexicalClassId, c.terminologyId from "
-            + "ConceptJpa c join c.atoms a, ConceptJpa c2 join c2.atoms a2 "
-            + "where c.id != c2.id"
-            + "  and a.lexicalClassId = a2.lexicalClassId"
-            + "  and c.terminology = :terminology and c2.terminology = :terminology"
-            + "  and c.version = :version and c2.version = :version"
-            + "  and a.publishable = true and a2.publishable = true order by 1,2");
+    query = manager.createQuery("select distinct a.lexicalClassId, c.terminologyId from "
+        + "ConceptJpa c join c.atoms a, ConceptJpa c2 join c2.atoms a2 " + "where c.id != c2.id"
+        + "  and a.lexicalClassId = a2.lexicalClassId"
+        + "  and c.terminology = :terminology and c2.terminology = :terminology"
+        + "  and c.version = :version and c2.version = :version"
+        + "  and a.publishable = true and a2.publishable = true order by 1,2");
     query.setParameter("terminology", getProject().getTerminology());
     query.setParameter("version", getProject().getVersion());
     results = query.getResultList();
