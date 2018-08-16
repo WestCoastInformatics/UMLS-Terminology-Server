@@ -165,7 +165,7 @@ public class WriteRrfHistoryFilesAlgorithm
     logInfo("Finished " + getName());
   }
 
-  /**s
+  /**
    * Write mrcui.
    *
    * @param previousCuis the previous cuis
@@ -993,10 +993,7 @@ public class WriteRrfHistoryFilesAlgorithm
           throw new Exception(
               "Unexpected state of facts from prior version = " + facts);
         }
-
       }
-
-      return new HashSet<>();
 
     }
 
