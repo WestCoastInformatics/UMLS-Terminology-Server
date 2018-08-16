@@ -902,14 +902,18 @@ public class WriteRrfHistoryFilesAlgorithm
 
       // Handle complex cases where there is a dead CUI2
       else {
-        // Expect these to be not the current release
-        if (releases.iterator().next().equals(getProcess().getVersion())) {
-          throw new Exception(
-              "Unexpected dead CUI2 cases with current version = " + facts);
-        }
+        // RAW 20180816: Bequeathal rels violate this check.
+        // TODO - determine if bequtheal rels should have different release
+        // date, or if removing this check was the right call.
+        // // Expect these to be not the current release
+        // if (releases.iterator().next().equals(getProcess().getVersion())) {
+        // throw new Exception(
+        // "Unexpected dead CUI2 cases with current version = " + facts);
+        // }
 
         //
-        // SY -> dead CUI2 (attempt to remap the CUI2 to a live CUI through SY facts)
+        // SY -> dead CUI2 (attempt to remap the CUI2 to a live CUI through SY
+        // facts)
         //
         if (syFacts.size() == 1) {
           final Set<ComponentHistory> cui2Facts =
@@ -943,9 +947,8 @@ public class WriteRrfHistoryFilesAlgorithm
             }
 
             // Otherwise get facts for its CUI2
-            final Set<ComponentHistory> cui2Facts =
-                getFacts(fact.getReferencedTerminologyId(),
-                    previousCuis, currentCuis);
+            final Set<ComponentHistory> cui2Facts = getFacts(
+                fact.getReferencedTerminologyId(), previousCuis, currentCuis);
 
             // If single SY, then just update CUI2 and add to newFacts
             if (cui2Facts.size() == 1 && cui2Facts.iterator().next()
