@@ -456,9 +456,10 @@ public class ReportServiceJpa extends HistoryServiceJpa
         if (!rel.isPublishable()) {
           sb.append("{");
         }
-        sb.append(handleHtmlSymbols(rel.getFrom().getName()))
-            .append("[SFO]/[LFO]")
+        sb.append(handleHtmlSymbols(rel.getFrom().getName())).append(" ")
+            .append("[SFO]/[LFO]").append(" ")
             .append(handleHtmlSymbols(rel.getTo().getName()));
+        sb.append(" ");
         sb.append("[").append(getTerminologyAndVersion(rel)).append("]")
             .append(lineEnd);
         if (!rel.isPublishable()) {
