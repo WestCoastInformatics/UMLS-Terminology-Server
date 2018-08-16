@@ -165,7 +165,7 @@ public class WriteRrfHistoryFilesAlgorithm
     logInfo("Finished " + getName());
   }
 
-  /**
+  /**s
    * Write mrcui.
    *
    * @param previousCuis the previous cuis
@@ -909,7 +909,7 @@ public class WriteRrfHistoryFilesAlgorithm
         }
 
         //
-        // SY -> dead CUI2
+        // SY -> dead CUI2 (attempt to remap the CUI2 to a live CUI through SY facts)
         //
         if (syFacts.size() == 1) {
           final Set<ComponentHistory> cui2Facts =
@@ -922,6 +922,8 @@ public class WriteRrfHistoryFilesAlgorithm
             syFacts.iterator().next().setReferencedTerminologyId(
                 cui2Facts.iterator().next().getReferencedTerminologyId());
             return syFacts;
+          } else {
+            throw new Exception("Unexpected multiple sy facts = " + syFacts);
           }
 
         }
@@ -932,7 +934,15 @@ public class WriteRrfHistoryFilesAlgorithm
         else if (syFacts.size() == 0 && delFacts.size() == 0
             && relFacts.size() > 0) {
           final Set<ComponentHistory> newFacts = new HashSet<>();
+
           for (final ComponentHistory fact : relFacts) {
+            // If one of the rels has a current CUI2, accept it and move on
+            if (currentCuis.contains(fact.getReferencedTerminologyId())) {
+              newFacts.add(fact);
+              continue;
+            }
+
+            // Otherwise get facts for its CUI2
             final Set<ComponentHistory> cui2Facts =
                 getFacts(fact.getReferencedTerminologyId(),
                     previousCuis, currentCuis);
@@ -947,7 +957,7 @@ public class WriteRrfHistoryFilesAlgorithm
 
             // If DEL, then skip
             else if (cui2Facts.size() == 1 && cui2Facts.iterator().next()
-                .getRelationshipType().equals("SY")) {
+                .getRelationshipType().equals("DEL")) {
               continue;
             }
 
