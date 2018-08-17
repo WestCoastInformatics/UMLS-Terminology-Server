@@ -236,7 +236,7 @@ public class WriteRrfHistoryFilesAlgorithm
         // write RO rows for all "value" CUIs.
         for (final String cui2 : entry.getValue()) {
           history.addBequeathal(lastReleaseCui, getProcess().getVersion(), "RO",
-              cui2);
+              cui2, currentCuis);
         }
       }
     }
@@ -279,7 +279,7 @@ public class WriteRrfHistoryFilesAlgorithm
           for (final ConceptRelationship bequeathalRel : bequeathalRels) {
             history.addBequeathal(c.getTerminologyId(),
                 getProcess().getVersion(), bequeathalRel.getRelationshipType(),
-                bequeathalRel.getTo().getTerminologyId());
+                bequeathalRel.getTo().getTerminologyId(), currentCuis);
 
           }
         }
@@ -305,7 +305,8 @@ public class WriteRrfHistoryFilesAlgorithm
 
             else {
               history.addBequeathal(c.getTerminologyId(), ch.getVersion(),
-                  ch.getRelationshipType(), ch.getReferencedTerminologyId());
+                  ch.getRelationshipType(), ch.getReferencedTerminologyId(),
+                  currentCuis);
 
             }
 
@@ -902,14 +903,11 @@ public class WriteRrfHistoryFilesAlgorithm
 
       // Handle complex cases where there is a dead CUI2
       else {
-        // RAW 20180816: Bequeathal rels violate this check.
-        // TODO - determine if bequtheal rels should have different release
-        // date, or if removing this check was the right call.
-        // // Expect these to be not the current release
-        // if (releases.iterator().next().equals(getProcess().getVersion())) {
-        // throw new Exception(
-        // "Unexpected dead CUI2 cases with current version = " + facts);
-        // }
+        // Expect these to be not the current release
+        if (releases.iterator().next().equals(getProcess().getVersion())) {
+          throw new Exception(
+              "Unexpected dead CUI2 cases with current version = " + facts);
+        }
 
         //
         // SY -> dead CUI2 (attempt to remap the CUI2 to a live CUI through SY
@@ -1027,16 +1025,18 @@ public class WriteRrfHistoryFilesAlgorithm
      * @throws Exception the exception
      */
     public void addBequeathal(String cui, String release, String rel,
-      String cui2) throws Exception {
-      final ComponentHistory history = new ComponentHistoryJpa();
-      history.setTerminologyId(cui);
-      history.setAssociatedRelease(release);
-      history.setRelationshipType(rel);
-      history.setReferencedTerminologyId(cui2);
-      if (!factMap.containsKey(cui)) {
-        factMap.put(cui, new HashSet<>());
+      String cui2, Set<String> currentCuis) throws Exception {
+      if (currentCuis.contains(cui2)) {
+        final ComponentHistory history = new ComponentHistoryJpa();
+        history.setTerminologyId(cui);
+        history.setAssociatedRelease(release);
+        history.setRelationshipType(rel);
+        history.setReferencedTerminologyId(cui2);
+        if (!factMap.containsKey(cui)) {
+          factMap.put(cui, new HashSet<>());
+        }
+        factMap.get(cui).add(history);
       }
-      factMap.get(cui).add(history);
     }
 
     /**
