@@ -925,7 +925,7 @@ public class WriteRrfHistoryFilesAlgorithm
                 cui2Facts.iterator().next().getReferencedTerminologyId());
             return syFacts;
           } else {
-            throw new Exception("Unexpected multiple sy facts = " + syFacts);
+            throw new Exception("Unexpected multiple sy facts = " + cui2Facts);
           }
 
         }
