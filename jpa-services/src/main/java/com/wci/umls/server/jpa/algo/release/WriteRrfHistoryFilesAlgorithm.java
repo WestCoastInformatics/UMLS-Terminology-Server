@@ -911,7 +911,7 @@ public class WriteRrfHistoryFilesAlgorithm
 
         //
         // SY -> dead CUI2 (attempt to remap the CUI2 to a live CUI through SY
-        // facts)
+        // facts and Rel facts)
         //
         if (syFacts.size() == 1) {
           final Set<ComponentHistory> cui2Facts =
@@ -924,14 +924,24 @@ public class WriteRrfHistoryFilesAlgorithm
             syFacts.iterator().next().setReferencedTerminologyId(
                 cui2Facts.iterator().next().getReferencedTerminologyId());
             return syFacts;
-          } else {
-            // TODO undo this once we have a decent fix.
-            // TESTTEST - get rid of this so we can make progress for now.
-            syFacts.iterator().next().setReferencedTerminologyId("C9999999");
+            // If to relationships, then if one has a valid CUI2, update CUI2 to
+            // it and update relationship type to "RO"
+          } else if (cui2Facts.size() > 0 && (cui2Facts.iterator().next()
+              .getRelationshipType().matches("(R|B).*"))) {
+            for (final ComponentHistory cui2fact : cui2Facts) {
+              if (currentCuis.contains(cui2fact.getReferencedTerminologyId())) {
+                ComponentHistory syFact = syFacts.iterator().next();
+                syFact.setReferencedTerminologyId(
+                    cui2fact.getReferencedTerminologyId());
+                syFact.setRelationshipType("RO");
+                syFacts.clear();
+                syFacts.add(syFact);
+                break;
+              }
+            }
             return syFacts;
-            // End TESTTEST
-            // throw new Exception("Unexpected multiple sy facts = " +
-            // cui2Facts);
+          } else {
+            throw new Exception("Unexpected multiple sy facts = " + cui2Facts);
           }
 
         }
