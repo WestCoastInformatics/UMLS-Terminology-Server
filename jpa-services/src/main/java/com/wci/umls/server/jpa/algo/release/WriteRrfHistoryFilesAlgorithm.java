@@ -321,6 +321,7 @@ public class WriteRrfHistoryFilesAlgorithm
     // Go through all built up concept history
     //
     logInfo("  Historical CUIs = " + history.getTerminologyIds().size());
+    int ct = 0;
     for (final String cui : history.getTerminologyIds()) {
 
       // Get facts
@@ -354,6 +355,7 @@ public class WriteRrfHistoryFilesAlgorithm
         }
       }
 
+      logAndCommit(ct++, RootService.logCt, RootService.commitCt);
     }
 
   }
@@ -371,6 +373,8 @@ public class WriteRrfHistoryFilesAlgorithm
       if (rel.getRelationshipType().equals("BRO")
           || rel.getRelationshipType().equals("BRN")
           || rel.getRelationshipType().equals("BRB")) {
+        rel.setRelationshipType(
+            rel.getRelationshipType().replaceFirst("^B", ""));
         bequeathalRels.add(rel);
       }
     }
@@ -914,6 +918,8 @@ public class WriteRrfHistoryFilesAlgorithm
         // facts and Rel facts)
         //
         if (syFacts.size() == 1) {
+          final Set<ComponentHistory> newFacts = new HashSet<>();
+
           final Set<ComponentHistory> cui2Facts =
               getFacts(syFacts.iterator().next().getReferencedTerminologyId(),
                   previousCuis, currentCuis);
@@ -923,27 +929,27 @@ public class WriteRrfHistoryFilesAlgorithm
               .getRelationshipType().equals("SY")) {
             syFacts.iterator().next().setReferencedTerminologyId(
                 cui2Facts.iterator().next().getReferencedTerminologyId());
-            return syFacts;
-            // If to relationships, then if one has a valid CUI2, update CUI2 to
-            // it and update relationship type to "RO"
-          } else if (cui2Facts.size() > 0 && (cui2Facts.iterator().next()
-              .getRelationshipType().matches("(R|B).*"))) {
-            for (final ComponentHistory cui2fact : cui2Facts) {
-              if (currentCuis.contains(cui2fact.getReferencedTerminologyId())) {
-                ComponentHistory syFact = syFacts.iterator().next();
-                syFact.setReferencedTerminologyId(
-                    cui2fact.getReferencedTerminologyId());
-                syFact.setRelationshipType("RO");
-                syFacts.clear();
-                syFacts.add(syFact);
-                break;
-              }
+            newFacts.addAll(syFacts);
+          }
+          // If cui2 leads to a DEL, then change to a DEL fact.
+          else if (cui2Facts.size() == 1 && cui2Facts.iterator().next()
+              .getRelationshipType().equals("DEL")) {
+            syFacts.iterator().next().setReferencedTerminologyId("");
+            syFacts.iterator().next().setRelationshipType("DEL");
+            newFacts.addAll(syFacts);
+          }
+          // Otherwise, we are dealing with relationship cases
+          else {
+            for (final ComponentHistory cui2RelFact : cui2Facts) {
+              final ComponentHistory newFact = new ComponentHistoryJpa(syFacts.iterator().next());
+              newFact.setRelationshipType(cui2RelFact.getRelationshipType());
+              newFact.setReferencedTerminologyId(
+                  cui2RelFact.getReferencedTerminologyId());
+              newFacts.add(newFact);
             }
-            return syFacts;
-          } else {
-            throw new Exception("Unexpected multiple sy facts = " + cui2Facts);
           }
 
+          return newFacts;
         }
 
         //
