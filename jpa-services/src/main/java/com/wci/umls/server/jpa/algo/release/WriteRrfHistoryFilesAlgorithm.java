@@ -847,6 +847,10 @@ public class WriteRrfHistoryFilesAlgorithm
       }
 
       final Set<ComponentHistory> facts = factMap.get(cui);
+      if (facts == null || facts.size() == 0) {
+        logWarn("Unexpected empty factMap for cui=" + cui);
+        return new HashSet<>();
+      }
       // All facts either have a blank CUI2 or a CUI2 that is alive.
       boolean validCui2 = facts.stream()
           .filter(item -> item.getReferencedTerminologyId() != null
@@ -941,7 +945,8 @@ public class WriteRrfHistoryFilesAlgorithm
           // Otherwise, we are dealing with relationship cases
           else {
             for (final ComponentHistory cui2RelFact : cui2Facts) {
-              final ComponentHistory newFact = new ComponentHistoryJpa(syFacts.iterator().next());
+              final ComponentHistory newFact =
+                  new ComponentHistoryJpa(syFacts.iterator().next());
               newFact.setRelationshipType(cui2RelFact.getRelationshipType());
               newFact.setReferencedTerminologyId(
                   cui2RelFact.getReferencedTerminologyId());
