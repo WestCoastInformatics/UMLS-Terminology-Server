@@ -486,7 +486,7 @@ public class WriteRrfHistoryFilesAlgorithm
     final Query query = manager.createQuery(queryStr);
     query.setParameter("projectTerminology", getProject().getTerminology());
     results.addAll(query.getResultList());
-    
+
     logInfo("  concepts = " + results.size());
     int ct = 0;
     final PrecedenceList precedenceList = getPrecedenceList(
@@ -497,11 +497,9 @@ public class WriteRrfHistoryFilesAlgorithm
       final Concept concept1 = this.getConcept(id1);
       final Concept concept2 = this.getConcept(id2);
       final Atom preferredAtom1 =
-          handler
-              .sortAtoms(concept1.getAtoms(), precedenceList).get(0);
+          handler.sortAtoms(concept1.getAtoms(), precedenceList).get(0);
       final Atom preferredAtom2 =
-          handler
-              .sortAtoms(concept2.getAtoms(), precedenceList).get(0);
+          handler.sortAtoms(concept2.getAtoms(), precedenceList).get(0);
 
       // Write an entry for each row.
       StringBuilder sb = new StringBuilder();
@@ -512,8 +510,8 @@ public class WriteRrfHistoryFilesAlgorithm
       sb.append("\n");
       writerMap.get("nci_code_cui_map_" + getProcess().getVersion() + ".dat")
           .print(sb.toString());
-      
-      logAndCommit(ct++, RootService.logCt, RootService.commitCt);     
+
+      logAndCommit(ct++, RootService.logCt, RootService.commitCt);
     }
   }
 
@@ -557,9 +555,9 @@ public class WriteRrfHistoryFilesAlgorithm
     query.setParameter("terminology", getProject().getTerminology());
     query.setParameter("version", getProject().getVersion());
     final List<Object[]> results = query.getResultList();
-    
+
     logInfo("  results = " + results.size());
-    int ct = 0;    
+    int ct = 0;
     for (final Object[] objArray : results) {
       final String lastReleaseCui = objArray[0].toString();
       final String cui = objArray[1].toString();
@@ -570,7 +568,7 @@ public class WriteRrfHistoryFilesAlgorithm
         atomsMoved.put(lastReleaseCui, new HashSet<>());
       }
       atomsMoved.get(lastReleaseCui).add(cui);
-      logAndCommit(ct++, RootService.logCt, RootService.commitCt);     
+      logAndCommit(ct++, RootService.logCt, RootService.commitCt);
     }
 
     // Determine "split" cases - all keys from atomsMoved where the value is
@@ -601,11 +599,12 @@ public class WriteRrfHistoryFilesAlgorithm
               getConcept(lastReleaseCui, getProcess().getTerminology(),
                   getProcess().getVersion(), Branch.ROOT);
 
-          if (lastReleaseConcept == null){
-            logWarn("  Concept could not be found for last release cui=" + lastReleaseCui);
+          if (lastReleaseConcept == null) {
+            logWarn("  Concept could not be found for last release cui="
+                + lastReleaseCui);
             continue;
           }
-          
+
           // write RO rows for both "value" CUIs.
           final StringBuilder sb = new StringBuilder();
           // 0 CUI1
@@ -631,7 +630,7 @@ public class WriteRrfHistoryFilesAlgorithm
         }
 
       }
-      logAndCommit(ct++, RootService.logCt, RootService.commitCt);     
+      logAndCommit(ct++, RootService.logCt, RootService.commitCt);
     }
 
     // Handle "merge" and "retire" cases
@@ -641,7 +640,8 @@ public class WriteRrfHistoryFilesAlgorithm
     final Set<String> retiredCuis = new HashSet<>();
     final PrecedenceList precedenceList = getPrecedenceList(
         getProject().getTerminology(), getProject().getVersion());
-    final ComputePreferredNameHandler preferredNameHandler = getComputePreferredNameHandler(getProject().getTerminology());
+    final ComputePreferredNameHandler preferredNameHandler =
+        getComputePreferredNameHandler(getProject().getTerminology());
     for (final String cui : history.getTerminologyIds()) {
 
       // Get facts
@@ -674,11 +674,21 @@ public class WriteRrfHistoryFilesAlgorithm
                 + getProject().getTerminology() + "=" + cui + "\"",
             null).getObjects()) {
           // Add all atoms having a last release CUI matching the CUI
-          atoms.addAll(concept.getAtoms().stream()
-              .filter(a -> a.getConceptTerminologyIds()
-                  .get(getProject().getTerminology()).equals(cui))
-              .collect(Collectors.toSet()));
-
+          for (final Atom atom : concept.getAtoms()) {
+            final Map<String, String> atomLastReleaseCuis =
+                atom.getConceptTerminologyIds();
+            if (atomLastReleaseCuis != null) {
+              final String lastReleaseProjectCui =
+                  atomLastReleaseCuis.get(getProject().getTerminology());
+              if (lastReleaseProjectCui != null && lastReleaseProjectCui.equals(cui)) {
+                atoms.add(atom);
+              }
+            }
+          }
+          // atoms.addAll(concept.getAtoms().stream()
+          // .filter(a -> a.getConceptTerminologyIds()
+          // .get(getProject().getTerminology()).equals(cui))
+          // .collect(Collectors.toSet()));
         }
         String oldConceptName = null;
         if (atoms.size() == 0) {
@@ -711,7 +721,7 @@ public class WriteRrfHistoryFilesAlgorithm
         writerMap.get("NCIMEME_" + getProcess().getVersion() + "_history.txt")
             .print(sb.toString());
       }
-      logAndCommit(ct++, RootService.logCt, RootService.commitCt);     
+      logAndCommit(ct++, RootService.logCt, RootService.commitCt);
     }
 
   }
