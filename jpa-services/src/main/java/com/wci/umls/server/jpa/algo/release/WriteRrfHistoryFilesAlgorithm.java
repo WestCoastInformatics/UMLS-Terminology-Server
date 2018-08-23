@@ -558,6 +558,8 @@ public class WriteRrfHistoryFilesAlgorithm
     final ComputePreferredNameHandler handler = getComputePreferredNameHandler(getProject().getTerminology());
     final PrecedenceList precedenceList = getPrecedenceList(
         getProject().getTerminology(), getProject().getVersion());
+    // Lazy initialize...
+    precedenceList.getTermTypeRankMap();
 
     logInfo("  results = " + results.size());
     int ct = 0;
