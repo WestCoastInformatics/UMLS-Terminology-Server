@@ -599,8 +599,8 @@ public class WriteRrfHistoryFilesAlgorithm
           splitCuis.add(cui2);
 
           final Concept lastReleaseConcept =
-              getConcept(lastReleaseCui, getProcess().getTerminology(),
-                  getProcess().getVersion(), Branch.ROOT);
+              getConcept(lastReleaseCui, getProject().getTerminology(),
+                  getProject().getVersion(), Branch.ROOT);
 
           if (lastReleaseConcept == null) {
             logWarn("  Concept could not be found for last release cui="
@@ -619,8 +619,8 @@ public class WriteRrfHistoryFilesAlgorithm
           // 3 TYPE
           sb.append("split|");
           final Concept concept =
-              getConcept(cui2, getProcess().getTerminology(),
-                  getProcess().getVersion(), Branch.ROOT);
+              getConcept(cui2, getProject().getTerminology(),
+                  getProject().getVersion(), Branch.ROOT);
           // 4 CUI2
           sb.append(cui2).append("|");
           // 5 NAME
