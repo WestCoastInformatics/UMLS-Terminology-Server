@@ -565,6 +565,7 @@ public class WriteRrfHistoryFilesAlgorithm
       final String lastReleaseCui = objArray[0].toString();
       final String cui = objArray[1].toString();
       if (lastReleaseCui.equals(cui)) {
+        logAndCommit(ct++, RootService.logCt, RootService.commitCt);
         continue;
       }
       if (!atomsMoved.containsKey(lastReleaseCui)) {
@@ -593,6 +594,7 @@ public class WriteRrfHistoryFilesAlgorithm
           // Skip entries for the concept itself, and skip entries that were
           // prior CUIs
           if (previousCuis.contains(cui2) || lastReleaseCui.equals(cui2)) {
+            logAndCommit(ct++, RootService.logCt, RootService.commitCt);
             continue;
           }
 
@@ -605,6 +607,7 @@ public class WriteRrfHistoryFilesAlgorithm
           if (lastReleaseConcept == null) {
             logWarn("  Concept could not be found for last release cui="
                 + lastReleaseCui);
+            logAndCommit(ct++, RootService.logCt, RootService.commitCt);
             continue;
           }
 
