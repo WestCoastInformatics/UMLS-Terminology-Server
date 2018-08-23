@@ -640,10 +640,7 @@ public class WriteRrfHistoryFilesAlgorithm
     final Set<String> retiredCuis = new HashSet<>();
     final PrecedenceList precedenceList = getPrecedenceList(
         getProject().getTerminology(), getProject().getVersion());
-    final ComputePreferredNameHandler preferredNameHandler =
-        getComputePreferredNameHandler(getProject().getTerminology());
     for (final String cui : history.getTerminologyIds()) {
-
       // Get facts
       final Set<ComponentHistory> facts =
           history.getFacts(cui, previousCuis, currentCuis);
@@ -685,10 +682,10 @@ public class WriteRrfHistoryFilesAlgorithm
               }
             }
           }
-          // atoms.addAll(concept.getAtoms().stream()
-          // .filter(a -> a.getConceptTerminologyIds()
-          // .get(getProject().getTerminology()).equals(cui))
-          // .collect(Collectors.toSet()));
+//           atoms.addAll(concept.getAtoms().stream()
+//           .filter(a -> a.getConceptTerminologyIds()
+//           .get(getProject().getTerminology()).equals(cui))
+//           .collect(Collectors.toSet()));
         }
         String oldConceptName = null;
         if (atoms.size() == 0) {
@@ -699,7 +696,8 @@ public class WriteRrfHistoryFilesAlgorithm
           }
           oldConceptName = concept.getName();
         } else {
-          preferredNameHandler.computePreferredName(atoms, precedenceList);
+          getComputePreferredNameHandler(getProject().getTerminology())
+          .computePreferredName(atoms, precedenceList);
         }
 
         final StringBuilder sb = new StringBuilder();
