@@ -968,7 +968,7 @@ public class WriteRrfHistoryFilesAlgorithm
           // If cui2 leads to a DEL, then change to a DEL fact.
           else if (cui2Facts.size() == 1 && cui2Facts.iterator().next()
               .getRelationshipType().equals("DEL")) {
-            syFacts.iterator().next().setReferencedTerminologyId("");
+            syFacts.iterator().next().setReferencedTerminologyId(null);
             syFacts.iterator().next().setRelationshipType("DEL");
             newFacts.addAll(syFacts);
           }
