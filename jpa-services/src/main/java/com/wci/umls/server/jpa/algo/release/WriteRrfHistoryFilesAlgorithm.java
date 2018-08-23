@@ -484,6 +484,9 @@ public class WriteRrfHistoryFilesAlgorithm
     final Query query = manager.createQuery(queryStr);
     query.setParameter("projectTerminology", getProject().getTerminology());
     results.addAll(query.getResultList());
+    
+    logInfo("  concepts = " + results.size());
+    int ct = 0;
     for (Object[] objArray : results) {
       final Long id1 = ((Long) (objArray[0])).longValue();
       final Long id2 = ((Long) (objArray[1])).longValue();
@@ -509,6 +512,8 @@ public class WriteRrfHistoryFilesAlgorithm
       sb.append("\n");
       writerMap.get("nci_code_cui_map_" + getProcess().getVersion() + ".dat")
           .print(sb.toString());
+      
+      logAndCommit(ct++, RootService.logCt, RootService.commitCt);     
     }
   }
 
@@ -552,6 +557,9 @@ public class WriteRrfHistoryFilesAlgorithm
     query.setParameter("terminology", getProject().getTerminology());
     query.setParameter("version", getProject().getVersion());
     final List<Object[]> results = query.getResultList();
+    
+    logInfo("  results = " + results.size());
+    int ct = 0;    
     for (final Object[] objArray : results) {
       final String lastReleaseCui = objArray[0].toString();
       final String cui = objArray[1].toString();
@@ -562,6 +570,7 @@ public class WriteRrfHistoryFilesAlgorithm
         atomsMoved.put(lastReleaseCui, new HashSet<>());
       }
       atomsMoved.get(lastReleaseCui).add(cui);
+      logAndCommit(ct++, RootService.logCt, RootService.commitCt);     
     }
 
     // Determine "split" cases - all keys from atomsMoved where the value is
@@ -570,6 +579,9 @@ public class WriteRrfHistoryFilesAlgorithm
     // Note: split concept must be merged into third concept in order to meet
     // !currentCuis requirement
     final Set<String> splitCuis = new HashSet<>();
+    logInfo("Determining split cases");
+    logInfo("  concepts = " + atomsMoved.entrySet().size());
+    ct = 0;
     for (final Entry<String, Set<String>> entry : atomsMoved.entrySet()) {
       final String lastReleaseCui = entry.getKey();
 
@@ -614,9 +626,13 @@ public class WriteRrfHistoryFilesAlgorithm
         }
 
       }
+      logAndCommit(ct++, RootService.logCt, RootService.commitCt);     
     }
 
     // Handle "merge" and "retire" cases
+    logInfo("Handling merge and retire cases");
+    logInfo("  cuis = " + history.getTerminologyIds().size());
+    ct = 0;
     final Set<String> retiredCuis = new HashSet<>();
     for (final String cui : history.getTerminologyIds()) {
 
@@ -689,7 +705,7 @@ public class WriteRrfHistoryFilesAlgorithm
         writerMap.get("NCIMEME_" + getProcess().getVersion() + "_history.txt")
             .print(sb.toString());
       }
-
+      logAndCommit(ct++, RootService.logCt, RootService.commitCt);     
     }
 
   }
