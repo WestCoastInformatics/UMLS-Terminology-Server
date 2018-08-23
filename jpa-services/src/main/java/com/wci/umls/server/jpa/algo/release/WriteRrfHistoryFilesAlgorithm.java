@@ -29,6 +29,7 @@ import com.google.common.io.Files;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
@@ -41,6 +42,7 @@ import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.services.RootService;
+import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 
 /**
  * Algorithm to write the RRF history files.
@@ -487,6 +489,8 @@ public class WriteRrfHistoryFilesAlgorithm
     
     logInfo("  concepts = " + results.size());
     int ct = 0;
+    final PrecedenceList precedenceList = getPrecedenceList(
+        getProject().getTerminology(), getProject().getVersion());
     for (Object[] objArray : results) {
       final Long id1 = ((Long) (objArray[0])).longValue();
       final Long id2 = ((Long) (objArray[1])).longValue();
@@ -494,14 +498,10 @@ public class WriteRrfHistoryFilesAlgorithm
       final Concept concept2 = this.getConcept(id2);
       final Atom preferredAtom1 =
           handler
-              .sortAtoms(concept1.getAtoms(), getPrecedenceList(
-                  getProject().getTerminology(), getProject().getVersion()))
-              .get(0);
+              .sortAtoms(concept1.getAtoms(), precedenceList).get(0);
       final Atom preferredAtom2 =
           handler
-              .sortAtoms(concept2.getAtoms(), getPrecedenceList(
-                  getProject().getTerminology(), getProject().getVersion()))
-              .get(0);
+              .sortAtoms(concept2.getAtoms(), precedenceList).get(0);
 
       // Write an entry for each row.
       StringBuilder sb = new StringBuilder();
@@ -634,6 +634,9 @@ public class WriteRrfHistoryFilesAlgorithm
     logInfo("  cuis = " + history.getTerminologyIds().size());
     ct = 0;
     final Set<String> retiredCuis = new HashSet<>();
+    final PrecedenceList precedenceList = getPrecedenceList(
+        getProject().getTerminology(), getProject().getVersion());
+    final ComputePreferredNameHandler preferredNameHandler = getComputePreferredNameHandler(getProject().getTerminology());
     for (final String cui : history.getTerminologyIds()) {
 
       // Get facts
@@ -681,9 +684,7 @@ public class WriteRrfHistoryFilesAlgorithm
           }
           oldConceptName = concept.getName();
         } else {
-          getComputePreferredNameHandler(getProject().getTerminology())
-              .computePreferredName(atoms, getPrecedenceList(
-                  getProject().getTerminology(), getProject().getVersion()));
+          preferredNameHandler.computePreferredName(atoms, precedenceList);
         }
 
         final StringBuilder sb = new StringBuilder();
