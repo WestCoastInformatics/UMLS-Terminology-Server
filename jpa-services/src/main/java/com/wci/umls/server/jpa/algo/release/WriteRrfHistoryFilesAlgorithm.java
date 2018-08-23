@@ -601,6 +601,11 @@ public class WriteRrfHistoryFilesAlgorithm
               getConcept(lastReleaseCui, getProcess().getTerminology(),
                   getProcess().getVersion(), Branch.ROOT);
 
+          if (lastReleaseConcept == null){
+            logWarn("  Concept could not be found for last release cui=" + lastReleaseCui);
+            continue;
+          }
+          
           // write RO rows for both "value" CUIs.
           final StringBuilder sb = new StringBuilder();
           // 0 CUI1
