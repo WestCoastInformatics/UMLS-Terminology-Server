@@ -183,7 +183,7 @@ public class WriteRrfContentFilesAlgorithm
     setSteps(conceptIds.size());
 
     // Write AMBIG files
-    writeAmbig();
+    00();
 
     // Close Ambig writers
     writerMap.get("AMBIGSUI.RRF").close();
@@ -830,29 +830,28 @@ public class WriteRrfContentFilesAlgorithm
         + getProcess().getInputPath() + "/" + getProcess().getVersion() + "/"
         + "META");
 
-    // TESTTEST - only run on MRSAT for now.
-    // writerMap.put("AMBIGSUI.RRF",
-    // new PrintWriter(new FileWriter(new File(dir, "AMBIGSUI.RRF"))));
-    // writerMap.put("AMBIGLUI.RRF",
-    // new PrintWriter(new FileWriter(new File(dir, "AMBIGLUI.RRF"))));
-    // writerMap.put("MRCONSO.RRF",
-    // new PrintWriter(new FileWriter(new File(dir, "MRCONSO.RRF"))));
-    // writerMap.put("MRDEF.RRF",
-    // new PrintWriter(new FileWriter(new File(dir, "MRDEF.RRF"))));
-    // writerMap.put("MRREL.RRF",
-    // new PrintWriter(new FileWriter(new File(dir, "MRREL.RRF"))));
-    // writerMap.put("MRSTY.RRF",
-    // new PrintWriter(new FileWriter(new File(dir, "MRSTY.RRF"))));
+    writerMap.put("AMBIGSUI.RRF",
+        new PrintWriter(new FileWriter(new File(dir, "AMBIGSUI.RRF"))));
+    writerMap.put("AMBIGLUI.RRF",
+        new PrintWriter(new FileWriter(new File(dir, "AMBIGLUI.RRF"))));
+    writerMap.put("MRCONSO.RRF",
+        new PrintWriter(new FileWriter(new File(dir, "MRCONSO.RRF"))));
+    writerMap.put("MRDEF.RRF",
+        new PrintWriter(new FileWriter(new File(dir, "MRDEF.RRF"))));
+    writerMap.put("MRREL.RRF",
+        new PrintWriter(new FileWriter(new File(dir, "MRREL.RRF"))));
+    writerMap.put("MRSTY.RRF",
+        new PrintWriter(new FileWriter(new File(dir, "MRSTY.RRF"))));
     writerMap.put("MRSAT.RRF",
         new PrintWriter(new FileWriter(new File(dir, "MRSAT.RRF"))));
-    // writerMap.put("MRHIER.RRF",
-    // new PrintWriter(new FileWriter(new File(dir, "MRHIER.RRF"))));
-    // writerMap.put("MRHIST.RRF",
-    // new PrintWriter(new FileWriter(new File(dir, "MRHIST.RRF"))));
-    // writerMap.put("MRMAP.RRF",
-    // new PrintWriter(new FileWriter(new File(dir, "MRMAP.RRF"))));
-    // writerMap.put("MRSMAP.RRF",
-    // new PrintWriter(new FileWriter(new File(dir, "MRSMAP.RRF"))));
+    writerMap.put("MRHIER.RRF",
+        new PrintWriter(new FileWriter(new File(dir, "MRHIER.RRF"))));
+    writerMap.put("MRHIST.RRF",
+        new PrintWriter(new FileWriter(new File(dir, "MRHIST.RRF"))));
+    writerMap.put("MRMAP.RRF",
+        new PrintWriter(new FileWriter(new File(dir, "MRMAP.RRF"))));
+    writerMap.put("MRSMAP.RRF",
+        new PrintWriter(new FileWriter(new File(dir, "MRSMAP.RRF"))));
   }
 
   /**
