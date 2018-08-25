@@ -183,7 +183,7 @@ public class WriteRrfContentFilesAlgorithm
     setSteps(conceptIds.size());
 
     // Write AMBIG files
-    00();
+    writeAmbig();
 
     // Close Ambig writers
     writerMap.get("AMBIGSUI.RRF").close();
