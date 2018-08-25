@@ -1769,11 +1769,19 @@ public class WriteRrfContentFilesAlgorithm
           componentInfo.getTerminology(), componentInfo.getVersion(),
           Branch.ROOT);
     } else if (componentInfo.getType() == IdType.ATOM) {
-      final ConceptList list = findConcepts(getProject().getTerminology(),
+      ConceptList list = findConcepts(getProject().getTerminology(),
           getProject().getVersion(), Branch.ROOT,
           "atoms.alternateTerminologyIds:\"" + getProject().getTerminology()
               + "=" + componentInfo.getTerminologyId() + "\"",
           null);
+      // If 0 results, try again as an SRC atom search.
+      if (list.size() == 0) {
+        list = findConcepts(getProject().getTerminology(),
+            getProject().getVersion(), Branch.ROOT,
+            "atoms.alternateTerminologyIds:\"" + getProject().getTerminology()
+                + "-SRC=" + componentInfo.getTerminologyId() + "\"",
+            null);
+      }
       if (list.size() != 1) {
         logError("ERROR: unexpected number of concepts with AUI "
             + componentInfo.getTerminologyId() + ", " + list.size());
