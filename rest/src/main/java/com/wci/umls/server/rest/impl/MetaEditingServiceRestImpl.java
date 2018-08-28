@@ -731,7 +731,12 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       relationship.setInferred(true);
       relationship.setSuppressible(false);
       relationship.setObsolete(false);
-
+      
+      // If RelGroup is null, set to blank
+      if (relationship.getGroup() == null){
+        relationship.setGroup("");
+      }
+      
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
@@ -843,6 +848,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         relationship.setInferred(true);
         relationship.setSuppressible(false);
         relationship.setObsolete(false);
+        
+        // If RelGroup is null, set to blank
+        if (relationship.getGroup() == null){
+          relationship.setGroup("");
+        }
 
         // Configure the action
         action.setProject(project);
