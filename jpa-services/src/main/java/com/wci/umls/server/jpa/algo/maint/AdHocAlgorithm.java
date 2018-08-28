@@ -8,7 +8,6 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -130,6 +129,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       setStampedWorklistsToReadyForPublication();
     } else if (actionName.equals("Add Disposition Atoms")) {
       addDispositionAtoms();
+    } else if (actionName.equals("Fix RelGroups")) {
+      fixRelGroups();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -1411,10 +1412,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       Query query = getEntityManager().createNativeQuery(
           "select c.id from concepts c, concepts_atoms ca, atoms a "
-          + "where ca.concepts_id = c.id and ca.atoms_id = a.id and "
-          + "c.terminology='NCIMTH' and a.terminology='SNOMEDCT_US' and "
-          + "a.name like '%(disposition)' and a.termType='FN'");
-      
+              + "where ca.concepts_id = c.id and ca.atoms_id = a.id and "
+              + "c.terminology='NCIMTH' and a.terminology='SNOMEDCT_US' and "
+              + "a.name like '%(disposition)' and a.termType='FN'");
+
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
@@ -1436,27 +1437,30 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             dispositionAtom = atom;
             dispositionAtomCount++;
           }
-          if(atom.getTerminology().equals("NCIMTH") && atom.getTermType().equals("PN")){
+          if (atom.getTerminology().equals("NCIMTH")
+              && atom.getTermType().equals("PN")) {
             ncimthpnAtomCount++;
           }
         }
-        
-        if(dispositionAtom == null){
+
+        if (dispositionAtom == null) {
           logError("No disposition atoms found for concept " + concept);
           skippedConceptCount++;
           updateProgress();
           continue;
         }
-        
-        if(dispositionAtomCount>1){
-          logWarn("More than one disposition atom - skipping concept " + concept);
+
+        if (dispositionAtomCount > 1) {
+          logWarn(
+              "More than one disposition atom - skipping concept " + concept);
           skippedConceptCount++;
           updateProgress();
           continue;
         }
-        
-        if(ncimthpnAtomCount>0){
-          logWarn("There is already an NCIMTH/PN atom - skipping concept " + concept);
+
+        if (ncimthpnAtomCount > 0) {
+          logWarn("There is already an NCIMTH/PN atom - skipping concept "
+              + concept);
           skippedConceptCount++;
           updateProgress();
           continue;
@@ -1521,7 +1525,68 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     }
 
     logInfo("Added " + addedAtomsCount + " disposition NCIMTH/PN atoms.");
-    logInfo("Skipped " + skippedConceptCount + " concepts that had more than one disposition atom.");
+    logInfo("Skipped " + skippedConceptCount
+        + " concepts that had more than one disposition atom.");
+    logInfo("Finished " + getName());
+  }
+
+  private void fixRelGroups() throws Exception {
+    // 8/28/2018 Issues identified with relationship groups being set to null
+    // intead of blank.
+    logInfo(" Fix null RelGroups");
+
+    int updatedRelationships = 0;
+    List<ConceptRelationshipJpa> relationships = new ArrayList<>();
+
+    try {
+
+      // Identify all relationship with relGroup set to null
+      // REAL QUERY
+      Query query = getEntityManager().createNativeQuery(
+          "select id from concept_relationships where relGroup is null");
+
+      // TEST QUERY
+//      Query query = getEntityManager().createNativeQuery(
+//          "select id from concept_relationships where relGroup is null limit 5");
+
+      logInfo("[FixRelGroups] Identifying "
+          + "relationships with rel groups set to NULL");
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        relationships.add((ConceptRelationshipJpa) getRelationship(id,
+            ConceptRelationshipJpa.class));
+      }
+
+      setSteps(relationships.size());
+
+      logInfo("[FixRelGroups] " + relationships.size()
+          + " Relationships identified");
+
+      for (final ConceptRelationship relationship : relationships) {
+
+        // Set the relationship's relGroup from NULL to blank.
+        if (relationship.getGroup() == null) {
+          relationship.setGroup("");
+          updateRelationship(relationship);
+          updatedRelationships++;
+        }
+        // We should never get here
+        else {
+          logError("WHAT HAPPENED!!!????");
+        }
+        updateProgress();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+      // n/a
+    }
+
+    logInfo("Updated " + updatedRelationships
+        + " relationship relGroups to blank.");
     logInfo("Finished " + getName());
   }
 
@@ -1572,7 +1637,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Fix Component Info Relationships",
             "Set Component Info Relationships To Publishable",
             "Set Stamped Worklists To Ready For Publication",
-            "Add Disposition Atoms"));
+            "Add Disposition Atoms", "Fix RelGroups"));
     params.add(param);
 
     return params;
