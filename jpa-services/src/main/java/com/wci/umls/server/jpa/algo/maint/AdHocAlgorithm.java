@@ -131,6 +131,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       addDispositionAtoms();
     } else if (actionName.equals("Fix RelGroups")) {
       fixRelGroups();
+    } else if (actionName.equals("Fix Source Level Rels")) {
+      fixSourceLevelRels();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -1590,6 +1592,66 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
   }
 
+  private void fixSourceLevelRels() throws Exception {
+    // 9/4/2018 Issues identified with source level rels that had status=N.  Update to be status=R.
+    logInfo(" Fix Source Level Rels");
+
+    int updatedRelationships = 0;
+    List<ConceptRelationshipJpa> relationships = new ArrayList<>();
+
+    try {
+
+      // Identify all source-level relationship with status=N
+      // REAL QUERY
+      Query query = getEntityManager().createNativeQuery(
+          "select id from concept_relationships where terminology!='NCIMTH' and workflowStatus='NEEDS_REVIEW'");
+
+      // TEST QUERY
+//      Query query = getEntityManager().createNativeQuery(
+//          "select id from concept_relationships where terminology!='NCIMTH' and workflowStatus='NEEDS_REVIEW' limit 5");
+
+      logInfo("[FixSourceLevelRels] Identifying "
+          + "source-level relationships with status=N");
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        relationships.add((ConceptRelationshipJpa) getRelationship(id,
+            ConceptRelationshipJpa.class));
+      }
+
+      setSteps(relationships.size());
+
+      logInfo("[FixSourceLevelRels] " + relationships.size()
+          + " Relationships identified");
+
+      for (final ConceptRelationship relationship : relationships) {
+
+        // Set the relationship's status from N to R.
+        if (relationship.getWorkflowStatus().equals(WorkflowStatus.NEEDS_REVIEW)) {
+          relationship.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+          updateRelationship(relationship);
+          updatedRelationships++;
+        }
+        // We should never get here
+        else {
+          logError("WHAT HAPPENED!!!????");
+        }
+        updateProgress();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+      // n/a
+    }
+
+    logInfo("Updated " + updatedRelationships
+        + " source-level relationships to status=R.");
+    logInfo("Finished " + getName());
+  }
+  
+  
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -1637,7 +1699,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Fix Component Info Relationships",
             "Set Component Info Relationships To Publishable",
             "Set Stamped Worklists To Ready For Publication",
-            "Add Disposition Atoms", "Fix RelGroups"));
+            "Add Disposition Atoms", "Fix RelGroups", "Fix Source Level Rels"));
     params.add(param);
 
     return params;
