@@ -34,6 +34,7 @@ import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
@@ -42,6 +43,7 @@ import com.wci.umls.server.model.content.ComponentInfoRelationship;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Definition;
+import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.RelationshipIdentity;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
@@ -133,6 +135,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixRelGroups();
     } else if (actionName.equals("Fix Source Level Rels")) {
       fixSourceLevelRels();
+    } else if (actionName.equals("Fix AdditionalRelType Inverses")) {
+      fixAdditionalRelTypeInverses();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -1548,8 +1552,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           "select id from concept_relationships where relGroup is null");
 
       // TEST QUERY
-//      Query query = getEntityManager().createNativeQuery(
-//          "select id from concept_relationships where relGroup is null limit 5");
+      // Query query = getEntityManager().createNativeQuery(
+      // "select id from concept_relationships where relGroup is null limit 5");
 
       logInfo("[FixRelGroups] Identifying "
           + "relationships with rel groups set to NULL");
@@ -1593,7 +1597,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   }
 
   private void fixSourceLevelRels() throws Exception {
-    // 9/4/2018 Issues identified with source level rels that had status=N.  Update to be status=R.
+    // 9/4/2018 Issues identified with source level rels that had status=N.
+    // Update to be status=R.
     logInfo(" Fix Source Level Rels");
 
     int updatedRelationships = 0;
@@ -1607,8 +1612,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           "select id from concept_relationships where terminology!='NCIMTH' and workflowStatus='NEEDS_REVIEW'");
 
       // TEST QUERY
-//      Query query = getEntityManager().createNativeQuery(
-//          "select id from concept_relationships where terminology!='NCIMTH' and workflowStatus='NEEDS_REVIEW' limit 5");
+      // Query query = getEntityManager().createNativeQuery(
+      // "select id from concept_relationships where terminology!='NCIMTH' and
+      // workflowStatus='NEEDS_REVIEW' limit 5");
 
       logInfo("[FixSourceLevelRels] Identifying "
           + "source-level relationships with status=N");
@@ -1628,7 +1634,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       for (final ConceptRelationship relationship : relationships) {
 
         // Set the relationship's status from N to R.
-        if (relationship.getWorkflowStatus().equals(WorkflowStatus.NEEDS_REVIEW)) {
+        if (relationship.getWorkflowStatus()
+            .equals(WorkflowStatus.NEEDS_REVIEW)) {
           relationship.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
           updateRelationship(relationship);
           updatedRelationships++;
@@ -1650,8 +1657,78 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         + " source-level relationships to status=R.");
     logInfo("Finished " + getName());
   }
-  
-  
+
+  private void fixAdditionalRelTypeInverses() throws Exception {
+    // 9/5/2018 Issues identified with additional relationship types where
+    // multiple entries have the same inverse.
+    // For 2 cases, for NCI, the new inverse replaces the old inverse, and so
+    // set the old inverse to pubishable=false.
+    // For 1 case, for MED-RT, a bad inversion made it point to the wrong
+    // inverse. Update it to point to the correct one.
+    logInfo(" Fix Additional Rel Type Inverses");
+
+    int updatedAdditionalRelationshipTypes = 0;
+    List<AdditionalRelationshipTypeJpa> additionalRelationshipsTypes =
+        new ArrayList<>();
+
+    try {
+
+      // Get the three affected additional relationship types
+      Query query = getEntityManager().createNativeQuery(
+          "select abbreviation from additional_relationship_types where id in (1259,327352,850135)");
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final String abbreviation = entry.toString();
+        additionalRelationshipsTypes
+            .add((AdditionalRelationshipTypeJpa) getAdditionalRelationshipType(
+                abbreviation, "NCIMTH", "latest"));
+      }
+
+      setSteps(additionalRelationshipsTypes.size());
+
+      logInfo("[FixAdditionalRelTypeInverses] "
+          + additionalRelationshipsTypes.size()
+          + " additional relationship types identified");
+
+      for (final AdditionalRelationshipType additionalRelationshipType : additionalRelationshipsTypes) {
+
+        // Set the two no-longer-referened additionalRelationshipTypes to
+        // publishable=false
+        if (additionalRelationshipType.getId() == 1259
+            || additionalRelationshipType.getId() == 327352) {
+          additionalRelationshipType.setPublishable(false);
+          updateAdditionalRelationshipType(additionalRelationshipType);
+          updatedAdditionalRelationshipTypes++;
+        }
+        // Set the one incorrectly-inverted additional relationship type to its
+        // correct inverse
+        else if (additionalRelationshipType.getId() == 850135) {
+          AdditionalRelationshipType inverseRelType =
+              getAdditionalRelationshipType("may_treat_MEDRT", "NCIMTH",
+                  "latest");
+          additionalRelationshipType.setInverse(inverseRelType);
+          updateAdditionalRelationshipType(additionalRelationshipType);
+          updatedAdditionalRelationshipTypes++;
+        }
+        // We should never get here
+        else {
+          logError("WHAT HAPPENED!!!????");
+        }
+        updateProgress();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+      // n/a
+    }
+
+    logInfo("Updated " + updatedAdditionalRelationshipTypes
+        + " additional relationship types updated.");
+    logInfo("Finished " + getName());
+  }
+
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -1699,7 +1776,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Fix Component Info Relationships",
             "Set Component Info Relationships To Publishable",
             "Set Stamped Worklists To Ready For Publication",
-            "Add Disposition Atoms", "Fix RelGroups", "Fix Source Level Rels"));
+            "Add Disposition Atoms", "Fix RelGroups", "Fix Source Level Rels",
+            "Fix AdditionalRelType Inverses"));
     params.add(param);
 
     return params;
