@@ -24,11 +24,15 @@ import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
+import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
+import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.DefinitionJpa;
+import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Attribute;
@@ -123,9 +127,10 @@ public class AttributeLoaderAlgorithm
       // Load the attributes.src file, skipping SEMANTIC_TYPE, CONTEXT,
       // SUBSET_MEMBER, XMAP, XMAPTO, XMAPFROM, UMLSCUI
       //
-      final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
-          "attributes.src", null,
-          "(.*)(SEMANTIC_TYPE|CONTEXT|SUBSET_MEMBER|XMAP|XMAPTO|XMAPFROM|UMLSCUI)(.*)", null);
+      final List<String> lines =
+          loadFileIntoStringList(getSrcDirFile(), "attributes.src", null,
+              "(.*)(SEMANTIC_TYPE|CONTEXT|SUBSET_MEMBER|XMAP|XMAPTO|XMAPFROM|UMLSCUI)(.*)",
+              null);
 
       // Set the number of steps to the number of lines to be processed
       setSteps(lines.size());
@@ -174,13 +179,15 @@ public class AttributeLoaderAlgorithm
           // attached to, so we can remove the attribute from
           // the component before deleting the attribute
 
-          // Note: .src files currently only add Atom and Concept
-          // attributes. If a later version adds attributes to
+          // Note: If a later version adds attributes to
           // different components, add those components to the below
           // list
 
           final List<Class> containingClazzes =
-              new ArrayList<>(Arrays.asList(AtomJpa.class, ConceptJpa.class));
+              new ArrayList<>(Arrays.asList(AtomJpa.class, ConceptJpa.class,
+                  CodeJpa.class, DescriptorJpa.class,
+                  ConceptRelationshipJpa.class, CodeRelationshipJpa.class,
+                  AtomSubsetMemberJpa.class, ConceptSubsetMemberJpa.class));
 
           for (Class clazz : containingClazzes) {
             final String query = "SELECT a.id, att.id from "
@@ -211,6 +218,10 @@ public class AttributeLoaderAlgorithm
               updateComponent(containingComponent);
               removeAttribute(attributeId);
               attributeRemoveCount++;
+
+              if (attributeRemoveCount % RootService.commitCt == 0) {
+                commitClearBegin();
+              }
             }
           }
         }
@@ -259,7 +270,8 @@ public class AttributeLoaderAlgorithm
         final Terminology setTerminology = getCachedTerminology(fields[5]);
         if (setTerminology == null) {
           logWarnAndUpdate(line,
-              "WARNING - terminology not found: " + fields[5] + ".", "Attribute Loader: Terminology not found");
+              "WARNING - terminology not found: " + fields[5] + ".",
+              "Attribute Loader: Terminology not found");
           continue;
         }
 
@@ -292,7 +304,8 @@ public class AttributeLoaderAlgorithm
             logWarnAndUpdate(line,
                 "WARNING - could not find Component for type: " + fields[10]
                     + ", terminologyId: " + fields[1] + ", and terminology:"
-                    + fields[11], "Attribute Loader: Could not find component");
+                    + fields[11],
+                "Attribute Loader: Could not find component");
             continue;
           }
           Atom atom = null;
@@ -308,7 +321,8 @@ public class AttributeLoaderAlgorithm
           } else {
             logWarnAndUpdate(line,
                 "WARNING - " + containerComponent.getClass().getName()
-                    + " is an unhandled type.", "Attribute Loader: Unhandled type");
+                    + " is an unhandled type.",
+                "Attribute Loader: Unhandled type");
             continue;
           }
 
@@ -400,7 +414,8 @@ public class AttributeLoaderAlgorithm
             relType = ConceptRelationshipJpa.class;
           }
           // TODO: find a better way to do this.
-          // Only MDR insertion uses SRC_REL_ID, and they are all CodeRelationships.
+          // Only MDR insertion uses SRC_REL_ID, and they are all
+          // CodeRelationships.
           else if (fields[10].contains("SRC_REL_ID")) {
             relType = CodeRelationshipJpa.class;
           }
@@ -411,7 +426,8 @@ public class AttributeLoaderAlgorithm
             logWarnAndUpdate(line,
                 "WARNING - could not find Component for type: " + fields[10]
                     + ", terminologyId: " + fields[1] + ", and terminology:"
-                    + fields[11], "Attribute Loader: Could not find component");
+                    + fields[11],
+                "Attribute Loader: Could not find component");
             continue;
           }
 
@@ -509,8 +525,7 @@ public class AttributeLoaderAlgorithm
       handler.rollback();
       handler.close();
       throw e;
-    } 
-    finally {
+    } finally {
       // Clear the caches to free up memory
       clearCaches();
     }
