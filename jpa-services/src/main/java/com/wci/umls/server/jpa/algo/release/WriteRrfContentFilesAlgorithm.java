@@ -217,7 +217,7 @@ public class WriteRrfContentFilesAlgorithm
               prev = line;
             }
 
-            if (ct++ % RootService.commitCt == 0) {
+            if (ct++ % 500 == 0) {
               checkCancel();
               service.commitClearBegin();
             }
@@ -266,7 +266,7 @@ public class WriteRrfContentFilesAlgorithm
               prev = line;
             }
 
-            if (ct++ % RootService.commitCt == 0) {
+            if (ct++ % 500 == 0) {
               checkCancel();
               service.commitClearBegin();
             }
@@ -315,7 +315,7 @@ public class WriteRrfContentFilesAlgorithm
               prev = line;
             }
             writerMap.get("MRSAT.RRF").flush();
-            if (ct++ % 100 == 0) {
+            if (ct++ % 500 == 0) {
               checkCancel();
               service.commitClearBegin();
             }
