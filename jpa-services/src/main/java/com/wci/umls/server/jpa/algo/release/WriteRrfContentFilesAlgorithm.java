@@ -503,9 +503,8 @@ public class WriteRrfContentFilesAlgorithm
     logInfo("  Cache atom->AUI map");
     Query query = getEntityManager().createQuery(
         "select a.id, value(b) from AtomJpa a join a.alternateTerminologyIds b "
-            + "where (KEY(b) = :terminology or KEY(b) = :terminologySrc) and a.publishable=true");
+            + "where KEY(b) = :terminology and a.publishable=true");
     query.setParameter("terminology", getProject().getTerminology());
-    query.setParameter("terminology", getProject().getTerminology() + "-SRC");
     final List<Object[]> results2 = query.getResultList();
     int ct = 0;
     for (final Object[] result : results2) {
