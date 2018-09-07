@@ -1,5 +1,5 @@
 /*
- *    Copyright 2017 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.release;
 
@@ -481,8 +481,9 @@ public class WriteRrfContentFilesAlgorithm
     logInfo("  Cache atom->AUI map");
     Query query = getEntityManager().createQuery(
         "select a.id, value(b) from AtomJpa a join a.alternateTerminologyIds b "
-            + "where KEY(b) = :terminology and a.publishable=true");
+            + "where (KEY(b) = :terminology or KEY(b) = :terminologySrc) and a.publishable=true");
     query.setParameter("terminology", getProject().getTerminology());
+    query.setParameter("terminology", getProject().getTerminology() + "-SRC");
     final List<Object[]> results2 = query.getResultList();
     int ct = 0;
     for (final Object[] result : results2) {
@@ -492,6 +493,23 @@ public class WriteRrfContentFilesAlgorithm
       atomContentsMap.get(id).setAui(alternateTerminologyId);
       logAndCommit(ct++, RootService.logCt, RootService.commitCt);
     }
+    
+    // Atom -> Source AUI map
+    // Load alternateTerminologyIds
+    logInfo("  Cache atom->Source AUI map");
+    query = getEntityManager().createQuery(
+        "select a.id, value(b) from AtomJpa a join a.alternateTerminologyIds b "
+            + "where KEY(b) = :terminology and a.publishable=true");
+    query.setParameter("terminology", getProject().getTerminology() + "-SRC");
+    final List<Object[]> results3 = query.getResultList();
+    ct = 0;
+    for (final Object[] result : results3) {
+      final Long id = Long.valueOf(result[0].toString());
+      final String alternateTerminologyId = result[1].toString();
+      initAtomContents(id);
+      atomContentsMap.get(id).setSrcAui(alternateTerminologyId);
+      logAndCommit(ct++, RootService.logCt, RootService.commitCt);
+    }    
 
     // Attribute -> ATUI map
     logInfo("  Cache attribute->ATUI map");
@@ -499,9 +517,9 @@ public class WriteRrfContentFilesAlgorithm
         "select a.id, value(b) from AttributeJpa a join a.alternateTerminologyIds b "
             + "where KEY(b) = :terminology and a.publishable=true");
     query.setParameter("terminology", getProject().getTerminology());
-    final List<Object[]> results3 = query.getResultList();
+    final List<Object[]> results4 = query.getResultList();
     ct = 0;
-    for (final Object[] result : results3) {
+    for (final Object[] result : results4) {
       final Long id = Long.valueOf(result[0].toString());
       final String alternateTerminologyId = result[1].toString();
       attAtuiMap.put(id, alternateTerminologyId);
@@ -513,9 +531,9 @@ public class WriteRrfContentFilesAlgorithm
         "select a.id, value(b) from AtomRelationshipJpa a join a.alternateTerminologyIds b "
             + "where KEY(b) = :terminology and a.publishable = true");
     query.setParameter("terminology", getProject().getTerminology());
-    List<Object[]> results4 = query.getResultList();
+    List<Object[]> results5 = query.getResultList();
     ct = 0;
-    for (final Object[] result : results4) {
+    for (final Object[] result : results5) {
       final Long id = Long.valueOf(result[0].toString());
       final String alternateTerminologyId = result[1].toString();
       relAtomRuiMap.put(id, alternateTerminologyId);
@@ -526,9 +544,9 @@ public class WriteRrfContentFilesAlgorithm
         "select a.id, value(b) from ConceptRelationshipJpa a join a.alternateTerminologyIds b "
             + "where KEY(b) = :terminology and a.publishable = true");
     query.setParameter("terminology", getProject().getTerminology());
-    results4 = query.getResultList();
+    results5 = query.getResultList();
     ct = 0;
-    for (final Object[] result : results4) {
+    for (final Object[] result : results5) {
       final Long id = Long.valueOf(result[0].toString());
       final String alternateTerminologyId = result[1].toString();
       relConceptRuiMap.put(id, alternateTerminologyId);
@@ -539,9 +557,9 @@ public class WriteRrfContentFilesAlgorithm
         "select a.id, value(b) from DescriptorRelationshipJpa a join a.alternateTerminologyIds b "
             + "where KEY(b) = :terminology and a.publishable = true");
     query.setParameter("terminology", getProject().getTerminology());
-    results4 = query.getResultList();
+    results5 = query.getResultList();
     ct = 0;
-    for (final Object[] result : results4) {
+    for (final Object[] result : results5) {
       final Long id = Long.valueOf(result[0].toString());
       final String alternateTerminologyId = result[1].toString();
       relDescriptorRuiMap.put(id, alternateTerminologyId);
@@ -552,9 +570,9 @@ public class WriteRrfContentFilesAlgorithm
         "select a.id, value(b) from CodeRelationshipJpa a join a.alternateTerminologyIds b "
             + "where KEY(b) = :terminology and a.publishable = true");
     query.setParameter("terminology", getProject().getTerminology());
-    results4 = query.getResultList();
+    results5 = query.getResultList();
     ct = 0;
-    for (final Object[] result : results4) {
+    for (final Object[] result : results5) {
       final Long id = Long.valueOf(result[0].toString());
       final String alternateTerminologyId = result[1].toString();
       relCodeRuiMap.put(id, alternateTerminologyId);
@@ -1622,6 +1640,9 @@ public class WriteRrfContentFilesAlgorithm
           String stype2 = null;
           final Component from =
               service.findComponent(rel.getFrom(), atomContentsMap);
+          if(from == null){
+            throw new Exception ("No component found for: " + rel.getFrom());
+          }
           if (from.getType() == IdType.CODE) {
             aui2 = codeContentsMap.get(from.getId()).getAui();
             stype2 = "CODE";
@@ -1792,9 +1813,14 @@ public class WriteRrfContentFilesAlgorithm
             .equals(componentInfo.getTerminologyId())) {
           return atom;
         }
+        // If no AUI, try again for SRC atom ids
+        if (atom.isPublishable() && atomContentsMap.get(atom.getId())
+            .getSrcAui().equals(componentInfo.getTerminologyId())) {
+          return atom;
+        }
       }
     }
-
+    
     return null;
   }
 
@@ -2800,6 +2826,27 @@ public class WriteRrfContentFilesAlgorithm
      */
     public void setAui(String aui) {
       this.aui = aui;
+    }
+
+    /** The source aui. */
+    private String srcAui = null;
+
+    /**
+     * Returns the src aui.
+     *
+     * @return the src aui
+     */
+    public String getSrcAui() {
+      return srcAui;
+    }
+
+    /**
+     * Sets the src aui.
+     *
+     * @param srcAui the src aui
+     */
+    public void setSrcAui(String srcAui) {
+      this.srcAui = srcAui;
     }
 
     /**
