@@ -2847,7 +2847,7 @@ public class WriteRrfContentFilesAlgorithm
     }
 
     /** The source aui. */
-    private String srcAui = null;
+    private String srcAui = "";
 
     /**
      * Returns the src aui.
