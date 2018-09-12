@@ -45,6 +45,7 @@ import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.RelationshipIdentity;
+import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.services.UmlsIdentityService;
@@ -137,10 +138,12 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixSourceLevelRels();
     } else if (actionName.equals("Fix AdditionalRelType Inverses")) {
       fixAdditionalRelTypeInverses();
+    } else if (actionName.equals("Fix Snomed Family")) {
+      fixSnomedFamily();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
-
+    
     commitClearBegin();
 
     logInfo("  project = " + getProject().getId());
@@ -1729,6 +1732,19 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
   }
 
+  private void fixSnomedFamily() throws Exception {
+    // 912/2018 Snomed family should be SNOMEDCT_US, not SNOMED.
+    logInfo(" Fix Snomed Family");
+
+    RootTerminology rootTerminology = getRootTerminology("SNOMEDCT_US");
+    rootTerminology.setFamily("SNOMEDCT_US");
+    updateRootTerminology(rootTerminology);
+    
+
+    logInfo("Finished " + getName());
+  }
+  
+  
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -1777,7 +1793,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Set Component Info Relationships To Publishable",
             "Set Stamped Worklists To Ready For Publication",
             "Add Disposition Atoms", "Fix RelGroups", "Fix Source Level Rels",
-            "Fix AdditionalRelType Inverses"));
+            "Fix AdditionalRelType Inverses","Fix Snomed Family"));
     params.add(param);
 
     return params;
