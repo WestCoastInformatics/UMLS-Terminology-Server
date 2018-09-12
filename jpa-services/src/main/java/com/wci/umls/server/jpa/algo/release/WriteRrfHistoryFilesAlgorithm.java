@@ -36,6 +36,7 @@ import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.algo.FileSorter;
 import com.wci.umls.server.jpa.content.ComponentHistoryJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.services.handlers.DefaultComputePreferredNameHandler;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.ComponentHistory;
@@ -372,12 +373,13 @@ public class WriteRrfHistoryFilesAlgorithm
   private List<ConceptRelationship> getCurrentBequeathalRels(Concept c) {
     final List<ConceptRelationship> bequeathalRels = new ArrayList<>();
     for (final ConceptRelationship rel : c.getRelationships()) {
-      if (rel.getRelationshipType().equals("BRO")
-          || rel.getRelationshipType().equals("BRN")
-          || rel.getRelationshipType().equals("BRB")) {
-        rel.setRelationshipType(
-            rel.getRelationshipType().replaceFirst("^B", ""));
-        bequeathalRels.add(rel);
+      ConceptRelationship relCopy = new ConceptRelationshipJpa(rel, true);
+      if (relCopy.getRelationshipType().equals("BRO")
+          || relCopy.getRelationshipType().equals("BRN")
+          || relCopy.getRelationshipType().equals("BRB")) {
+        relCopy.setRelationshipType(
+            relCopy.getRelationshipType().replaceFirst("^B", ""));
+        bequeathalRels.add(relCopy);
       }
     }
     return bequeathalRels;
