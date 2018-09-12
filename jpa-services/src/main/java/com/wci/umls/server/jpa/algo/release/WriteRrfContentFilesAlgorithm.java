@@ -1509,7 +1509,8 @@ public class WriteRrfContentFilesAlgorithm
         && conceptContentsMap.get(c.getId()).hasRelationships()) {
 
       for (final ConceptRelationship rel : c.getInverseRelationships()) {
-        if (!rel.isPublishable()) {
+        if (!rel.isPublishable() || !rel.getFrom().isPublishable()
+            || !rel.getTo().isPublishable()) {
           continue;
         }
 
@@ -1531,6 +1532,11 @@ public class WriteRrfContentFilesAlgorithm
       String stype2 = null;
       final Component from =
           service.findComponent(rel.getFrom(), atomContentsMap);
+
+      if (!from.isPublishable()) {
+        continue;
+      }
+
       if (from.getType() == IdType.CONCEPT) {
         aui2 = conceptContentsMap.get(from.getId()).getAui();
         stype2 = "SCUI";
@@ -1564,7 +1570,8 @@ public class WriteRrfContentFilesAlgorithm
           && atomContentsMap.get(a.getId()).hasRelationships()) {
 
         for (final AtomRelationship r : a.getInverseRelationships()) {
-          if (!r.isPublishable()) {
+          if (!r.isPublishable() || !r.getFrom().isPublishable()
+              || !r.getTo().isPublishable()) {
             continue;
           }
           final String aui2 = atomContentsMap.get(r.getFrom().getId()).getAui();
@@ -1587,6 +1594,9 @@ public class WriteRrfContentFilesAlgorithm
         String cui2 = null;
         final Component from =
             service.findComponent(rel.getFrom(), atomContentsMap);
+        if(!from.isPublishable()){
+          continue;
+        }
         if (from.getType() == IdType.CONCEPT) {
           stype2 = from.getTerminology().equals(getProject().getTerminology())
               ? "CUI" : "SCUI";
@@ -1614,11 +1624,15 @@ public class WriteRrfContentFilesAlgorithm
         final Concept scui =
             service.getConcept(atomContentsMap.get(a.getId()).getConceptId());
 
+        if(!scui.isPublishable()){
+          continue;
+        }
+        
         if (conceptContentsMap.containsKey(scui.getId())
             && conceptContentsMap.get(scui.getId()).hasRelationships()) {
 
           for (final ConceptRelationship rel : scui.getInverseRelationships()) {
-            if (!rel.isPublishable()) {
+            if (!rel.isPublishable() || !rel.getFrom().isPublishable() || !rel.getTo().isPublishable()) {
               continue;
             }
 
@@ -1644,6 +1658,10 @@ public class WriteRrfContentFilesAlgorithm
           if (from == null) {
             throw new Exception("No component found for: " + rel.getFrom());
           }
+          if (!from.isPublishable()) {
+            continue;
+          }
+
           if (from.getType() == IdType.CODE) {
             aui2 = codeContentsMap.get(from.getId()).getAui();
             stype2 = "CODE";
@@ -1665,6 +1683,10 @@ public class WriteRrfContentFilesAlgorithm
         final Code code =
             service.getCode(atomContentsMap.get(a.getId()).getCodeId());
 
+        if (!code.isPublishable()) {
+          continue;
+        }
+
         if (codeContentsMap.containsKey(code.getId())
             && codeContentsMap.get(code.getId()).hasRelationships()) {
           for (final CodeRelationship rel : code.getInverseRelationships()) {
@@ -1677,6 +1699,9 @@ public class WriteRrfContentFilesAlgorithm
               logWarn("Null from component for rel=" + rel);
               continue;
             }
+            if (!fromCode.isPublishable()) {
+              continue;
+            }
             final Contents fromCodeContents =
                 codeContentsMap.get(fromCode.getId());
             if (fromCodeContents == null) {
@@ -1686,9 +1711,8 @@ public class WriteRrfContentFilesAlgorithm
             }
             final String aui2 = fromCodeContents.getAui();
             if (aui2 == null) {
-              logWarn(
-                  "Null AUI for codeContents=" + fromCodeContents
-                      + ", from code=" + fromCode + ", from rel=" + rel);
+              logWarn("Null AUI for codeContents=" + fromCodeContents
+                  + ", from code=" + fromCode + ", from rel=" + rel);
               continue;
             }
             lines.add(getRelLine(rel, cui1, aui1, "CODE", null, aui2, "CODE",
@@ -1710,6 +1734,9 @@ public class WriteRrfContentFilesAlgorithm
           String stype2 = null;
           final Component from =
               service.findComponent(rel.getFrom(), atomContentsMap);
+          if (!from.isPublishable()) {
+            continue;
+          }
           if (from.getType() == IdType.CONCEPT) {
             aui2 = conceptContentsMap.get(from.getId()).getAui();
             stype2 = "SCUI";
@@ -1731,11 +1758,15 @@ public class WriteRrfContentFilesAlgorithm
       if (atomContentsMap.get(a.getId()).getDescriptorId() != null) {
         final Descriptor sdui = service
             .getDescriptor(atomContentsMap.get(a.getId()).getDescriptorId());
+        if (!sdui.isPublishable()) {
+          continue;
+        }
         if (descriptorContentsMap.containsKey(sdui.getId())
             && descriptorContentsMap.get(sdui.getId()).hasRelationships()) {
           for (final DescriptorRelationship rel : sdui
               .getInverseRelationships()) {
-            if (!rel.isPublishable()) {
+            if (!rel.isPublishable() || !rel.getFrom().isPublishable()
+                || !rel.getTo().isPublishable()) {
               continue;
             }
 
@@ -1759,6 +1790,9 @@ public class WriteRrfContentFilesAlgorithm
           String stype2 = rel.getFrom().getType().toString();
           final Component from =
               service.findComponent(rel.getFrom(), atomContentsMap);
+          if (!from.isPublishable()) {
+            continue;
+          }
           if (from.getType() == IdType.CONCEPT) {
             aui2 = conceptContentsMap.get(from.getId()).getAui();
             stype2 = "SCUI";
