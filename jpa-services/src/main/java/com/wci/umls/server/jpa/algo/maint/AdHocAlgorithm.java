@@ -23,6 +23,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.QueryType;
+import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
@@ -46,6 +47,7 @@ import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.RelationshipIdentity;
 import com.wci.umls.server.model.meta.RootTerminology;
+import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.services.UmlsIdentityService;
@@ -140,10 +142,12 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixAdditionalRelTypeInverses();
     } else if (actionName.equals("Fix Snomed Family")) {
       fixSnomedFamily();
+    } else if (actionName.equals("Fix Terminology Names")) {
+      fixTerminologyNames();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
-    
+
     commitClearBegin();
 
     logInfo("  project = " + getProject().getId());
@@ -1733,18 +1737,71 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   }
 
   private void fixSnomedFamily() throws Exception {
-    // 912/2018 Snomed family should be SNOMEDCT_US, not SNOMED.
+    // 9/12/2018 Snomed family should be SNOMEDCT_US, not SNOMED.
     logInfo(" Fix Snomed Family");
 
     RootTerminology rootTerminology = getRootTerminology("SNOMEDCT_US");
     rootTerminology.setFamily("SNOMEDCT_US");
     updateRootTerminology(rootTerminology);
-    
 
     logInfo("Finished " + getName());
   }
-  
-  
+
+  private void fixTerminologyNames() throws Exception {
+    // 9/12/2018 Terminology names should be versioned.
+    // e.g. "US Edition of SNOMED CT" should be "US Edition of SNOMED CT,
+    // 2018_03_01"
+    logInfo(" Fix Terminology Names");
+
+    int updatedTerminologies = 0;
+
+    try {
+
+      // Get all terminologies
+      TerminologyList terminolgyList = getTerminologies();
+
+      setSteps(terminolgyList.getObjects().size());
+
+      for (final Terminology terminology : terminolgyList.getObjects()) {
+        String versionSuffix = null;
+        // Add version in different format based on terminology family
+        if(terminology.getRootTerminology().getFamily().equals("NCI") || terminology.getRootTerminology().getFamily().equals("SNOMEDCT_US") || terminology.getRootTerminology().getFamily().equals("MED-RT")){
+          versionSuffix = ", " + terminology.getVersion();
+        }
+        else if (terminology.getRootTerminology().getFamily().equals("MDR")){
+          versionSuffix = ", " + terminology.getVersion().replace("_", ".");
+        }
+
+        if(versionSuffix == null){
+          updateProgress();
+          continue;
+        }
+        
+        if(terminology.getPreferredName().endsWith(versionSuffix)){
+          updateProgress();
+          continue;
+        }
+        else{
+          terminology.setPreferredName(
+              terminology.getPreferredName() + versionSuffix);
+          updatedTerminologies++;
+        }
+        
+
+        updateProgress();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+      // n/a
+    }
+
+    logInfo("Updated " + updatedTerminologies
+        + " terminology names to contain version.");
+    logInfo("Finished " + getName());
+  }
+
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -1793,7 +1850,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Set Component Info Relationships To Publishable",
             "Set Stamped Worklists To Ready For Publication",
             "Add Disposition Atoms", "Fix RelGroups", "Fix Source Level Rels",
-            "Fix AdditionalRelType Inverses","Fix Snomed Family"));
+            "Fix AdditionalRelType Inverses", "Fix Snomed Family",
+            "Fix Terminology Names"));
     params.add(param);
 
     return params;
