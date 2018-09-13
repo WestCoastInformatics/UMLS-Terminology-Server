@@ -217,7 +217,7 @@ public class WriteRrfContentFilesAlgorithm
               prev = line;
             }
 
-            if (ct++ % RootService.commitCt == 0) {
+            if (ct++ % 100 == 0) {
               checkCancel();
               service.commitClearBegin();
             }
