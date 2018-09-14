@@ -31,6 +31,7 @@ import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
+import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
@@ -722,8 +723,8 @@ public class WriteRrfContentFilesAlgorithm
           + rel.getTo().getVersion() + rel.getTo().getType();
       if (rel.getTo().getType() == IdType.ATOM) {
         // AUI+terminology+type
-        key = rel.getTo().getTerminologyId() + rel.getTo().getTerminology()
-            + rel.getTo().getType();
+        key = ((AtomJpa)rel.getTo()).getAlternateTerminologyIds().get(getProject().getTerminology())
+            + rel.getTo().getTerminology() + rel.getTo().getType();
       }
       if (!componentInfoRelMap.containsKey(key)) {
         componentInfoRelMap.put(key, new ArrayList<>());
