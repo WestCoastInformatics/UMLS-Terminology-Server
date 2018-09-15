@@ -142,6 +142,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixAdditionalRelTypeInverses();
     } else if (actionName.equals("Fix Snomed Family")) {
       fixSnomedFamily();
+    } else if (actionName.equals("Turn off CTRP-SDC")) {
+      turnOffCTRPSDC();
     } else if (actionName.equals("Fix Terminology Names")) {
       fixTerminologyNames();
     } else {
@@ -1747,6 +1749,17 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
   }
 
+  private void turnOffCTRPSDC() throws Exception {
+    // 9/14/2018 CTRP-SDC was retired - turn off terminology.
+    logInfo(" Turn off CTRP-SDC");
+
+    Terminology terminology = getTerminology("CTRP-SDC", "2017_12D");
+    terminology.setCurrent(false);
+    updateTerminology(terminology);
+
+    logInfo("Finished " + getName());
+  }
+
   private void fixTerminologyNames() throws Exception {
     // 9/12/2018 Terminology names should be versioned.
     // e.g. "US Edition of SNOMED CT" should be "US Edition of SNOMED CT,
@@ -1765,28 +1778,28 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       for (final Terminology terminology : terminolgyList.getObjects()) {
         String versionSuffix = null;
         // Add version in different format based on terminology family
-        if(terminology.getRootTerminology().getFamily().equals("NCI") || terminology.getRootTerminology().getFamily().equals("SNOMEDCT_US") || terminology.getRootTerminology().getFamily().equals("MED-RT")){
+        if (terminology.getRootTerminology().getFamily().equals("NCI")
+            || terminology.getRootTerminology().getFamily()
+                .equals("SNOMEDCT_US")
+            || terminology.getRootTerminology().getFamily().equals("MED-RT")) {
           versionSuffix = ", " + terminology.getVersion();
-        }
-        else if (terminology.getRootTerminology().getFamily().equals("MDR")){
+        } else if (terminology.getRootTerminology().getFamily().equals("MDR")) {
           versionSuffix = ", " + terminology.getVersion().replace("_", ".");
         }
 
-        if(versionSuffix == null){
+        if (versionSuffix == null) {
           updateProgress();
           continue;
         }
-        
-        if(terminology.getPreferredName().endsWith(versionSuffix)){
+
+        if (terminology.getPreferredName().endsWith(versionSuffix)) {
           updateProgress();
           continue;
-        }
-        else{
-          terminology.setPreferredName(
-              terminology.getPreferredName() + versionSuffix);
+        } else {
+          terminology
+              .setPreferredName(terminology.getPreferredName() + versionSuffix);
           updatedTerminologies++;
         }
-        
 
         updateProgress();
       }
@@ -1851,7 +1864,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Set Stamped Worklists To Ready For Publication",
             "Add Disposition Atoms", "Fix RelGroups", "Fix Source Level Rels",
             "Fix AdditionalRelType Inverses", "Fix Snomed Family",
-            "Fix Terminology Names"));
+            "Turn off CTRP-SDC", "Fix Terminology Names"));
     params.add(param);
 
     return params;
