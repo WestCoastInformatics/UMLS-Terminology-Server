@@ -116,9 +116,6 @@ public class RunMetamorphoSysAlgorithm
     final File mmsysReleaseDat = new File(config.getProperty("source.data.dir")
         + "/" + getProcess().getInputPath() + "/" + getProcess().getVersion()
         + "/MMSYS/release.dat");
-    new File(config.getProperty("source.data.dir") + "/"
-        + getProcess().getInputPath() + "/" + getProcess().getVersion()
-        + "/MMSYS/config/" + getProcess().getVersion()).mkdir();
     final File mmsysReleaseConfigDat =
         new File(config.getProperty("source.data.dir") + "/"
             + getProcess().getInputPath() + "/" + getProcess().getVersion()
