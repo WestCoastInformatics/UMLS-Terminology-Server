@@ -8,6 +8,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
@@ -220,6 +223,8 @@ public class RunMetamorphoSysAlgorithm
           false);
     } else {
       // If fails as solaris, try as linux
+      // Make sure file has full permissions
+      Files.setPosixFilePermissions(Paths.get(pathRelease.getPath() + "/MMSYS/jre/linux/bin/java"), PosixFilePermissions.fromString("rwxrwxrwx"));
       ConfigUtility.exec(new String[] {
           pathRelease.getPath() + "/MMSYS/jre/linux/bin/java",
           "-Djava.awt.headless=true",
