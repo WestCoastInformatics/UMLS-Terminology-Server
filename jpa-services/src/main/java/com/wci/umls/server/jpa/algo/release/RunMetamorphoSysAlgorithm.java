@@ -116,6 +116,8 @@ public class RunMetamorphoSysAlgorithm
     final File mmsysReleaseDat = new File(config.getProperty("source.data.dir")
         + "/" + getProcess().getInputPath() + "/" + getProcess().getVersion()
         + "/MMSYS/release.dat");
+    // TODO - rename old release folder to new release.
+    // If that doesn't work, copy over, then remove old after running metamorophoSys.
     final File mmsysReleaseConfigDat =
         new File(config.getProperty("source.data.dir") + "/"
             + getProcess().getInputPath() + "/" + getProcess().getVersion()
@@ -242,9 +244,9 @@ public class RunMetamorphoSysAlgorithm
 
     updateProgress();
 
-    // Copy the files MRDOC, MRCOLS, MRFILES, release.dat
+    // Copy the files MRDOC, MRCOLS, MRFILES, MRSAB, release.dat
     for (final String file : new String[] {
-        "MRDOC.RRF", "MRFILES.RRF", "MRCOLS.RRF", "release.dat"
+        "MRDOC.RRF", "MRFILES.RRF", "MRCOLS.RRF", "MRSAB.RRF", "release.dat"
     }) {
       FileUtils.copyFileToDirectory(
           new File(pathRelease.getPath() + "/METASUBSET", file),
