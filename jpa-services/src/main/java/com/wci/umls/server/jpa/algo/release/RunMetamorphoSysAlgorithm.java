@@ -96,80 +96,80 @@ public class RunMetamorphoSysAlgorithm
     final File pathMeta = new File(path, "/META");
     final File pathRelease = new File(path, getProcess().getVersion());
 
-//    // If "path/$release/MMSYS does exists already, remove it"
-//    if (new File(pathRelease, "MMSYS").exists()) {
-//      logInfo("  Remove directory = " + pathRelease + "/MMSYS");
-//      FileUtils.deleteDirectory(new File(pathRelease, "MMSYS"));
-//    }
-//
-//    // Unzip "path/META/mmsys.zip" into "path/$release/MMSYS"
-//    logInfo("  Unzip " + pathMeta.getPath() + "/mmsys.zip");
-//    commitClearBegin();
-//    new File(pathRelease, "MMSYS").mkdirs();
-//    ConfigUtility.unzip(pathMeta.getPath() + "/mmsys.zip",
-//        pathRelease.getPath() + "/MMSYS");
-//    updateProgress();
-//
-//    // Write release.dat
-//    logInfo("  Write release.dat file(s)");
-//    commitClearBegin();
-//    final File mmsysReleaseDat = new File(config.getProperty("source.data.dir")
-//        + "/" + getProcess().getInputPath() + "/" + getProcess().getVersion()
-//        + "/MMSYS/release.dat");
-//    final File mmsysReleaseConfigDat =
-//        new File(config.getProperty("source.data.dir") + "/"
-//            + getProcess().getInputPath() + "/" + getProcess().getVersion()
-//            + "/MMSYS/config/" + getProcess().getVersion() + "/release.dat");
-//    final File metaReleaseDat = new File(config.getProperty("source.data.dir")
-//        + "/" + getProcess().getInputPath() + "/" + getProcess().getVersion()
-//        + "/META/release.dat");
-//    final File releaseDat = new File(config.getProperty("source.data.dir") + "/"
-//        + getProcess().getInputPath() + "/" + getProcess().getVersion()
-//        + "/release.dat");
-//
-//    final StringBuilder data = new StringBuilder();
-//    data.append("umls.release.name=" + getProcess().getVersion()).append("\n");
-//    data.append("umls.release.description=Base Release for "
-//        + getProcess().getVersion()).append("\n");
-//    /*
-//     * SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd"); data.append(
-//     * "umls.release.date=" + df.format(getProcess().getVersion() + "01"))
-//     * .append("\n");
-//     */
-//    data.append("umls.release.date=").append(getProcess().getVersion() + "01")
-//        .append("\n");
-//    data.append("nlm.build.date=")
-//        .append(new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new Date()))
-//        .append("\n");
-//
-//    // Write release.dat files (top-level and in META)
-//    FileUtils.fileWrite(releaseDat.getPath(), data.toString());
-//    FileUtils.fileWrite(metaReleaseDat.getPath(), data.toString());
-//    FileUtils.fileWrite(mmsysReleaseDat.getPath(), data.toString());
-//    FileUtils.fileWrite(mmsysReleaseConfigDat.getPath(), data.toString());
-//    updateProgress();
-//
-//    // Run "make_config.csh"
-//    logInfo("  Build MMSYS config files from data");
-//    commitClearBegin();
-//    final String binDir = ConfigUtility.getHomeDirs().get("bin");
-//    // Assumes "lvg" dir exists at same level as "config"
-//    final String lvgDir = ConfigUtility.getHomeDirs().get("lvg");
-//    String[] env = new String[] {};
-//    if (new File(lvgDir).exists()) {
-//      env = new String[] {
-//          "LVG_HOME=" + lvgDir
-//      };
-//    }
-//    final String cmd = binDir + "/make_config.csh";
-//    final String meta = pathRelease.getPath() + "/META";
-//    final String net = path.getPath() + "/NET";
-//    final String mmsys = pathRelease.getPath() + "/MMSYS";
-//    ConfigUtility.exec(new String[] {
-//        cmd, meta, net, mmsys
-//    }, env, false, binDir, logBridge, true);
-//
-//    updateProgress();
+    // If "path/$release/MMSYS does exists already, remove it"
+    if (new File(pathRelease, "MMSYS").exists()) {
+      logInfo("  Remove directory = " + pathRelease + "/MMSYS");
+      FileUtils.deleteDirectory(new File(pathRelease, "MMSYS"));
+    }
+
+    // Unzip "path/META/mmsys.zip" into "path/$release/MMSYS"
+    logInfo("  Unzip " + pathMeta.getPath() + "/mmsys.zip");
+    commitClearBegin();
+    new File(pathRelease, "MMSYS").mkdirs();
+    ConfigUtility.unzip(pathMeta.getPath() + "/mmsys.zip",
+        pathRelease.getPath() + "/MMSYS");
+    updateProgress();
+
+    // Write release.dat
+    logInfo("  Write release.dat file(s)");
+    commitClearBegin();
+    final File mmsysReleaseDat = new File(config.getProperty("source.data.dir")
+        + "/" + getProcess().getInputPath() + "/" + getProcess().getVersion()
+        + "/MMSYS/release.dat");
+    final File mmsysReleaseConfigDat =
+        new File(config.getProperty("source.data.dir") + "/"
+            + getProcess().getInputPath() + "/" + getProcess().getVersion()
+            + "/MMSYS/config/" + getProcess().getVersion() + "/release.dat");
+    final File metaReleaseDat = new File(config.getProperty("source.data.dir")
+        + "/" + getProcess().getInputPath() + "/" + getProcess().getVersion()
+        + "/META/release.dat");
+    final File releaseDat = new File(config.getProperty("source.data.dir") + "/"
+        + getProcess().getInputPath() + "/" + getProcess().getVersion()
+        + "/release.dat");
+
+    final StringBuilder data = new StringBuilder();
+    data.append("umls.release.name=" + getProcess().getVersion()).append("\n");
+    data.append("umls.release.description=Base Release for "
+        + getProcess().getVersion()).append("\n");
+    /*
+     * SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd"); data.append(
+     * "umls.release.date=" + df.format(getProcess().getVersion() + "01"))
+     * .append("\n");
+     */
+    data.append("umls.release.date=").append(getProcess().getVersion() + "01")
+        .append("\n");
+    data.append("nlm.build.date=")
+        .append(new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new Date()))
+        .append("\n");
+
+    // Write release.dat files (top-level and in META)
+    FileUtils.fileWrite(releaseDat.getPath(), data.toString());
+    FileUtils.fileWrite(metaReleaseDat.getPath(), data.toString());
+    FileUtils.fileWrite(mmsysReleaseDat.getPath(), data.toString());
+    FileUtils.fileWrite(mmsysReleaseConfigDat.getPath(), data.toString());
+    updateProgress();
+
+    // Run "make_config.csh"
+    logInfo("  Build MMSYS config files from data");
+    commitClearBegin();
+    final String binDir = ConfigUtility.getHomeDirs().get("bin");
+    // Assumes "lvg" dir exists at same level as "config"
+    final String lvgDir = ConfigUtility.getHomeDirs().get("lvg");
+    String[] env = new String[] {};
+    if (new File(lvgDir).exists()) {
+      env = new String[] {
+          "LVG_HOME=" + lvgDir
+      };
+    }
+    final String cmd = binDir + "/make_config.csh";
+    final String meta = pathRelease.getPath() + "/META";
+    final String net = path.getPath() + "/NET";
+    final String mmsys = pathRelease.getPath() + "/MMSYS";
+    ConfigUtility.exec(new String[] {
+        cmd, meta, net, mmsys
+    }, env, false, binDir, logBridge, true);
+
+    updateProgress();
 
     // Run metamorphoSys
     logInfo("  Run MetamorphoSys");
@@ -260,11 +260,11 @@ public class RunMetamorphoSysAlgorithm
   public void reset() throws Exception {
     logInfo("Starting RESET " + getName());
 
-//    // Remove the MMSYS directory
-//    final File pathRelease = new File(config.getProperty("source.data.dir")
-//        + "/" + getProcess().getInputPath() + "/" + getProcess().getVersion());
-//    logInfo("  Remove directory = " + pathRelease + "/MMSYS");
-//    FileUtils.deleteDirectory(new File(pathRelease, "MMSYS"));
+    // Remove the MMSYS directory
+    final File pathRelease = new File(config.getProperty("source.data.dir")
+        + "/" + getProcess().getInputPath() + "/" + getProcess().getVersion());
+    logInfo("  Remove directory = " + pathRelease + "/MMSYS");
+    FileUtils.deleteDirectory(new File(pathRelease, "MMSYS"));
     logInfo("Finished RESET " + getName());
   }
 
