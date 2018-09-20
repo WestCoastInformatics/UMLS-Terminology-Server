@@ -146,10 +146,12 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       turnOffCTRPSDC();
     } else if (actionName.equals("Fix Terminology Names")) {
       fixTerminologyNames();
+    } else if (actionName.equals("Fix RHT Atoms")) {
+      fixRHTAtoms();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
-
+    
     commitClearBegin();
 
     logInfo("  project = " + getProject().getId());
@@ -1815,6 +1817,58 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
   }
 
+  private void fixRHTAtoms() throws Exception {
+    // 9/20/2018 Issues identified where RHT atoms had terminology of 'NCIMTH',
+    // instead of 'SRC'.
+    logInfo(" Fix RHT Atoms");
+
+    int updatedAtoms = 0;
+    List<Atom> atoms = new ArrayList<>();
+
+    try {
+
+      // Get the three affected additional relationship types
+      Query query = getEntityManager().createNativeQuery(
+          "select id from atoms where termType='RHT' and terminology='NCIMTH'");
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final Long atomId = Long.valueOf(entry.toString());
+        atoms.add(getAtom(atomId));        
+      }
+
+      setSteps(atoms.size());
+
+      logInfo("[FixRHTAtoms] "
+          + atoms.size()
+          + " atoms identified");
+
+      for (final Atom atom : atoms) {
+
+        // Set the terminology to SRC
+        if (atom.getTerminology().equals("NCIMTH")) {
+          atom.setTerminology("SRC");
+          updateAtom(atom);
+          updatedAtoms++;
+        }
+        // We should never get here
+        else {
+          logError("WHAT HAPPENED!!!????");
+        }
+        updateProgress();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+      // n/a
+    }
+
+    logInfo("Updated " + updatedAtoms
+        + " additional relationship types updated.");
+    logInfo("Finished " + getName());
+  }
+
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -1864,7 +1918,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Set Stamped Worklists To Ready For Publication",
             "Add Disposition Atoms", "Fix RelGroups", "Fix Source Level Rels",
             "Fix AdditionalRelType Inverses", "Fix Snomed Family",
-            "Turn off CTRP-SDC", "Fix Terminology Names"));
+            "Turn off CTRP-SDC", "Fix Terminology Names","Fix RHT Atoms"));
     params.add(param);
 
     return params;
