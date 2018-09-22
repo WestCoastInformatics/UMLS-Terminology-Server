@@ -70,8 +70,6 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 public class WriteRrfContentFilesAlgorithm
     extends AbstractInsertMaintReleaseAlgorithm {
 
-  private String testSubsetSource = "MED-RT";
-  
   /** The sem type map. */
   private Map<String, SemanticType> semTypeMap = new HashMap<>(10000);
 
@@ -178,9 +176,7 @@ public class WriteRrfContentFilesAlgorithm
         "select distinct c.id from ConceptJpa c join c.atoms a "
             + "where c.terminology = :terminology "
             + "  and c.version = :version and a.publishable = true "
-            + "  and c.publishable = true "
-            + "and a.terminology='" + testSubsetSource + "'"
-            + "order by c.terminologyId ",
+            + "  and c.publishable = true order by c.terminologyId",
         QueryType.JPQL, getDefaultQueryParams(getProject()), ConceptJpa.class,
         false);
     commitClearBegin();
@@ -202,7 +198,7 @@ public class WriteRrfContentFilesAlgorithm
       public void run() {
         WriteRrfContentFilesAlgorithm service = null;
         try {
-           service = new WriteRrfContentFilesAlgorithm();
+          // service = new WriteRrfContentFilesAlgorithm();
           // service.setTransactionPerOperation(false);
           // service.beginTransaction();
           //
@@ -502,8 +498,7 @@ public class WriteRrfContentFilesAlgorithm
     logInfo("  Cache atom->Source AUI map");
     query = getEntityManager().createQuery(
         "select a.id, value(b) from AtomJpa a join a.alternateTerminologyIds b "
-            + "where KEY(b) = :terminology and a.publishable=true "
-            + "and a.terminology='" + testSubsetSource + "'");
+            + "where KEY(b) = :terminology and a.publishable=true");
     query.setParameter("terminology", getProject().getTerminology() + "-SRC");
     final List<Object[]> results3 = query.getResultList();
     ct = 0;
@@ -519,8 +514,7 @@ public class WriteRrfContentFilesAlgorithm
     logInfo("  Cache attribute->ATUI map");
     query = getEntityManager().createQuery(
         "select a.id, value(b) from AttributeJpa a join a.alternateTerminologyIds b "
-            + "where KEY(b) = :terminology and a.publishable=true "
-            + "and a.terminology='" + testSubsetSource + "'");
+            + "where KEY(b) = :terminology and a.publishable=true");
     query.setParameter("terminology", getProject().getTerminology());
     final List<Object[]> results4 = query.getResultList();
     ct = 0;
@@ -534,8 +528,7 @@ public class WriteRrfContentFilesAlgorithm
     logInfo("  Cache relationship->RUI map (atom rels)");
     query = getEntityManager().createQuery(
         "select a.id, value(b) from AtomRelationshipJpa a join a.alternateTerminologyIds b "
-            + "where KEY(b) = :terminology and a.publishable = true "
-            + "and a.terminology='" + testSubsetSource + "'");
+            + "where KEY(b) = :terminology and a.publishable = true");
     query.setParameter("terminology", getProject().getTerminology());
     List<Object[]> results5 = query.getResultList();
     ct = 0;
@@ -548,8 +541,7 @@ public class WriteRrfContentFilesAlgorithm
     logInfo("  Cache relationship->RUI map (concept rels)");
     query = getEntityManager().createQuery(
         "select a.id, value(b) from ConceptRelationshipJpa a join a.alternateTerminologyIds b "
-            + "where KEY(b) = :terminology and a.publishable = true "
-            + "and a.terminology='" + testSubsetSource + "'");
+            + "where KEY(b) = :terminology and a.publishable = true");
     query.setParameter("terminology", getProject().getTerminology());
     results5 = query.getResultList();
     ct = 0;
@@ -562,8 +554,7 @@ public class WriteRrfContentFilesAlgorithm
     logInfo("  Cache relationship->RUI map (descriptor rels)");
     query = getEntityManager().createQuery(
         "select a.id, value(b) from DescriptorRelationshipJpa a join a.alternateTerminologyIds b "
-            + "where KEY(b) = :terminology and a.publishable = true "
-            + "and a.terminology='" + testSubsetSource + "'");
+            + "where KEY(b) = :terminology and a.publishable = true");
     query.setParameter("terminology", getProject().getTerminology());
     results5 = query.getResultList();
     ct = 0;
@@ -576,8 +567,7 @@ public class WriteRrfContentFilesAlgorithm
     logInfo("  Cache relationship->RUI map (code rels)");
     query = getEntityManager().createQuery(
         "select a.id, value(b) from CodeRelationshipJpa a join a.alternateTerminologyIds b "
-            + "where KEY(b) = :terminology and a.publishable = true "
-            + "and a.terminology='" + testSubsetSource + "'");
+            + "where KEY(b) = :terminology and a.publishable = true");
     query.setParameter("terminology", getProject().getTerminology());
     results5 = query.getResultList();
     ct = 0;
@@ -592,8 +582,7 @@ public class WriteRrfContentFilesAlgorithm
     logInfo(
         "  Determine preferred atoms for all concepts, and cache concept->AUI maps");
     final List<Long> conceptIds = executeSingleComponentIdQuery(
-        "select c.id from ConceptJpa c join c.atoms a where c.publishable = true "
-            + "and a.publishable=true and a.terminology='" + testSubsetSource + "'",
+        "select c.id from ConceptJpa c where publishable = true",
         QueryType.JPQL, getDefaultQueryParams(getProject()), ConceptJpa.class,
         false);
     commitClearBegin();
@@ -632,8 +621,7 @@ public class WriteRrfContentFilesAlgorithm
     logInfo(
         "  Determine preferred atoms for all descriptors, and cache descriptor->AUI maps");
     final List<Long> descriptorIds = executeSingleComponentIdQuery(
-        "select d.id from DescriptorJpa d join d.atoms a where d.publishable = true "
-            + "and a.publishable=true and a.terminology='" + testSubsetSource + "'",
+        "select d.id from DescriptorJpa d where publishable = true",
         QueryType.JPQL, getDefaultQueryParams(getProject()),
         DescriptorJpa.class, false);
     commitClearBegin();
@@ -664,7 +652,7 @@ public class WriteRrfContentFilesAlgorithm
         "  Determine preferred atoms for all codes, and cache code->AUI maps");
     final List<Long> codeIds = executeSingleComponentIdQuery(
         "select c.id from CodeJpa c join c.atoms a where c.publishable = true "
-            + "and a.publishable = true and a.terminology='" + testSubsetSource + "'",
+            + "and a.publishable = true",
         QueryType.JPQL, getDefaultQueryParams(getProject()), CodeJpa.class,
         false);
     commitClearBegin();
@@ -689,7 +677,7 @@ public class WriteRrfContentFilesAlgorithm
     logInfo("  Determine all terminologies with relationship attributes");
     query = manager.createQuery("select distinct r.terminology "
         + "from ConceptRelationshipJpa r join r.attributes a "
-        + "where r.terminology != :terminology and r.terminology='" + testSubsetSource + "'");
+        + "where r.terminology != :terminology");
     query.setParameter("terminology", getProject().getTerminology());
     final List<String> results = query.getResultList();
     for (final String result : results) {
@@ -727,7 +715,7 @@ public class WriteRrfContentFilesAlgorithm
     // Cache component info relationships
     logInfo("  Cache component info relationships");
     query = manager.createQuery(
-        "select r from ComponentInfoRelationshipJpa r where publishable = true  and r.terminology='" + testSubsetSource + "'");
+        "select r from ComponentInfoRelationshipJpa r where publishable = true");
     final List<ComponentInfoRelationship> rels = query.getResultList();
     final Map<String, String> SAUIToAUI = new HashMap<>();
     for (final ComponentInfoRelationship rel : rels) {
@@ -765,8 +753,7 @@ public class WriteRrfContentFilesAlgorithm
       logInfo("    attributes");
       query = manager.createQuery(
           "select distinct a.id from " + type + "Jpa a join a.attributes b "
-              + "where a.publishable = true and b.publishable = true "
-              +  "and a.terminology='" + testSubsetSource + "'");
+              + "where a.publishable = true and b.publishable = true");
       ct = 0;
       for (final Long id : (List<Long>) query.getResultList()) {
         map.get(id).markAttributes();
@@ -777,8 +764,7 @@ public class WriteRrfContentFilesAlgorithm
       logInfo("    relationships");
       query = manager.createQuery(
           "select distinct a.to.id from " + type + "RelationshipJpa a "
-              + "where a.publishable = true and a.to.publishable = true "
-              +  "and a.terminology='" + testSubsetSource + "'");
+              + "where a.publishable = true and a.to.publishable = true");
       ct = 0;
       for (final Long id : (List<Long>) query.getResultList()) {
         if (map.get(id) != null) {
@@ -791,8 +777,7 @@ public class WriteRrfContentFilesAlgorithm
       logInfo("    tree positions");
       query = manager.createQuery(
           "select distinct a.node.id from " + type + "TreePositionJpa a "
-              + "where a.publishable = true and a.node.publishable = true "
-              +  "and a.terminology='" + testSubsetSource + "'");
+              + "where a.publishable = true and a.node.publishable = true");
       ct = 0;
       for (final Long id : (List<Long>) query.getResultList()) {
         map.get(id).markTreePositions();
@@ -805,8 +790,7 @@ public class WriteRrfContentFilesAlgorithm
         logInfo("    members");
         query = manager.createQuery(
             "select distinct a.member.id from " + type + "SubsetMemberJpa a "
-                + "where a.publishable = true and a.member.publishable = true "
-                + "and a.terminology='" + testSubsetSource + "'");
+                + "where a.publishable = true and a.member.publishable = true");
         ct = 0;
         for (final Long id : (List<Long>) query.getResultList()) {
           map.get(id).markMembers();
@@ -820,7 +804,7 @@ public class WriteRrfContentFilesAlgorithm
         logInfo("    definitions");
         query = manager.createQuery("select distinct a.id from " + type
             + "Jpa a join a.definitions d where a.publishable = true "
-            + "and d.publishable = true and a.terminology='" + testSubsetSource + "'");
+            + "and d.publishable = true");
         ct = 0;
         for (final Long id : (List<Long>) query.getResultList()) {
           map.get(id).markDefinitions();
