@@ -31,7 +31,6 @@ import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
-import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
@@ -183,12 +182,12 @@ public class WriteRrfContentFilesAlgorithm
     commitClearBegin();
     setSteps(conceptIds.size());
 
-//    // Write AMBIG files
-//    writeAmbig();
-//
-//    // Close Ambig writers
-//    writerMap.get("AMBIGSUI.RRF").close();
-//    writerMap.get("AMBIGLUI.RRF").close();
+    // // Write AMBIG files
+    // writeAmbig();
+    //
+    // // Close Ambig writers
+    // writerMap.get("AMBIGSUI.RRF").close();
+    // writerMap.get("AMBIGLUI.RRF").close();
 
     // Parallelize output
     final Thread[] threads = new Thread[3];
@@ -199,39 +198,39 @@ public class WriteRrfContentFilesAlgorithm
       public void run() {
         WriteRrfContentFilesAlgorithm service = null;
         try {
-//          service = new WriteRrfContentFilesAlgorithm();
-//          service.setTransactionPerOperation(false);
-//          service.beginTransaction();
-//
-//          service.setProject(getProject());
-//          service.setProcess(getProcess());
-//
-//          int ct = 0;
-//          for (final Long conceptId : conceptIds) {
-//            final Concept c = service.getConcept(conceptId);
-//
-//            String prev = "";
-//            for (final String line : writeMrrel(c, service)) {
-//              if (!line.equals(prev)) {
-//                writerMap.get("MRREL.RRF").print(line);
-//              }
-//              prev = line;
-//            }
-//
-//            if (ct++ % 1000 == 0) {
-//              checkCancel();
-//              service.commitClearBegin();
-//            }
-//          }
-//          service.commit();
-//          service.close();
-//          Logger.getLogger(getClass()).info("After MRREL completes.");
+          // service = new WriteRrfContentFilesAlgorithm();
+          // service.setTransactionPerOperation(false);
+          // service.beginTransaction();
+          //
+          // service.setProject(getProject());
+          // service.setProcess(getProcess());
+          //
+          // int ct = 0;
+          // for (final Long conceptId : conceptIds) {
+          // final Concept c = service.getConcept(conceptId);
+          //
+          // String prev = "";
+          // for (final String line : writeMrrel(c, service)) {
+          // if (!line.equals(prev)) {
+          // writerMap.get("MRREL.RRF").print(line);
+          // }
+          // prev = line;
+          // }
+          //
+          // if (ct++ % 1000 == 0) {
+          // checkCancel();
+          // service.commitClearBegin();
+          // }
+          // }
+          // service.commit();
+          // service.close();
+          // Logger.getLogger(getClass()).info("After MRREL completes.");
 
         } catch (Exception e) {
           Logger.getLogger(getClass()).error(e.getMessage(), e);
           exceptions[0] = e;
         } finally {
-//          writerMap.get("MRREL.RRF").close();
+          // writerMap.get("MRREL.RRF").close();
           try {
             service.close();
           } catch (Exception e) {
@@ -298,38 +297,38 @@ public class WriteRrfContentFilesAlgorithm
         WriteRrfContentFilesAlgorithm service = null;
         try {
           service = new WriteRrfContentFilesAlgorithm();
-//          service.setTransactionPerOperation(false);
-//          service.beginTransaction();
-//
-//          service.setProject(getProject());
-//          service.setProcess(getProcess());
-//
-//          int ct = 0;
-//          for (final Long conceptId : conceptIds) {
-//            final Concept c = service.getConcept(conceptId);
-//
-//            String prev = null;
-//            for (final String line : writeMrsat(c, service)) {
-//              if (!line.equals(prev)) {
-//                writerMap.get("MRSAT.RRF").print(line);
-//              }
-//              prev = line;
-//            }
-//            writerMap.get("MRSAT.RRF").flush();
-//            if (ct++ % 100 == 0) {
-//              checkCancel();
-//              service.commitClearBegin();
-//            }
-//          }
-//          service.commit();
-//          service.close();
-//          Logger.getLogger(getClass()).info("After MRSAT completes.");
+          // service.setTransactionPerOperation(false);
+          // service.beginTransaction();
+          //
+          // service.setProject(getProject());
+          // service.setProcess(getProcess());
+          //
+          // int ct = 0;
+          // for (final Long conceptId : conceptIds) {
+          // final Concept c = service.getConcept(conceptId);
+          //
+          // String prev = null;
+          // for (final String line : writeMrsat(c, service)) {
+          // if (!line.equals(prev)) {
+          // writerMap.get("MRSAT.RRF").print(line);
+          // }
+          // prev = line;
+          // }
+          // writerMap.get("MRSAT.RRF").flush();
+          // if (ct++ % 100 == 0) {
+          // checkCancel();
+          // service.commitClearBegin();
+          // }
+          // }
+          // service.commit();
+          // service.close();
+          // Logger.getLogger(getClass()).info("After MRSAT completes.");
 
         } catch (Exception e) {
           Logger.getLogger(getClass()).error(e.getMessage(), e);
           exceptions[0] = e;
         } finally {
-//          writerMap.get("MRSAT.RRF").close();
+          // writerMap.get("MRSAT.RRF").close();
           try {
             service.close();
           } catch (Exception e) {
@@ -341,44 +340,44 @@ public class WriteRrfContentFilesAlgorithm
     threads[2] = t;
     t.start();
 
-//    // Start writing other files
-//    try {
-//      for (final Long conceptId : conceptIds) {
-//        final Concept c = getConcept(conceptId);
-//        String prev = "";
-//        for (final String line : writeMrconso(c)) {
-//          if (!line.equals(prev)) {
-//            writerMap.get("MRCONSO.RRF").print(line);
-//          }
-//          prev = line;
-//        }
-//
-//        prev = "";
-//        for (final String line : writeMrdef(c)) {
-//          if (!line.equals(prev)) {
-//            writerMap.get("MRDEF.RRF").print(line);
-//          }
-//          prev = line;
-//        }
-//
-//        prev = "";
-//        for (final String line : writeMrsty(c)) {
-//          if (!line.equals(prev)) {
-//            writerMap.get("MRSTY.RRF").print(line);
-//          }
-//          prev = line;
-//        }
-//        updateProgress();
-//      }
-//    } catch (Exception e) {
-//      Logger.getLogger(getClass()).error(e.getMessage(), e);
-//      exceptions[2] = e;
-//    } finally {
-//      // Close final writers
-//      writerMap.get("MRCONSO.RRF").close();
-//      writerMap.get("MRDEF.RRF").close();
-//      writerMap.get("MRSTY.RRF").close();
-//    }
+    // // Start writing other files
+    // try {
+    // for (final Long conceptId : conceptIds) {
+    // final Concept c = getConcept(conceptId);
+    // String prev = "";
+    // for (final String line : writeMrconso(c)) {
+    // if (!line.equals(prev)) {
+    // writerMap.get("MRCONSO.RRF").print(line);
+    // }
+    // prev = line;
+    // }
+    //
+    // prev = "";
+    // for (final String line : writeMrdef(c)) {
+    // if (!line.equals(prev)) {
+    // writerMap.get("MRDEF.RRF").print(line);
+    // }
+    // prev = line;
+    // }
+    //
+    // prev = "";
+    // for (final String line : writeMrsty(c)) {
+    // if (!line.equals(prev)) {
+    // writerMap.get("MRSTY.RRF").print(line);
+    // }
+    // prev = line;
+    // }
+    // updateProgress();
+    // }
+    // } catch (Exception e) {
+    // Logger.getLogger(getClass()).error(e.getMessage(), e);
+    // exceptions[2] = e;
+    // } finally {
+    // // Close final writers
+    // writerMap.get("MRCONSO.RRF").close();
+    // writerMap.get("MRDEF.RRF").close();
+    // writerMap.get("MRSTY.RRF").close();
+    // }
 
     // Wait for threads
     for (final Thread thread : threads) {
@@ -718,7 +717,7 @@ public class WriteRrfContentFilesAlgorithm
     query = manager.createQuery(
         "select r from ComponentInfoRelationshipJpa r where publishable = true");
     final List<ComponentInfoRelationship> rels = query.getResultList();
-    final Map<String,String> SAUIToAUI = new HashMap<>();
+    final Map<String, String> SAUIToAUI = new HashMap<>();
     for (final ComponentInfoRelationship rel : rels) {
       String key = rel.getTo().getTerminologyId() + rel.getTo().getTerminology()
           + rel.getTo().getVersion() + rel.getTo().getType();
@@ -726,7 +725,7 @@ public class WriteRrfContentFilesAlgorithm
         // AUI+terminology+type
         key = rel.getTo().getTerminologyId() + rel.getTo().getTerminology()
             + rel.getTo().getType();
-        }
+      }
       if (!componentInfoRelMap.containsKey(key)) {
         componentInfoRelMap.put(key, new ArrayList<>());
       }
@@ -849,28 +848,28 @@ public class WriteRrfContentFilesAlgorithm
         + getProcess().getInputPath() + "/" + getProcess().getVersion() + "/"
         + "META");
 
-//    writerMap.put("AMBIGSUI.RRF",
-//        new PrintWriter(new FileWriter(new File(dir, "AMBIGSUI.RRF"))));
-//    writerMap.put("AMBIGLUI.RRF",
-//        new PrintWriter(new FileWriter(new File(dir, "AMBIGLUI.RRF"))));
-//    writerMap.put("MRCONSO.RRF",
-//        new PrintWriter(new FileWriter(new File(dir, "MRCONSO.RRF"))));
-//    writerMap.put("MRDEF.RRF",
-//        new PrintWriter(new FileWriter(new File(dir, "MRDEF.RRF"))));
-//    writerMap.put("MRREL.RRF",
-//        new PrintWriter(new FileWriter(new File(dir, "MRREL.RRF"))));
-//    writerMap.put("MRSTY.RRF",
-//        new PrintWriter(new FileWriter(new File(dir, "MRSTY.RRF"))));
-//    writerMap.put("MRSAT.RRF",
-//        new PrintWriter(new FileWriter(new File(dir, "MRSAT.RRF"))));
+    // writerMap.put("AMBIGSUI.RRF",
+    // new PrintWriter(new FileWriter(new File(dir, "AMBIGSUI.RRF"))));
+    // writerMap.put("AMBIGLUI.RRF",
+    // new PrintWriter(new FileWriter(new File(dir, "AMBIGLUI.RRF"))));
+    // writerMap.put("MRCONSO.RRF",
+    // new PrintWriter(new FileWriter(new File(dir, "MRCONSO.RRF"))));
+    // writerMap.put("MRDEF.RRF",
+    // new PrintWriter(new FileWriter(new File(dir, "MRDEF.RRF"))));
+    // writerMap.put("MRREL.RRF",
+    // new PrintWriter(new FileWriter(new File(dir, "MRREL.RRF"))));
+    // writerMap.put("MRSTY.RRF",
+    // new PrintWriter(new FileWriter(new File(dir, "MRSTY.RRF"))));
+    // writerMap.put("MRSAT.RRF",
+    // new PrintWriter(new FileWriter(new File(dir, "MRSAT.RRF"))));
     writerMap.put("MRHIER.RRF",
         new PrintWriter(new FileWriter(new File(dir, "MRHIER.RRF"))));
-//    writerMap.put("MRHIST.RRF",
-//        new PrintWriter(new FileWriter(new File(dir, "MRHIST.RRF"))));
-//    writerMap.put("MRMAP.RRF",
-//        new PrintWriter(new FileWriter(new File(dir, "MRMAP.RRF"))));
-//    writerMap.put("MRSMAP.RRF",
-//        new PrintWriter(new FileWriter(new File(dir, "MRSMAP.RRF"))));
+    // writerMap.put("MRHIST.RRF",
+    // new PrintWriter(new FileWriter(new File(dir, "MRHIST.RRF"))));
+    // writerMap.put("MRMAP.RRF",
+    // new PrintWriter(new FileWriter(new File(dir, "MRMAP.RRF"))));
+    // writerMap.put("MRSMAP.RRF",
+    // new PrintWriter(new FileWriter(new File(dir, "MRSMAP.RRF"))));
   }
 
   /**
@@ -1594,7 +1593,7 @@ public class WriteRrfContentFilesAlgorithm
         String cui2 = null;
         final Component from =
             service.findComponent(rel.getFrom(), atomContentsMap);
-        if(!from.isPublishable()){
+        if (!from.isPublishable()) {
           continue;
         }
         if (from.getType() == IdType.CONCEPT) {
@@ -1624,15 +1623,16 @@ public class WriteRrfContentFilesAlgorithm
         final Concept scui =
             service.getConcept(atomContentsMap.get(a.getId()).getConceptId());
 
-        if(!scui.isPublishable()){
+        if (!scui.isPublishable()) {
           continue;
         }
-        
+
         if (conceptContentsMap.containsKey(scui.getId())
             && conceptContentsMap.get(scui.getId()).hasRelationships()) {
 
           for (final ConceptRelationship rel : scui.getInverseRelationships()) {
-            if (!rel.isPublishable() || !rel.getFrom().isPublishable() || !rel.getTo().isPublishable()) {
+            if (!rel.isPublishable() || !rel.getFrom().isPublishable()
+                || !rel.getTo().isPublishable()) {
               continue;
             }
 
@@ -2032,11 +2032,12 @@ public class WriteRrfContentFilesAlgorithm
           // e.g. C0001175|A2878223|1|A3316611|SNOMEDCT|isa|
           // A3684559.A3886745.A2880798.A3512117.A3082701.A3316611|||
           final StringBuilder sb = new StringBuilder(200);
-          // If the root string doesn't equal SRC/RHT, write tree-top SRC atom
+
           final String srcRhtName =
               terminologyToSrcRhtNameMap.get(treepos.getTerminology());
-          if ((root != null && !root.equals(srcRhtName))
-              || (root == null && !atom.getName().equals(srcRhtName))) {
+          // If there was no ancestor path and this isn't the tree-top SRC atom,
+          // write tree-top SRC atom
+          if (root == null && !atom.getName().equals(srcRhtName)) {
             sb.append(c.getTerminologyId()).append("|");
             sb.append(aui).append("|");
             sb.append("" + ct++).append("|");
@@ -2048,7 +2049,24 @@ public class WriteRrfContentFilesAlgorithm
             sb.append("|");
             sb.append(treepos.getTerminologyId()).append("|");
             sb.append("|");
-          } else {
+          }
+          // If there was an ancestor path but it did go all the way to the
+          // tree-top SRC atom, prepend the SRC atom to the ptr
+          else if (!root.equals(srcRhtName)) {
+            sb.append(c.getTerminologyId()).append("|");
+            sb.append(aui).append("|");
+            sb.append("" + ct++).append("|");
+            sb.append(paui != null ? paui : "").append("|");
+            sb.append(treepos.getTerminology()).append("|");
+            sb.append(treepos.getAdditionalRelationshipType()).append("|");
+            sb.append(terminologyToSrcAuiMap.get(treepos.getTerminology()))
+                .append(".").append(ptr.toString()).append("|");
+            sb.append(treepos.getTerminologyId()).append("|");
+            sb.append("|");
+          }
+          // If there was an ancestor path and it did go all the way to the
+          // tree-top SRC atom, write out the ptr as-is
+          else {
             sb.append(c.getTerminologyId()).append("|");
             sb.append(aui).append("|");
             sb.append("" + ct++).append("|");
@@ -2059,6 +2077,7 @@ public class WriteRrfContentFilesAlgorithm
             sb.append(treepos.getTerminologyId()).append("|");
             sb.append("|");
           }
+          
           sb.append("\n");
           lines.add(sb.toString());
         }
@@ -2096,11 +2115,12 @@ public class WriteRrfContentFilesAlgorithm
           // e.g. C0001175|A2878223|1|A3316611|SNOMEDCT|isa|
           // A3684559.A3886745.A2880798.A3512117.A3082701.A3316611|||
           final StringBuilder sb = new StringBuilder(200);
-          // If the root string doesn't equal SRC/RHT, write tree-top SRC atom
+
           final String srcRhtName =
               terminologyToSrcRhtNameMap.get(treepos.getTerminology());
-          if ((root != null && !root.equals(srcRhtName))
-              || (root == null && !atom.getName().equals(srcRhtName))) {
+          // If there was no ancestor path and this isn't the tree-top SRC atom,
+          // write tree-top SRC atom
+          if (root == null && !atom.getName().equals(srcRhtName)) {
             sb.append(c.getTerminologyId()).append("|");
             sb.append(aui).append("|");
             sb.append("" + ct++).append("|");
@@ -2112,7 +2132,24 @@ public class WriteRrfContentFilesAlgorithm
             sb.append("|");
             sb.append(treepos.getTerminologyId()).append("|");
             sb.append("|");
-          } else {
+          }
+          // If there was an ancestor path but it did go all the way to the
+          // tree-top SRC atom, prepend the SRC atom to the ptr
+          else if (!root.equals(srcRhtName)) {
+            sb.append(c.getTerminologyId()).append("|");
+            sb.append(aui).append("|");
+            sb.append("" + ct++).append("|");
+            sb.append(paui != null ? paui : "").append("|");
+            sb.append(treepos.getTerminology()).append("|");
+            sb.append(treepos.getAdditionalRelationshipType()).append("|");
+            sb.append(terminologyToSrcAuiMap.get(treepos.getTerminology()))
+                .append(".").append(ptr.toString()).append("|");
+            sb.append(treepos.getTerminologyId()).append("|");
+            sb.append("|");
+          }
+          // If there was an ancestor path and it did go all the way to the
+          // tree-top SRC atom, write out the ptr as-is
+          else {
             sb.append(c.getTerminologyId()).append("|");
             sb.append(aui).append("|");
             sb.append("" + ct++).append("|");
@@ -2122,7 +2159,6 @@ public class WriteRrfContentFilesAlgorithm
             sb.append(ptr.toString()).append("|");
             sb.append(treepos.getTerminologyId()).append("|");
             sb.append("|");
-
           }
 
           sb.append("\n");
@@ -2163,11 +2199,12 @@ public class WriteRrfContentFilesAlgorithm
           // e.g. C0001175|A2878223|1|A3316611|SNOMEDCT|isa|
           // A3684559.A3886745.A2880798.A3512117.A3082701.A3316611|||
           final StringBuilder sb = new StringBuilder(200);
-          // If the root string doesn't equal SRC/RHT, write tree-top SRC atom
+
           final String srcRhtName =
               terminologyToSrcRhtNameMap.get(treepos.getTerminology());
-          if ((root != null && !root.equals(srcRhtName))
-              || (root == null && !atom.getName().equals(srcRhtName))) {
+          // If there was no ancestor path and this isn't the tree-top SRC atom,
+          // write tree-top SRC atom
+          if (root == null && !atom.getName().equals(srcRhtName)) {
             sb.append(c.getTerminologyId()).append("|");
             sb.append(aui).append("|");
             sb.append("" + ct++).append("|");
@@ -2179,7 +2216,24 @@ public class WriteRrfContentFilesAlgorithm
             sb.append("|");
             sb.append(treepos.getTerminologyId()).append("|");
             sb.append("|");
-          } else {
+          }
+          // If there was an ancestor path but it did go all the way to the
+          // tree-top SRC atom, prepend the SRC atom to the ptr
+          else if (!root.equals(srcRhtName)) {
+            sb.append(c.getTerminologyId()).append("|");
+            sb.append(aui).append("|");
+            sb.append("" + ct++).append("|");
+            sb.append(paui != null ? paui : "").append("|");
+            sb.append(treepos.getTerminology()).append("|");
+            sb.append(treepos.getAdditionalRelationshipType()).append("|");
+            sb.append(terminologyToSrcAuiMap.get(treepos.getTerminology()))
+                .append(".").append(ptr.toString()).append("|");
+            sb.append(treepos.getTerminologyId()).append("|");
+            sb.append("|");
+          }
+          // If there was an ancestor path and it did go all the way to the
+          // tree-top SRC atom, write out the ptr as-is
+          else {
             sb.append(c.getTerminologyId()).append("|");
             sb.append(aui).append("|");
             sb.append("" + ct++).append("|");
@@ -2189,7 +2243,6 @@ public class WriteRrfContentFilesAlgorithm
             sb.append(ptr.toString()).append("|");
             sb.append(treepos.getTerminologyId()).append("|");
             sb.append("|");
-
           }
 
           sb.append("\n");
@@ -2229,11 +2282,12 @@ public class WriteRrfContentFilesAlgorithm
           // e.g. C0001175|A2878223|1|A3316611|SNOMEDCT|isa|
           // A3684559.A3886745.A2880798.A3512117.A3082701.A3316611|||
           final StringBuilder sb = new StringBuilder(200);
-          // If the root string doesn't equal SRC/RHT, write tree-top SRC atom
+
           final String srcRhtName =
               terminologyToSrcRhtNameMap.get(treepos.getTerminology());
-          if ((root != null && !root.equals(srcRhtName))
-              || (root == null && !atom.getName().equals(srcRhtName))) {
+          // If there was no ancestor path and this isn't the tree-top SRC atom,
+          // write tree-top SRC atom
+          if (root == null && !atom.getName().equals(srcRhtName)) {
             sb.append(c.getTerminologyId()).append("|");
             sb.append(aui).append("|");
             sb.append("" + ct++).append("|");
@@ -2245,7 +2299,24 @@ public class WriteRrfContentFilesAlgorithm
             sb.append("|");
             sb.append(treepos.getTerminologyId()).append("|");
             sb.append("|");
-          } else {
+          }
+          // If there was an ancestor path but it did go all the way to the
+          // tree-top SRC atom, prepend the SRC atom to the ptr
+          else if (!root.equals(srcRhtName)) {
+            sb.append(c.getTerminologyId()).append("|");
+            sb.append(aui).append("|");
+            sb.append("" + ct++).append("|");
+            sb.append(paui != null ? paui : "").append("|");
+            sb.append(treepos.getTerminology()).append("|");
+            sb.append(treepos.getAdditionalRelationshipType()).append("|");
+            sb.append(terminologyToSrcAuiMap.get(treepos.getTerminology()))
+                .append(".").append(ptr.toString()).append("|");
+            sb.append(treepos.getTerminologyId()).append("|");
+            sb.append("|");
+          }
+          // If there was an ancestor path and it did go all the way to the
+          // tree-top SRC atom, write out the ptr as-is
+          else {
             sb.append(c.getTerminologyId()).append("|");
             sb.append(aui).append("|");
             sb.append("" + ct++).append("|");
@@ -2255,7 +2326,6 @@ public class WriteRrfContentFilesAlgorithm
             sb.append(ptr.toString()).append("|");
             sb.append(treepos.getTerminologyId()).append("|");
             sb.append("|");
-
           }
 
           sb.append("\n");
