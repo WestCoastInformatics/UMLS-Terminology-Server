@@ -724,31 +724,9 @@ public class WriteRrfContentFilesAlgorithm
           + rel.getTo().getVersion() + rel.getTo().getType();
       if (rel.getTo().getType() == IdType.ATOM) {
         // AUI+terminology+type
-        String aui = rel.getToTerminologyId();
-        // If this is a SRC AUI, load the atom and grab the aui instead.
-        if (!aui.startsWith("A")) {
-          final String saui = aui;
-          // Only lookup once per SAUI
-          if (SAUIToAUI.containsKey(saui)) {
-            aui = SAUIToAUI.get(saui);
-          } else {
-            query = manager.createQuery(
-                "select a from AtomJpa a join a.alternateTerminologyIds b where ( KEY(b) = :projectTermSrcKey and b = :srcAui)");
-            query.setParameter("projectTermSrcKey",
-                getProject().getTerminology() + "-SRC");
-            query.setParameter("srcAui", saui);
-            final List<Atom> atoms = query.getResultList();
-            if (atoms.size() != 1) {
-              throw new Exception(
-                  "Unexpected number of results for atom source aui " + saui);
-            }
-            final Atom toAtom = (AtomJpa) atoms.get(0);
-            aui = toAtom.getAlternateTerminologyIds()
-                .get(getProject().getTerminology());
-            SAUIToAUI.put(saui, aui);
-          }
+        key = rel.getTo().getTerminologyId() + rel.getTo().getTerminology()
+            + rel.getTo().getType();
         }
-        key = aui + rel.getToTerminology() + rel.getToVersion();      }
       if (!componentInfoRelMap.containsKey(key)) {
         componentInfoRelMap.put(key, new ArrayList<>());
       }
