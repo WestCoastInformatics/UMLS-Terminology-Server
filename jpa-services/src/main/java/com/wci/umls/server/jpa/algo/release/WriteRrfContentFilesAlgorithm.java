@@ -2036,7 +2036,7 @@ public class WriteRrfContentFilesAlgorithm
           final String srcRhtName =
               terminologyToSrcRhtNameMap.get(treepos.getTerminology());
           // If there was no ancestor path and this isn't the tree-top SRC atom,
-          // write tree-top SRC atom
+          // write the SRC atom as the paui and the ptr
           if (root == null && !atom.getName().equals(srcRhtName)) {
             sb.append(c.getTerminologyId()).append("|");
             sb.append(aui).append("|");
@@ -2052,7 +2052,7 @@ public class WriteRrfContentFilesAlgorithm
           }
           // If there was an ancestor path but it did go all the way to the
           // tree-top SRC atom, prepend the SRC atom to the ptr
-          else if (!root.equals(srcRhtName)) {
+          else if (root != null && !root.equals(srcRhtName)) {
             sb.append(c.getTerminologyId()).append("|");
             sb.append(aui).append("|");
             sb.append("" + ct++).append("|");
@@ -2064,8 +2064,7 @@ public class WriteRrfContentFilesAlgorithm
             sb.append(treepos.getTerminologyId()).append("|");
             sb.append("|");
           }
-          // If there was an ancestor path and it did go all the way to the
-          // tree-top SRC atom, write out the ptr as-is
+          // Otherwise write out the paui and ptr as-constructed
           else {
             sb.append(c.getTerminologyId()).append("|");
             sb.append(aui).append("|");
@@ -2119,7 +2118,7 @@ public class WriteRrfContentFilesAlgorithm
           final String srcRhtName =
               terminologyToSrcRhtNameMap.get(treepos.getTerminology());
           // If there was no ancestor path and this isn't the tree-top SRC atom,
-          // write tree-top SRC atom
+          // write the SRC atom as the paui and the ptr
           if (root == null && !atom.getName().equals(srcRhtName)) {
             sb.append(c.getTerminologyId()).append("|");
             sb.append(aui).append("|");
@@ -2135,7 +2134,7 @@ public class WriteRrfContentFilesAlgorithm
           }
           // If there was an ancestor path but it did go all the way to the
           // tree-top SRC atom, prepend the SRC atom to the ptr
-          else if (!root.equals(srcRhtName)) {
+          else if (root != null && !root.equals(srcRhtName)) {
             sb.append(c.getTerminologyId()).append("|");
             sb.append(aui).append("|");
             sb.append("" + ct++).append("|");
@@ -2147,8 +2146,7 @@ public class WriteRrfContentFilesAlgorithm
             sb.append(treepos.getTerminologyId()).append("|");
             sb.append("|");
           }
-          // If there was an ancestor path and it did go all the way to the
-          // tree-top SRC atom, write out the ptr as-is
+          // Otherwise write out the paui and ptr as-constructed
           else {
             sb.append(c.getTerminologyId()).append("|");
             sb.append(aui).append("|");
@@ -2203,7 +2201,7 @@ public class WriteRrfContentFilesAlgorithm
           final String srcRhtName =
               terminologyToSrcRhtNameMap.get(treepos.getTerminology());
           // If there was no ancestor path and this isn't the tree-top SRC atom,
-          // write tree-top SRC atom
+          // write the SRC atom as the paui and the ptr
           if (root == null && !atom.getName().equals(srcRhtName)) {
             sb.append(c.getTerminologyId()).append("|");
             sb.append(aui).append("|");
@@ -2219,7 +2217,7 @@ public class WriteRrfContentFilesAlgorithm
           }
           // If there was an ancestor path but it did go all the way to the
           // tree-top SRC atom, prepend the SRC atom to the ptr
-          else if (!root.equals(srcRhtName)) {
+          else if (root != null && !root.equals(srcRhtName)) {
             sb.append(c.getTerminologyId()).append("|");
             sb.append(aui).append("|");
             sb.append("" + ct++).append("|");
@@ -2231,8 +2229,7 @@ public class WriteRrfContentFilesAlgorithm
             sb.append(treepos.getTerminologyId()).append("|");
             sb.append("|");
           }
-          // If there was an ancestor path and it did go all the way to the
-          // tree-top SRC atom, write out the ptr as-is
+          // Otherwise write out the paui and ptr as-constructed
           else {
             sb.append(c.getTerminologyId()).append("|");
             sb.append(aui).append("|");
@@ -2286,7 +2283,7 @@ public class WriteRrfContentFilesAlgorithm
           final String srcRhtName =
               terminologyToSrcRhtNameMap.get(treepos.getTerminology());
           // If there was no ancestor path and this isn't the tree-top SRC atom,
-          // write tree-top SRC atom
+          // write the SRC atom as the paui and the ptr
           if (root == null && !atom.getName().equals(srcRhtName)) {
             sb.append(c.getTerminologyId()).append("|");
             sb.append(aui).append("|");
@@ -2302,7 +2299,7 @@ public class WriteRrfContentFilesAlgorithm
           }
           // If there was an ancestor path but it did go all the way to the
           // tree-top SRC atom, prepend the SRC atom to the ptr
-          else if (!root.equals(srcRhtName)) {
+          else if (root != null && !root.equals(srcRhtName)) {
             sb.append(c.getTerminologyId()).append("|");
             sb.append(aui).append("|");
             sb.append("" + ct++).append("|");
@@ -2314,8 +2311,7 @@ public class WriteRrfContentFilesAlgorithm
             sb.append(treepos.getTerminologyId()).append("|");
             sb.append("|");
           }
-          // If there was an ancestor path and it did go all the way to the
-          // tree-top SRC atom, write out the ptr as-is
+          // Otherwise write out the paui and ptr as-constructed
           else {
             sb.append(c.getTerminologyId()).append("|");
             sb.append(aui).append("|");
