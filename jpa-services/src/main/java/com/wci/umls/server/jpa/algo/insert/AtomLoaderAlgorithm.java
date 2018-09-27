@@ -551,7 +551,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     if (!atom.getDescriptorId().isEmpty()) {
 
       final Descriptor existingDescriptor =
-          (Descriptor) getComponent("SOURCE_DUI", atom.getConceptId(),
+          (Descriptor) getComponent("SOURCE_DUI", atom.getDescriptorId(),
               atom.getTerminology(), null);
       if (existingDescriptor != null) {
         if (!existingDescriptor.getAtoms().contains(atom)) {
