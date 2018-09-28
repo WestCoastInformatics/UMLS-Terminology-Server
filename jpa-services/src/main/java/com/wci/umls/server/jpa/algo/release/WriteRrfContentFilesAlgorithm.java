@@ -679,32 +679,34 @@ public class WriteRrfContentFilesAlgorithm
         + "from ConceptRelationshipJpa r join r.attributes a "
         + "where r.terminology != :terminology");
     query.setParameter("terminology", getProject().getTerminology());
-    final List<String> results = query.getResultList();
+    List<String> results = query.getResultList();
     for (final String result : results) {
       ruiAttributeTerminologies.add(result);
     }
 
-    // TBD: because only concept relationships have RUI attributes so far
-    // query = manager.createQuery("select distinct r.terminology "
-    // + "from CodeRelationshipJpa r join r.attributes a "
-    // + "where r.terminology != :terminology");
-    // query.setParameter("terminology", getProject().getTerminology());
-    // results = query.getResultList();
-    // for (final String result : results) {
-    // ruiAttributeTerminologies.add(result);
-    // }
+    query = manager.createQuery("select distinct r.terminology "
+        + "from CodeRelationshipJpa r join r.attributes a "
+        + "where r.terminology != :terminology");
+    query.setParameter("terminology", getProject().getTerminology());
+    results = query.getResultList();
+    for (final String result : results) {
+      ruiAttributeTerminologies.add(result);
+    }
+
+    query = manager.createQuery("select distinct r.terminology "
+        + "from DescriptorRelationshipJpa r join r.attributes a "
+        + "where r.terminology != :terminology");
+    query.setParameter("terminology", getProject().getTerminology());
+    results = query.getResultList();
+    for (final String result : results) {
+      ruiAttributeTerminologies.add(result);
+    }
+
+    // TBD: because only atom and component info rels don't have RUI attributes
+    // so far
     //
     // query = manager.createQuery("select distinct r.terminology "
-    // + "from CodeRelationshipJpa r join r.attributes a "
-    // + "where r.terminology != :terminology");
-    // query.setParameter("terminology", getProject().getTerminology());
-    // results = query.getResultList();
-    // for (final String result : results) {
-    // ruiAttributeTerminologies.add(result);
-    // }
-    //
-    // query = manager.createQuery("select distinct r.terminology "
-    // + "from CodeRelationshipJpa r join r.attributes a "
+    // + "from AtomRelationshipJpa r join r.attributes a "
     // + "where r.terminology != :terminology");
     // query.setParameter("terminology", getProject().getTerminology());
     // results = query.getResultList();
@@ -2766,7 +2768,43 @@ public class WriteRrfContentFilesAlgorithm
         }
 
         // Code relationship attributes (RUIs)
-        // TBD - no data at this point in time
+        if (ruiAttributeTerminologies.contains(code.getTerminology())) {
+          for (final CodeRelationship rel : code.getInverseRelationships()) {
+            if (!rel.isPublishable()) {
+              continue;
+            }
+
+            for (final Attribute attribute : rel.getAttributes()) {
+              if (!attribute.isPublishable()) {
+                continue;
+              }
+              final StringBuilder sb = new StringBuilder(200);
+              sb.append(c.getTerminologyId()).append("|");
+              sb.append("|");
+              sb.append("|");
+              sb.append(relCodeRuiMap.get(rel.getId())).append("|");
+              sb.append("RUI").append("|");
+              sb.append("|");
+              final String atui = attAtuiMap.get(attribute.getId());
+              sb.append(atui != null ? atui : "").append("|");
+              sb.append(attribute.getTerminologyId() != null
+                  ? attribute.getTerminologyId() : "").append("|");
+              sb.append(attribute.getName()).append("|");
+              sb.append(attribute.getTerminology()).append("|");
+              sb.append(attribute.getValue()).append("|");
+              if (attribute.isObsolete()) {
+                sb.append("O");
+              } else if (attribute.isSuppressible()) {
+                sb.append("Y");
+              } else {
+                sb.append("N");
+              }
+              // CVF
+              sb.append("||\n");
+              lines.add(sb.toString());
+            }
+          }
+        }
 
       }
 
@@ -2809,14 +2847,49 @@ public class WriteRrfContentFilesAlgorithm
         }
 
         // Descriptor relationship attributes (RUIs)
-        // TBD - no data yet
+        if (ruiAttributeTerminologies.contains(sdui.getTerminology())) {
+          for (final DescriptorRelationship rel : sdui.getInverseRelationships()) {
+            if (!rel.isPublishable()) {
+              continue;
+            }
+
+            for (final Attribute attribute : rel.getAttributes()) {
+              if (!attribute.isPublishable()) {
+                continue;
+              }
+              final StringBuilder sb = new StringBuilder(200);
+              sb.append(c.getTerminologyId()).append("|");
+              sb.append("|");
+              sb.append("|");
+              sb.append(relDescriptorRuiMap.get(rel.getId())).append("|");
+              sb.append("RUI").append("|");
+              sb.append("|");
+              final String atui = attAtuiMap.get(attribute.getId());
+              sb.append(atui != null ? atui : "").append("|");
+              sb.append(attribute.getTerminologyId() != null
+                  ? attribute.getTerminologyId() : "").append("|");
+              sb.append(attribute.getName()).append("|");
+              sb.append(attribute.getTerminology()).append("|");
+              sb.append(attribute.getValue()).append("|");
+              if (attribute.isObsolete()) {
+                sb.append("O");
+              } else if (attribute.isSuppressible()) {
+                sb.append("Y");
+              } else {
+                sb.append("N");
+              }
+              // CVF
+              sb.append("||\n");
+              lines.add(sb.toString());
+            }
+          }
+        }
       }
 
     } // end for (c.getAtoms)
     Collections.sort(lines);
     return lines;
   }
-
   /**
    * Write ambig.
    *
