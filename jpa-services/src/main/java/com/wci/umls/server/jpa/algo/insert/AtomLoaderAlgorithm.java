@@ -218,6 +218,9 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         // In this case, skip to the next line
         if (oldAtom != null
             && oldAtom.getVersion().equals(newAtom.getVersion())) {
+          
+          reconcileCodeConceptDescriptor(oldAtom);
+          
           // Update the progress
           updateProgress();
           handler.silentIntervalCommit(getStepsCompleted(), RootService.logCt,

@@ -36,6 +36,7 @@ import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
+import com.wci.umls.server.jpa.services.ProcessServiceJpa;
 import com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
@@ -44,12 +45,14 @@ import com.wci.umls.server.model.content.ComponentInfoRelationship;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Definition;
+import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.RelationshipIdentity;
 import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
+import com.wci.umls.server.services.ProcessService;
 import com.wci.umls.server.services.UmlsIdentityService;
 
 /**
@@ -148,9 +151,13 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixTerminologyNames();
     } else if (actionName.equals("Fix RHT Atoms")) {
       fixRHTAtoms();
+    } else if (actionName.equals("Fix MDR Descriptors")) {
+      fixMDRDescriptors();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
+    
+    
     
     commitClearBegin();
 
@@ -1869,6 +1876,74 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
   }
 
+  private void fixMDRDescriptors() throws Exception {
+    // 9/27/2018 Discovered that existing MDR descriptors weren't getting during insertion, but instead new ones were being created.
+    // We need to:
+    // 1) Remove MDR descriptors not brought over by MEME4 loader
+    // 2) Set MDR descriptors loaded by MEME4 that are publishable=false to publishable=true (so they can be picked up by the atom loader)
+    // 3) Re-run the atom loader to update reused descriptors to current version (done in separate Atom Loader algo)
+    // 4) Re-run attribute loader for SDUI attributes, to ensure all descriptor attributes are attached accordingly (done in separate Replace Attribute algo)
+    // 5) Set descriptors that were not updated to publishable=false (done in separate Update Releasibility algo)
+ 
+    int removedDescriptors = 0;
+    int updatedDescriptors = 0;
+
+    try {
+
+      // Remove descriptors created by insertions
+      Query query = getEntityManager().createNativeQuery(
+          "select id from descriptors where terminology='MDR' and version!='20_0'");
+      List<Object> list = query.getResultList();
+
+      // Set publishable=false MDR descriptors to publishable=true
+      Query query2 = getEntityManager().createNativeQuery(
+          "select id from descriptors where terminology='MDR' and version='20_0' and publishable=false");
+      List<Object> list2 = query2.getResultList();
+   
+            setSteps(list.size() + list2.size());
+
+      logInfo(" Remove MDR descriptors created by insertions");
+      
+      logInfo("[FixMDRDesciptors] "
+          + list.size()
+          + " descriptors created by insertions identified");
+      
+      for (final Object entry : list) {
+        final Long descriptorId = Long.valueOf(entry.toString());
+        removeDescriptor(descriptorId);
+        removedDescriptors++;
+        updateProgress();        
+      }
+      
+      logInfo(" Set MDR descriptors loaded from MEME4 to publishable=true");
+      logInfo("[FixMDRDesciptors] "
+          + list2.size()
+          + " descriptors that need to be set to publishable=true");
+      
+      for (final Object entry : list2) {
+        final Long descriptorId = Long.valueOf(entry.toString());
+        Descriptor descriptor = getDescriptor(descriptorId);
+        descriptor.setPublishable(true);
+        updateDescriptor(descriptor);
+        updatedDescriptors++;
+        updateProgress();        
+      }
+            
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+      // n/a
+    }
+
+    logInfo("Removed " + removedDescriptors
+        + " MDR descriptors created by insertions.");
+    logInfo("Updated " + updatedDescriptors
+        + " loaded MDR descriptors tp publishable=true.");
+    logInfo("Finished " + getName());
+        
+  }
+
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -1918,7 +1993,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Set Stamped Worklists To Ready For Publication",
             "Add Disposition Atoms", "Fix RelGroups", "Fix Source Level Rels",
             "Fix AdditionalRelType Inverses", "Fix Snomed Family",
-            "Turn off CTRP-SDC", "Fix Terminology Names","Fix RHT Atoms"));
+            "Turn off CTRP-SDC", "Fix Terminology Names","Fix RHT Atoms", "Fix MDR Descriptors"));
     params.add(param);
 
     return params;
