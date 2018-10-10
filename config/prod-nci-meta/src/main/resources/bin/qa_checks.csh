@@ -175,6 +175,14 @@ else if ($target == "MRAUI") then
         echo "ERROR: NO Current Version $cur_ver AUI found in MRAUI"
      endif
 
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mraui | wc -l` < `cat $old_mraui | wc -l`) then
+        echo "ERROR: MRAUI must have larger byte count than previous version MRAUI"
+    endif
+
 
 else if ($target == "AMBIG") then
 
