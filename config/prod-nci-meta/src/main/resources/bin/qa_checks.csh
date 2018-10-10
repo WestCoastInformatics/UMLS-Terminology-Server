@@ -27,8 +27,6 @@ set mrhist=$dir/MRHIST.RRF
 set mrcoc=$dir/MRCOC.RRF
 set mrconso=$dir/MRCONSO.RRF
 set mrcui=$dir/MRCUI.RRF
-set old_mrcui=$prev_released_dir/MRCUI.RRF
-set old_mrconso=$prev_released_dir/MRCONSO.RRF
 set deleted_cui=$dir/CHANGE/DELETEDCUI.RRF
 set deleted_lui=$dir/CHANGE/DELETEDLUI.RRF
 set deleted_sui=$dir/CHANGE/DELETEDSUI.RRF
@@ -40,7 +38,6 @@ set mrdef=$dir/MRDEF.RRF
 set mrdoc=$dir/MRDOC.RRF
 set mrfiles=$dir/MRFILES.RRF
 set mrcols=$dir/MRCOLS.RRF
-#set mrlo=$dir/MRLO.RRF
 set mrrank=$dir/MRRANK.RRF
 set mrrel=$dir/MRREL.RRF
 set mrsab=$dir/MRSAB.RRF
@@ -50,6 +47,31 @@ set mrxw=$dir/MRXW
 set mrxnw=$dir/MRXNW_ENG.RRF
 set mrxns=$dir/MRXNS_ENG.RRF
 set mraui=$dir/MRAUI.RRF
+set old_mrcui=$prev_released_dir/MRCUI.RRF
+set old_mrconso=$prev_released_dir/MRCONSO.RRF
+set old_ambig_sui=$prev_released_dir/AMBIGSUI.RRF
+set old_ambig_lui=$prev_released_dir/AMBIGLUI.RRF
+set old_mrmap=$prev_released_dir/MRMAP.RRF
+set old_mrsmap=$prev_released_dir/MRSMAP.RRF
+set old_mrhist=$prev_released_dir/MRHIST.RRF
+set old_mrcoc=$prev_released_dir/MRCOC.RRF
+set old_mrconso=$prev_released_dir/MRCONSO.RRF
+set old_mrcui=$prev_released_dir/MRCUI.RRF
+set old_mrcxt=$prev_released_dir/MRCXT.RRF
+set old_mrhier=$prev_released_dir/MRHIER.RRF
+set old_mrdef=$prev_released_dir/MRDEF.RRF
+set old_mrdoc=$prev_released_dir/MRDOC.RRF
+set old_mrfiles=$prev_released_dir/MRFILES.RRF
+set old_mrcols=$prev_released_dir/MRCOLS.RRF
+set old_mrrank=$prev_released_dir/MRRANK.RRF
+set old_mrrel=$prev_released_dir/MRREL.RRF
+set old_mrsab=$prev_released_dir/MRSAB.RRF
+set old_mrsat=$prev_released_dir/MRSAT.RRF
+set old_mrsty=$prev_released_dir/MRSTY.RRF
+set old_mrxw=$prev_released_dir/MRXW
+set old_mrxnw=$prev_released_dir/MRXNW_ENG.RRF
+set old_mrxns=$prev_released_dir/MRXNS_ENG.RRF
+set old_mraui=$prev_released_dir/MRAUI.RRF
 
 set notMini = 1
 if (`cat $mrhier | wc -l` > 1000) {
@@ -66,7 +88,11 @@ else if ($target == "MRAUI") then
     if (! -e $mraui) then
 		echo "ERROR: required file $mraui cannot be found"
 		exit 1
-	    endif
+	endif
+	if (! -e $old_mraui) then
+		echo "ERROR: required file $old_mraui cannot be found"
+		exit 1
+	endif
     if (! -e $mrdoc) then
         echo "ERROR: required file $mrdoc cannot be found"
 		exit 1
@@ -142,8 +168,9 @@ else if ($target == "MRAUI") then
     echo "    Verify sort order"
     sort -c -u $mraui >> /dev/null
     if ($status != 0) then
-	echo "ERROR: MRAUI has incorrect sort order"
+		echo "ERROR: MRAUI has incorrect sort order"
     endif
+    
       #
       # Verify if current Version Exists
       #
@@ -152,6 +179,14 @@ else if ($target == "MRAUI") then
      if ($cnt != 0) then
         echo "ERROR: NO Current Version $cur_ver AUI found in MRAUI"
      endif
+
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mraui | wc -l` < `cat $old_mraui | wc -l`) then
+        echo "ERROR: MRAUI must have larger byte count than previous version MRAUI"
+    endif
 
 
 else if ($target == "AMBIG") then
@@ -166,6 +201,14 @@ else if ($target == "AMBIG") then
     endif
     if (! -e $ambig_lui) then
 	echo "ERROR: required file $ambig_lui cannot be found"
+	exit 1
+    endif
+    if (! -e $old_ambig_sui) then
+	echo "ERROR: required file $old_ambig_sui cannot be found"
+	exit 1
+    endif
+    if (! -e $old_ambig_lui) then
+	echo "ERROR: required file $old_ambig_lui cannot be found"
 	exit 1
     endif
     if (! -e $mrconso) then
@@ -241,6 +284,14 @@ else if ($target == "AMBIG") then
     endif
 
     #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $ambig_sui | wc -l` < `cat $old_ambig_sui | wc -l`) then
+        echo "ERROR: AMBIGSUI must have larger byte count than previous version AMBIGSUI"
+    endif
+    
+    #
     #   Verify cl_cnt equals the ambiguous LUI count from MRCONSO
     #
     echo "    Verify cl_cnt equals the ambiguous LUI count from MRCONSO"
@@ -280,6 +331,14 @@ else if ($target == "AMBIG") then
     if ($status != 0) then
 	echo "ERROR: $ambig_lui has incorrect sort order"
     endif
+    
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $ambig_lui | wc -l` < `cat $old_ambig_lui | wc -l`) then
+        echo "ERROR: AMBIGLUI must have larger byte count than previous version AMBIGLUI"
+    endif
 
 else if ($target == "MRHIST") then
 
@@ -289,6 +348,10 @@ else if ($target == "MRHIST") then
     echo "    Verify required files"
     if (! -e $mrhist) then
 	echo "ERROR: required file $mrhist cannot be found"
+	exit 1
+    endif
+    if (! -e $old_mrhist) then
+	echo "ERROR: required file $old_mrhist cannot be found"
 	exit 1
     endif
     if (! -e $mrconso) then
@@ -359,6 +422,14 @@ endif
         echo "ERROR: MRHIST has incorrect sort order"
     endif
 
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrhist | wc -l` < `cat $old_mrhist | wc -l`) then
+        echo "ERROR: MRHIST must have larger byte count than previous version MRHIST"
+    endif
+    
 else if ($target == "MRMAP") then
 
     #
@@ -367,6 +438,10 @@ else if ($target == "MRMAP") then
     echo "    Verify required files"
     if (! -e $mrmap) then
 	echo "ERROR: required file $mrmap cannot be found"
+	exit 1
+    endif
+    if (! -e $old_mrmap) then
+	echo "ERROR: required file $old_mrmap cannot be found"
 	exit 1
     endif
     if (! -e $mrdoc) then
@@ -620,6 +695,13 @@ perl -ne '@_ = split /\|/; print unless /^C.\d{6}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*
         echo "ERROR: MRMAP has incorrect sort order"
     endif
 
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrmap | wc -l` < `cat $old_mrmap | wc -l`) then
+        echo "ERROR: MRMAP must have larger byte count than previous version MRMAP"
+    endif
 
 else if ($target == "MRCONSO") then
 
@@ -629,6 +711,10 @@ else if ($target == "MRCONSO") then
     echo "    Verify required files"
     if (! -e $mrconso) then
 	echo "ERROR: required file $mrconso cannot be found"
+	exit 1
+    endif
+    if (! -e $old_mrconso) then
+	echo "ERROR: required file $old_mrconso cannot be found"
 	exit 1
     endif
     if (! -e $mrdoc) then
@@ -1072,6 +1158,14 @@ endif
 	echo "ERROR: MRCONSO has incorrect sort order"
     endif
 
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrconso | wc -l` < `cat $old_mrconso | wc -l`) then
+        echo "ERROR: MRCONSO must have larger byte count than previous version MRCONSO"
+    endif
+    
 else if ($target == "MRCUI") then
 
     #
@@ -1274,6 +1368,14 @@ else if ($target == "MRCUI") then
     endif
 
     #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrcui | wc -l` < `cat $old_mrcui | wc -l`) then
+        echo "ERROR: MRCUI must have larger byte count than previous version MRCUI"
+    endif
+    
+    #
     #   Verify field formats
     #
     echo "    Verify field formats: $deleted_cui"
@@ -1303,7 +1405,7 @@ else if ($target == "MRCUI") then
     if ($status != 0) then
         echo "ERROR: DELETED.CUI has incorrect sort order"
     endif
-
+    
     #
     #   Verify field formats
     #
@@ -1335,6 +1437,7 @@ else if ($target == "MRCUI") then
         echo "ERROR: DELETED.LUI has incorrect sort order"
     endif
 
+    
     #
     #   Verify field formats
     #
@@ -1378,7 +1481,7 @@ else if ($target == "MRCUI") then
     if ($status != 0) then
         echo "ERROR: DELETED.SUI has incorrect sort order"
     endif
-
+    
     #
     #   Verify field formats
     #
@@ -1433,7 +1536,7 @@ else if ($target == "MRCUI") then
     if ($status != 0) then
         echo "ERROR: MERGED.CUI has incorrect sort order"
     endif
-
+    
     #
     #   Verify field formats
     #
@@ -1477,8 +1580,6 @@ else if ($target == "MRCUI") then
         echo "ERROR: MERGED.LUI has incorrect sort order"
     endif
 
-
-
 else if ($target == "MRHIER") then
 
     #
@@ -1487,6 +1588,10 @@ else if ($target == "MRHIER") then
     echo "    Verify required files"
     if (! -e $mrhier) then
 	echo "ERROR: required file $mrhier cannot be found"
+	exit 1
+    endif
+    if (! -e $old_mrhier) then
+	echo "ERROR: required file $old_mrhier cannot be found"
 	exit 1
     endif
     if (! -e $mrdoc) then
@@ -1616,6 +1721,14 @@ else if ($target == "MRHIER") then
         echo "ERROR: MRHIER has incorrect sort order"
     endif
 
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrhier | wc -l` < `cat $old_mrhier | wc -l`) then
+        echo "ERROR: MRHIER must have larger byte count than previous version MRHIER"
+    endif
+    
 else if ($target == "MRDEF") then
 
     #
@@ -1624,6 +1737,10 @@ else if ($target == "MRDEF") then
     echo "    Verify required files"
     if (! -e $mrdef) then
 	echo "ERROR: required file $mrdef cannot be found"
+	exit 1
+    endif
+    if (! -e $old_mrdef) then
+	echo "ERROR: required file $old_mrdef cannot be found"
 	exit 1
     endif
     if (! -e $mrconso) then
@@ -1749,6 +1866,14 @@ else if ($target == "MRDEF") then
         echo "ERROR: MRDEF has incorrect sort order"
     endif
 
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrdef | wc -l` < `cat $old_mrdef | wc -l`) then
+        echo "ERROR: MRDEF must have larger byte count than previous version MRDEF"
+    endif
+    
 else if ($target == "MRFILESCOLS") then
 
     #
@@ -1761,6 +1886,10 @@ else if ($target == "MRFILESCOLS") then
     endif
     if (! -e $mrcols) then
 	echo "ERROR: required file $mrcols cannot be found"
+	exit 1
+    endif
+    if (! -e $old_mrcols) then
+	echo "ERROR: required file $old_mrcols cannot be found"
 	exit 1
     endif
 
@@ -1828,7 +1957,7 @@ else if ($target == "MRFILESCOLS") then
     if ($status != 0) then
         echo "ERROR: MRFILES has incorrect sort order"
     endif
-
+    
     #
     #   Verify field formats
     #
@@ -1972,6 +2101,10 @@ else if ($target == "MRFILESCOLS") then
         echo "ERROR: MRCOLS has incorrect sort order"
     endif
 
+    echo "    Verify file size"
+    if (`cat $mrcols | wc -l` < `cat $old_mrcols | wc -l`) then
+        echo "ERROR: MRCOLS must have larger byte count than previous version MRCOLS"
+    endif
 
 else if ($target == "MRRANK") then
 
@@ -1981,6 +2114,10 @@ else if ($target == "MRRANK") then
     echo "    Verify required files"
     if (! -e $mrrank) then
 	echo "ERROR: required file $mrrank cannot be found"
+	exit 1
+    endif
+    if (! -e $old_mrrank) then
+	echo "ERROR: required file $old_mrrank cannot be found"
 	exit 1
     endif
     if (! -e $mrdoc) then
@@ -2073,6 +2210,14 @@ else if ($target == "MRRANK") then
     if ($status != 0) then
         echo "ERROR: MRRANK has incorrect sort order"
     endif
+    
+        #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrrank | wc -l` < `cat $old_mrrank | wc -l`) then
+        echo "ERROR: MRRANK must have larger byte count than previous version MRRANK"
+    endif
 
 else if ($target == "MRREL") then
 
@@ -2082,6 +2227,10 @@ else if ($target == "MRREL") then
     echo "    Verify required files"
     if (! -e $mrrel) then
 	echo "ERROR: required file $mrrel cannot be found"
+	exit 1
+    endif
+    if (! -e $old_mrrel) then
+	echo "ERROR: required file $old_mrrel cannot be found"
 	exit 1
     endif
     if (! -e $mrdoc) then
@@ -2343,6 +2492,14 @@ endif
         echo "ERROR: MRREL has incorrect sort order"
     endif
 
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrrel | wc -l` < `cat $old_mrrel | wc -l`) then
+        echo "ERROR: MRREL must have larger byte count than previous version MRREL"
+    endif
+    
 else if ($target == "MRSAB") then
 
     #
@@ -2446,6 +2603,13 @@ else if ($target == "MRSAB") then
         echo "ERROR: MRSAB has incorrect sort order"
     endif
 
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrsab | wc -l` < `cat $old_mrsab | wc -l`) then
+        echo "ERROR: MRSAB must have larger byte count than previous version MRSAB"
+    endif
 
 else if ($target == "MRSAT") then
 
@@ -2455,6 +2619,10 @@ else if ($target == "MRSAT") then
     echo "    Verify required files"
     if (! -e $mrsat) then
 	echo "ERROR: required file $mrsat cannot be found"
+	exit 1
+    endif
+    if (! -e $old_mrsat) then
+	echo "ERROR: required file $old_mrsat cannot be found"
 	exit 1
     endif
     if (! -e $mrdoc) then
@@ -2701,6 +2869,14 @@ endif
         echo "ERROR: MRSAT has incorrect sort order"
     endif
 
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrsat | wc -l` < `cat $old_mrsat | wc -l`) then
+        echo "ERROR: MRSAT must have larger byte count than previous version MRSAT"
+    endif
+    
 else if ($target == "MRSTY") then
 
     #
@@ -2710,6 +2886,10 @@ else if ($target == "MRSTY") then
 
     if (! -e $mrsty) then
 	echo "ERROR: required file $mrsty cannot be found"
+	exit 1
+    endif
+    if (! -e $old_mrsty) then
+	echo "ERROR: required file $old_mrsty cannot be found"
 	exit 1
     endif
     if (! -e $mrconso) then
@@ -2831,6 +3011,14 @@ else if ($target == "MRSTY") then
         echo "ERROR: MRSTY has incorrect sort order"
     endif
 
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrsty | wc -l` < `cat $old_mrsty | wc -l`) then
+        echo "ERROR: MRSTY must have larger byte count than previous version MRSTY"
+    endif
+    
 else if ($target == "MRDOC") then
 
     #
@@ -2908,6 +3096,16 @@ else if ($target == "MRX") then
 	exit 1
     endif
 
+	if (! -e $old_mrxns) then
+	echo "ERROR: required file $old_mrxns cannot be found"
+	exit 1
+    endif
+
+    if (! -e $old_mrxnw) then
+	echo "ERROR: required file $old_mrxnw cannot be found"
+	exit 1
+    endif
+    
     if (! -e $mrdoc) then
 	echo "ERROR: required file $mrdoc cannot be found"
 	exit 1
@@ -3082,6 +3280,22 @@ else if ($target == "MRX") then
     end
     rm -f mrx.lats.$$
 
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrxns | wc -l` < `cat $old_mrxns | wc -l`) then
+        echo "ERROR: MRXNS_ENG must have larger byte count than previous version MRXNS_ENG"
+    endif
+    
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrxnw | wc -l` < `cat $old_mrxnw | wc -l`) then
+        echo "ERROR: MRXNW_ENG must have larger byte count than previous version MRXNW_ENG"
+    endif
+    
 else
 
     echo "    Verify valid target"
