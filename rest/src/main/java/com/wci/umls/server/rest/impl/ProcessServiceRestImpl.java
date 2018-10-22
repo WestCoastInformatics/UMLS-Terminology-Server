@@ -2003,7 +2003,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
                   "[Terminology Server] Run Complete for Process: "
                       + processExecution.getName(),
                   from, recipients, processService.getProcessLog(projectId,
-                      processExecutionId, null),
+                      processExecutionId, null, 1000),
                   config);
             }
           }
@@ -2080,7 +2080,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
                       + processExecution.getName() + " at Algorithm step: "
                       + algorithmExecution.getName(),
                   from, recipients, processService.getProcessLog(projectId,
-                      processExecutionId, null),
+                      processExecutionId, null, 100),
                   config);
             } catch (Exception e2) {
               e2.printStackTrace();
@@ -2138,7 +2138,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           "getting the process execution log entries", UserRole.AUTHOR);
       processService.setLastModifiedBy(userName);
 
-      return processService.getProcessLog(projectId, processExecutionId, query);
+      return processService.getProcessLog(projectId, processExecutionId, query, 0);
     } catch (Exception e) {
       handleException(e, "trying to get the process execution log entries");
       return null;
