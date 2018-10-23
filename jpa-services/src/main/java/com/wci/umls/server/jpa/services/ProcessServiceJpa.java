@@ -655,12 +655,15 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
   /* see superclass */
   @Override
   public String getProcessLog(Long projectId, Long processExecutionId,
-    String query) throws Exception {
+    String query, int limit) throws Exception {
 
     final PfsParameter pfs = new PfsParameterJpa();
     pfs.setStartIndex(0);
     pfs.setAscending(false);
     pfs.setSortField("lastModified");
+    if (limit!=0) {
+      pfs.setMaxResults(limit);
+    }
 
     // Load the processExecution, to get the workId
     ProcessExecution processExecution = getProcessExecution(processExecutionId);
@@ -726,7 +729,7 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
 
     final PrintWriter out = new PrintWriter(new FileWriter(outputFile));
     String processLog =
-        getProcessLog(projectId, processExecution.getId(), null);
+        getProcessLog(projectId, processExecution.getId(), null, 10000);
     out.print(processLog);
     out.close();
 

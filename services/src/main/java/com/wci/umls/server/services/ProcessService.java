@@ -240,11 +240,12 @@ public interface ProcessService extends ProjectService {
    * @param projectId the project id
    * @param processExecutionId the process execution id
    * @param query the query
+   * @param limit the limit (0 = don't limit, >0 = set limit on number of lines returned)
    * @return the process log
    * @throws Exception the exception
    */
   public String getProcessLog(Long projectId, Long processExecutionId,
-    String query) throws Exception;
+    String query, int limit) throws Exception;
 
   /**
    * Save log to file.
