@@ -38,6 +38,7 @@ import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
 import com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa;
+import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
@@ -54,6 +55,7 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.services.ProcessService;
 import com.wci.umls.server.services.UmlsIdentityService;
+import com.wci.umls.server.services.WorkflowService;
 
 /**
  * Implementation of an algorithm to execute an action based on a user-defined
@@ -153,6 +155,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixRHTAtoms();
     } else if (actionName.equals("Fix MDR Descriptors")) {
       fixMDRDescriptors();
+    } else if (actionName.equals("Clear Worklists and Checklists")) {
+      removeOldWorklistsChecklists();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -1943,6 +1947,71 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
         
   }
+  
+  private void removeOldWorklistsChecklists() throws Exception {
+    // 10/22/2018 Remove old worklists and checklists that should have
+    // been removed during release process cleanup
+
+    int removals = 0;
+    
+    WorkflowService workflowService = new WorkflowServiceJpa();
+    workflowService.setLastModifiedBy("admin");
+
+    
+    Set<Long> worklistIdsToRemove = new HashSet<>();
+    Set<Long> checklistIdsToRemove = new HashSet<>();
+
+    // Get worklists
+    Query query = getEntityManager().createQuery("select a.id from "
+        + "WorklistJpa a where epoch = '17b'");
+        
+
+    logInfo("[RemoveOldWorklistsChecklists] Loading ");
+
+    List<Object> list = query.getResultList();
+    for (final Object entry : list) {
+      final Long id = Long.valueOf(entry.toString());
+      worklistIdsToRemove.add(id);
+    }
+    
+    // Get checklists
+    query = getEntityManager().createQuery("select a.id from "
+        + "ChecklistJpa a where timestamp < '2018-08-23'");
+        
+
+    logInfo("[RemoveOldWorklistsChecklists] Loading ");
+
+    list = query.getResultList();
+    for (final Object entry : list) {
+      final Long id = Long.valueOf(entry.toString());
+      checklistIdsToRemove.add(id);
+    }
+
+    setSteps(checklistIdsToRemove.size() + worklistIdsToRemove.size());
+
+    logInfo("[RemoveOldWorklistsChecklists] " + checklistIdsToRemove.size()
+        + " checklists to be removed");
+
+    // Remove checklists
+    for (Long id : checklistIdsToRemove) {
+      logInfo("[RemoveOldWorklistsChecklists] " + id);
+      workflowService.removeChecklist(id, true);
+      updateProgress();
+      removals++;
+    }
+    
+    // Remove worklists
+    for (Long id : worklistIdsToRemove) {
+      logInfo("[RemoveOldWorklistsChecklists] " + id);
+      workflowService.removeWorklist(id, true);
+      updateProgress();
+      removals++;
+    }
+
+    logInfo("[RemoveOldWorklistsChecklists] " + removals
+        + " lists successfully removed.");
+
+  }
 
   /* see superclass */
   @Override
@@ -1993,7 +2062,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Set Stamped Worklists To Ready For Publication",
             "Add Disposition Atoms", "Fix RelGroups", "Fix Source Level Rels",
             "Fix AdditionalRelType Inverses", "Fix Snomed Family",
-            "Turn off CTRP-SDC", "Fix Terminology Names","Fix RHT Atoms", "Fix MDR Descriptors"));
+            "Turn off CTRP-SDC", "Fix Terminology Names","Fix RHT Atoms", "Fix MDR Descriptors",
+            "Clear Worklists and Checklists"));
     params.add(param);
 
     return params;

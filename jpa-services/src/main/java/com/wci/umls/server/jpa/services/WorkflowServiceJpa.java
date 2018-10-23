@@ -26,6 +26,7 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.SearchResultList;
@@ -33,6 +34,7 @@ import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorkflowConfigList;
 import com.wci.umls.server.helpers.WorklistList;
+import com.wci.umls.server.jpa.actions.ChangeEventJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
@@ -40,12 +42,15 @@ import com.wci.umls.server.jpa.helpers.TrackingRecordListJpa;
 import com.wci.umls.server.jpa.helpers.WorkflowConfigListJpa;
 import com.wci.umls.server.jpa.helpers.WorklistListJpa;
 import com.wci.umls.server.jpa.workflow.ChecklistJpa;
+import com.wci.umls.server.jpa.workflow.ChecklistNoteJpa;
 import com.wci.umls.server.jpa.workflow.TrackingRecordJpa;
 import com.wci.umls.server.jpa.workflow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.workflow.WorkflowBinJpa;
 import com.wci.umls.server.jpa.workflow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.workflow.WorkflowEpochJpa;
 import com.wci.umls.server.jpa.workflow.WorklistJpa;
+import com.wci.umls.server.jpa.workflow.WorklistNoteJpa;
+import com.wci.umls.server.model.actions.ChangeEvent;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
@@ -816,6 +821,18 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       for (final TrackingRecord record : worklist.getTrackingRecords()) {
         removeTrackingRecord(record.getId());
       }
+      
+      final List<Note> worklistNotesCopies = new ArrayList<>();
+      for (final Note note : worklist.getNotes()) {
+        worklistNotesCopies.add(new WorklistNoteJpa((WorklistNoteJpa) note));
+      }
+
+      worklist.getNotes().clear();
+      
+      for (final Note note : worklistNotesCopies) {
+        removeNote(note.getId(), WorklistNoteJpa.class);
+      }
+      
     }
 
     // Remove the component
@@ -912,6 +929,17 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
       for (final TrackingRecord record : checklist.getTrackingRecords()) {
         removeTrackingRecord(record.getId());
+      }
+      
+      final List<Note> checklistNotesCopies = new ArrayList<>();
+      for (final Note note : checklist.getNotes()) {
+        checklistNotesCopies.add(new ChecklistNoteJpa((ChecklistNoteJpa) note));
+      }
+
+      checklist.getNotes().clear();
+      
+      for (final Note note : checklistNotesCopies) {
+        removeNote(note.getId(), ChecklistNoteJpa.class);
       }
     }
 
