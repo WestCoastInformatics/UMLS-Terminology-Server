@@ -1891,7 +1891,13 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
 
       final Project project = workflowService.getProject(projectId);
       final WorkflowBin workflowBin = workflowService.getWorkflowBin(workflowBinId);
-
+      
+      // Check that checklist name isn't already in use
+      ChecklistList matchingChecklistNames = findChecklists(projectId, name, new PfsParameterJpa(), authToken);
+      if (matchingChecklistNames.size() != 0) {
+        throw new LocalException("Checklist name " + name + " is already in use.");
+      }
+      
       // Build up list of identifiers
       final List<String> clauses = workflowBin.getTrackingRecords().stream()
           // Skip records on worklists if excludeWorklist is used
