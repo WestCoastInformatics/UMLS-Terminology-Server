@@ -66,6 +66,28 @@ tsApp.controller('WorkflowCtrl', [
       open : false
     } ];
 
+    // clear and reload records to avoid stale ones appearing
+    $scope.$watch('groups[0].open', function(isOpen){
+      if (isOpen) {
+        console.log('Bins group was opened'); 
+        $scope.lists.records = null;
+      }    
+    });
+    $scope.$watch('groups[1].open', function(isOpen){
+      if (isOpen) {
+        console.log('Checklists group was opened'); 
+        $scope.lists.records = null;
+        websocketService.fireChecklistChange($scope.selected.project);
+      }    
+    });
+    $scope.$watch('groups[2].open', function(isOpen){
+      if (isOpen) {
+        console.log('Worklists group was opened'); 
+        $scope.lists.records = null;
+        websocketService.fireWorklistChange($scope.selected.project);
+      }    
+    });
+    
     // Handle worklist actions
     $scope.$on('termServer::binsChange', function(event, project) {
       if (project.id == $scope.selected.project.id) {
