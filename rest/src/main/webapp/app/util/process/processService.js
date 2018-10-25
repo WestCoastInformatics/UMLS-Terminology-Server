@@ -55,6 +55,29 @@ tsApp.service('processService', [
       return deferred.promise;
     };
 
+    // clone process config
+    this.cloneProcessConfig = function(projectId, process) {
+      console.debug('cloneProcessConfig', projectId, process);
+      var deferred = $q.defer();
+
+      // Get projects
+      gpService.increment();
+      $http.put(processUrl + '/config/clone?projectId=' + projectId, process).then(
+      // success
+      function(response) {
+        console.debug('  process = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+    
     // find process config
     this.findProcessConfigs = function(projectId, query, pfs) {
       console.debug('findProcessConfig', projectId, query, pfs);

@@ -84,6 +84,10 @@
               confirm="Are you sure you want to remove the process ({{process.name}})?"
               ng-click="removeProcess(process.id); $event.stopPropagation()"
               class="noul glyphicon glyphicon-trash"></i>
+            <i title="Clone process"
+              ng-show="hasPermissions('EditProcessOrStep') && selected.mode != 'Execution'"
+              ng-click="cloneProcess(process);" title="Clone"
+              class="noul glyphicon glyphicon-duplicate"></i>
           </td>
         </tr>
       </tbody>
