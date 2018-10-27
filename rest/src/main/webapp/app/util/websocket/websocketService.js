@@ -143,11 +143,17 @@ tsApp.service('websocketService',
         $rootScope.$broadcast('termServer::binsChange', data);
       }
 
+      this.fireChecklistChange = function(data) {
+        fireChecklistChange(data);
+      }
       // Must be a local function to be accessed via the onmessage event
       function fireChecklistChange(data) {
         $rootScope.$broadcast('termServer::checklistChange', data);
       }
 
+      this.fireWorklistChange = function(data) {
+        fireWorklistChange(data);
+      }
       // Must be a local function to be accessed via the onmessage event
       function fireWorklistChange(data) {
         $rootScope.$broadcast('termServer::worklistChange', data);

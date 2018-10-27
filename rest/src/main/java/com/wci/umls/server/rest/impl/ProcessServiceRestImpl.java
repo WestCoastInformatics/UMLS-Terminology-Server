@@ -186,6 +186,78 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
 
   }
+  
+  /* see superclass */
+  @Override
+  @PUT
+  @Path("/config/clone")
+  @ApiOperation(value = "Clone a process config", notes = "Clones a process config", response = ProcessConfigJpa.class)
+  public ProcessConfig cloneProcessConfig(
+    @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "ProcessConfig, as POST data", required = true) ProcessConfigJpa process,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Process): /config/clone?projectId=" + projectId
+            + " for user " + authToken + ", " + process);
+
+    final ProcessService processService = new ProcessServiceJpa();
+    try {
+      final String userName =
+          authorizeProject(processService, projectId, securityService,
+              authToken, "cloning a process config", UserRole.ADMINISTRATOR);
+      processService.setLastModifiedBy(userName);
+
+      // Make sure processConfig was passed in
+      if (process == null) {
+        throw new LocalException("Error: trying to clone a null process config");
+      }
+
+      // Load project
+      final Project project = processService.getProject(projectId);
+      project.setLastModifiedBy(userName);
+
+      // Re-add project to processConfig (it does not make it intact through
+      // XML)
+      process.setProject(project);
+      
+      process.setName(process.getName() + " - "
+            + ConfigUtility.DATE_YYYYMMDDHHMMSS.format(new Date()));
+
+      // Verify that passed projectId matches ID of the processConfig's project
+      verifyProject(process, projectId);
+
+      ProcessConfig processCopy = new ProcessConfigJpa(process);
+          
+      processCopy.setId(null);
+      processCopy.getSteps().clear();
+
+      // Add cloned processConfig
+      processService.addProcessConfig(processCopy);
+      
+      // copy steps to cloned processConfig
+      for (final AlgorithmConfig step : process.getSteps()) {
+          AlgorithmConfigJpa stepCopy = new AlgorithmConfigJpa((AlgorithmConfigJpa) step);
+          // Clear the ids.
+          stepCopy.setId(null);
+          stepCopy.setProcess(processCopy);
+          processService.addAlgorithmConfig(stepCopy);
+          processCopy.getSteps().add(stepCopy);
+      }
+
+      processService.addLogEntry(userName, projectId, process.getId(), null,
+          null, "CLONE processConfig - " + processCopy);
+
+      return processCopy;
+    } catch (Exception e) {
+      handleException(e, "trying to clone a process config");
+      return null;
+    } finally {
+      processService.close();
+      securityService.close();
+    }
+
+  }
 
   /* see superclass */
   @POST

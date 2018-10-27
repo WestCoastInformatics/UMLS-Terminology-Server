@@ -1991,6 +1991,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     logInfo("[RemoveOldWorklistsChecklists] " + checklistIdsToRemove.size()
         + " checklists to be removed");
+    logInfo("[RemoveOldWorklistsChecklists] " + worklistIdsToRemove.size()
+    + " worklists to be removed");
 
     // Remove checklists
     for (Long id : checklistIdsToRemove) {

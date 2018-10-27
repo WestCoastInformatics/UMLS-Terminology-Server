@@ -4,16 +4,23 @@
 package com.wci.umls.server.jpa.algo.maint;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
+
+import javax.persistence.Query;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.algo.RemoveTerminologyAlgorithm;
+import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.model.meta.Terminology;
+import com.wci.umls.server.model.workflow.WorkflowEpoch;
+import com.wci.umls.server.services.WorkflowService;
 
 /**
  * Implementation of an algorithm to run prod mid cleanup
@@ -78,8 +85,65 @@ public class ProdMidCleanupAlgorithm
         }
       }
 
-      setSteps(nonCurrentTerminologies.size());
+      int removals = 0;
+      
+      WorkflowService workflowService = new WorkflowServiceJpa();
+      workflowService.setLastModifiedBy("admin");
+      
+      WorkflowEpoch currentEpoch = workflowService.getCurrentWorkflowEpoch(getProject());
 
+      
+      Set<Long> worklistIdsToRemove = new HashSet<>();
+      Set<Long> checklistIdsToRemove = new HashSet<>();
+
+      // Get worklists
+      Query query = getEntityManager().createQuery("select a.id from "
+          + "WorklistJpa a"); 
+          
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        worklistIdsToRemove.add(id);
+      }
+      
+      // Get checklists
+      query = getEntityManager().createQuery("select a.id from "
+          + "ChecklistJpa a"); 
+          
+
+      list = query.getResultList();
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        checklistIdsToRemove.add(id);
+      }
+
+      logInfo("[ProdMid Cleanup] " + checklistIdsToRemove.size()
+          + " checklists to be removed");
+      logInfo("[ProdMid Cleanup] " + worklistIdsToRemove.size()
+      + " worklists to be removed");
+
+      setSteps(nonCurrentTerminologies.size() + checklistIdsToRemove.size() + worklistIdsToRemove.size());
+
+      // Remove checklists
+      for (Long id : checklistIdsToRemove) {
+        logInfo("[ProdMid Cleanup] " + id + " checklist to be removed");
+        workflowService.removeChecklist(id, true);
+        updateProgress();
+        removals++;
+      }
+      
+      // Remove worklists
+      for (Long id : worklistIdsToRemove) {
+        logInfo("[ProdMid Cleanup] " + id + " worklist to be removed");
+        workflowService.removeWorklist(id, true);
+        updateProgress();
+        removals++;
+      }
+
+      logInfo("[ProdMid Cleanup] " + removals
+          + " lists successfully removed.");
+      
       // For each non-current terminology, run removeTerminologies on it (keep
       // the terminology itself for tracking purposes).
       for (final Terminology nonCurrentTerminology : nonCurrentTerminologies) {
@@ -111,7 +175,10 @@ public class ProdMidCleanupAlgorithm
         updateProgress();
       }
 
+      
       commitClearBegin();
+      
+
 
       // Consider truncating action tables, log entries, etc.
 

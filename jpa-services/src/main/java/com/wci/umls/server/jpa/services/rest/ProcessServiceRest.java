@@ -374,4 +374,16 @@ public interface ProcessServiceRest {
     QueryStyle queryStyle, String query, String objectTypeName,
     String authToken) throws Exception;
 
+  /**
+   * Clone process config.
+   *
+   * @param projectId the project id
+   * @param process the process
+   * @param authToken the auth token
+   * @return the process config
+   * @throws Exception the exception
+   */
+  public ProcessConfig cloneProcessConfig(Long projectId, ProcessConfigJpa process,
+    String authToken) throws Exception;
+
 }
