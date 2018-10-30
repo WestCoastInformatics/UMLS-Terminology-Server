@@ -45,6 +45,9 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   /** The update count. */
   private int updateCount = 0;
+  
+  /** The MTH cui update count. */
+  private int mthCUIUpdateCount = 0;
 
   /**
    * Instantiates an empty {@link AtomLoaderAlgorithm}.
@@ -341,7 +344,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         ((UmlsIdentifierAssignmentHandler) handler).setCreateFlag(false);
 
         for (final String line2 : lines2) {
-
+          
           FieldedStringTokenizer.split(line2, "|", 15, fields2);
 
           final String CUI = fields2[0];
@@ -353,6 +356,13 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           final String CODE = fields2[7];
           final String name = fields2[8];
 
+          //Since we've moved SNOMED into a separate insertion, skip SNOMEDCT_US lines.
+          if(SAB.equals("SNOMEDCT_US")){
+            umlscuiStepsCompleted++;
+            continue;
+          }
+          
+          
           // Make a fake atom using the fields from umlscui to look up AUI
 
           final Atom fakeAtom = new AtomJpa();
@@ -387,6 +397,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
                 atom.getConceptTerminologyIds().put(
                     getProcess().getTerminology() + getProcess().getVersion(),
                     CUI);
+                mthCUIUpdateCount++;
                 updateAtom(atom);
               }
             }
@@ -409,6 +420,10 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       logInfo("  added count = " + addCount);
       logInfo("  updated count = " + updateCount);
+      if (getProcess().getTerminology().equals("MTH")) {
+        logInfo("  updated MTH CUI count = " + mthCUIUpdateCount);
+      }
+      
 
       logInfo("Finished " + getName());
 
