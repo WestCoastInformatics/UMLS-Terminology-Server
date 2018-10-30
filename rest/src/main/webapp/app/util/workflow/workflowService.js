@@ -1104,7 +1104,9 @@ tsApp.service('workflowService', [
       // error
       function(response) {
         utilService.handleError(response);
-        gpService.decrement('Regenerating bin...');
+        if (finishedBin == 0) {
+          gpService.decrement('Regenerating bin...');
+        }
         deferred.reject(response.data);
       });
       
