@@ -90,7 +90,7 @@ tsApp.controller('WorkflowCtrl', [
     
     // Handle worklist actions
     $scope.$on('termServer::binsChange', function(event, project) {
-      if (project.id == $scope.selected.project.id) {
+      if (project == $scope.selected.project.id || project.id == $scope.selected.project.id) {
         // Bins changed, refresh bins
         $scope.getBins($scope.selected.project.id, $scope.selected.config, $scope.selected.bin);
       }
