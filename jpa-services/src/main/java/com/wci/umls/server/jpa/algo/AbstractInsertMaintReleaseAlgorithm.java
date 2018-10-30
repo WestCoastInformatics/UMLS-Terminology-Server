@@ -18,6 +18,8 @@ import java.util.Set;
 
 import javax.persistence.Query;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
@@ -1489,6 +1491,46 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
   }
 
+  /**
+   * Returns the merge sets.
+   *
+   * @param srcDirFile the src dir file
+   * @return the merge sets
+   */
+  public List<String> getMergeSets(File srcDirFile) {
+
+    final List<String> mergeSets = new ArrayList<>();
+    final Set<String> mergeSetsUnique = new HashSet<>();
+    List<String> lines = new ArrayList<>();
+    //
+    // Load the mergefacts.src file
+    //
+    try {
+      lines = loadFileIntoStringList(srcDirFile, "mergefacts.src", null, null, null);
+    }
+    // If file not found, return null
+    catch (Exception e) {
+      return null;
+    }
+
+    final int fieldCount = StringUtils.countMatches(lines.get(0), "|") + 1;
+    String fields[] = new String[fieldCount];
+
+    // For this method's purpose, the only field we care about is merge_set, at
+    // index 7
+    for (String line : lines) {
+      FieldedStringTokenizer.split(line, "|", fieldCount, fields);
+      final String mergeSet = fields[7];
+      mergeSetsUnique.add(mergeSet);
+    }
+
+    // Add all of the unique mergeSets referenced in the file to the stringList,
+    // and return
+    mergeSets.addAll(mergeSetsUnique);
+
+    return mergeSets;
+  }  
+  
   /**
    * Compute version. Note: the version found in sources.src fields[5] is not
    * always accurate (e.g. RXNORM_2016AA_2016_09_06F shows version of

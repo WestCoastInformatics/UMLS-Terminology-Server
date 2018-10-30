@@ -44,6 +44,9 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 public class PrecomputedMoveAlgorithm
     extends AbstractInsertMaintReleaseAlgorithm {
 
+  /** The merge set. */
+  private String mergeSet;
+
   /** The merge level. */
   private String mergeLevel = null;
 
@@ -124,8 +127,8 @@ public class PrecomputedMoveAlgorithm
 
     Set<Long> atomIds = new HashSet<>();
     Set<Atom> atomsInMergeSet = new HashSet<>();
+    Set<Long> atomIdsInMergeSet = new HashSet<>();
     Map<String, Atom> cuiPrefAtomMap = new HashMap<>();
-    Map<String, Atom> cuiPrefAtomNotInMergeSetMap = new HashMap<>();
     Map<Atom, Long> atomConceptIdMap = new HashMap<>();
     Map<Atom, String> atomCuiMap = new HashMap<>();
     Map<String, Set<Atom>> cuiAtomsMap = new HashMap<>();
@@ -142,8 +145,7 @@ public class PrecomputedMoveAlgorithm
 
     // Set up a stats map to be passed into the merge function later
     final Map<String, Integer> statsMap = new HashMap<>();
-    statsMap.put("moves", 0);
-    statsMap.put("splits", 0);
+    statsMap.put("metaMoveLines", 0);
     statsMap.put("skips", 0);
     statsMap.put("onlyAtomSkips", 0);
     statsMap.put("successfulDemotions", 0);
@@ -163,6 +165,8 @@ public class PrecomputedMoveAlgorithm
       //
       final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
           "mergefacts.src", "(.*)" + "META-MOVED" + "(.*)", null, null);
+
+      statsMap.put("metaMoveLines", lines.size());
 
       // Set the number of steps to twice the number of lines to be processed
       // This is so processing the mergefacts.src will show up as 50% of the
@@ -210,7 +214,7 @@ public class PrecomputedMoveAlgorithm
           makeDemotions = fields[5].toUpperCase().equals("Y");
         }
         if (mergeLevel == null) {
-          mergeLevel = fields[2];
+          mergeLevel = fields[1];
         }
 
         final String cui = fields[2];
@@ -255,46 +259,57 @@ public class PrecomputedMoveAlgorithm
         atomsInMergeSet.add(atom);
         atomCuiMap.put(atom, cui);
         atomIds.add(atom.getId());
-
-        // Load all atoms associated with this CUI
-        // Only look up each cui once
         if (!cuiAtomsMap.containsKey(cui)) {
-
-          logInfo("Looking up atoms with CUI=" + cui + " and Key="
-              + getProcess().getTerminology() + getProcess().getVersion());
-
           cuiAtomsMap.put(cui, new HashSet<>());
-
-          // Find all atoms where this CUI is its concept Terminology Id for
-          // this MTH insertion
-          Query query = getEntityManager().createQuery(
-              "select a.id from AtomJpa a join a.conceptTerminologyIds b "
-                  + "where ( KEY(b)  = :currentRelease and b = cui)");
-          query.setParameter("currentRelease",
-              getProcess().getTerminology() + getProcess().getVersion());
-          query.setParameter("cui", cui);
-
-          List<Object[]> results = query.getResultList();
-          for (final Object[] result : results) {
-            final Long id = Long.valueOf(result[0].toString());
-            cuiAtomsMap.get(cui).add(getAtom(id));
-            atomIds.add(id);
-          }
         }
 
         // Update the progress
         updateProgress();
       }
 
-      // Lookup the atoms' project concepts, to populate atomConceptIdMap
-      logInfo("Looking up atoms' project concepts");
-      Query query = getEntityManager()
-          .createQuery("select a.id, c.id from ConceptJpa c join c.atoms a "
-              + "where c.terminology = :terminology and a.id in (:atomIds)");
-      query.setParameter("atomId", atomIds);
-      query.setParameter("terminology", getProject().getTerminology());
+      // Find all atoms where an included CUI is its concept Terminology Id for
+      // this MTH insertion
+      logInfo("Looking up atoms associated with CUIs");
+
+      Query query = getEntityManager().createQuery(
+          "select a.id, value(b) from AtomJpa a join a.conceptTerminologyIds b "
+              + "where ( KEY(b)  = :currentRelease and b in (:cuis))");
+      query.setParameter("currentRelease",
+          getProcess().getTerminology() + getProcess().getVersion());
+      query.setParameter("cuis", cuiAtomsMap.keySet());
 
       List<Object[]> results = query.getResultList();
+      for (final Object[] result : results) {
+        final Long id = Long.valueOf(result[0].toString());
+        final String cui = result[1].toString();
+        Atom atom2 = getAtom(id);
+        // Don't include if this is a brand new atom (doesn't have a
+        // previousRelease concept Terminology Id)
+        // The reasoning is this should only track atoms that may have been
+        // moved by NCIMTH editors in a different way than UMLS editors, and
+        // brand new atoms can't have had that happen.
+        if (atom2.getConceptTerminologyIds()
+            .get(previousTerminologyVersion) == null) {
+          continue;
+        }
+        cuiAtomsMap.get(cui).add(getAtom(id));
+        atomIds.add(id);
+      }
+
+      // Use atomsInMergeSet to populate atomIdsInMergSet
+      for (Atom atom : atomsInMergeSet) {
+        atomIdsInMergeSet.add(atom.getId());
+      }
+
+      // Lookup the atoms' project concepts, to populate atomConceptIdMap
+      logInfo("Looking up atoms' project concepts");
+      query = getEntityManager()
+          .createQuery("select a.id, c.id from ConceptJpa c join c.atoms a "
+              + "where c.terminology = :terminology and a.id in (:atomIds)");
+      query.setParameter("atomIds", atomIds);
+      query.setParameter("terminology", getProject().getTerminology());
+
+      results = query.getResultList();
       for (final Object[] result : results) {
         final Long atomId = Long.valueOf(result[0].toString());
         final Long conceptId = Long.valueOf(result[1].toString());
@@ -312,6 +327,10 @@ public class PrecomputedMoveAlgorithm
         }
 
         for (final Atom atom : atoms) {
+          // Don't include atoms if they are in the mergeSet
+          if (atomIdsInMergeSet.contains(atom.getId())) {
+            continue;
+          }
           final Long conceptId = atomConceptIdMap.get(atom);
           cuiConceptIdsMap.get(cui).add(conceptId);
         }
@@ -346,7 +365,7 @@ public class PrecomputedMoveAlgorithm
       }
 
       // We've built up all of the requisite maps - now we can actually perform
-      // any actions
+      // the actions
       logInfo("Performing atom movements");
       for (final Atom atom : prefSortedAtoms) {
         String cui = atomCuiMap.get(atom);
@@ -368,8 +387,9 @@ public class PrecomputedMoveAlgorithm
               Concept concept2 = getConcept(conceptId2);
               Set<Atom> cuiAtoms = new HashSet<>();
               for (Atom atom2 : concept2.getAtoms()) {
-                if (atom2.getConceptTerminologyIds()
-                    .get(currentTerminologyVersion).equals(cui)) {
+                String umlsCurrentCui = atom2.getConceptTerminologyIds()
+                    .get(currentTerminologyVersion);
+                if (umlsCurrentCui != null && umlsCurrentCui.equals(cui)) {
                   cuiAtoms.add(atom2);
                 }
               }
@@ -427,7 +447,7 @@ public class PrecomputedMoveAlgorithm
         if (atom.getId().equals(prefAtom.getId())) {
           // split atom from conceptId
           // copy STY but don't copy relationships
- 
+
           // Create and set up a split action
           final SplitMolecularAction action = new SplitMolecularAction();
           // Configure the action
@@ -450,7 +470,6 @@ public class PrecomputedMoveAlgorithm
           final ValidationResult validationResult =
               action.performMolecularAction(action, getLastModifiedBy(), false,
                   false);
-          
 
           // If the action failed, log the failure
           if (!validationResult.isValid()) {
@@ -461,29 +480,27 @@ public class PrecomputedMoveAlgorithm
                 getActivityId(), getWorkId(),
                 "FAIL " + action.getName() + " atom " + atom.getId()
                     + " from concept " + conceptId + ": " + validationResult);
-          }
-          else{
+          } else {
             statsMap.put("successfulSplits",
                 statsMap.get("successfulSplits") + 1);
           }
           action.close();
 
-          //commit at this point, so we can finalize the atom's new concept
+          // commit at this point, so we can finalize the atom's new concept
           commitClearBegin();
-          
+
           // update atomConceptIdMap for the split atom
           query = getEntityManager()
-              .createQuery("c.id from ConceptJpa c join c.atoms a "
+              .createQuery("select c.id from ConceptJpa c join c.atoms a "
                   + "where c.terminology = :terminology and a.id = :atomId");
           query.setParameter("atomId", atom.getId());
           query.setParameter("terminology", getProject().getTerminology());
 
-          results = query.getResultList();
-          for (final Object[] result : results) {
-            final Long id = Long.valueOf(result[0].toString());
+          List<Long> longResults = query.getResultList();
+          for (final Long id : longResults) {
             atomConceptIdMap.put(atom, id);
           }
-          
+
           updateProgress();
           continue;
         }
@@ -497,8 +514,8 @@ public class PrecomputedMoveAlgorithm
 
         else {
           // move atom to concept id of the prefAtom
-          final Long destinationConceptId=atomConceptIdMap.get(prefAtom);
-          
+          final Long destinationConceptId = atomConceptIdMap.get(prefAtom);
+
           // Create and set up a move action
           final MoveMolecularAction action = new MoveMolecularAction();
           // Configure the action
@@ -524,23 +541,22 @@ public class PrecomputedMoveAlgorithm
             statsMap.put("unsuccessfulMoves",
                 statsMap.get("unsuccessfulMoves") + 1);
 
-            addLogEntry(getLastModifiedBy(), getProject().getId(),
-                conceptId, getActivityId(), getWorkId(),
-                "FAIL " + action.getName() + " to concept " + destinationConceptId
-                    + ": " + validationResult);
+            addLogEntry(getLastModifiedBy(), getProject().getId(), conceptId,
+                getActivityId(), getWorkId(),
+                "FAIL " + action.getName() + " to concept "
+                    + destinationConceptId + ": " + validationResult);
             addLogEntry(getLastModifiedBy(), getProject().getId(),
                 destinationConceptId, getActivityId(), getWorkId(),
-                "FAIL " + action.getName() + " from concept " + conceptId
-                    + ": " + validationResult);
-          }
-          else{
+                "FAIL " + action.getName() + " from concept " + conceptId + ": "
+                    + validationResult);
+          } else {
             statsMap.put("successfulMoves",
                 statsMap.get("successfulMoves") + 1);
           }
           action.close();
-          
+
           // update atomConceptIdMap for the moved atom
-          atomConceptIdMap.put(atom,destinationConceptId);
+          atomConceptIdMap.put(atom, destinationConceptId);
           updateProgress();
 
         }
@@ -548,6 +564,24 @@ public class PrecomputedMoveAlgorithm
       }
 
       commitClearBegin();
+
+      logInfo("  META-MOVE lines from mergefacts.src = "
+          + statsMap.get("metaMoveLines"));
+      logInfo("  META_MOVE lines skipped because move was not required = "
+          + statsMap.get("skips"));
+      logInfo("  META_MOVE lines skipped because only one atom in concept = "
+          + statsMap.get("onlyAtomSkips"));
+      logInfo("  successful moves count = " + statsMap.get("successfulMoves"));
+      logInfo(
+          "  unsuccessful moves count = " + statsMap.get("unsuccessfulMoves"));
+      logInfo(
+          "  successful splits count = " + statsMap.get("successfulSplits"));
+      logInfo("  unsuccessful splits count = "
+          + statsMap.get("unsuccessfulSplits"));
+      logInfo("  successful demotions count = "
+          + statsMap.get("successfulDemotions"));
+      logInfo("  unsuccessful demotions count = "
+          + statsMap.get("unsuccessfulDemotions"));
 
       logInfo("Finished " + getName());
 
@@ -613,6 +647,10 @@ public class PrecomputedMoveAlgorithm
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
+
+    if (p.getProperty("mergeSet") != null) {
+      mergeSet = String.valueOf(p.getProperty("mergeSet"));
+    }
     if (p.getProperty("checkNames") != null) {
       checkNames =
           Arrays.asList(String.valueOf(p.getProperty("checkNames")).split(";"));
@@ -630,9 +668,34 @@ public class PrecomputedMoveAlgorithm
   public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
 
-    AlgorithmParameter param = new AlgorithmParameterJpa("Integrity Checks",
-        "checkNames", "The names of the integrity checks to run", "e.g. MGV_B",
-        10, AlgorithmParameter.Type.MULTI, "");
+    // Run checkPreconditions to set the SrcDirFile, since it will be used by
+    // the merge
+    // set parameter
+    try {
+      checkPreconditions();
+    } catch (Exception e) {
+      // Do nothing
+    }
+
+    AlgorithmParameter param = new AlgorithmParameterJpa("Merge Set",
+        "mergeSet", "The merge set to perform the merges on", "e.g. NCI-SY", 10,
+        AlgorithmParameter.Type.ENUM, "");
+    // Look for the mergefacts.src file and populate the enum based on the
+    // merge_set column.
+    List<String> mergeSets = getMergeSets(getSrcDirFile());
+
+    // If the file isn't found, or the file contains no mergeSets, set the
+    // parameter to a free-entry string
+    if (mergeSets == null || mergeSets.size() == 0) {
+      param.setType(AlgorithmParameter.Type.STRING);
+    } else {
+      param.setPossibleValues(mergeSets);
+    }
+    params.add(param);
+
+    param = new AlgorithmParameterJpa("Integrity Checks", "checkNames",
+        "The names of the integrity checks to run", "e.g. MGV_B", 10,
+        AlgorithmParameter.Type.MULTI, "");
 
     List<String> validationChecks = new ArrayList<>();
     for (final KeyValuePair validationCheck : getValidationCheckNames()
@@ -651,6 +714,6 @@ public class PrecomputedMoveAlgorithm
   /* see superclass */
   @Override
   public String getDescription() {
-    return "Loads and performs merges based on mergefacts.src.";
+    return "Loads and performs moves based on mergefacts.src.";
   }
 }

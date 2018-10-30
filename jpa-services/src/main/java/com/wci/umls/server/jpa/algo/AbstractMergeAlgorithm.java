@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.jpa.algo;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,13 +14,11 @@ import java.util.Set;
 
 import javax.persistence.Query;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.algo.action.AddDemotionMolecularAction;
 import com.wci.umls.server.jpa.algo.action.MergeMolecularAction;
@@ -270,46 +267,6 @@ public abstract class AbstractMergeAlgorithm
       action.close();
     }
 
-  }
-
-  /**
-   * Returns the merge sets.
-   *
-   * @param srcDirFile the src dir file
-   * @return the merge sets
-   */
-  public List<String> getMergeSets(File srcDirFile) {
-
-    final List<String> mergeSets = new ArrayList<>();
-    final Set<String> mergeSetsUnique = new HashSet<>();
-    List<String> lines = new ArrayList<>();
-    //
-    // Load the mergefacts.src file
-    //
-    try {
-      lines = loadFileIntoStringList(srcDirFile, "mergefacts.src", null, null, null);
-    }
-    // If file not found, return null
-    catch (Exception e) {
-      return null;
-    }
-
-    final int fieldCount = StringUtils.countMatches(lines.get(0), "|") + 1;
-    String fields[] = new String[fieldCount];
-
-    // For this method's purpose, the only field we care about is merge_set, at
-    // index 7
-    for (String line : lines) {
-      FieldedStringTokenizer.split(line, "|", fieldCount, fields);
-      final String mergeSet = fields[7];
-      mergeSetsUnique.add(mergeSet);
-    }
-
-    // Add all of the unique mergeSets referenced in the file to the stringList,
-    // and return
-    mergeSets.addAll(mergeSetsUnique);
-
-    return mergeSets;
   }
 
   /**
