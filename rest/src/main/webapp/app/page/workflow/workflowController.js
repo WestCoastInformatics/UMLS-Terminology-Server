@@ -472,8 +472,12 @@ tsApp.controller('WorkflowCtrl', [
     // Regenerate single bin
     $scope.regenerateBin = function(bin) {
     	// Get confirmation before regenerating
-   		var	regenerate = confirm('This bin took ' + bin.creationTime/1000 + ' seconds to process last time it was run. \n\n Are you sure you want to regenerate now?');
-    	if (regenerate == true) {
+   		 var	 regenerate = confirm('This bin took ' + bin.creationTime/1000 + ' seconds to process last time it was run. \n\n Are you sure you want to regenerate now?');
+   		 
+   		 if (regenerate == true && bin.creationTime/1000 > 30) {
+   		   regenerate = confirm('DO NOT refresh your screen during bin regeneration. \n\n No other operations will be allowed until the bin is complete. \n\n Are you ready to continue?');
+   		 }
+    if (regenerate == true) {
     		// send both id and name
     	      workflowService.regenerateBin($scope.selected.project.id, bin.id, bin.name,
     	    	        $scope.selected.config.type).then(

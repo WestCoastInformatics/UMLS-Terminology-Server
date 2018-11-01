@@ -2677,7 +2677,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
     @ApiParam(value = "Project id, e.g. 1",
           required = true) @QueryParam("projectId") Long projectId,
       @ApiParam(value = "Workflow bin definition name, e.g. 'demotions'",
-          required = true) @QueryParam("name") String name,
+          required = false) @QueryParam("name") String name,
       @ApiParam(value = "Workflow bin type", required = true) @QueryParam("type") String type,
       @ApiParam(value = "Authorization token, e.g. 'guest'",
           required = true) @HeaderParam("Authorization") String authToken)
@@ -2692,11 +2692,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
         final Project project = workflowService.getProject(projectId);
 
         for (final WorkflowBin bin : workflowService.getWorkflowBins(project, type)) {
-          if (bin.getName().equals(name)) {
+          // checking if given bin is complete
+          if (name != null && bin.getName().equals(name)) {
             Calendar calendar = Calendar.getInstance();
-            calendar.add(Calendar.MINUTE, -2);
+            calendar.add(Calendar.MINUTE, -1);
             Date fourMinutesAgo = calendar.getTime();
-            // if getLastModified was updated within the last few minutes, bin is complete
+            // if getLastModified was updated within the last minute, bin is complete
             if (bin.getLastModified().after(fourMinutesAgo)) {
               Logger.getLogger(getClass()).info("true ");
               return "true";
@@ -2704,10 +2705,19 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
               Logger.getLogger(getClass()).info("false ");
               return "false";
             }
+          // checking all enabled bins are regenerated and complete
+          } else if (bin.isEnabled()){
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.HOUR, -23);
+            Date oneDayAgo = calendar.getTime();
+            if (bin.getLastModified().before(oneDayAgo)) {
+              Logger.getLogger(getClass()).info("false ");
+              return "false";
+            }
           }
         }
 
-        return "";
+        return "true";
 
       } catch (Exception e) {
         try {
@@ -2715,7 +2725,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
         } catch (Exception e2) {
           // n/a - if this fails, it's already rolled back
         }
-        handleException(e, "trying to regenerate a single bin");
+        handleException(e, "trying to check regenerate bin(s) status");
       } finally {
         workflowService.close();
         securityService.close();

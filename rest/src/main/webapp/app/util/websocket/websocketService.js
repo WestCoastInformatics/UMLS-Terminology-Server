@@ -139,6 +139,9 @@ tsApp.service('websocketService',
       }
 
       // Must be a local function to be accessed via the onmessage event
+      this.fireBinsChange = function(data) {
+        fireBinsChange(data);
+      }
       function fireBinsChange(data) {
         $rootScope.$broadcast('termServer::binsChange', data);
       }

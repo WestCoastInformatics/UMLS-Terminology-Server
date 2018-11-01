@@ -1,6 +1,6 @@
 // Workflow Service
 var workflowUrl = 'workflow';
-tsApp.service('workflowService', [
+tsApp.service('workflowService', [ 
   '$http',
   '$q',
   '$timeout',
@@ -1054,6 +1054,9 @@ tsApp.service('workflowService', [
     };
 
     // regenerate bins status
+    this.regenerateBinStatus = function(projectId, workflowBinType, name) {
+      regenerateBinStatus(projectId, workflowBinType, name);
+    }
     function regenerateBinStatus(projectId, workflowBinType, name) {
       console.debug('check regenerate bin status');   
       
@@ -1064,13 +1067,13 @@ tsApp.service('workflowService', [
           console.debug('  bin status = ', response.data);
           if (response.data + '' == 'true') {
             finishedBin = 1;
-            console.debug(' set finishedBin to 1');
-            if (gpService.getGlassPane > 0) {
-              gpService.decrement();
-              websocketService.fireBinsChange();
+            console.debug(' set finishedBin to 1 ', gpService.getGlassPane().counter);
+            if (gpService.getGlassPane().counter > 0) {
+              gpService.decrement('Regenerating bins...  DO NOT refresh browser.');
+              websocketService.fireBinsChange(projectId);
             }
           } else if (finishedBin == 0) {
-            $timeout(regenerateBinStatus(projectId, workflowBinType, name), 20000);
+            $timeout(function() {regenerateBinStatus(projectId, workflowBinType, name);}, 20000);
           } 
         },
         // error
@@ -1086,7 +1089,7 @@ tsApp.service('workflowService', [
       var deferred = $q.defer();
       finishedBin = 0;
       
-      gpService.increment('Regenerating bin...'); 
+      gpService.increment('Regenerating bins...  DO NOT refresh browser.'); 
       // find tracking records
       var url = workflowUrl + '/bin/' + id + '/regenerate?projectId=' + projectId + '&type='
         + workflowBinType;
@@ -1097,16 +1100,15 @@ tsApp.service('workflowService', [
       $http.post(url, '').then(
       // success
       function(response) {
-        console.debug('  successful regenerate bin');
-        gpService.decrement('Regenerating bin...');
+        console.debug('  successful regenerate bin ', gpService.getGlassPane().counter);
+        /*if (gpService.getGlassPane > 0) {
+          gpService.decrement('Regenerating bins...  DO NOT refresh browser.');
+        }*/
         deferred.resolve(response.data);
       },
       // error
       function(response) {
-        utilService.handleError(response);
-        if (finishedBin == 0) {
-          gpService.decrement('Regenerating bin...');
-        }
+        //utilService.handleError(response);
         deferred.reject(response.data);
       });
       
@@ -1123,7 +1125,7 @@ tsApp.service('workflowService', [
       var deferred = $q.defer();
 
       // find tracking records
-      gpService.increment('Regenerating bins...');
+      gpService.increment('Regenerating bins...  DO NOT refresh browser.');
       $http
         .post(
           workflowUrl + '/bin/regenerate/all?projectId=' + projectId + '&type=' + workflowBinType,
@@ -1131,15 +1133,17 @@ tsApp.service('workflowService', [
         // success
         function(response) {
           console.debug('  successful regenerate bins');
-          gpService.decrement('Regenerating bins...');
+          //gpService.decrement('Regenerating bins...  DO NOT refresh browser.');
           deferred.resolve(response.data);
         },
         // error
         function(response) {
-          utilService.handleError(response);
-          gpService.decrement('Regenerating bins...');
+          /*utilService.handleError(response);
+          gpService.decrement('Regenerating bins...');*/
           deferred.reject(response.data);
         });
+      
+      regenerateBinStatus(projectId, workflowBinType);
       return deferred.promise;
     };
 
