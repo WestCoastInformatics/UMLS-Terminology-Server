@@ -2690,19 +2690,22 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
             authToken, "trying to check bin regeneration status", UserRole.AUTHOR);
         workflowService.setLastModifiedBy(userName);
         final Project project = workflowService.getProject(projectId);
+        type = type.replaceAll("^\"|\"$", "");
 
         for (final WorkflowBin bin : workflowService.getWorkflowBins(project, type)) {
+          
+          Logger.getLogger(getClass()).info("bin to check status " + bin.getName() + " *" + name);
           // checking if given bin is complete
           if (name != null && bin.getName().equals(name)) {
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.MINUTE, -1);
-            Date fourMinutesAgo = calendar.getTime();
+            Date oneMinuteAgo = calendar.getTime();
             // if getLastModified was updated within the last minute, bin is complete
-            if (bin.getLastModified().after(fourMinutesAgo)) {
-              Logger.getLogger(getClass()).info("true ");
+            if (bin.getLastModified().after(oneMinuteAgo)) {
+              Logger.getLogger(getClass()).info("status1=true ");
               return "true";
             } else {
-              Logger.getLogger(getClass()).info("false ");
+              Logger.getLogger(getClass()).info("status1=false ");
               return "false";
             }
           // checking all enabled bins are regenerated and complete
@@ -2710,16 +2713,17 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.HOUR, -23);
             Date oneDayAgo = calendar.getTime();
-            if (bin.getLastModified().before(oneDayAgo)) {
+            if (bin.getLastModified().after(oneDayAgo)) {
               Logger.getLogger(getClass()).info("false ");
-              return "false";
+              return "status2=false";
             }
           }
         }
-
+        Logger.getLogger(getClass()).info("status3=true ");
         return "true";
 
       } catch (Exception e) {
+        Logger.getLogger(getClass()).info("stackTrace " + e.getStackTrace());
         try {
           workflowService.rollback();
         } catch (Exception e2) {
@@ -2730,6 +2734,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
         workflowService.close();
         securityService.close();
       }
+      Logger.getLogger(getClass()).info("after finally ");
       return "";
   }
 
