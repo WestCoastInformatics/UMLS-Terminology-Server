@@ -131,7 +131,7 @@ public class ReportChecklistAlgorithm
         commitClearBegin();
 
         checklist = computeChecklist(getProject(),
-            queryPrefix + " AND atoms.workflowStatus:READY_FOR_PUBLICATION",
+            queryPrefix + " AND (atoms.workflowStatus:READY_FOR_PUBLICATION OR atoms.workflowStatus:PUBLISHED)",
             QueryType.LUCENE,
             "chk_" + term + "_" + version + "_READY_FOR_PUBLICATION", null,
             true);
