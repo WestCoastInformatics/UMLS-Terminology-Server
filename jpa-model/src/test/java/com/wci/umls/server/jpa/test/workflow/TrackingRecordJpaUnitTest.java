@@ -6,7 +6,9 @@ package com.wci.umls.server.jpa.test.workflow;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -39,16 +41,16 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
   private TrackingRecordJpa object;
 
   /** The fixture l1. */
-  private Set<Long> l1;
+  private List<Long> l1;
 
   /** The fixture l2. */
-  private Set<Long> l2;
+  private List<Long> l2;
 
   /** The fixture s1. */
-  private Set<Long> s1;
+  private List<Long> s1;
 
   /** The fixture s2. */
-  private Set<Long> s2;
+  private List<Long> s2;
 
   /** The fixture p1. */
   private Project p1;
@@ -73,15 +75,15 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
   public void setup() throws Exception {
     object = new TrackingRecordJpa();
 
-    l1 = new HashSet<>();
+    l1 = new ArrayList<>();
     l1.add(1L);
-    l2 = new HashSet<>();
+    l2 = new ArrayList<>();
     l2.add(2L);
     l2.add(3L);
 
-    s1 = new HashSet<>();
+    s1 = new ArrayList<>();
     s1.add(1L);
-    s2 = new HashSet<>();
+    s2 = new ArrayList<>();
     s2.add(2L);
     s2.add(3L);
 

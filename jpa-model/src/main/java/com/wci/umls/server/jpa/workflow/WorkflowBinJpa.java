@@ -60,6 +60,11 @@ public class WorkflowBinJpa implements WorkflowBin {
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
   private Date lastModified = new Date();
+  
+  /** The last modified. */
+  @Column(nullable = true)
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date lastRegenerated = new Date();
 
   /** The last modified. */
   @Column(nullable = false)
@@ -211,6 +216,18 @@ public class WorkflowBinJpa implements WorkflowBin {
   @Override
   public void setLastModified(Date lastModified) {
     this.lastModified = lastModified;
+  }
+  
+  /* see superclass */
+  @Override
+  public Date getLastRegenerated() {
+    return lastRegenerated;
+  }
+
+  /* see superclass */
+  @Override
+  public void setLastRegenerated(Date lastRegenerated) {
+    this.lastRegenerated = lastRegenerated;
   }
 
   /* see superclass */
@@ -534,6 +551,7 @@ public class WorkflowBinJpa implements WorkflowBin {
   @Override
   public String toString() {
     return "WorkflowBinJpa [id=" + id + ", lastModified=" + lastModified
+        + ", lastRegenerated=" + lastRegenerated
         + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
         + ", name=" + name + ", description=" + description + ", terminologyId="
         + terminologyId + ", terminology=" + terminology + ", version="

@@ -755,6 +755,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     commitClearBegin();
     setTransactionPerOperation(false);
     bin.setCreationTime(new Date().getTime() - startDate.getTime());
+    bin.setLastRegenerated(new Date());
     updateWorkflowBin(bin);
 
     return bin;

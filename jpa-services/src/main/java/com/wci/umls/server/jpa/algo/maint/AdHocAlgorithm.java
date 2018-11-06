@@ -34,6 +34,7 @@ import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
+import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
@@ -42,6 +43,7 @@ import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.ComponentInfoRelationship;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
@@ -2013,6 +2015,66 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("[RemoveOldWorklistsChecklists] " + removals
         + " lists successfully removed.");
 
+  }
+  
+  private void removeDuplicateSubsetMemberAttributes() throws Exception {
+    // 5/23/2018 Issues identified where componentInfoRelationships had blank
+    // to/from terminologyIds. These all were associated with a single Atom:
+    // terminology='NCIMTH', name= 'NCI Thesaurus', AUI=31926003
+    // Update to componentInfoRelationships to have to/from TerminologyIds point
+    // to the AUI 31926003
+
+    logInfo(" Remove Duplicate Subset Member Attributes");
+
+    int updatedRelationships = 0;
+
+    final List<ConceptSubsetMemberJpa> conceptSubsetMembers =
+        new ArrayList<>();
+
+    try {
+      Query query = getEntityManager().createNativeQuery(
+          "select id from concept_subset_members");
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        conceptSubsetMembers
+            .add((ConceptSubsetMemberJpa) getSubsetMember(id,
+                ConceptSubsetMemberJpa.class));
+      }
+
+      setSteps(conceptSubsetMembers.size());
+
+      logInfo("[RemoveDuplicateSubsetMemberAttributes] "
+          + conceptSubsetMembers.size()
+          + " Concept Subset Members identified");
+
+      for (final ConceptSubsetMemberJpa subsetMember : conceptSubsetMembers) {
+        logInfo("BEFORE "
+            + subsetMember.getAttributes().size()
+            + " Concept Subset Members attributes identified on: " + subsetMember.getTerminologyId());
+        Set<Attribute> attSet = new HashSet<>();
+        for (final Attribute att : subsetMember.getAttributes()) {         
+          attSet.add(att);   
+          att.get
+        }
+        subsetMember.setAttributes(null);
+        subsetMember.setAttributes(new ArrayList<Attribute>(attSet));
+        updateSubsetMember(subsetMember);
+        logInfo("AFTER "
+            + subsetMember.getAttributes().size()
+            + " Concept Subset Members attributes identified on: " + subsetMember.getTerminologyId());
+        updateProgress();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+    }
+
+    logInfo(
+        "Updated " + updatedRelationships + " component info relationships.");
+    logInfo("Finished " + getName());
   }
 
   /* see superclass */

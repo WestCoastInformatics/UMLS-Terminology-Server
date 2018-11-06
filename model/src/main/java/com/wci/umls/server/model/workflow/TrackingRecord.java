@@ -25,14 +25,14 @@ public interface TrackingRecord extends HasLastModified, HasTerminology,
    *
    * @return the terminology ids
    */
-  public Set<Long> getComponentIds();
+  public List<Long> getComponentIds();
 
   /**
    * Sets the terminology ids.
    *
    * @param terminology the terminology ids
    */
-  public void setComponentIds(Set<Long> terminology);
+  public void setComponentIds(List<Long> terminology);
 
   /**
    * Returns the cluster id.
@@ -95,14 +95,14 @@ public interface TrackingRecord extends HasLastModified, HasTerminology,
    *
    * @return the orig concept ids
    */
-  public Set<Long> getOrigConceptIds();
+  public List<Long> getOrigConceptIds();
 
   /**
    * Sets the orig concept ids.
    *
    * @param origConceptIds the orig concept ids
    */
-  public void setOrigConceptIds(Set<Long> origConceptIds);
+  public void setOrigConceptIds(List<Long> origConceptIds);
 
   /**
    * Returns the concepts. This uses a list to make the unit test easier to

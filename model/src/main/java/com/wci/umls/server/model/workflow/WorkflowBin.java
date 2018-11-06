@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.model.workflow;
 
+import java.util.Date;
 import java.util.List;
 
 import com.wci.umls.server.helpers.HasLastModified;
@@ -209,4 +210,18 @@ public interface WorkflowBin extends HasLastModified, HasProject {
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
   public boolean isEnabled();
+
+  /**
+   * Gets the last regenerated.
+   *
+   * @return the last regenerated
+   */
+  public Date getLastRegenerated();
+
+  /**
+   * Sets the last regenerated.
+   *
+   * @param lastRegenerated the new last regenerated
+   */
+  public void setLastRegenerated(Date lastRegenerated);
 }

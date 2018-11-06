@@ -2696,12 +2696,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
           
           Logger.getLogger(getClass()).info("bin to check status " + bin.getName() + " *" + name);
           // checking if given bin is complete
-          if (name != null && bin.getName().equals(name)) {
+          if (name != null && bin.getName().equals(name) && !name.equals("ALL")) {
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.MINUTE, -1);
             Date oneMinuteAgo = calendar.getTime();
             // if getLastModified was updated within the last minute, bin is complete
-            if (bin.getLastModified().after(oneMinuteAgo)) {
+            if (bin.getLastRegenerated().after(oneMinuteAgo)) {
               Logger.getLogger(getClass()).info("status1=true ");
               return "true";
             } else {
@@ -2709,11 +2709,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
               return "false";
             }
           // checking all enabled bins are regenerated and complete
-          } else if (bin.isEnabled()){
+          } else if (bin.isEnabled() && name.equals("ALL")){
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.HOUR, -23);
             Date oneDayAgo = calendar.getTime();
-            if (bin.getLastModified().after(oneDayAgo)) {
+            if (bin.getLastRegenerated().before(oneDayAgo)) {
               Logger.getLogger(getClass()).info("false ");
               return "status2=false";
             }

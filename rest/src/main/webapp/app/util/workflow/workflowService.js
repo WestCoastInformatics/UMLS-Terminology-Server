@@ -1143,7 +1143,7 @@ tsApp.service('workflowService', [
           deferred.reject(response.data);
         });
       
-      regenerateBinStatus(projectId, workflowBinType);
+      regenerateBinStatus(projectId, workflowBinType, 'ALL');
       return deferred.promise;
     };
 

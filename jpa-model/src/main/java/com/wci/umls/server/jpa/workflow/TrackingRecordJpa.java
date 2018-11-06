@@ -81,7 +81,7 @@ public class TrackingRecordJpa implements TrackingRecord {
   @ElementCollection
   @CollectionTable(name = "component_ids")
   @Fetch(value = FetchMode.SELECT)
-  private Set<Long> componentIds = new HashSet<>();
+  private List<Long> componentIds = new ArrayList<>();
 
   /** The cluster id. */
   @Column(nullable = false)
@@ -114,7 +114,7 @@ public class TrackingRecordJpa implements TrackingRecord {
   /** The original concept ids . */
   @ElementCollection
   @CollectionTable(name = "orig_concept_ids")
-  private Set<Long> origConceptIds = new HashSet<>();
+  private List<Long> origConceptIds = new ArrayList<>();
 
   /** The concepts. */
   @Transient
@@ -158,8 +158,8 @@ public class TrackingRecordJpa implements TrackingRecord {
     clusterType = record.getClusterType();
     terminology = record.getTerminology();
     version = record.getVersion();
-    componentIds = new HashSet<>(record.getComponentIds());
-    origConceptIds = new HashSet<>(record.getOrigConceptIds());
+    componentIds = new ArrayList<>(record.getComponentIds());
+    origConceptIds = new ArrayList<>(record.getOrigConceptIds());
     workflowBinName = record.getWorkflowBinName();
     worklistName = record.getWorklistName();
     checklistName = record.getChecklistName();
@@ -211,32 +211,32 @@ public class TrackingRecordJpa implements TrackingRecord {
   /* see superclass */
   @Field(bridge = @FieldBridge(impl = CollectionToCsvBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   @Override
-  public Set<Long> getComponentIds() {
+  public List<Long> getComponentIds() {
     if (componentIds == null) {
-      componentIds = new HashSet<>();
+      componentIds = new ArrayList<>();
     }
     return componentIds;
   }
 
   /* see superclass */
   @Override
-  public void setComponentIds(Set<Long> componentIds) {
+  public void setComponentIds(List<Long> componentIds) {
     this.componentIds = componentIds;
   }
 
   /* see superclass */
   @Field(bridge = @FieldBridge(impl = CollectionToCsvBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   @Override
-  public Set<Long> getOrigConceptIds() {
+  public List<Long> getOrigConceptIds() {
     if (origConceptIds == null) {
-      origConceptIds = new HashSet<>();
+      origConceptIds = new ArrayList<>();
     }
     return origConceptIds;
   }
 
   /* see superclass */
   @Override
-  public void setOrigConceptIds(Set<Long> origConceptIds) {
+  public void setOrigConceptIds(List<Long> origConceptIds) {
     this.origConceptIds = origConceptIds;
   }
 

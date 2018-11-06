@@ -45,13 +45,13 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
  */
 public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
-  /** The mapping add count. */
+  /** The subset member add count. */
   private int subsetMemberAddCount = 0;
 
-  /** The mapping attribute add count. */
+  /** The subset member attribute add count. */
   private int subsetMemberAttributeAddCount = 0;
 
-  /** The mapset add count. */
+  /** The subset add count. */
   private int subsetAddCount = 0;
 
   /** The added subsets. */
@@ -460,7 +460,7 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     newAttribute.setName(fields[3]);
     newAttribute.setValue(fields[4]);
     newAttribute.setTerminology(referencedTerminology.getTerminology());
-    newAttribute.setTerminologyId("");
+    newAttribute.setTerminologyId(fields[12]);
 
     // Compute attribute identity
     final String subsetAtui =
@@ -474,7 +474,7 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // and if so reuse it (e.g. update suppressible, obsolete, version)
     
     // No terminology id for the member attribute
-    memberAtt.setTerminologyId("");
+    memberAtt.setTerminologyId(fields[12]);
 
     memberAtt.setTerminology(referencedTerminology.getTerminology());
     memberAtt.setVersion(referencedTerminology.getVersion());
@@ -489,7 +489,7 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       memberAtt.setName("");
       memberAtt.setValue("Placeholder for ATUI");
     }
-
+    
     addAttribute(memberAtt, member);
     subsetMemberAttributeAddCount++;
 
