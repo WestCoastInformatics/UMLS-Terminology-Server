@@ -1760,11 +1760,4 @@ public class WorkflowClientRest extends RootClientRest
         WorkflowEpochListJpa.class);
   }
 
-  @Override
-  public String checkBinRegenerationStatus(Long projectId, String name,
-    String type, String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
 }

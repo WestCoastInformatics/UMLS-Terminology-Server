@@ -877,35 +877,4 @@ public class ProcessClientRest extends RootClientRest
     return Integer.parseInt(resultString);
   }
 
-  @Override
-  public ProcessConfig cloneProcessConfig(Long projectId,
-    ProcessConfigJpa process, String authToken) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("ProcessConfig Client - add processConfig" + process);
-
-    final Client client = ClientBuilder.newClient();
-    final WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/config/clone" + "?projectId=" + projectId);
-
-    final String processConfigString = ConfigUtility.getStringForGraph(
-        process == null ? new ProcessConfigJpa() : process);
-
-    final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken)
-        .put(Entity.xml(processConfigString));
-
-    final String resultString = response.readEntity(String.class);
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // n/a
-    } else {
-      throw new Exception(resultString);
-    }
-
-    // converting to object
-    ProcessConfigJpa result =
-        ConfigUtility.getGraphForString(resultString, ProcessConfigJpa.class);
-
-    return result;
-  }
-
 }

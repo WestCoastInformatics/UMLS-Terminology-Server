@@ -3,15 +3,11 @@ var workflowUrl = 'workflow';
 tsApp.service('workflowService', [
   '$http',
   '$q',
-  '$timeout',
   'Upload',
   'gpService',
   'utilService',
-  'websocketService',
-  function($http, $q, $timeout, Upload, gpService, utilService, websocketService) {
+  function($http, $q, Upload, gpService, utilService) {
 
-    var finishedBin = 0;
-    
     this.getRecordTypes = function() {
       return [ 'N', 'R' ];
     }
@@ -1053,41 +1049,13 @@ tsApp.service('workflowService', [
       return deferred.promise;
     };
 
-    // regenerate bins status
-    function regenerateBinStatus(projectId, workflowBinType, name) {
-      console.debug('check regenerate bin status');   
-      
-      $http.post(workflowUrl + '/regenerate/status?projectId=' + projectId  + '&type='
-        + workflowBinType + '&name=' + name).then(
-        // success
-        function(response) {
-          console.debug('  bin status = ', response.data);
-          if (response.data + '' == 'true') {
-            finishedBin = 1;
-            console.debug(' set finishedBin to 1');
-            if (gpService.getGlassPane > 0) {
-              gpService.decrement();
-              websocketService.fireBinsChange();
-            }
-          } else if (finishedBin == 0) {
-            $timeout(regenerateBinStatus(projectId, workflowBinType, name), 20000);
-          } 
-        },
-        // error
-        function(response) {
-          utilService.handleError(response);
-          
-        });
-    }
-    
     // regenerate bin
     this.regenerateBin = function(projectId, id, name, workflowBinType) {
       console.debug('regenerate bin', projectId, id, name, workflowBinType);
       var deferred = $q.defer();
-      finishedBin = 0;
-      
-      gpService.increment('Regenerating bin...'); 
+
       // find tracking records
+      gpService.increment('Regenerating bin...');
       var url = workflowUrl + '/bin/' + id + '/regenerate?projectId=' + projectId + '&type='
         + workflowBinType;
       if (!id) {
@@ -1107,13 +1075,8 @@ tsApp.service('workflowService', [
         gpService.decrement('Regenerating bin...');
         deferred.reject(response.data);
       });
-      
-      regenerateBinStatus(projectId, workflowBinType, name);
- 
       return deferred.promise;
     };
-    
-
 
     // regenerate bins
     this.regenerateBins = function(projectId, workflowBinType) {

@@ -795,17 +795,4 @@ public interface WorkflowServiceRest {
   public WorkflowEpochList getWorkflowEpochs(Long projectId, String authToken)
     throws Exception;
 
-  /**
-   * Check bin regeneration status.
-   *
-   * @param projectId the project id
-   * @param name the name
-   * @param type the type
-   * @param authToken the auth token
-   * @return the string
-   * @throws Exception the exception
-   */
-  public String checkBinRegenerationStatus(Long projectId, String name, String type,
-    String authToken) throws Exception;
-
 }
