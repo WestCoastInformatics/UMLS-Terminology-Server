@@ -2055,8 +2055,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             + " Concept Subset Members attributes identified on: " + subsetMember.getTerminologyId());
         Set<Attribute> attSet = new HashSet<>();
         for (final Attribute att : subsetMember.getAttributes()) {         
-          attSet.add(att);   
-          att.get
+          attSet.add(att);  
         }
         subsetMember.setAttributes(null);
         subsetMember.setAttributes(new ArrayList<Attribute>(attSet));
