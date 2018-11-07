@@ -2692,11 +2692,46 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
         final Project project = workflowService.getProject(projectId);
         type = type.replaceAll("^\"|\"$", "");
 
-        for (final WorkflowBin bin : workflowService.getWorkflowBins(project, type)) {
+        
+       
+        final WorkflowConfig workflowConfig = workflowService.getWorkflowConfig(project, type);
+        if (name.equals("ALL")) {
+          for (final WorkflowBinDefinition definition : workflowConfig
+              .getWorkflowBinDefinitions()) {
+            
+            Logger.getLogger(getClass()).info("definition to check status " + definition.getName());
+            // checking if bin exists for definition yet
+            if (workflowBinExists(project, type, definition.getName())) {
+              Logger.getLogger(getClass()).info("ALL:continue");
+              continue;
+            } else {
+              Logger.getLogger(getClass()).info("ALL:false");
+              return "false";
+            }
+          }
+
+          Logger.getLogger(getClass()).info("ALL:true");
+          return "true";
+        }
+        
+      for (final WorkflowBinDefinition definition : workflowConfig
+          .getWorkflowBinDefinitions()) {
+        if (definition.getName().equals(name)) {
+          if (workflowBinExists(project, type, definition.getName())) {
+            Logger.getLogger(getClass()).info(name + ":true");
+            return "true";
+          } else {
+            Logger.getLogger(getClass()).info(name + ":false");
+            return "false";
+          }
+        }
+
+      }
+        /*for (final WorkflowBin bin : workflowService.getWorkflowBins(project, type)) {
           
           Logger.getLogger(getClass()).info("bin to check status " + bin.getName() + " *" + name);
           // checking if given bin is complete
-          if (name != null && bin.getName().equals(name) && !name.equals("ALL")) {
+          if (name != null && bin.getName().equals(name)) {
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.MINUTE, -1);
             Date oneMinuteAgo = calendar.getTime();
@@ -2708,20 +2743,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
               Logger.getLogger(getClass()).info("status1=false ");
               return "false";
             }
-          // checking all enabled bins are regenerated and complete
-          } else if (bin.isEnabled() && name.equals("ALL")){
-            Calendar calendar = Calendar.getInstance();
-            calendar.add(Calendar.HOUR, -23);
-            Date oneDayAgo = calendar.getTime();
-            if (bin.getLastRegenerated().before(oneDayAgo)) {
-              Logger.getLogger(getClass()).info("false ");
-              return "status2=false";
-            }
-          }
+          } 
         }
         Logger.getLogger(getClass()).info("status3=true ");
         return "true";
-
+*/
       } catch (Exception e) {
         Logger.getLogger(getClass()).info("stackTrace " + e.getStackTrace());
         try {
@@ -2738,6 +2764,16 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
       return "";
   }
 
+  private boolean workflowBinExists(Project project, String type, String name) throws Exception {
+    final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
+    
+    for (final WorkflowBin bin : workflowService.getWorkflowBins(project, type)) {      
+      if (name != null && bin.getName().equals(name)) {
+        return true;
+      }
+    }
+    return false;
+  }
   
   /* see superclass */
   @Override

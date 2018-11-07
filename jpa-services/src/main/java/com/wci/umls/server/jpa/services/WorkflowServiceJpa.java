@@ -598,15 +598,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     Map<Long, String> conceptIdWorklistNameMap) throws Exception {
     Logger.getLogger(getClass()).info("Regenerate bin " + definition.getName());
 
-    /*WorkflowBin bin = new WorkflowBinJpa();
-    Runnable lookup = new RegenerateBinThread(project, definition, rank,
-        new HashSet<>(), getConceptIdWorklistNameMap(project), bin);
-    Thread t = new Thread(lookup);
-    t.start();
-    t.join(5000);
-    
-    //  t.join();
-*/    setTransactionPerOperation(false);
+    setTransactionPerOperation(false);
     final Date startDate = new Date();
 
     // Create the workflow bin
@@ -623,6 +615,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     bin.setTerminologyId("");
     bin.setTimestamp(new Date());
     bin.setType(definition.getWorkflowConfig().getType());
+    //bin.setLastRegenerated(new Date());
     addWorkflowBin(bin);
 
     // Bail if the definition is not enabled
@@ -755,7 +748,6 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     commitClearBegin();
     setTransactionPerOperation(false);
     bin.setCreationTime(new Date().getTime() - startDate.getTime());
-    bin.setLastRegenerated(new Date());
     updateWorkflowBin(bin);
 
     return bin;
