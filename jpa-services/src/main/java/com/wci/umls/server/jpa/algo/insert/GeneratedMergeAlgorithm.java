@@ -231,34 +231,34 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
   @Override
   public void reset() throws Exception {
     logInfo("Starting RESET " + getName());
-    // Collect any merges previously performed, and UNDO them in reverse order
-    final PfsParameter pfs = new PfsParameterJpa();
-    pfs.setAscending(false);
-    pfs.setSortField("lastModified");
-    final MolecularActionList molecularActions =
-        findMolecularActions(null, getProject().getTerminology(),
-            getProject().getVersion(), "activityId:" + getActivityId(), pfs);
-
-    for (MolecularAction molecularAction : molecularActions.getObjects()) {
-      // Create and set up an undo action
-      final UndoMolecularAction undoAction = new UndoMolecularAction();
-
-      // Configure and run the undo action
-      undoAction.setProject(getProject());
-      undoAction.setActivityId(molecularAction.getActivityId());
-      undoAction.setConceptId(null);
-      undoAction.setConceptId2(molecularAction.getComponentId2());
-      undoAction.setLastModifiedBy(molecularAction.getLastModifiedBy());
-      undoAction.setTransactionPerOperation(false);
-      undoAction.setMolecularActionFlag(false);
-      undoAction.setChangeStatusFlag(true);
-      undoAction.setMolecularActionId(molecularAction.getId());
-      undoAction.setForce(false);
-      undoAction.performMolecularAction(undoAction, getLastModifiedBy(), false,
-          false);
-
-      undoAction.close();
-    }
+//    // Collect any merges previously performed, and UNDO them in reverse order
+//    final PfsParameter pfs = new PfsParameterJpa();
+//    pfs.setAscending(false);
+//    pfs.setSortField("lastModified");
+//    final MolecularActionList molecularActions =
+//        findMolecularActions(null, getProject().getTerminology(),
+//            getProject().getVersion(), "activityId:" + getActivityId(), pfs);
+//
+//    for (MolecularAction molecularAction : molecularActions.getObjects()) {
+//      // Create and set up an undo action
+//      final UndoMolecularAction undoAction = new UndoMolecularAction();
+//
+//      // Configure and run the undo action
+//      undoAction.setProject(getProject());
+//      undoAction.setActivityId(molecularAction.getActivityId());
+//      undoAction.setConceptId(null);
+//      undoAction.setConceptId2(molecularAction.getComponentId2());
+//      undoAction.setLastModifiedBy(molecularAction.getLastModifiedBy());
+//      undoAction.setTransactionPerOperation(false);
+//      undoAction.setMolecularActionFlag(false);
+//      undoAction.setChangeStatusFlag(true);
+//      undoAction.setMolecularActionId(molecularAction.getId());
+//      undoAction.setForce(false);
+//      undoAction.performMolecularAction(undoAction, getLastModifiedBy(), false,
+//          false);
+//
+//      undoAction.close();
+//    }
     logInfo("Finished RESET " + getName());
   }
 
