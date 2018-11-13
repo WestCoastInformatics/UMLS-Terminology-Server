@@ -763,6 +763,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
             composeQuery(project, "")
                 + (type == null ? "" : " AND type:" + type),
             "", WorkflowBinJpa.class, null, totalCt, manager);
+    Logger.getLogger(getClass()).info("Workflow Service - get workflow bins results: "
+        + manager + "*" + results);
     return new ArrayList<WorkflowBin>(results);
 
   }

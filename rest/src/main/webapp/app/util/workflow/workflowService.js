@@ -1,6 +1,6 @@
 // Workflow Service
 var workflowUrl = 'workflow';
-tsApp.service('workflowService', [
+tsApp.service('workflowService', [ 
   '$http',
   '$q',
   'Upload',
@@ -1065,14 +1065,15 @@ tsApp.service('workflowService', [
       $http.post(url, '').then(
       // success
       function(response) {
-        console.debug('  successful regenerate bin');
-        gpService.decrement('Regenerating bin...');
+        console.debug('  successful regenerate bin ', gpService.getGlassPane().counter);
+        /*if (gpService.getGlassPane > 0) {
+          gpService.decrement('Regenerating bins...  DO NOT refresh browser.');
+        }*/
         deferred.resolve(response.data);
       },
       // error
       function(response) {
-        utilService.handleError(response);
-        gpService.decrement('Regenerating bin...');
+        //utilService.handleError(response);
         deferred.reject(response.data);
       });
       return deferred.promise;
@@ -1084,7 +1085,7 @@ tsApp.service('workflowService', [
       var deferred = $q.defer();
 
       // find tracking records
-      gpService.increment('Regenerating bins...');
+      gpService.increment('Regenerating bins...  DO NOT refresh browser.');
       $http
         .post(
           workflowUrl + '/bin/regenerate/all?projectId=' + projectId + '&type=' + workflowBinType,
@@ -1092,15 +1093,17 @@ tsApp.service('workflowService', [
         // success
         function(response) {
           console.debug('  successful regenerate bins');
-          gpService.decrement('Regenerating bins...');
+          //gpService.decrement('Regenerating bins...  DO NOT refresh browser.');
           deferred.resolve(response.data);
         },
         // error
         function(response) {
-          utilService.handleError(response);
-          gpService.decrement('Regenerating bins...');
+          /*utilService.handleError(response);
+          gpService.decrement('Regenerating bins...');*/
           deferred.reject(response.data);
         });
+      
+      regenerateBinStatus(projectId, workflowBinType);
       return deferred.promise;
     };
 
