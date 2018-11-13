@@ -5,9 +5,7 @@
     <h6>
       <span>
         Project: <select ng-model="selected.project"
-          ng-show="lists.projects.length > 1"
-          ng-options="item.name for item in lists.projects"
-          ng-change="setProject(selected.project);"></select>
+          ng-show="lists.projects.length > 1"</select>
         <span ng-show="lists.projects.length == 1">{{selected.project.name}}</span>
       </span>
       <span>

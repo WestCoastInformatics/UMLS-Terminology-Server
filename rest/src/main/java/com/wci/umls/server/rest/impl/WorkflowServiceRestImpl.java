@@ -11,6 +11,7 @@ import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -2645,7 +2646,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
 
         workflowService.addLogEntry(userName, projectId, id, null, null,
             "REGENERATE BIN - " + id + ", " + bin.getName());
-        workflowService.commit();
+        workflowService.commitClearBegin();
 
         // websocket - n/a
 
@@ -2666,6 +2667,78 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
     }
   }
 
+  
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/regenerate/status")
+  @ApiOperation(value = "Check bin regeneration status", notes = "Check bin regeneration status", response = String.class)
+  public String checkBinRegenerationStatus(
+    @ApiParam(value = "Project id, e.g. 1",
+          required = true) @QueryParam("projectId") Long projectId,
+      @ApiParam(value = "Workflow bin definition name, e.g. 'demotions'",
+          required = false) @QueryParam("name") String name,
+      @ApiParam(value = "Workflow bin type", required = true) @QueryParam("type") String type,
+      @ApiParam(value = "Authorization token, e.g. 'guest'",
+          required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Workflow): /regenerate/status ");
+
+      final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
+      try {
+        final String userName = authorizeProject(workflowService, projectId, securityService,
+            authToken, "trying to check bin regeneration status", UserRole.AUTHOR);
+        workflowService.setLastModifiedBy(userName);
+        final Project project = workflowService.getProject(projectId);
+        type = type.replaceAll("^\"|\"$", "");
+
+        for (final WorkflowBin bin : workflowService.getWorkflowBins(project, type)) {
+          
+          Logger.getLogger(getClass()).info("bin to check status " + bin.getName() + " *" + name);
+          // checking if given bin is complete
+          if (name != null && bin.getName().equals(name)) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.MINUTE, -1);
+            Date oneMinuteAgo = calendar.getTime();
+            // if getLastModified was updated within the last minute, bin is complete
+            if (bin.getLastModified().after(oneMinuteAgo)) {
+              Logger.getLogger(getClass()).info("status1=true ");
+              return "true";
+            } else {
+              Logger.getLogger(getClass()).info("status1=false ");
+              return "false";
+            }
+          // checking all enabled bins are regenerated and complete
+          } else if (bin.isEnabled()){
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.HOUR, -23);
+            Date oneDayAgo = calendar.getTime();
+            if (bin.getLastModified().after(oneDayAgo)) {
+              Logger.getLogger(getClass()).info("false ");
+              return "status2=false";
+            }
+          }
+        }
+        Logger.getLogger(getClass()).info("status3=true ");
+        return "true";
+
+      } catch (Exception e) {
+        Logger.getLogger(getClass()).info("stackTrace " + e.getStackTrace());
+        try {
+          workflowService.rollback();
+        } catch (Exception e2) {
+          // n/a - if this fails, it's already rolled back
+        }
+        handleException(e, "trying to check regenerate bin(s) status");
+      } finally {
+        workflowService.close();
+        securityService.close();
+      }
+      Logger.getLogger(getClass()).info("after finally ");
+      return "";
+  }
+
+  
   /* see superclass */
   @Override
   @POST
@@ -2723,9 +2796,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
           }
         }
 
-        workflowService.addLogEntry(userName, projectId, newBin.getId(), null, null,
-            "REGENERATE BIN DEFINITION - " + name + ", " + type);
-        workflowService.commit();
+        /*workflowService.addLogEntry(userName, projectId, newBin.getId(), null, null,
+            "REGENERATE BIN DEFINITION - " + name + ", " + type);*/
+        workflowService.commitClearBegin();
 
         // websocket - n/a
 
