@@ -36,7 +36,6 @@ import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
-import com.wci.umls.server.jpa.services.ProcessServiceJpa;
 import com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa;
 import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.model.actions.MolecularAction;
@@ -53,7 +52,6 @@ import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
-import com.wci.umls.server.services.ProcessService;
 import com.wci.umls.server.services.UmlsIdentityService;
 import com.wci.umls.server.services.WorkflowService;
 
@@ -160,9 +158,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
-    
-    
-    
+
     commitClearBegin();
 
     logInfo("  project = " + getProject().getId());
@@ -316,6 +312,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // created multiple relationships between concepts.
     // It also created a number of self-referential relationships.
     // Identify and remove them.
+    // 11/13/2018 Same issue happened again with MTH2018AA insertion. Updating
+    // version.
 
     int removals = 0;
 
@@ -328,7 +326,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         + "ConceptRelationshipJpa a "
         + "where a.terminology = :terminology and a.version = :version and a.publishable=true");
     query.setParameter("terminology", "MTH");
-    query.setParameter("version", "2017AB");
+    query.setParameter("version", "2018AA");
 
     logInfo("[RemoveBadRelationships] Loading "
         + "ConceptRelationship ids for relationships created by the MTH 2017AB insertion");
@@ -1845,14 +1843,12 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
         final Long atomId = Long.valueOf(entry.toString());
-        atoms.add(getAtom(atomId));        
+        atoms.add(getAtom(atomId));
       }
 
       setSteps(atoms.size());
 
-      logInfo("[FixRHTAtoms] "
-          + atoms.size()
-          + " atoms identified");
+      logInfo("[FixRHTAtoms] " + atoms.size() + " atoms identified");
 
       for (final Atom atom : atoms) {
 
@@ -1875,20 +1871,26 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       // n/a
     }
 
-    logInfo("Updated " + updatedAtoms
-        + " additional relationship types updated.");
+    logInfo(
+        "Updated " + updatedAtoms + " additional relationship types updated.");
     logInfo("Finished " + getName());
   }
 
   private void fixMDRDescriptors() throws Exception {
-    // 9/27/2018 Discovered that existing MDR descriptors weren't getting during insertion, but instead new ones were being created.
+    // 9/27/2018 Discovered that existing MDR descriptors weren't getting during
+    // insertion, but instead new ones were being created.
     // We need to:
     // 1) Remove MDR descriptors not brought over by MEME4 loader
-    // 2) Set MDR descriptors loaded by MEME4 that are publishable=false to publishable=true (so they can be picked up by the atom loader)
-    // 3) Re-run the atom loader to update reused descriptors to current version (done in separate Atom Loader algo)
-    // 4) Re-run attribute loader for SDUI attributes, to ensure all descriptor attributes are attached accordingly (done in separate Replace Attribute algo)
-    // 5) Set descriptors that were not updated to publishable=false (done in separate Update Releasibility algo)
- 
+    // 2) Set MDR descriptors loaded by MEME4 that are publishable=false to
+    // publishable=true (so they can be picked up by the atom loader)
+    // 3) Re-run the atom loader to update reused descriptors to current version
+    // (done in separate Atom Loader algo)
+    // 4) Re-run attribute loader for SDUI attributes, to ensure all descriptor
+    // attributes are attached accordingly (done in separate Replace Attribute
+    // algo)
+    // 5) Set descriptors that were not updated to publishable=false (done in
+    // separate Update Releasibility algo)
+
     int removedDescriptors = 0;
     int updatedDescriptors = 0;
 
@@ -1903,36 +1905,34 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       Query query2 = getEntityManager().createNativeQuery(
           "select id from descriptors where terminology='MDR' and version='20_0' and publishable=false");
       List<Object> list2 = query2.getResultList();
-   
-            setSteps(list.size() + list2.size());
+
+      setSteps(list.size() + list2.size());
 
       logInfo(" Remove MDR descriptors created by insertions");
-      
-      logInfo("[FixMDRDesciptors] "
-          + list.size()
+
+      logInfo("[FixMDRDesciptors] " + list.size()
           + " descriptors created by insertions identified");
-      
+
       for (final Object entry : list) {
         final Long descriptorId = Long.valueOf(entry.toString());
         removeDescriptor(descriptorId);
         removedDescriptors++;
-        updateProgress();        
+        updateProgress();
       }
-      
+
       logInfo(" Set MDR descriptors loaded from MEME4 to publishable=true");
-      logInfo("[FixMDRDesciptors] "
-          + list2.size()
+      logInfo("[FixMDRDesciptors] " + list2.size()
           + " descriptors that need to be set to publishable=true");
-      
+
       for (final Object entry : list2) {
         final Long descriptorId = Long.valueOf(entry.toString());
         Descriptor descriptor = getDescriptor(descriptorId);
         descriptor.setPublishable(true);
         updateDescriptor(descriptor);
         updatedDescriptors++;
-        updateProgress();        
+        updateProgress();
       }
-            
+
     } catch (Exception e) {
       e.printStackTrace();
       fail("Unexpected exception thrown - please review stack trace.");
@@ -1945,26 +1945,24 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Updated " + updatedDescriptors
         + " loaded MDR descriptors tp publishable=true.");
     logInfo("Finished " + getName());
-        
+
   }
-  
+
   private void removeOldWorklistsChecklists() throws Exception {
     // 10/22/2018 Remove old worklists and checklists that should have
     // been removed during release process cleanup
 
     int removals = 0;
-    
+
     WorkflowService workflowService = new WorkflowServiceJpa();
     workflowService.setLastModifiedBy("admin");
 
-    
     Set<Long> worklistIdsToRemove = new HashSet<>();
     Set<Long> checklistIdsToRemove = new HashSet<>();
 
     // Get worklists
-    Query query = getEntityManager().createQuery("select a.id from "
-        + "WorklistJpa a where epoch = '17b'");
-        
+    Query query = getEntityManager()
+        .createQuery("select a.id from " + "WorklistJpa a where epoch = '17b'");
 
     logInfo("[RemoveOldWorklistsChecklists] Loading ");
 
@@ -1973,11 +1971,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       final Long id = Long.valueOf(entry.toString());
       worklistIdsToRemove.add(id);
     }
-    
+
     // Get checklists
-    query = getEntityManager().createQuery("select a.id from "
-        + "ChecklistJpa a where timestamp < '2018-08-23'");
-        
+    query = getEntityManager().createQuery(
+        "select a.id from " + "ChecklistJpa a where timestamp < '2018-08-23'");
 
     logInfo("[RemoveOldWorklistsChecklists] Loading ");
 
@@ -1992,7 +1989,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("[RemoveOldWorklistsChecklists] " + checklistIdsToRemove.size()
         + " checklists to be removed");
     logInfo("[RemoveOldWorklistsChecklists] " + worklistIdsToRemove.size()
-    + " worklists to be removed");
+        + " worklists to be removed");
 
     // Remove checklists
     for (Long id : checklistIdsToRemove) {
@@ -2001,7 +1998,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       updateProgress();
       removals++;
     }
-    
+
     // Remove worklists
     for (Long id : worklistIdsToRemove) {
       logInfo("[RemoveOldWorklistsChecklists] " + id);
@@ -2064,8 +2061,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Set Stamped Worklists To Ready For Publication",
             "Add Disposition Atoms", "Fix RelGroups", "Fix Source Level Rels",
             "Fix AdditionalRelType Inverses", "Fix Snomed Family",
-            "Turn off CTRP-SDC", "Fix Terminology Names","Fix RHT Atoms", "Fix MDR Descriptors",
-            "Clear Worklists and Checklists"));
+            "Turn off CTRP-SDC", "Fix Terminology Names", "Fix RHT Atoms",
+            "Fix MDR Descriptors", "Clear Worklists and Checklists"));
     params.add(param);
 
     return params;
