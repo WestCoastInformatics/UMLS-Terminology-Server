@@ -1312,6 +1312,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
         return "BRO";
       case "NT":
         return "RN";
+      case "BNT":
+        return "BRN";
       case "BT":
         return "RB";
       case "BBT":
