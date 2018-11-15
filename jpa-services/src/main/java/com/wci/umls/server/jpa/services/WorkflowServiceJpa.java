@@ -19,6 +19,8 @@ import javax.persistence.NoResultException;
 import org.apache.log4j.Logger;
 import org.apache.lucene.queryparser.classic.QueryParserBase;
 
+import static java.lang.Math.toIntExact;
+
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
@@ -34,7 +36,6 @@ import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorkflowConfigList;
 import com.wci.umls.server.helpers.WorklistList;
-import com.wci.umls.server.jpa.actions.ChangeEventJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
@@ -50,7 +51,6 @@ import com.wci.umls.server.jpa.workflow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.workflow.WorkflowEpochJpa;
 import com.wci.umls.server.jpa.workflow.WorklistJpa;
 import com.wci.umls.server.jpa.workflow.WorklistNoteJpa;
-import com.wci.umls.server.model.actions.ChangeEvent;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
@@ -763,8 +763,9 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
             composeQuery(project, "")
                 + (type == null ? "" : " AND type:" + type),
             "", WorkflowBinJpa.class, null, totalCt, manager);
-    Logger.getLogger(getClass()).info("Workflow Service - get workflow bins results: "
-        + manager + "*" + results);
+    Logger.getLogger(getClass())
+        .info("Workflow Service - get workflow bins results: " + manager + "*"
+            + results);
     return new ArrayList<WorkflowBin>(results);
 
   }
@@ -823,18 +824,18 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       for (final TrackingRecord record : worklist.getTrackingRecords()) {
         removeTrackingRecord(record.getId());
       }
-      
+
       final List<Note> worklistNotesCopies = new ArrayList<>();
       for (final Note note : worklist.getNotes()) {
         worklistNotesCopies.add(new WorklistNoteJpa((WorklistNoteJpa) note));
       }
 
       worklist.getNotes().clear();
-      
+
       for (final Note note : worklistNotesCopies) {
         removeNote(note.getId(), WorklistNoteJpa.class);
       }
-      
+
     }
 
     // Remove the component
@@ -932,14 +933,14 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       for (final TrackingRecord record : checklist.getTrackingRecords()) {
         removeTrackingRecord(record.getId());
       }
-      
+
       final List<Note> checklistNotesCopies = new ArrayList<>();
       for (final Note note : checklist.getNotes()) {
         checklistNotesCopies.add(new ChecklistNoteJpa((ChecklistNoteJpa) note));
       }
 
       checklist.getNotes().clear();
-      
+
       for (final Note note : checklistNotesCopies) {
         removeNote(note.getId(), ChecklistNoteJpa.class);
       }
@@ -1008,8 +1009,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       if (checklist.getName().equals(name)
           && checklist.getProject().equals(project)) {
         if (override) {
-          removeChecklist(checklist.getId(), true);
-          commitClearBegin();
+           removeChecklist(checklist.getId(), true);
+           commitClearBegin();
         } else {
           throw new LocalException(
               "A checklist for project " + project.getName() + " with name "
@@ -1054,6 +1055,9 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
     // Add tracking records
     long i = 1L;
+    Logger.getLogger(getClass())
+        .info(entries.keySet().size() + " clusters identified.");
+
     for (final Long clusterId : entries.keySet()) {
 
       final TrackingRecord record = new TrackingRecordJpa();
@@ -1083,6 +1087,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
       // Add the record to the checklist.
       checklist.getTrackingRecords().add(newRecord);
+
+      logAndCommit(toIntExact(i), logCt, commitCt);
     }
 
     // Add the checklist
