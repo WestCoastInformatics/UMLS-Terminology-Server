@@ -1059,9 +1059,6 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
     // Add tracking records
     long i = 1L;
-    Logger.getLogger(getClass())
-        .info(entries.keySet().size() + " clusters identified.");
-
     for (final Long clusterId : entries.keySet()) {
 
       final TrackingRecord record = new TrackingRecordJpa();
@@ -1092,7 +1089,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       // Add the record to the checklist.
       checklist.getTrackingRecords().add(newRecord);
 
-      logAndCommit(toIntExact(i), logCt, commitCt);
+      silentIntervalCommit(toIntExact(i), logCt, commitCt);
     }
 
     // Add the checklist
