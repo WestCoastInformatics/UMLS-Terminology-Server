@@ -1009,12 +1009,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       if (checklist.getName().equals(name)
           && checklist.getProject().equals(project)) {
         if (override) {
-          Logger.getLogger(getClass())
-              .info("A checklist for project " + project.getName()
-                  + " with name " + checklist.getName() + " already exists.");
-          return checklist;
-          // removeChecklist(checklist.getId(), true);
-          // commitClearBegin();
+           removeChecklist(checklist.getId(), true);
+           commitClearBegin();
         } else {
           throw new LocalException(
               "A checklist for project " + project.getName() + " with name "
