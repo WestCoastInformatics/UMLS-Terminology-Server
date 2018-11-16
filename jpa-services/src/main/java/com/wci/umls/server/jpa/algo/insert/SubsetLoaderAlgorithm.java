@@ -449,8 +449,9 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       addedSubsetMembers.put(subsetMemberIdKey, member.getId());
     }
 
-    // TODO: handle the "update "case - e.g. obsolete, suppressible, version if we're reusing the member
-    
+    // TODO: handle the "update "case - e.g. obsolete, suppressible, version if
+    // we're reusing the member
+
     // Always make an attribute, even if it's an entry for JUST a membership
     final Attribute memberAtt = new AttributeJpa();
 
@@ -470,9 +471,10 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     memberAtt.getAlternateTerminologyIds().put(getProject().getTerminology(),
         subsetAtui);
 
-    // TODO: check whether this attribute is already connected to the subset member
+    // TODO: check whether this attribute is already connected to the subset
+    // member
     // and if so reuse it (e.g. update suppressible, obsolete, version)
-    
+
     // No terminology id for the member attribute
     memberAtt.setTerminologyId("");
 
