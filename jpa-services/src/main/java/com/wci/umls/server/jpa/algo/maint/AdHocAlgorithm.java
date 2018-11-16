@@ -2039,7 +2039,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       Query query = getEntityManager().createNativeQuery(
           "select id from concept_subsets where terminology=:terminology and version=:version");
       query.setParameter("terminology", "SNOMEDCT_US");
-      query.setParameter("version", "2018_03_01");
+      query.setParameter("version", "2018_09_01");
       
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
