@@ -34,6 +34,7 @@ import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
+import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
@@ -47,6 +48,7 @@ import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.ComponentInfoRelationship;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
@@ -121,6 +123,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       undoStampings();
     } else if (actionName.equals("Remove Bad Relationships")) {
       removeBadRelationships();
+    } else if (actionName.equals("Remove SNOMED Subsets")) {
+      removeSNOMEDSubsets();
     } else if (actionName.equals("Remove Orphaned Tracking Records")) {
       removeOrphanedTrackingRecords();
     } else if (actionName.equals("Inactivate Old SRC atoms and AtomRels")) {
@@ -2017,7 +2021,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   }
   
-  private void removeDuplicateSubsetMemberAttributes() throws Exception {
+  private void removeSNOMEDSubsets() throws Exception {
     // 5/23/2018 Issues identified where componentInfoRelationships had blank
     // to/from terminologyIds. These all were associated with a single Atom:
     // terminology='NCIMTH', name= 'NCI Thesaurus', AUI=31926003
@@ -2028,41 +2032,47 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     int updatedRelationships = 0;
 
-    final List<ConceptSubsetMemberJpa> conceptSubsetMembers =
+    final List<ConceptSubsetJpa> conceptSubsets =
         new ArrayList<>();
 
     try {
       Query query = getEntityManager().createNativeQuery(
-          "select id from concept_subset_members");
-
+          "select id from concept_subsets where terminology=:terminology and version=:version");
+      query.setParameter("terminology", "SNOMEDCT_US");
+      query.setParameter("version", "2018_03_01");
+      
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
-        conceptSubsetMembers
-            .add((ConceptSubsetMemberJpa) getSubsetMember(id,
-                ConceptSubsetMemberJpa.class));
+        conceptSubsets
+            .add((ConceptSubsetJpa) getSubset(id,
+                ConceptSubsetJpa.class));
       }
 
-      setSteps(conceptSubsetMembers.size());
+      setSteps(conceptSubsets.size());
 
-      logInfo("[RemoveDuplicateSubsetMemberAttributes] "
-          + conceptSubsetMembers.size()
-          + " Concept Subset Members identified");
+      logInfo("[RemoveSNOMEDSubsets] "
+          + conceptSubsets.size()
+          + " Concept Subsets identified");
 
-      for (final ConceptSubsetMemberJpa subsetMember : conceptSubsetMembers) {
-        logInfo("BEFORE "
-            + subsetMember.getAttributes().size()
-            + " Concept Subset Members attributes identified on: " + subsetMember.getTerminologyId());
-        Set<Attribute> attSet = new HashSet<>();
-        for (final Attribute att : subsetMember.getAttributes()) {         
-          attSet.add(att);  
+      for (final ConceptSubsetJpa subset : conceptSubsets) {
+        logInfo("[RemoveSNOMEDSubsets] "
+            + subset.getMembers().size()
+            + " Before removal concept Subset Members  identified on: " + subset.getTerminologyId() + " " + subset.getId());
+        for (final ConceptSubsetMember member : subset.getMembers()) {
+          for (final Attribute att : member.getAttributes()) {
+            removeAttribute(att.getId());
+          }
+          member.setAttributes(null);
+          updateSubsetMember(member);
+          removeSubsetMember(member.getId(),ConceptSubsetMemberJpa.class);
         }
-        subsetMember.setAttributes(null);
-        subsetMember.setAttributes(new ArrayList<Attribute>(attSet));
-        updateSubsetMember(subsetMember);
-        logInfo("AFTER "
-            + subsetMember.getAttributes().size()
-            + " Concept Subset Members attributes identified on: " + subsetMember.getTerminologyId());
+        subset.clearMembers();
+        updateSubset(subset);
+        removeSubset(subset.getId(), ConceptSubsetJpa.class);
+        logInfo("[RemoveSNOMEDSubsets] "
+            + subset.getMembers().size()
+            + " After removal concept Subset Members  identified on: " + subset.getTerminologyId() + " " + subset.getId());
         updateProgress();
       }
     } catch (Exception e) {
@@ -2117,7 +2127,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "e.g. Fix Orphan Definitions", 200, AlgorithmParameter.Type.ENUM, "");
     param.setPossibleValues(
         Arrays.asList("Fix Orphan Definitions", "Undo Stampings",
-            "Remove Bad Relationships", "Remove Orphaned Tracking Records",
+            "Remove Bad Relationships", "Remove SNOMED Subsets", "Remove Orphaned Tracking Records",
             "Inactivate Old SRC atoms and AtomRels", "Fix SRC_ATOM_IDs",
             "Redo Molecular Actions", "Fix Bad Relationship Identities",
             "Fix Component Info Relationships",
