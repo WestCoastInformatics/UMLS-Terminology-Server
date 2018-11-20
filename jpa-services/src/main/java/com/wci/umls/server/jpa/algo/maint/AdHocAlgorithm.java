@@ -2108,10 +2108,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           removeAttribute(att.getId());
         }
         for (ConceptRelationship rel : concept.getInverseRelationships()) {
-          removeRelationship(rel.getId(), ConceptRelationship.class);
+          removeRelationship(rel.getId(), rel.getClass());
         }
         for (ConceptRelationship rel : concept.getRelationships()) {
-          removeRelationship(rel.getId(), ConceptRelationship.class);
+          removeRelationship(rel.getId(), rel.getClass());
         }
         for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
           removeSemanticTypeComponent(sty.getId());
@@ -2120,10 +2120,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           removeComponentHistory(history.getId());
         }
         for (ConceptSubsetMember member : concept.getMembers()) {
-          removeSubsetMember(member.getId(), ConceptSubsetMember.class);
+          removeSubsetMember(member.getId(), member.getClass());
         }
         for (ConceptTreePosition treePos : concept.getTreePositions()) {
-          removeTreePosition(treePos.getId(), ConceptTreePosition.class);
+          removeTreePosition(treePos.getId(), treePos.getClass());
         }
         concept.setNotes(null);
         updateConcept(concept);
