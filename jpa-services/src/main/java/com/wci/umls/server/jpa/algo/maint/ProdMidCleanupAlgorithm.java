@@ -18,6 +18,14 @@ import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.algo.RemoveTerminologyAlgorithm;
 import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
+import com.wci.umls.server.model.content.Attribute;
+import com.wci.umls.server.model.content.ComponentHistory;
+import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.content.ConceptSubsetMember;
+import com.wci.umls.server.model.content.ConceptTreePosition;
+import com.wci.umls.server.model.content.Definition;
+import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
 import com.wci.umls.server.services.WorkflowService;
@@ -95,6 +103,7 @@ public class ProdMidCleanupAlgorithm
       
       Set<Long> worklistIdsToRemove = new HashSet<>();
       Set<Long> checklistIdsToRemove = new HashSet<>();
+      Set<Concept> conceptsWithoutAtoms = new HashSet<>();
 
       // Get worklists
       Query query = getEntityManager().createQuery("select a.id from "
@@ -117,13 +126,27 @@ public class ProdMidCleanupAlgorithm
         final Long id = Long.valueOf(entry.toString());
         checklistIdsToRemove.add(id);
       }
+      
+      // Get concepts without atoms
+      query = getEntityManager().createQuery("select c1.id from "
+          + "ConceptJpa c1 where c1.id NOT IN (select c2.id from ConceptJpa c2 JOIN c2.atoms)"); 
+      
+      list = query.getResultList();
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        Concept concept = getConcept(id);
+        conceptsWithoutAtoms.add(concept);
+      }
 
       logInfo("[ProdMid Cleanup] " + checklistIdsToRemove.size()
           + " checklists to be removed");
       logInfo("[ProdMid Cleanup] " + worklistIdsToRemove.size()
       + " worklists to be removed");
+      logInfo("[ProdMid Cleanup] " + conceptsWithoutAtoms.size()
+      + " concepts to be removed");
 
-      setSteps(nonCurrentTerminologies.size() + checklistIdsToRemove.size() + worklistIdsToRemove.size());
+      setSteps(nonCurrentTerminologies.size() + checklistIdsToRemove.size() + worklistIdsToRemove.size()
+        + conceptsWithoutAtoms.size());
 
       // Remove checklists
       for (Long id : checklistIdsToRemove) {
@@ -178,13 +201,48 @@ public class ProdMidCleanupAlgorithm
       
       commitClearBegin();
       
-
-
       // Consider truncating action tables, log entries, etc.
 
       logInfo("[ProdMid Cleanup] Removed content for " + getSteps()
           + " non-current terminologies.");
-
+      
+      // Remove concepts without atoms
+      for (final Concept concept : conceptsWithoutAtoms) {
+        
+        for (Definition def : concept.getDefinitions()) {
+          removeDefinition(def.getId());
+        }
+        for (Attribute att : concept.getAttributes()) {
+          removeAttribute(att.getId());
+        }
+        for (ConceptRelationship rel : concept.getInverseRelationships()) {
+          removeRelationship(rel.getId(), ConceptRelationship.class);
+        }
+        for (ConceptRelationship rel : concept.getRelationships()) {
+          removeRelationship(rel.getId(), ConceptRelationship.class);
+        }
+        for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
+          removeSemanticTypeComponent(sty.getId());
+        }
+        for (ComponentHistory history : concept.getComponentHistory()) {
+          removeComponentHistory(history.getId());
+        }
+        for (ConceptSubsetMember member : concept.getMembers()) {
+          removeSubsetMember(member.getId(), ConceptSubsetMember.class);
+        }
+        for (ConceptTreePosition treePos : concept.getTreePositions()) {
+          removeTreePosition(treePos.getId(), ConceptTreePosition.class);
+        }
+        concept.setNotes(null);
+        updateConcept(concept);
+        removeConcept(concept.getId());
+        updateProgress();
+      }
+  
+      logInfo("[ProdMid Cleanup] Removed content for concepts without atoms.");
+      
+      commitClearBegin();
+      
       logInfo("  project = " + getProject().getId());
       logInfo("  workId = " + getWorkId());
       logInfo("  activityId = " + getActivityId());

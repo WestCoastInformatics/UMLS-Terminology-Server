@@ -45,12 +45,15 @@ import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
+import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.ComponentInfoRelationship;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
+import com.wci.umls.server.model.content.ConceptTreePosition;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.RelationshipIdentity;
 import com.wci.umls.server.model.meta.RootTerminology;
@@ -125,6 +128,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       removeBadRelationships();
     } else if (actionName.equals("Remove SNOMED Subsets")) {
       removeSNOMEDSubsets();
+    } else if (actionName.equals("Remove Concepts without Atoms")) {
+      removeConceptsWithoutAtoms();
     } else if (actionName.equals("Remove Orphaned Tracking Records")) {
       removeOrphanedTrackingRecords();
     } else if (actionName.equals("Inactivate Old SRC atoms and AtomRels")) {
@@ -2022,11 +2027,6 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   }
   
   private void removeSNOMEDSubsets() throws Exception {
-    // 5/23/2018 Issues identified where componentInfoRelationships had blank
-    // to/from terminologyIds. These all were associated with a single Atom:
-    // terminology='NCIMTH', name= 'NCI Thesaurus', AUI=31926003
-    // Update to componentInfoRelationships to have to/from TerminologyIds point
-    // to the AUI 31926003
 
     logInfo(" Remove Duplicate Subset Member Attributes");
 
@@ -2086,6 +2086,69 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
   }
 
+  private void removeConceptsWithoutAtoms() throws Exception {
+    // 11/20/2018 Remove shell concepts that have no atoms
+    
+    logInfo(" Remove Concepts without Atoms");
+
+    int removedConcepts = 0;
+
+    List<ConceptSubsetJpa> conceptsWithoutAtoms =
+        new ArrayList<>();
+
+    try {
+      Query query = getEntityManager().createQuery("select c1.id from "
+          + "ConceptJpa c1 where c1.id NOT IN (select c2.id from ConceptJpa c2 JOIN c2.atoms)"); 
+      conceptsWithoutAtoms = query.getResultList();
+      setSteps(conceptsWithoutAtoms.size());
+      
+      for (final Object entry : conceptsWithoutAtoms) {
+        final Long id = Long.valueOf(entry.toString());
+        Concept concept = getConcept(id);
+        for (Definition def : concept.getDefinitions()) {
+          removeDefinition(def.getId());
+        }
+        for (Attribute att : concept.getAttributes()) {
+          removeAttribute(att.getId());
+        }
+        for (ConceptRelationship rel : concept.getInverseRelationships()) {
+          removeRelationship(rel.getId(), ConceptRelationship.class);
+        }
+        for (ConceptRelationship rel : concept.getRelationships()) {
+          removeRelationship(rel.getId(), ConceptRelationship.class);
+        }
+        for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
+          removeSemanticTypeComponent(sty.getId());
+        }
+        for (ComponentHistory history : concept.getComponentHistory()) {
+          removeComponentHistory(history.getId());
+        }
+        for (ConceptSubsetMember member : concept.getMembers()) {
+          removeSubsetMember(member.getId(), ConceptSubsetMember.class);
+        }
+        for (ConceptTreePosition treePos : concept.getTreePositions()) {
+          removeTreePosition(treePos.getId(), ConceptTreePosition.class);
+        }
+        concept.setNotes(null);
+        updateConcept(concept);
+        removeConcept(concept.getId());
+        
+        updateProgress();
+        removedConcepts++;
+      }
+        
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+      logInfo(
+          "Removed " + removedConcepts + " concepts without atoms.");
+      logInfo("Finished " + getName());
+    }
+
+    
+  }
+
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -2130,7 +2193,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Remove Bad Relationships", "Remove SNOMED Subsets", "Remove Orphaned Tracking Records",
             "Inactivate Old SRC atoms and AtomRels", "Fix SRC_ATOM_IDs",
             "Redo Molecular Actions", "Fix Bad Relationship Identities",
-            "Fix Component Info Relationships",
+            "Fix Component Info Relationships", "Remove Concepts without Atoms",
             "Set Component Info Relationships To Publishable",
             "Set Stamped Worklists To Ready For Publication",
             "Add Disposition Atoms", "Fix RelGroups", "Fix Source Level Rels",
