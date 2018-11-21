@@ -2608,18 +2608,18 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
 
     Logger.getLogger(getClass()).info("RESTful call (Workflow): /bin/" + id + "/regenerate ");
 
+
     // Only one user can regenerate a bin at a time
     synchronized (lock) {
 
+      
       final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
       try {
         final String userName = authorizeProject(workflowService, projectId, securityService,
             authToken, "trying to regenerate a single bin", UserRole.AUTHOR);
         workflowService.setLastModifiedBy(userName);
 
-        // Set transaction scope
-        workflowService.setTransactionPerOperation(false);
-        workflowService.beginTransaction();
+        
 
         // Read relevant workflow objects
         final WorkflowBin bin = workflowService.getWorkflowBin(id);
@@ -2631,6 +2631,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
 
         // Remove the workflow bin
         workflowService.removeWorkflowBin(id, true);
+        
+        // Set transaction scope
+        workflowService.setTransactionPerOperation(false);
+        workflowService.beginTransaction();
 
         // Get the bin definitions
         final List<WorkflowBinDefinition> definitions =

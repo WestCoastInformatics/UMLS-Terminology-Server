@@ -1112,7 +1112,7 @@ tsApp.service('workflowService', [
         deferred.reject(response.data);
       });
       
-      $timeout(function() {regenerateBinStatus(projectId, workflowBinType, name);}, 10000);
+      $timeout(function() {regenerateBinStatus(projectId, workflowBinType, name);}, 20000);
       return deferred.promise;
     };
     
