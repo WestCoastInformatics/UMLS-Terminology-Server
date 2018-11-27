@@ -1604,12 +1604,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
       }
 
       // Compute "cluster" and "concept" counts
-      for (final Checklist checklist : list.getObjects()) {
+     /* for (final Checklist checklist : list.getObjects()) {
         checklist.getStats().put("clusterCt", checklist.getTrackingRecords().size());
         // Add up orig concepts size from all tracking records
         checklist.getStats().put("conceptCt", checklist.getTrackingRecords().stream()
             .collect(Collectors.summingInt(w -> w.getOrigConceptIds().size())));
-      }
+      }*/
 
       // websocket - n/a
 
