@@ -1488,30 +1488,11 @@ tsApp
         }
 
         // Add time modal
-        $scope.openFinishWorkflowModal = function(lworklist) {
-          console.debug('openFinishWorkflowModal ', lworklist);
+        $scope.finishWorklist = function(worklist) {
+          console.debug('openFinishWorkflowModal ', worklist);
 
-          var modalInstance = $uibModal.open({
-            templateUrl : 'app/page/edit/finishWorkflow.html',
-            controller : 'FinishWorkflowModalCtrl',
-            backdrop : 'static',
-            resolve : {
-              selected : function() {
-                return $scope.selected;
-              },
-              lists : function() {
-                return $scope.lists;
-              },
-              user : function() {
-                return $scope.user;
-              },
-              worklist : function() {
-                return lworklist;
-              }
-            }
-          });
-
-          modalInstance.result.then(
+          workflowService.performWorkflowAction($scope.selected.project.id, worklist.id, $scope.user.userName,
+            $scope.selected.projectRole, 'FINISH').then(
           // Success
           function(data) {
             $scope.getWorklists();
