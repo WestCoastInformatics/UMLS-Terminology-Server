@@ -108,6 +108,16 @@
                   ng-click="unassignWorklist(worklist); $event.stopPropagation(); "
                   title="Unassign worklist"
                   class="noul glyphicon glyphicon-hand-left"></i>
+                <i
+                  ng-show="worklist.workflowStatus == 'EDITING_DONE' && selected.projectRole != 'ADMINISTRATOR' && selected.worklistMode == 'Done'"
+                  ng-click="reassignWorklist(worklist); $event.stopPropagation(); "
+                  title="Reassign worklist"
+                  class="noul glyphicon glyphicon-hand-left"></i>
+                <i
+                  ng-show="worklist.workflowStatus == 'READY_FOR_PUBLICATION' && selected.projectRole != 'ADMINISTRATOR' && selected.worklistMode == 'Done'"
+                  ng-click="reassignWorklist(worklist); $event.stopPropagation(); "
+                  title="Reassign worklist"
+                  class="noul glyphicon glyphicon-hand-left"></i>
                 <i confirm="Are you sure you want to stamp the worklist?"
                   ng-show="worklist.reviewers.length > 0 && worklist.workflowStatus != 'REVIEW_DONE' && selected.projectRole == 'REVIEWER' && selected.worklistMode == 'Assigned'"
                   ng-click="stampWorklist(worklist); " title="Stamp"
