@@ -975,6 +975,20 @@ tsApp
             $scope.getWorklists();
           });
         };
+        
+        // reassign worklist
+        $scope.reassignWorklist = function(worklist) {
+          var role = $scope.selected.projectRole;
+          if (worklist.reviewers.length == 0) {
+            role = 'AUTHOR';
+          }
+          workflowService.performWorkflowAction($scope.selected.project.id, worklist.id,
+            $scope.user.userName, role, 'REASSIGN').then(
+          // Success
+          function(data) {
+            $scope.getWorklists();
+          });
+        };
 
         // Helper for removing a worklist/checklist
         $scope.removeWorklist = function(worklist) {
@@ -1487,7 +1501,7 @@ tsApp
           });
         }
 
-        // Add time modal
+        // No time entry modal for reviewing finishing
         $scope.finishWorklist = function(worklist) {
           console.debug('openFinishWorkflowModal ', worklist);
 
@@ -1500,6 +1514,37 @@ tsApp
 
         };
 
+        // Add time entry modal for author finishing
+        $scope.openFinishWorkflowModal = function(lworklist) {
+          console.debug('openFinishWorkflowModal ', lworklist);
+
+          var modalInstance = $uibModal.open({
+            templateUrl : 'app/page/edit/finishWorkflow.html',
+            controller : 'FinishWorkflowModalCtrl',
+            backdrop : 'static',
+            resolve : {
+              selected : function() {
+                return $scope.selected;
+              },
+              lists : function() {
+                return $scope.lists;
+              },
+              user : function() {
+                return $scope.user;
+              },
+              worklist : function() {
+                return lworklist;
+              }
+            }
+          });
+
+          modalInstance.result.then(
+          // Success
+          function(data) {
+            $scope.getWorklists();
+          });
+
+        };
         // Move modal
         $scope.openMoveModal = function() {
 

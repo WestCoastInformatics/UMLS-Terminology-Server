@@ -163,7 +163,15 @@ public class DefaultWorkflowActionHandler extends AbstractConfigurable
         break;
 
       case REASSIGN:
-        flag = false;
+        authorFlag = worklist.getAuthors().size() == 1
+            && role == UserRole.AUTHOR && EnumSet.of(WorkflowStatus.EDITING_DONE)
+                .contains(worklist.getWorkflowStatus());
+
+        reviewerFlag =
+            worklist.getReviewers().size() == 1 && role == UserRole.REVIEWER
+                && EnumSet.of(WorkflowStatus.READY_FOR_PUBLICATION)
+                    .contains(worklist.getWorkflowStatus());
+        flag = authorFlag || reviewerFlag;
         break;
 
       case SAVE:
@@ -263,7 +271,17 @@ public class DefaultWorkflowActionHandler extends AbstractConfigurable
         break;
 
       case REASSIGN:
-        // N/a
+        // Author case (reassigns back to original author)
+        if (role == UserRole.AUTHOR) {
+          worklist.setWorkflowStatus(WorkflowStatus.EDITING_IN_PROGRESS);
+          worklist.getWorkflowStateHistory().remove("Returned");
+        }
+
+        // Reviewer case (rassigns back to original reviewer)
+        else if (role == UserRole.REVIEWER) {
+          worklist.setWorkflowStatus(WorkflowStatus.REVIEW_IN_PROGRESS);
+          worklist.getWorkflowStateHistory().remove("Done");
+        }
         break;
 
       case SAVE:
