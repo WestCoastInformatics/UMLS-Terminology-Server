@@ -557,7 +557,7 @@ tsApp
           // save the change
           securityService.saveRole($scope.user.userPreferences, $scope.selected.projectRole);
           // $scope.resetPaging();
-          $scope.getWorklists();
+          $scope.getWorklists(true);
         }
 
         // Set the project
