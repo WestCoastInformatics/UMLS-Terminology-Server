@@ -271,7 +271,8 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
 
     // 5b. Create a "code" for the PDQ/XM atom
     Code code = new CodeJpa();
-    code.setName("name"); // TODO
+    code.setName("PDQ_" + pdq.getVersion() + " to NCI_" + nci.getVersion()
+    + " Mappings");
     code.setTerminology(pdq.getTerminology());
     code.setVersion(pdq.getVersion());
     code.setTerminologyId("100001");
