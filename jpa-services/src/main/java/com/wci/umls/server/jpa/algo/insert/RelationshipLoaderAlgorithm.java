@@ -56,6 +56,9 @@ public class RelationshipLoaderAlgorithm
   /** The remove count. */
   private int removeCount = 0;
 
+  /** The mid commit set. */
+  private Set midCommitSet = new HashSet<>();
+
   /** The rel type map. */
   private Map<String, String> relTypeMap = new HashMap<>();
 
@@ -675,7 +678,7 @@ public class RelationshipLoaderAlgorithm
         ((ComponentInfoRelationshipJpa) newRelationship).setToTerminologyId(
             ((AtomJpa) toComponent).getAlternateTerminologyIds()
                 .get(getProject().getTerminology() + "-SRC"));
-      }      
+      }
     }
 
     // Calculate inverseRel and inverseAdditionalRel types, to use in the
@@ -736,6 +739,13 @@ public class RelationshipLoaderAlgorithm
             }
           }
         }
+        // for existing rels, also check the mid-commit set
+        // This allows us to check relationships that have just been added, but
+        // not yet committed to the database
+        if (midCommitSet.contains(newRelationship.getFrom().getId() + "|"
+            + newRelationship.getTo().getId())) {
+          dontCreateRel = true;
+        }
       }
 
       if (!dontCreateRel) {
@@ -745,6 +755,16 @@ public class RelationshipLoaderAlgorithm
 
         addCount++;
         putComponent(newRelationship, newRelationshipRui);
+        // For Concept-relationships between project-terminology concepts,
+        // Add from/to ids to the mid-commit Set, so it can be checked against
+        if (relClass.equals(ConceptRelationshipJpa.class)
+            && newRelationship.getFrom().getTerminology()
+                .equals(getProject().getTerminology())
+            && newRelationship.getTo().getTerminology()
+                .equals(getProject().getTerminology())) {
+          midCommitSet.add(newRelationship.getFrom().getId() + "|"
+              + newRelationship.getTo().getId());
+        }
         if (!ConfigUtility.isEmpty(newRelationship.getTerminologyId())) {
           putComponent(newRelationship, newRelationship.getTerminologyId());
         }
@@ -822,6 +842,16 @@ public class RelationshipLoaderAlgorithm
 
         addCount++;
         putComponent(newComp, newInverseRelationshipRui);
+        // For Concept-relationships between project-terminology concepts,
+        // Add from/to ids to the mid-commit Set, so it can be checked against
+        if (relClass.equals(ConceptRelationshipJpa.class)
+            && newRelationship.getFrom().getTerminology()
+                .equals(getProject().getTerminology())
+            && newRelationship.getTo().getTerminology()
+                .equals(getProject().getTerminology())) {
+          midCommitSet.add(newInverseRelationship.getFrom().getId() + "|"
+              + newInverseRelationship.getTo().getId());
+        }
         if (!ConfigUtility.isEmpty(newComp.getTerminologyId())) {
           putComponent(newComp, newComp.getTerminologyId());
         }
@@ -880,6 +910,10 @@ public class RelationshipLoaderAlgorithm
 
     // Update the progress
     updateProgress();
+    // Every time the process commits, clear out the midCommitSet
+    if (getSteps() % RootService.commitCt == 0) {
+      midCommitSet.clear();
+    }
     handler.silentIntervalCommit(getStepsCompleted(), RootService.logCt,
         RootService.commitCt);
 
