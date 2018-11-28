@@ -459,7 +459,7 @@ public class PrecomputedMoveAlgorithm
           action.setLastModifiedBy(getLastModifiedBy());
           action.setTransactionPerOperation(false);
           action.setMolecularActionFlag(true);
-          action.setChangeStatusFlag(false);
+          action.setChangeStatusFlag(true);
 
           action.setAtomIds(new ArrayList<>(Arrays.asList(atom.getId())));
           action.setRelationshipType(mergeLevel);
@@ -527,7 +527,7 @@ public class PrecomputedMoveAlgorithm
           action.setLastModifiedBy(getLastModifiedBy());
           action.setTransactionPerOperation(false);
           action.setMolecularActionFlag(true);
-          action.setChangeStatusFlag(false);
+          action.setChangeStatusFlag(true);
 
           action.setAtomIds(new ArrayList<>(Arrays.asList(atom.getId())));
 
