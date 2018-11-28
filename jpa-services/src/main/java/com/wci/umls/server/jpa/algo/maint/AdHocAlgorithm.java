@@ -2084,9 +2084,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   }
 
   private void removeConceptsWithoutAtoms() throws Exception {
-    // 11/20/2018 Remove shell concepts that have no atoms
+    // 11/20/2018 Mark unpublishable shell concepts that have no atoms
     
-    logInfo(" Remove Concepts without Atoms");
+    logInfo(" Mark Unpublishable Concepts without Atoms");
 
     int removedConcepts = 0;
 
@@ -2100,31 +2100,38 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       setSteps(conceptsWithoutAtoms.size());
       
       for (final Object entry : conceptsWithoutAtoms) {
+        if (removedConcepts > 10) {
+          return;
+        }
         final Long id = Long.valueOf(entry.toString());
         Concept concept = getConcept(id);
         for (Definition def : concept.getDefinitions()) {
-          removeDefinition(def.getId());
+          def.setPublishable(false);
+          updateDefinition(def, concept);
         }
         for (Attribute att : concept.getAttributes()) {
-          removeAttribute(att.getId());
+          att.setPublishable(false);
+          updateAttribute(att, concept);
         }
         for (ConceptRelationship rel : concept.getInverseRelationships()) {
-          removeRelationship(rel.getId(), rel.getClass());
+          rel.setPublishable(false);
+          updateRelationship(rel);
         }
         for (ConceptRelationship rel : concept.getRelationships()) {
-          removeRelationship(rel.getId(), rel.getClass());
+          rel.setPublishable(false);
+          updateRelationship(rel);
         }
         for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
-          removeSemanticTypeComponent(sty.getId());
-        }
-        for (ComponentHistory history : concept.getComponentHistory()) {
-          removeComponentHistory(history.getId());
+          sty.setPublishable(false);
+          updateSemanticTypeComponent(sty, concept);
         }
         for (ConceptSubsetMember member : concept.getMembers()) {
-          removeSubsetMember(member.getId(), member.getClass());
+          member.setPublishable(false);
+          updateSubsetMember(member);
         }
         for (ConceptTreePosition treePos : concept.getTreePositions()) {
-          removeTreePosition(treePos.getId(), treePos.getClass());
+          treePos.setPublishable(false);
+          updateTreePosition(treePos);
         }
         concept.setNotes(null);
         updateConcept(concept);
@@ -2138,11 +2145,11 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       e.printStackTrace();
       fail("Unexpected exception thrown - please review stack trace.");
     } finally {
-      logInfo(
-          "Removed " + removedConcepts + " concepts without atoms.");
-      logInfo("Finished " + getName());
-    }
 
+    }
+    logInfo(
+        "Removed " + removedConcepts + " concepts without atoms.");
+    logInfo("Finished " + getName());
     
   }
 
