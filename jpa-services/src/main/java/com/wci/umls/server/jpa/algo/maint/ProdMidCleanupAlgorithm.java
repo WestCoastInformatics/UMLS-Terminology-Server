@@ -206,40 +206,49 @@ public class ProdMidCleanupAlgorithm
       logInfo("[ProdMid Cleanup] Removed content for " + getSteps()
           + " non-current terminologies.");
       
-      // Remove concepts without atoms
-      for (final Concept concept : conceptsWithoutAtoms) {
+      // Mark unpublished concepts without atoms and their components
+      int markedConcepts = 0;
+     for (final Object entry : conceptsWithoutAtoms) {
         
+        final Long id = Long.valueOf(entry.toString());
+        Concept concept = getConcept(id);
+        concept.setPublishable(false);
         for (Definition def : concept.getDefinitions()) {
-          removeDefinition(def.getId());
+          def.setPublishable(false);
+          updateDefinition(def, concept);
         }
         for (Attribute att : concept.getAttributes()) {
-          removeAttribute(att.getId());
+          att.setPublishable(false);
+          updateAttribute(att, concept);
         }
         for (ConceptRelationship rel : concept.getInverseRelationships()) {
-          removeRelationship(rel.getId(), rel.getClass());
+          rel.setPublishable(false);
+          updateRelationship(rel);
         }
         for (ConceptRelationship rel : concept.getRelationships()) {
-          removeRelationship(rel.getId(), rel.getClass());
+          rel.setPublishable(false);
+          updateRelationship(rel);
         }
         for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
-          removeSemanticTypeComponent(sty.getId());
-        }
-        for (ComponentHistory history : concept.getComponentHistory()) {
-          removeComponentHistory(history.getId());
+          sty.setPublishable(false);
+          updateSemanticTypeComponent(sty, concept);
         }
         for (ConceptSubsetMember member : concept.getMembers()) {
-          removeSubsetMember(member.getId(), member.getClass());
+          member.setPublishable(false);
+          updateSubsetMember(member);
         }
         for (ConceptTreePosition treePos : concept.getTreePositions()) {
-          removeTreePosition(treePos.getId(), treePos.getClass());
+          treePos.setPublishable(false);
+          updateTreePosition(treePos);
         }
         concept.setNotes(null);
         updateConcept(concept);
-        removeConcept(concept.getId());
+        
         updateProgress();
+        markedConcepts++;
       }
   
-      logInfo("[ProdMid Cleanup] Removed content for concepts without atoms.");
+      logInfo("[ProdMid Cleanup] Marked unpublished content for concepts without atoms." + markedConcepts);
       
       commitClearBegin();
       

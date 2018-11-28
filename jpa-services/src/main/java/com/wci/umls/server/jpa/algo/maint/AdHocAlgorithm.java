@@ -2088,7 +2088,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     
     logInfo(" Mark Unpublishable Concepts without Atoms");
 
-    int removedConcepts = 0;
+    int markedConcepts = 0;
 
     List<ConceptSubsetJpa> conceptsWithoutAtoms =
         new ArrayList<>();
@@ -2100,9 +2100,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       setSteps(conceptsWithoutAtoms.size());
       
       for (final Object entry : conceptsWithoutAtoms) {
-        if (removedConcepts > 10) {
-          return;
-        }
+        
         final Long id = Long.valueOf(entry.toString());
         Concept concept = getConcept(id);
         concept.setPublishable(false);
@@ -2138,7 +2136,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         updateConcept(concept);
         
         updateProgress();
-        removedConcepts++;
+        markedConcepts++;
       }
         
     } catch (Exception e) {
@@ -2148,7 +2146,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     }
     logInfo(
-        "Removed " + removedConcepts + " concepts without atoms.");
+        "Marked unpublishable " + markedConcepts + " concepts without atoms.");
     logInfo("Finished " + getName());
     
   }
