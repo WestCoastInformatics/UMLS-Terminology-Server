@@ -2105,6 +2105,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         }
         final Long id = Long.valueOf(entry.toString());
         Concept concept = getConcept(id);
+        concept.setPublishable(false);
         for (Definition def : concept.getDefinitions()) {
           def.setPublishable(false);
           updateDefinition(def, concept);
@@ -2135,7 +2136,6 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         }
         concept.setNotes(null);
         updateConcept(concept);
-        removeConcept(concept.getId());
         
         updateProgress();
         removedConcepts++;
