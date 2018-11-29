@@ -42,6 +42,7 @@ import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
+import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
 /**
@@ -151,6 +152,11 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
             atom.getVersion(), Branch.ROOT);
         code.setPublishable(false);
         updateCode(code);
+        // Turn off the code attributes also
+        for (Attribute att : code.getAttributes()) {
+          att.setPublishable(false);
+          updateAttribute(att, code);
+        }
       }
       concept.setPublishable(false);
       updateConcept(concept);
@@ -158,6 +164,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
       // make the project concept unpublishable - e.g. MatrixInitializer at end
       // of "pre production"
     }
+    commitClearBegin();
 
     // 2b. Make any other PDQ map sets unpublishable
 
@@ -351,7 +358,8 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
       code.getAttributes().add(attribute);
       updateCode(code);
     }
-
+    commitClearBegin();
+    
     // 8. Create mappings
     // * query: join PDQ->NCI in the same project concept, both publishable
     query =
@@ -437,6 +445,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
       updateProgress();
     }
     updateMapSet(mapSet);
+    commitClearBegin();
 
     fireProgressEvent(100, "Finished - 100%");
     logInfo("  mapping count = " + objectCt);
@@ -472,6 +481,9 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
    */
   public void updateProgress() throws Exception {
     stepsCompleted++;
+
+    logAndCommit(stepsCompleted, RootService.logCt, RootService.commitCt);
+
     int currentProgress = (int) ((100.0 * stepsCompleted / steps));
     if (currentProgress > previousProgress) {
       checkCancel();
