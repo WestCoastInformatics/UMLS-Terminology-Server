@@ -2181,7 +2181,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           Code code = getCode(id);
           pdqNciMappingCodes.add(code);
           if (code.getName().equals("name")) {
-            code.setName("PDQ_2016_07_31 to NCI_2017_06D Mappings");
+            code.setName("PDQ_2016_07_31 to NCI_2018_07E Mappings");
             updateCode(code);
           }
         }
