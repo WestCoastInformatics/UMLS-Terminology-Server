@@ -129,7 +129,8 @@ public class ProdMidCleanupAlgorithm
       
       // Get concepts without atoms
       query = getEntityManager().createQuery("select c1.id from "
-          + "ConceptJpa c1 where c1.id NOT IN (select c2.id from ConceptJpa c2 JOIN c2.atoms)"); 
+          + "ConceptJpa c1 where c1.terminology = :terminology and c1.id NOT IN (select c2.id from ConceptJpa c2 JOIN c2.atoms)"); 
+      query.setParameter("terminology", "NCIMTH");
       
       list = query.getResultList();
       for (final Object entry : list) {
