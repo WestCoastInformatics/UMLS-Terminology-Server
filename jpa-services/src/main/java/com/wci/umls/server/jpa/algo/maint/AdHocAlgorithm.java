@@ -32,6 +32,8 @@ import com.wci.umls.server.jpa.algo.action.RedoMolecularAction;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
+import com.wci.umls.server.jpa.content.AttributeJpa;
+import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
@@ -2095,7 +2097,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     try {
       Query query = getEntityManager().createQuery("select c1.id from "
-          + "ConceptJpa c1 where c1.id NOT IN (select c2.id from ConceptJpa c2 JOIN c2.atoms)"); 
+          + "ConceptJpa c1 where c1.terminology = :terminology and c1.id NOT IN (select c2.id from ConceptJpa c2 JOIN c2.atoms)"); 
+      query.setParameter("terminology", "NCIMTH");
       conceptsWithoutAtoms = query.getResultList();
       setSteps(conceptsWithoutAtoms.size());
       
@@ -2139,6 +2142,49 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         markedConcepts++;
       }
         
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+
+    }
+    logInfo(
+        "Marked unpublishable " + markedConcepts + " concepts without atoms.");
+    logInfo("Finished " + getName());
+    
+  }
+
+  private void fixDuplicatePDQMappingAttributes() throws Exception {
+    // 11/28/2018 Mark unpublishable older pdq mapping attributes
+    
+    logInfo(" Mark Unpublishable Older PDQ Mapping Attributes");
+
+    int markedConcepts = 0;
+
+    List<CodeJpa> pdqNciMappingCodes =
+        new ArrayList<>();
+
+    try {
+      
+      Query query = getEntityManager().createQuery("select a.id from "
+            + "CodeJpa a "
+            + "where a.terminology = :terminology and a.name like :name or name = 'name'");
+        query.setParameter("name", "PDQ%to NCI%Mappings");
+        query.setParameter("terminology", "PDQ");
+        pdqNciMappingCodes = query.getResultList();
+        // get older code
+        CodeJpa olderCode = pdqNciMappingCodes.get(0);
+        for (CodeJpa code : pdqNciMappingCodes) {
+          if (code.getLastModified().before(olderCode.getLastModified())){
+            olderCode = code;
+          }
+        }
+        // turn off all attributes on older code
+        for (Attribute att : olderCode.getAttributes()) {
+          att.setPublishable(false);
+          updateAttribute(att, olderCode);
+        }
+      
     } catch (Exception e) {
       e.printStackTrace();
       fail("Unexpected exception thrown - please review stack trace.");
