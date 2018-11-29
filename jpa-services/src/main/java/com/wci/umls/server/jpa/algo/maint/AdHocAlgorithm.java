@@ -46,6 +46,7 @@ import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
+import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.ComponentInfoRelationship;
 import com.wci.umls.server.model.content.Concept;
@@ -2163,7 +2164,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     int markedConcepts = 0;
 
-    List<CodeJpa> pdqNciMappingCodes =
+    List<Code> pdqNciMappingCodes =
         new ArrayList<>();
 
     try {
@@ -2173,10 +2174,16 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             + "where a.terminology = :terminology and a.name like :name or name = 'name'");
         query.setParameter("name", "PDQ%to NCI%Mappings");
         query.setParameter("terminology", "PDQ");
-        pdqNciMappingCodes = query.getResultList();
+        List<Object> list = query.getResultList();
+        // get codes
+        for (final Object entry : list) {
+          final Long id = Long.valueOf(entry.toString());
+          Code code = getCode(id);
+          pdqNciMappingCodes.add(code);
+        }
         // get older code
-        CodeJpa olderCode = pdqNciMappingCodes.get(0);
-        for (CodeJpa code : pdqNciMappingCodes) {
+        Code olderCode = pdqNciMappingCodes.get(0);
+        for (Code code : pdqNciMappingCodes) {
           if (code.getLastModified().before(olderCode.getLastModified())){
             olderCode = code;
           }
