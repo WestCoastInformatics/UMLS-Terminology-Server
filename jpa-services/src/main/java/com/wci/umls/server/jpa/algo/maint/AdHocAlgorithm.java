@@ -2162,7 +2162,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     
     logInfo(" Mark Unpublishable Older PDQ Mapping Attributes");
 
-    int markedConcepts = 0;
+    int markedAttributes = 0;
 
     List<Code> pdqNciMappingCodes =
         new ArrayList<>();
@@ -2180,6 +2180,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           final Long id = Long.valueOf(entry.toString());
           Code code = getCode(id);
           pdqNciMappingCodes.add(code);
+          if (code.getName().equals("name")) {
+            code.setName("PDQ_2016_07_31 to NCI_2017_06D Mappings");
+            updateCode(code);
+          }
         }
         // get older code
         Code olderCode = pdqNciMappingCodes.get(0);
@@ -2192,7 +2196,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         for (Attribute att : olderCode.getAttributes()) {
           att.setPublishable(false);
           updateAttribute(att, olderCode);
+          markedAttributes++;
         }
+        commitClearBegin();
       
     } catch (Exception e) {
       e.printStackTrace();
@@ -2201,7 +2207,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     }
     logInfo(
-        "Marked unpublishable " + markedConcepts + " concepts without atoms.");
+        "Marked unpublishable " + markedAttributes + " duplicate PDQ mapping attributes.");
     logInfo("Finished " + getName());
     
   }
