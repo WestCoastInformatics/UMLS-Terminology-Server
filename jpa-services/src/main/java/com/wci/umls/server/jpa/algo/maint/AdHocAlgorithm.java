@@ -168,6 +168,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixMDRDescriptors();
     } else if (actionName.equals("Clear Worklists and Checklists")) {
       removeOldWorklistsChecklists();
+    } else if (actionName.equals("Fix Duplicate PDQ Mapping Attributes")) {
+      fixDuplicatePDQMappingAttributes();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -2247,7 +2249,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Add Disposition Atoms", "Fix RelGroups", "Fix Source Level Rels",
             "Fix AdditionalRelType Inverses", "Fix Snomed Family",
             "Turn off CTRP-SDC", "Fix Terminology Names", "Fix RHT Atoms",
-            "Fix MDR Descriptors", "Clear Worklists and Checklists"));
+            "Fix MDR Descriptors", "Clear Worklists and Checklists",
+            "Fix Duplicate PDQ Mapping Attributes"));
     params.add(param);
 
     return params;
