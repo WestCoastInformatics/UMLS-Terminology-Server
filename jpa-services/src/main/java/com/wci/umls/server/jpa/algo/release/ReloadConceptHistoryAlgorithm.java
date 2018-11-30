@@ -99,7 +99,7 @@ public class ReloadConceptHistoryAlgorithm
     final Set<String> dbConceptsWithHistories = new HashSet<>();
 
     final javax.persistence.Query jpaQuery = getEntityManager().createQuery(
-        "select c.terminologyId from ConceptJpa c where c.componentHistories is not empty");
+        "select c.terminologyId from ConceptJpa c where size(c.componentHistories) > 0");
 
     final List<String> conceptsTerminologyIds = jpaQuery.getResultList();
 
