@@ -109,12 +109,12 @@
                   title="Unassign worklist"
                   class="noul glyphicon glyphicon-hand-left"></i>
                 <i
-                  ng-show="worklist.workflowStatus == 'EDITING_DONE' && selected.projectRole != 'ADMINISTRATOR' && selected.worklistMode == 'Done'"
+                  ng-show="worklist.workflowStatus == 'EDITING_DONE' && selected.projectRole == 'AUTHOR' && selected.worklistMode == 'Done'"
                   ng-click="reassignWorklist(worklist); $event.stopPropagation(); "
                   title="Reassign worklist"
                   class="noul glyphicon glyphicon-hand-left"></i>
                 <i
-                  ng-show="worklist.workflowStatus == 'READY_FOR_PUBLICATION' && selected.projectRole != 'ADMINISTRATOR' && selected.worklistMode == 'Done'"
+                  ng-show="worklist.workflowStatus == 'READY_FOR_PUBLICATION' && selected.projectRole == 'REVIEWER' && selected.worklistMode == 'Done'"
                   ng-click="reassignWorklist(worklist); $event.stopPropagation(); "
                   title="Reassign worklist"
                   class="noul glyphicon glyphicon-hand-left"></i>
