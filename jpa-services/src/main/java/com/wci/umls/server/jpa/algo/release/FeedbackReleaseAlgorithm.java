@@ -125,7 +125,9 @@ public class FeedbackReleaseAlgorithm
       // Get the atom
       final Atom atom = (Atom) getComponent("AUI", fields[7], fields[12], null);
       if (atom == null) {
-        throw new Exception("Unexpected dead AUI " + fields[7]);
+        //throw new Exception("Unexpected dead AUI " + fields[7]);
+        updateProgress();
+        continue;
       }
       boolean atomChanged = false;
 

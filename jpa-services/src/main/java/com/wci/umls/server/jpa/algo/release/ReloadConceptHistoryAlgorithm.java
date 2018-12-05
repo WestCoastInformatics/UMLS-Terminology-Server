@@ -107,6 +107,8 @@ public class ReloadConceptHistoryAlgorithm
       dbConceptsWithHistories.add(terminologyId);
     }
 
+    logInfo("dbConceptsWithHistories: " + dbConceptsWithHistories.size());
+    
     //
     // Load the MRCUI.RRF file
     //
@@ -133,6 +135,8 @@ public class ReloadConceptHistoryAlgorithm
       // Add the line to this CUI's entry in the map
       cuiHistoryLines.get(cui1).add(line);
     }
+    logInfo("cuiHistoryLines: " + cuiHistoryLines.size());
+    logInfo("dbConceptsWithHistories not in MRCUI: " + dbConceptsWithHistories.size());
 
     // Set the number of steps to the number of concepts referenced in MRCUI
     setSteps(cuiHistoryLines.keySet().size());
@@ -153,12 +157,8 @@ public class ReloadConceptHistoryAlgorithm
       Concept concept = getConcept(cui1, getProject().getTerminology(),
           getProject().getVersion(), Branch.ROOT);
 
-      // If no concept exists, create a new unpublishable concept
-      // Also fire warning, since this should really not happen
+      // If no concept exists (due to a merge, etc., create a new unpublishable concept
       if (concept == null) {
-
-        logWarn("WARNING: Concept could not be found for " + cui1
-            + ".  Creating placeholder concept.");
 
         concept = new ConceptJpa();
         concept.setPublishable(false);
@@ -251,13 +251,13 @@ public class ReloadConceptHistoryAlgorithm
         history.setVersion(getProject().getVersion());
 
         if (!fields[5].isEmpty()) {
-          final Concept concept2 =
+          /*final Concept concept2 =
               getConcept(fields[5], getProject().getTerminology(),
                   getProject().getVersion(), Branch.ROOT);
           if (concept2 == null) {
             throw new Exception("Unexpected dead CUIs " + fields[5]);
-          }
-          history.setReferencedTerminologyId(concept2.getTerminologyId());
+          }*/
+          history.setReferencedTerminologyId(fields[5]);
         }
         history.setRelationshipType(fields[2]);
         history.setAdditionalRelationshipType(fields[3]);
