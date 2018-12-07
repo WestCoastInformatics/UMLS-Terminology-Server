@@ -13,6 +13,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.persistence.Query;
+
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
@@ -138,6 +140,20 @@ public class ReloadConceptHistoryAlgorithm
     logInfo("cuiHistoryLines: " + cuiHistoryLines.size());
     logInfo("dbConceptsWithHistories not in MRCUI: " + dbConceptsWithHistories.size());
 
+    // Get concepts without atoms and remove them if they don't have a CUI1 in MRCUI.RRF
+    Query query = getEntityManager().createQuery("select c1.id from "
+        + "ConceptJpa c1 where c1.terminology = :terminology and c1.id NOT IN (select c2.id from ConceptJpa c2 JOIN c2.atoms)"); 
+    query.setParameter("terminology", "NCIMTH");
+    
+    List<Object> list = query.getResultList();
+    for (final Object entry : list) {
+      final Long id = Long.valueOf(entry.toString());
+      Concept testConcept = getConcept(id);
+      if (!cuiHistoryLines.keySet().contains(testConcept.getTerminologyId())) {
+        removeConcept(testConcept.getId());
+      }
+    }
+       
     // Set the number of steps to the number of concepts referenced in MRCUI
     setSteps(cuiHistoryLines.keySet().size());
 
@@ -205,6 +221,11 @@ public class ReloadConceptHistoryAlgorithm
             break;
           }
 
+          // Ignore SUBX cases
+          if (fields[2].equals("SUBX")) {
+            break;
+          }
+          
           // Handle DEL cases
           if (fields[2].equals("DEL")) {
             if (cui1History.getAssociatedRelease().equals(fields[1])

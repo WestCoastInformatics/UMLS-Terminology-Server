@@ -171,6 +171,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       removeOldWorklistsChecklists();
     } else if (actionName.equals("Fix Duplicate PDQ Mapping Attributes")) {
       fixDuplicatePDQMappingAttributes();
+    } else if (actionName.equals("Fix Duplicate Concepts")) {
+      fixDuplicateConcepts();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -2211,6 +2213,81 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
     
   }
+  
+  private void fixDuplicateConcepts() throws Exception {
+    // 5/7/2018 These were created erroneously during the load from MEME4 
+    // (having to do with the loading of component_histories and dead CUIs), 
+    // and need to be taken care of.
+
+    logInfo(" Fix duplicate concepts");
+
+    List<Concept> duplicateConcepts = new ArrayList<>();
+
+    try {
+
+      // Identify all relationship identities that have duplicates
+      // REAL QUERY
+      Query query = getEntityManager().createNativeQuery(
+          "select id from concepts where terminology='NCIMTH' group by "
+              + "terminologyId having count(*) > 1");
+
+
+      logInfo("[FixDuplicateConcepts] Identifying "
+          + "duplicate concepts");
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        Concept cpt = getConcept(id);
+        duplicateConcepts.add(cpt);
+        if (cpt.getTerminologyId().equals("C0002226")) {
+          System.out.println("duplicate " + cpt);
+        }
+      }
+
+      setSteps(duplicateConcepts.size());
+
+      logInfo("[FixDuplicateConcepts] " + duplicateConcepts.size()
+          + " Concept duplicates identified");
+
+      for (final Concept concept : duplicateConcepts) {
+        query = getEntityManager().createNativeQuery(
+          "select id from concepts where terminologyId = :terminologyId");
+        query.setParameter("terminologyId", concept.getTerminologyId());
+        
+        List<Concept> conceptsWithSameCUI = new ArrayList<>();
+        Concept namedConceptToKeep = null;
+        Set<ComponentHistory> componentHistoriesToMove = new HashSet<>();
+        list = query.getResultList();
+        for (final Object entry : list) {
+          final Long id = Long.valueOf(entry.toString());
+          Concept cpt = getConcept(id);
+          System.out.println("shared cui: " + cpt);
+          conceptsWithSameCUI.add(cpt);
+          if (!cpt.getName().isEmpty()) {
+            namedConceptToKeep = cpt;
+          } else {
+            componentHistoriesToMove.addAll(cpt.getComponentHistory());
+            cpt.setComponentHistory(null);
+            updateConcept(cpt);
+            removeConcept(cpt.getId());
+          }
+        }
+        List<ComponentHistory> namedConceptComponentHistories = namedConceptToKeep.getComponentHistory();
+        namedConceptComponentHistories.addAll(componentHistoriesToMove);
+        updateConcept(namedConceptToKeep);
+        updateProgress();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+
+    }
+    
+    logInfo("Finished " + getName());
+    
+  }
 
   /* see superclass */
   @Override
@@ -2263,7 +2340,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Fix AdditionalRelType Inverses", "Fix Snomed Family",
             "Turn off CTRP-SDC", "Fix Terminology Names", "Fix RHT Atoms",
             "Fix MDR Descriptors", "Clear Worklists and Checklists",
-            "Fix Duplicate PDQ Mapping Attributes"));
+            "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts"));
     params.add(param);
 
     return params;
