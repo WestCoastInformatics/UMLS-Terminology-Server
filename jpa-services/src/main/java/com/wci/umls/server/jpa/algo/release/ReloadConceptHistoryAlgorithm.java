@@ -24,9 +24,16 @@ import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.ComponentHistoryJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptSubsetMember;
+import com.wci.umls.server.model.content.Definition;
+import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
+
+import com.wci.umls.server.model.content.ConceptTreePosition;
+import com.wci.umls.server.model.content.ConceptRelationship;
 
 /**
  * Algorithm for reloading concept history.
@@ -140,20 +147,6 @@ public class ReloadConceptHistoryAlgorithm
     logInfo("cuiHistoryLines: " + cuiHistoryLines.size());
     logInfo("dbConceptsWithHistories not in MRCUI: " + dbConceptsWithHistories.size());
 
-    // Get concepts without atoms and remove them if they don't have a CUI1 in MRCUI.RRF
-    Query query = getEntityManager().createQuery("select c1.id from "
-        + "ConceptJpa c1 where c1.terminology = :terminology and c1.id NOT IN (select c2.id from ConceptJpa c2 JOIN c2.atoms)"); 
-    query.setParameter("terminology", "NCIMTH");
-    
-    List<Object> list = query.getResultList();
-    for (final Object entry : list) {
-      final Long id = Long.valueOf(entry.toString());
-      Concept testConcept = getConcept(id);
-      if (!cuiHistoryLines.keySet().contains(testConcept.getTerminologyId())) {
-        removeConcept(testConcept.getId());
-      }
-    }
-       
     // Set the number of steps to the number of concepts referenced in MRCUI
     setSteps(cuiHistoryLines.keySet().size());
 
@@ -250,10 +243,11 @@ public class ReloadConceptHistoryAlgorithm
 
       // Anything remaining in the histories needs to be removed and deleted
       // from the concept
-      for (final ComponentHistory cui1History : cui1Histories) {
+      for (final ComponentHistory cui1History : cui1Histories) {       
         concept.getComponentHistory().remove(cui1History);
-        updateConcept(concept);
         removeComponentHistory(cui1History.getId());
+        updateConcept(concept);
+        commitClearBegin();
         componentHistoryDeletedCount++;
       }
 
@@ -293,9 +287,10 @@ public class ReloadConceptHistoryAlgorithm
 
       // Update the progress
       updateProgress();
+      commitClearBegin();
     }
 
-    // Anything concept remaining in the dbConceptsWithHistories map needs to
+    // Any concept remaining in the dbConceptsWithHistories map needs to
     // have its histories removed.
     for (final String cui : dbConceptsWithHistories) {
       final Concept concept = getConcept(cui, getProject().getTerminology(),
@@ -311,6 +306,51 @@ public class ReloadConceptHistoryAlgorithm
 
     commitClearBegin();
 
+    // Get concepts without atoms and remove them if they don't have a CUI1 in MRCUI.RRF
+    Query query = getEntityManager().createQuery("select c1.id from "
+        + "ConceptJpa c1 where c1.terminology = :terminology and c1.id NOT IN (select c2.id from ConceptJpa c2 JOIN c2.atoms)"); 
+    query.setParameter("terminology", "NCIMTH");
+    
+    List<Object> list = query.getResultList();
+    int conceptsRemoved = 0;
+    for (final Object entry : list) {
+      final Long id = Long.valueOf(entry.toString());
+      Concept testConcept = getConcept(id);
+      if (!cuiHistoryLines.keySet().contains(testConcept.getTerminologyId())) {
+        for (Definition def : testConcept.getDefinitions()) {
+          removeDefinition(def.getId());
+        }
+        for (Attribute att : testConcept.getAttributes()) {
+          removeAttribute(att.getId());
+        }
+        for (ConceptRelationship rel : testConcept.getInverseRelationships()) {
+          removeRelationship(rel.getId(), rel.getClass());
+        }
+        for (ConceptRelationship rel : testConcept.getRelationships()) {
+          removeRelationship(rel.getId(), rel.getClass());
+        }
+        for (SemanticTypeComponent sty : testConcept.getSemanticTypes()) {
+          removeSemanticTypeComponent(sty.getId());
+        }
+        for (ComponentHistory history : testConcept.getComponentHistory()) {
+          removeComponentHistory(history.getId());
+        }
+        for (ConceptSubsetMember member : testConcept.getMembers()) {
+          removeSubsetMember(member.getId(), member.getClass());
+        }
+        for (ConceptTreePosition treePos : testConcept.getTreePositions()) {
+          removeTreePosition(treePos.getId(), treePos.getClass());
+        }
+        testConcept.setNotes(null);
+        updateConcept(testConcept);
+        removeConcept(testConcept.getId());
+        commitClearBegin();
+        conceptsRemoved++;
+      }
+    }
+    commitClearBegin();
+    logInfo("Concepts removed: " + conceptsRemoved);
+       
     fireProgressEvent(100, "Finished - 100%");
     logInfo("  placeholder concepts created = " + conceptCreatedCount);
     logInfo("  component histories created = " + componentHistoryCreatedCount);
