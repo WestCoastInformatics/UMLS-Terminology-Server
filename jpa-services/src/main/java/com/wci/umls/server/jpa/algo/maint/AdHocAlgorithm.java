@@ -20,6 +20,7 @@ import javax.persistence.Query;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.QueryType;
@@ -2240,9 +2241,6 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         final Long id = Long.valueOf(entry.toString());
         Concept cpt = getConcept(id);
         duplicateConcepts.add(cpt);
-        if (cpt.getTerminologyId().equals("C0002226")) {
-          System.out.println("duplicate " + cpt);
-        }
       }
 
       setSteps(duplicateConcepts.size());
@@ -2262,7 +2260,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         for (final Object entry : list) {
           final Long id = Long.valueOf(entry.toString());
           Concept cpt = getConcept(id);
-          System.out.println("shared cui: " + cpt);
+          
           conceptsWithSameCUI.add(cpt);
           if (!cpt.getName().isEmpty()) {
             namedConceptToKeep = cpt;
@@ -2270,6 +2268,31 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             componentHistoriesToMove.addAll(cpt.getComponentHistory());
             cpt.setComponentHistory(null);
             updateConcept(cpt);
+            for (Definition def : cpt.getDefinitions()) {
+              removeDefinition(def.getId());
+            }
+            for (Attribute att : cpt.getAttributes()) {
+              removeAttribute(att.getId());
+            }
+            for (ConceptRelationship rel : cpt.getInverseRelationships()) {
+              removeRelationship(rel.getId(), rel.getClass());
+            }
+            for (ConceptRelationship rel : cpt.getRelationships()) {
+              removeRelationship(rel.getId(), rel.getClass());
+            }
+            for (SemanticTypeComponent sty : cpt.getSemanticTypes()) {
+              removeSemanticTypeComponent(sty.getId());
+            }
+            for (ComponentHistory history : cpt.getComponentHistory()) {
+              removeComponentHistory(history.getId());
+            }
+            for (ConceptSubsetMember member : cpt.getMembers()) {
+              removeSubsetMember(member.getId(), member.getClass());
+            }
+            for (ConceptTreePosition treePos : cpt.getTreePositions()) {
+              removeTreePosition(treePos.getId(), treePos.getClass());
+            }
+            cpt.setNotes(null);
             removeConcept(cpt.getId());
           }
         }
@@ -2288,6 +2311,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
     
   }
+  
+ 
 
   /* see superclass */
   @Override
