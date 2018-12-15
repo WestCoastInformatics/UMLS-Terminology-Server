@@ -333,6 +333,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // Identify and remove them.
     // 11/13/2018 Same issue happened again with MTH2018AA insertion. Updating
     // version.
+    // 12/15/2018 Sigh - same thing happened AGAIN with MTH2018AB.
 
     int removals = 0;
 
@@ -345,7 +346,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         + "ConceptRelationshipJpa a "
         + "where a.terminology = :terminology and a.version = :version and a.publishable=true");
     query.setParameter("terminology", "MTH");
-    query.setParameter("version", "2018AA");
+    query.setParameter("version", "2018AB");
 
     logInfo("[RemoveBadRelationships] Loading "
         + "ConceptRelationship ids for relationships created by the MTH 2017AB insertion");
