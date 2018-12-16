@@ -20,7 +20,6 @@ import javax.persistence.Query;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.QueryType;
@@ -33,8 +32,6 @@ import com.wci.umls.server.jpa.algo.action.RedoMolecularAction;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
-import com.wci.umls.server.jpa.content.AttributeJpa;
-import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
@@ -174,6 +171,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixDuplicatePDQMappingAttributes();
     } else if (actionName.equals("Fix Duplicate Concepts")) {
       fixDuplicateConcepts();
+    } else if (actionName.equals("Turn off old relationships")) {
+      turnOffOldRelationships();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -2031,54 +2030,51 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         + " lists successfully removed.");
 
   }
-  
+
   private void removeSNOMEDSubsets() throws Exception {
 
     logInfo(" Remove Duplicate Subset Member Attributes");
 
     int updatedRelationships = 0;
 
-    final List<ConceptSubsetJpa> conceptSubsets =
-        new ArrayList<>();
+    final List<ConceptSubsetJpa> conceptSubsets = new ArrayList<>();
 
     try {
       Query query = getEntityManager().createNativeQuery(
           "select id from concept_subsets where terminology=:terminology and version=:version");
       query.setParameter("terminology", "SNOMEDCT_US");
       query.setParameter("version", "2018_09_01");
-      
+
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
         conceptSubsets
-            .add((ConceptSubsetJpa) getSubset(id,
-                ConceptSubsetJpa.class));
+            .add((ConceptSubsetJpa) getSubset(id, ConceptSubsetJpa.class));
       }
 
       setSteps(conceptSubsets.size());
 
-      logInfo("[RemoveSNOMEDSubsets] "
-          + conceptSubsets.size()
+      logInfo("[RemoveSNOMEDSubsets] " + conceptSubsets.size()
           + " Concept Subsets identified");
 
       for (final ConceptSubsetJpa subset : conceptSubsets) {
-        logInfo("[RemoveSNOMEDSubsets] "
-            + subset.getMembers().size()
-            + " Before removal concept Subset Members  identified on: " + subset.getTerminologyId() + " " + subset.getId());
+        logInfo("[RemoveSNOMEDSubsets] " + subset.getMembers().size()
+            + " Before removal concept Subset Members  identified on: "
+            + subset.getTerminologyId() + " " + subset.getId());
         for (final ConceptSubsetMember member : subset.getMembers()) {
           for (final Attribute att : member.getAttributes()) {
             removeAttribute(att.getId());
           }
           member.setAttributes(null);
           updateSubsetMember(member);
-          removeSubsetMember(member.getId(),ConceptSubsetMemberJpa.class);
+          removeSubsetMember(member.getId(), ConceptSubsetMemberJpa.class);
         }
         subset.clearMembers();
         updateSubset(subset);
         removeSubset(subset.getId(), ConceptSubsetJpa.class);
-        logInfo("[RemoveSNOMEDSubsets] "
-            + subset.getMembers().size()
-            + " After removal concept Subset Members  identified on: " + subset.getTerminologyId() + " " + subset.getId());
+        logInfo("[RemoveSNOMEDSubsets] " + subset.getMembers().size()
+            + " After removal concept Subset Members  identified on: "
+            + subset.getTerminologyId() + " " + subset.getId());
         updateProgress();
       }
     } catch (Exception e) {
@@ -2094,23 +2090,22 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   private void removeConceptsWithoutAtoms() throws Exception {
     // 11/20/2018 Mark unpublishable shell concepts that have no atoms
-    
+
     logInfo(" Mark Unpublishable Concepts without Atoms");
 
     int markedConcepts = 0;
 
-    List<ConceptSubsetJpa> conceptsWithoutAtoms =
-        new ArrayList<>();
+    List<ConceptSubsetJpa> conceptsWithoutAtoms = new ArrayList<>();
 
     try {
       Query query = getEntityManager().createQuery("select c1.id from "
-          + "ConceptJpa c1 where c1.terminology = :terminology and c1.id NOT IN (select c2.id from ConceptJpa c2 JOIN c2.atoms)"); 
+          + "ConceptJpa c1 where c1.terminology = :terminology and c1.id NOT IN (select c2.id from ConceptJpa c2 JOIN c2.atoms)");
       query.setParameter("terminology", "NCIMTH");
       conceptsWithoutAtoms = query.getResultList();
       setSteps(conceptsWithoutAtoms.size());
-      
+
       for (final Object entry : conceptsWithoutAtoms) {
-        
+
         final Long id = Long.valueOf(entry.toString());
         Concept concept = getConcept(id);
         concept.setPublishable(false);
@@ -2144,11 +2139,11 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         }
         concept.setNotes(null);
         updateConcept(concept);
-        
+
         updateProgress();
         markedConcepts++;
       }
-        
+
     } catch (Exception e) {
       e.printStackTrace();
       fail("Unexpected exception thrown - please review stack trace.");
@@ -2158,67 +2153,66 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo(
         "Marked unpublishable " + markedConcepts + " concepts without atoms.");
     logInfo("Finished " + getName());
-    
+
   }
 
   private void fixDuplicatePDQMappingAttributes() throws Exception {
     // 11/28/2018 Mark unpublishable older pdq mapping attributes
-    
+
     logInfo(" Mark Unpublishable Older PDQ Mapping Attributes");
 
     int markedAttributes = 0;
 
-    List<Code> pdqNciMappingCodes =
-        new ArrayList<>();
+    List<Code> pdqNciMappingCodes = new ArrayList<>();
 
     try {
-      
+
       Query query = getEntityManager().createQuery("select a.id from "
-            + "CodeJpa a "
-            + "where a.terminology = :terminology and a.name like :name or name = 'name'");
-        query.setParameter("name", "PDQ%to NCI%Mappings");
-        query.setParameter("terminology", "PDQ");
-        List<Object> list = query.getResultList();
-        // get codes
-        for (final Object entry : list) {
-          final Long id = Long.valueOf(entry.toString());
-          Code code = getCode(id);
-          pdqNciMappingCodes.add(code);
-          if (code.getName().equals("name")) {
-            code.setName("PDQ_2016_07_31 to NCI_2018_07E Mappings");
-            updateCode(code);
-          }
+          + "CodeJpa a "
+          + "where a.terminology = :terminology and a.name like :name or name = 'name'");
+      query.setParameter("name", "PDQ%to NCI%Mappings");
+      query.setParameter("terminology", "PDQ");
+      List<Object> list = query.getResultList();
+      // get codes
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        Code code = getCode(id);
+        pdqNciMappingCodes.add(code);
+        if (code.getName().equals("name")) {
+          code.setName("PDQ_2016_07_31 to NCI_2018_07E Mappings");
+          updateCode(code);
         }
-        // get older code
-        Code olderCode = pdqNciMappingCodes.get(0);
-        for (Code code : pdqNciMappingCodes) {
-          if (code.getLastModified().before(olderCode.getLastModified())){
-            olderCode = code;
-          }
+      }
+      // get older code
+      Code olderCode = pdqNciMappingCodes.get(0);
+      for (Code code : pdqNciMappingCodes) {
+        if (code.getLastModified().before(olderCode.getLastModified())) {
+          olderCode = code;
         }
-        // turn off all attributes on older code
-        for (Attribute att : olderCode.getAttributes()) {
-          att.setPublishable(false);
-          updateAttribute(att, olderCode);
-          markedAttributes++;
-        }
-        commitClearBegin();
-      
+      }
+      // turn off all attributes on older code
+      for (Attribute att : olderCode.getAttributes()) {
+        att.setPublishable(false);
+        updateAttribute(att, olderCode);
+        markedAttributes++;
+      }
+      commitClearBegin();
+
     } catch (Exception e) {
       e.printStackTrace();
       fail("Unexpected exception thrown - please review stack trace.");
     } finally {
 
     }
-    logInfo(
-        "Marked unpublishable " + markedAttributes + " duplicate PDQ mapping attributes.");
+    logInfo("Marked unpublishable " + markedAttributes
+        + " duplicate PDQ mapping attributes.");
     logInfo("Finished " + getName());
-    
+
   }
-  
+
   private void fixDuplicateConcepts() throws Exception {
-    // 5/7/2018 These were created erroneously during the load from MEME4 
-    // (having to do with the loading of component_histories and dead CUIs), 
+    // 5/7/2018 These were created erroneously during the load from MEME4
+    // (having to do with the loading of component_histories and dead CUIs),
     // and need to be taken care of.
 
     logInfo(" Fix duplicate concepts");
@@ -2233,9 +2227,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           "select id from concepts where terminology='NCIMTH' group by "
               + "terminologyId having count(*) > 1");
 
-
-      logInfo("[FixDuplicateConcepts] Identifying "
-          + "duplicate concepts");
+      logInfo("[FixDuplicateConcepts] Identifying " + "duplicate concepts");
 
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
@@ -2251,9 +2243,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       for (final Concept concept : duplicateConcepts) {
         query = getEntityManager().createNativeQuery(
-          "select id from concepts where terminologyId = :terminologyId");
+            "select id from concepts where terminologyId = :terminologyId");
         query.setParameter("terminologyId", concept.getTerminologyId());
-        
+
         List<Concept> conceptsWithSameCUI = new ArrayList<>();
         Concept namedConceptToKeep = null;
         Set<ComponentHistory> componentHistoriesToMove = new HashSet<>();
@@ -2261,7 +2253,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         for (final Object entry : list) {
           final Long id = Long.valueOf(entry.toString());
           Concept cpt = getConcept(id);
-          
+
           conceptsWithSameCUI.add(cpt);
           if (!cpt.getName().isEmpty()) {
             namedConceptToKeep = cpt;
@@ -2297,7 +2289,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             removeConcept(cpt.getId());
           }
         }
-        List<ComponentHistory> namedConceptComponentHistories = namedConceptToKeep.getComponentHistory();
+        List<ComponentHistory> namedConceptComponentHistories =
+            namedConceptToKeep.getComponentHistory();
         namedConceptComponentHistories.addAll(componentHistoriesToMove);
         updateConcept(namedConceptToKeep);
         updateProgress();
@@ -2308,12 +2301,74 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     } finally {
 
     }
-    
+
     logInfo("Finished " + getName());
-    
+
   }
-  
- 
+
+  private void turnOffOldRelationships() throws Exception {
+    // 12/15/2018 concept_relationships were created by MTH_2018AB test
+    // insertion that duplicated existing concept_relationships from old
+    // insertions.
+    // Turn off the old relationships.
+
+    logInfo(" Turn off old relationships");
+
+    String query = "SELECT c.id " + "FROM ConceptRelationshipJpa c "
+        + "WHERE c.publishable=true and (c.terminology='MTH' AND NOT c.version='2018AB')";
+
+    // Perform a QueryActionAlgorithm using the class and query
+    final QueryActionAlgorithm queryAction = new QueryActionAlgorithm();
+    try {
+      queryAction.setLastModifiedBy(getLastModifiedBy());
+      queryAction.setLastModifiedFlag(isLastModifiedFlag());
+      queryAction.setProcess(getProcess());
+      queryAction.setProject(getProject());
+      queryAction.setTerminology(getTerminology());
+      queryAction.setVersion(getVersion());
+      queryAction.setWorkId(getWorkId());
+      queryAction.setActivityId(getActivityId());
+
+      queryAction.setObjectTypeClass(ConceptRelationshipJpa.class);
+      queryAction.setAction("Make Unpublishable");
+      queryAction.setQueryType(QueryType.JPQL);
+      queryAction.setQuery(query);
+
+      queryAction.setTransactionPerOperation(false);
+      queryAction.beginTransaction();
+
+      //
+      // Check prerequisites
+      //
+      ValidationResult validationResult = queryAction.checkPreconditions();
+      // if prerequisites fail, return validation result
+      if (!validationResult.getErrors().isEmpty()
+          || (!validationResult.getWarnings().isEmpty())) {
+        // rollback -- unlocks the concept and closes transaction
+        queryAction.rollback();
+      }
+      assertTrue(validationResult.getErrors().isEmpty());
+
+      //
+      // Perform the algorithm
+      //
+      queryAction.compute();
+
+      // Commit the algorithm.
+      queryAction.commit();
+
+    } catch (Exception e) {
+      queryAction.rollback();
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+      // Close algorithm for each loop
+      queryAction.close();
+    }
+
+    logInfo("Finished " + getName());
+
+  }
 
   /* see superclass */
   @Override
@@ -2354,19 +2409,20 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     AlgorithmParameter param = new AlgorithmParameterJpa("Action Name",
         "actionName", "Name of Ad Hoc Action to be performed",
         "e.g. Fix Orphan Definitions", 200, AlgorithmParameter.Type.ENUM, "");
-    param.setPossibleValues(
-        Arrays.asList("Fix Orphan Definitions", "Undo Stampings",
-            "Remove Bad Relationships", "Remove SNOMED Subsets", "Remove Orphaned Tracking Records",
-            "Inactivate Old SRC atoms and AtomRels", "Fix SRC_ATOM_IDs",
-            "Redo Molecular Actions", "Fix Bad Relationship Identities",
-            "Fix Component Info Relationships", "Remove Concepts without Atoms",
-            "Set Component Info Relationships To Publishable",
-            "Set Stamped Worklists To Ready For Publication",
-            "Add Disposition Atoms", "Fix RelGroups", "Fix Source Level Rels",
-            "Fix AdditionalRelType Inverses", "Fix Snomed Family",
-            "Turn off CTRP-SDC", "Fix Terminology Names", "Fix RHT Atoms",
-            "Fix MDR Descriptors", "Clear Worklists and Checklists",
-            "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts"));
+    param.setPossibleValues(Arrays.asList("Fix Orphan Definitions",
+        "Undo Stampings", "Remove Bad Relationships", "Remove SNOMED Subsets",
+        "Remove Orphaned Tracking Records",
+        "Inactivate Old SRC atoms and AtomRels", "Fix SRC_ATOM_IDs",
+        "Redo Molecular Actions", "Fix Bad Relationship Identities",
+        "Fix Component Info Relationships", "Remove Concepts without Atoms",
+        "Set Component Info Relationships To Publishable",
+        "Set Stamped Worklists To Ready For Publication",
+        "Add Disposition Atoms", "Fix RelGroups", "Fix Source Level Rels",
+        "Fix AdditionalRelType Inverses", "Fix Snomed Family",
+        "Turn off CTRP-SDC", "Fix Terminology Names", "Fix RHT Atoms",
+        "Fix MDR Descriptors", "Clear Worklists and Checklists",
+        "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts",
+        "Turn off old relationships"));
     params.add(param);
 
     return params;
