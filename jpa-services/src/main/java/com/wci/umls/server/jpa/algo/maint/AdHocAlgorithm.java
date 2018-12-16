@@ -2316,7 +2316,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     Query query = getEntityManager().createQuery("SELECT c.id "
         + "FROM ConceptRelationshipJpa c "
-        + "WHERE c.publishable=true and (c.terminology=:terminology AND NOT c.version=:version)");
+        + "WHERE c.publishable=false and (c.terminology=:terminology AND NOT c.version=:version)");
     query.setParameter("terminology", "MTH");
     query.setParameter("version", "2018AB");
 
