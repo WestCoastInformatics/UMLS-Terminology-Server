@@ -171,8 +171,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixDuplicatePDQMappingAttributes();
     } else if (actionName.equals("Fix Duplicate Concepts")) {
       fixDuplicateConcepts();
-    } else if (actionName.equals("Turn off old relationships")) {
-      turnOffOldRelationships();
+    } else if (actionName.equals("Remove old relationships")) {
+      removeOldRelationships();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -2306,64 +2306,32 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   }
 
-  private void turnOffOldRelationships() throws Exception {
+  private void removeOldRelationships() throws Exception {
     // 12/15/2018 concept_relationships were created by MTH_2018AB test
     // insertion that duplicated existing concept_relationships from old
     // insertions.
-    // Turn off the old relationships.
+    // Remove the old relationships.
 
-    logInfo(" Turn off old relationships");
+    logInfo(" Remove old relationships");
 
-    String query = "SELECT c.id " + "FROM ConceptRelationshipJpa c "
-        + "WHERE c.publishable=true and (c.terminology='MTH' AND NOT c.version='2018AB')";
+    Query query = getEntityManager().createQuery("SELECT c.id "
+        + "FROM ConceptRelationshipJpa c "
+        + "WHERE c.publishable=true and (c.terminology=:terminology AND NOT c.version=:version)");
+    query.setParameter("terminology", "MTH");
+    query.setParameter("version", "2018AB");
 
-    // Perform a QueryActionAlgorithm using the class and query
-    final QueryActionAlgorithm queryAction = new QueryActionAlgorithm();
-    try {
-      queryAction.setLastModifiedBy(getLastModifiedBy());
-      queryAction.setLastModifiedFlag(isLastModifiedFlag());
-      queryAction.setProcess(getProcess());
-      queryAction.setProject(getProject());
-      queryAction.setTerminology(getTerminology());
-      queryAction.setVersion(getVersion());
-      queryAction.setWorkId(getWorkId());
-      queryAction.setActivityId(getActivityId());
+    logInfo("[RemoveOldRelationships] Loading "
+        + "ConceptRelationship ids for old relationships that now have duplicates caused by the MTH 2018AB insertion");
 
-      queryAction.setObjectTypeClass(ConceptRelationshipJpa.class);
-      queryAction.setAction("Make Unpublishable");
-      queryAction.setQueryType(QueryType.JPQL);
-      queryAction.setQuery(query);
+    List<Object> list = query.getResultList();
+    setSteps(list.size());
+    logInfo("[RemoveOldRelationships] " + list.size()
+        + " ConceptRelationship ids loaded");
 
-      queryAction.setTransactionPerOperation(false);
-      queryAction.beginTransaction();
-
-      //
-      // Check prerequisites
-      //
-      ValidationResult validationResult = queryAction.checkPreconditions();
-      // if prerequisites fail, return validation result
-      if (!validationResult.getErrors().isEmpty()
-          || (!validationResult.getWarnings().isEmpty())) {
-        // rollback -- unlocks the concept and closes transaction
-        queryAction.rollback();
-      }
-      assertTrue(validationResult.getErrors().isEmpty());
-
-      //
-      // Perform the algorithm
-      //
-      queryAction.compute();
-
-      // Commit the algorithm.
-      queryAction.commit();
-
-    } catch (Exception e) {
-      queryAction.rollback();
-      e.printStackTrace();
-      fail("Unexpected exception thrown - please review stack trace.");
-    } finally {
-      // Close algorithm for each loop
-      queryAction.close();
+    for (final Object entry : list) {
+      final Long id = Long.valueOf(entry.toString());
+      removeRelationship(id, ConceptRelationshipJpa.class);
+      updateProgress();
     }
 
     logInfo("Finished " + getName());
@@ -2422,7 +2390,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Turn off CTRP-SDC", "Fix Terminology Names", "Fix RHT Atoms",
         "Fix MDR Descriptors", "Clear Worklists and Checklists",
         "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts",
-        "Turn off old relationships"));
+        "Remove old relationships"));
     params.add(param);
 
     return params;
