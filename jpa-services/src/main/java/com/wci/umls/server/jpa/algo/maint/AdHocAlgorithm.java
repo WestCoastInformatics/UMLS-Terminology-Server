@@ -59,12 +59,14 @@ import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.RelationshipIdentity;
+import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.services.UmlsIdentityService;
 import com.wci.umls.server.services.WorkflowService;
+import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
 /**
  * Implementation of an algorithm to execute an action based on a user-defined
@@ -174,6 +176,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixDuplicatePDQMappingAttributes();
     } else if (actionName.equals("Fix Duplicate Concepts")) {
       fixDuplicateConcepts();
+    } else if (actionName.equals("Fix Null RUIs")) {
+      fixNullRUIs();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -2312,6 +2316,144 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     
   }
   
+  /*private void fixDuplicateConcepts() throws Exception {
+    // 5/7/2018 These were created erroneously during the load from MEME4 
+    // (having to do with the loading of component_histories and dead CUIs), 
+    // and need to be taken care of.
+
+    logInfo(" Fix duplicate concepts");
+
+    List<ConceptRelationship> duplicateConcepts = new ArrayList<>();
+
+    try {
+
+      // Identify all relationship identities that have duplicates
+      // REAL QUERY
+      Query query = getEntityManager().createNativeQuery(
+          "select id from concept_relationships where publishable and terminology != 'NCIMTH' limit 55");
+
+
+      logInfo("[TEST] ");
+
+      List<Object> list = query.getResultList();
+      int ct = 0;
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        ConceptRelationship cptRel = (ConceptRelationship)getRelationship(id, ConceptRelationshipJpa.class);
+        duplicateConcepts.add(cptRel);
+        ct++;
+        if (ct == 50) {
+          break;
+        }
+      }
+
+      setSteps(duplicateConcepts.size());
+
+      logInfo("[TEST] " + duplicateConcepts.size()
+          + " Concept duplicates identified");
+
+      for (final ConceptRelationship rel : duplicateConcepts) {
+        System.out.println("rel before: " + rel);
+        rel.getAlternateTerminologyIds().clear();
+        updateRelationship(rel);
+        //updateProgress();
+        //System.out.println("rel after: " + rel);
+      }
+
+      commitClearBegin();
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+
+    }
+    
+    logInfo("Finished " + getName());
+    
+  }*/
+  
+  private void fixNullRUIs() throws Exception {
+    // 5/7/2018 These were created erroneously during the load from MEME4 
+    // (having to do with the loading of component_histories and dead CUIs), 
+    // and need to be taken care of.
+
+    logInfo(" Fix null RUIs");
+
+    List<ConceptRelationship> relsToFix = new ArrayList<>();
+    Map<String, String> relTypeMap = new HashMap<>();
+    
+    IdentifierAssignmentHandler handler = newIdentifierAssignmentHandler(getProject().getTerminology());
+    handler.setTransactionPerOperation(false);
+    handler.beginTransaction();
+    
+    try {
+
+      for (final RelationshipType rel : getRelationshipTypes(
+          getProject().getTerminology(), getProject().getVersion())
+              .getObjects()) {
+        relTypeMap.put(rel.getAbbreviation(),
+            rel.getInverse().getAbbreviation());
+      }
+      for (final AdditionalRelationshipType rel : getAdditionalRelationshipTypes(
+          getProject().getTerminology(), getProject().getVersion())
+              .getObjects()) {
+        relTypeMap.put(rel.getAbbreviation(),
+            rel.getInverse().getAbbreviation());
+      }
+      
+      // Identify all relationship identities that have duplicates
+      // REAL QUERY
+      Query query = getEntityManager().createNativeQuery(
+          "select cr.id from concept_relationships cr left join conceptrelationshipjpa_alternateterminologyids crat on cr.id=crat.ConceptRelationshipJpa_id where cr.publishable and crat.alternateTerminologyIds is null and terminology != 'NCIMTH'");
+
+
+      logInfo("[TEST] ");
+      
+      List<Object> list = query.getResultList();
+    
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        ConceptRelationship relationship = (ConceptRelationship)getRelationship(id, ConceptRelationshipJpa.class);
+        relsToFix.add(relationship);
+      }
+
+      setSteps(relsToFix.size());
+      for (ConceptRelationship relationship : relsToFix) {
+        if (!relationship.getTerminology().equals("MTH")) {
+          continue;
+        }
+        final String inverseRelType =
+            relTypeMap.get(relationship.getRelationshipType());
+        final String inverseAdditionalRelType =
+            relTypeMap.get(relationship.getAdditionalRelationshipType());
+        final String relationshipRui = handler.getTerminologyId(relationship,
+            inverseRelType, inverseAdditionalRelType);
+           
+        relationship.getAlternateTerminologyIds().put(getProject().getTerminology(), relationshipRui);
+        updateRelationship(relationship);
+        updateProgress();
+      }
+
+
+      logInfo("[TEST] " + relsToFix.size()
+          + " Concept duplicates identified");
+
+
+      commitClearBegin();      
+      handler.commit();
+    } catch (Exception e) {
+      e.printStackTrace();
+      handler.rollback();
+      handler.close();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+
+    }
+    
+    logInfo("Finished " + getName());
+    
+  }
+  
  
 
   /* see superclass */
@@ -2365,7 +2507,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Fix AdditionalRelType Inverses", "Fix Snomed Family",
             "Turn off CTRP-SDC", "Fix Terminology Names", "Fix RHT Atoms",
             "Fix MDR Descriptors", "Clear Worklists and Checklists",
-            "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts"));
+            "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts", "Fix Null RUIs"));
     params.add(param);
 
     return params;
