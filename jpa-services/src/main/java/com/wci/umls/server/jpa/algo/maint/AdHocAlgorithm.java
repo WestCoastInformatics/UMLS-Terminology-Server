@@ -18,6 +18,8 @@ import java.util.UUID;
 
 import javax.persistence.Query;
 
+import org.hibernate.Hibernate;
+
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -2373,7 +2375,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     logInfo(" Fix null RUIs");
 
-    List<ConceptRelationship> relsToFix = new ArrayList<>();
+    List<Long> relsToFix = new ArrayList<>();
     Map<String, String> relTypeMap = new HashMap<>();
     
     IdentifierAssignmentHandler handler = newIdentifierAssignmentHandler(getProject().getTerminology());
@@ -2400,20 +2402,21 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       Query query = getEntityManager().createNativeQuery(
           "select cr.id from concept_relationships cr left join conceptrelationshipjpa_alternateterminologyids crat on cr.id=crat.ConceptRelationshipJpa_id where cr.publishable and crat.alternateTerminologyIds is null and terminology != 'NCIMTH'");
 
-
-      logInfo("[FixNullRUIs] " + relsToFix.size()
-      + " Concept relationships identified with null RUIs");
-      
       List<Object> list = query.getResultList();
     
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
-        ConceptRelationship relationship = (ConceptRelationship)getRelationship(id, ConceptRelationshipJpa.class);
-        relsToFix.add(relationship);
+        relsToFix.add(id);
       }
+      
+      logInfo("[FixNullRUIs] " + relsToFix.size()
+      + " Concept relationships identified with null RUIs");
+      
 
       setSteps(relsToFix.size());
-      for (ConceptRelationship relationship : relsToFix) {
+      for (Long relId : relsToFix) {
+        ConceptRelationship relationship = (ConceptRelationship)getRelationship(relId, ConceptRelationshipJpa.class);       
+        
         if (!relationship.getTerminology().equals("MTH")) {
           continue;
         }
@@ -2423,7 +2426,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             relTypeMap.get(relationship.getAdditionalRelationshipType());
         final String relationshipRui = handler.getTerminologyId(relationship,
             inverseRelType, inverseAdditionalRelType);
-           
+        relationship.getAlternateTerminologyIds().size();
         relationship.getAlternateTerminologyIds().put(getProject().getTerminology(), relationshipRui);
         updateRelationship(relationship);
         updateProgress();
