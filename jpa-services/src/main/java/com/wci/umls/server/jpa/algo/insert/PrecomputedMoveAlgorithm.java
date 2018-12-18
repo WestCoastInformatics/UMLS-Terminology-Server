@@ -585,11 +585,12 @@ public class PrecomputedMoveAlgorithm
 
       logInfo("Finished " + getName());
 
-    } catch (
-
-    Exception e) {
+    } catch (Exception e) {
       logError("Unexpected problem - " + e.getMessage());
       throw e;
+    } finally {
+      // Clear the caches to free up memory
+      clearCaches();
     }
 
   }
