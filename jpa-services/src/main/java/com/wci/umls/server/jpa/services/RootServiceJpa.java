@@ -19,6 +19,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -2157,8 +2159,8 @@ public abstract class RootServiceJpa implements RootService {
     }
 
     // Handle SQL and JPQL queries here
-    // Check for JPQL/SQL errors
-
+    // Check for JPQL/SQL errors  
+    
     boolean conceptQuery = false;
     boolean dualConceptQuery = false;
     boolean clusterQuery = false;
@@ -2191,6 +2193,7 @@ public abstract class RootServiceJpa implements RootService {
     if (queryType == QueryType.SQL) {
       jpaQuery = getEntityManager().createNativeQuery(query);
     } else if (queryType == QueryType.JPQL) {
+//      query = query.replace(jpaObjectName.toLowerCase(), jpaObjectName);
       jpaQuery = getEntityManager().createQuery(query);
     } else {
       throw new Exception("Unsupported query type " + queryType);
@@ -2350,7 +2353,7 @@ public abstract class RootServiceJpa implements RootService {
 
     // Handle SQL and JPQL queries here
     // Check for JPQL/SQL errors
-
+    
     boolean conceptQuery = false;
     boolean dualConceptQuery = false;
     boolean clusterQuery = false;
@@ -2370,9 +2373,9 @@ public abstract class RootServiceJpa implements RootService {
 
     // Modify query to get the total count of items
     if (!query.toLowerCase().contains("distinct")) {
-      query = query.toLowerCase().replaceFirst("[\\n\\r]", " ")
+      query = query.replaceFirst("[\\n\\r]", " ")
           .replaceFirst("[\\n\\r]", " ");
-      query = query.replaceFirst("select.* from", "select count(*) from ");
+      query = query.replaceFirst("[Ss][Ee][Ll][Ee][Cc][Tt].* [Ff][Rr][Oo][Mm]", "select count(*) from ");
     } else {
       return executeClusteredConceptQuery(query, queryType, params, false)
           .size();
@@ -2393,6 +2396,7 @@ public abstract class RootServiceJpa implements RootService {
     if (queryType == QueryType.SQL) {
       jpaQuery = getEntityManager().createNativeQuery(query);
     } else if (queryType == QueryType.JPQL) {
+      //query = query.replace(jpaObjectName.toLowerCase(), jpaObjectName);
       jpaQuery = getEntityManager().createQuery(query);
     } else {
       throw new Exception("Unsupported query type " + queryType);
@@ -2408,7 +2412,15 @@ public abstract class RootServiceJpa implements RootService {
     Logger.getLogger(getClass()).info("  query = " + query);
 
     final List<Object> list = jpaQuery.getResultList();
-    return ((BigInteger) list.get(0)).intValue();
+    if(list.get(0).getClass() == BigInteger.class){
+      return ((BigInteger) list.get(0)).intValue();
+    }
+    else if (list.get(0).getClass() == Long.class){
+      return ((Long)list.get(0)).intValue();
+    }
+    else{
+      throw new Exception("Unhandled object type:" + list.get(0).getClass().toString());
+    }
 
   }
 
