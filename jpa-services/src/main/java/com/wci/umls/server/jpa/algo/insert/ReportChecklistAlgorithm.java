@@ -106,13 +106,13 @@ public class ReportChecklistAlgorithm
 
         // All four queries start with the same clauses
         final String queryPrefix =
-            "select c.id as conceptId from concepts c, concepts_atoms ca, atoms a "
-                + "where c.id=ca.concepts_id and ca.atoms_id = a.id and c.terminology=':terminology' "
+            "select c.id as conceptId from ConceptJpa c join c.atoms a "
+                + "where c.terminology=:projectTerminology "
                 + "a.terminology='" + term + "' and a.version='" + version
                 + "'";
 
         Checklist checklist = computeChecklist(getProject(),
-            queryPrefix + " AND a.workflowStatus='NEEDS_REVIEW'", QueryType.SQL,
+            queryPrefix + " AND a.workflowStatus='NEEDS_REVIEW'", QueryType.JPQL,
             "chk_" + term + "_" + version + "_NEEDS_REVIEW", null, true);
         String result = "Created chk_" + term + "_" + version
             + "_NEEDS_REVIEW checklist, containing "
@@ -122,7 +122,7 @@ public class ReportChecklistAlgorithm
         commitClearBegin();
 
         checklist = computeChecklist(getProject(),
-            queryPrefix + " AND a.workflowStatus='DEMOTION'", QueryType.SQL,
+            queryPrefix + " AND a.workflowStatus='DEMOTION'", QueryType.JPQL,
             "chk_" + term + "_" + version + "_DEMOTION", null, true);
         result = "Created chk_" + term + "_" + version
             + "_DEMOTION checklist, containing "
@@ -134,7 +134,7 @@ public class ReportChecklistAlgorithm
         checklist = computeChecklist(getProject(),
             queryPrefix
                 + " AND (a.workflowStatus='READY_FOR_PUBLICATION' OR a.workflowStatus='PUBLISHED')",
-            QueryType.SQL,
+            QueryType.JPQL,
             "chk_" + term + "_" + version + "_READY_FOR_PUBLICATION", null,
             true);
         result = "Created chk_" + term + "_" + version
@@ -145,7 +145,7 @@ public class ReportChecklistAlgorithm
         commitClearBegin();
 
         checklist = computeChecklist(getProject(),
-            queryPrefix + " AND a.lastModifiedBy like 'ENG-%'", QueryType.SQL,
+            queryPrefix + " AND a.lastModifiedBy like 'ENG-%'", QueryType.JPQL,
             "chk_" + term + "_" + version + "_MIDMERGES", null, true);
         result = "Created chk_" + term + "_" + version
             + "_MIDMERGES checklist, containing "
