@@ -18,6 +18,8 @@ import java.util.UUID;
 
 import javax.persistence.Query;
 
+import org.hibernate.Hibernate;
+
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -56,12 +58,14 @@ import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.RelationshipIdentity;
+import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.services.UmlsIdentityService;
 import com.wci.umls.server.services.WorkflowService;
+import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
 /**
  * Implementation of an algorithm to execute an action based on a user-defined
@@ -171,6 +175,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixDuplicatePDQMappingAttributes();
     } else if (actionName.equals("Fix Duplicate Concepts")) {
       fixDuplicateConcepts();
+    } else if (actionName.equals("Fix Null RUIs")) {
+      fixNullRUIs();
     } else if (actionName.equals("Remove old relationships")) {
       removeOldRelationships();
     } else {
@@ -2305,6 +2311,145 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
 
   }
+  
+  /*private void fixDuplicateConcepts() throws Exception {
+    // 5/7/2018 These were created erroneously during the load from MEME4 
+    // (having to do with the loading of component_histories and dead CUIs), 
+    // and need to be taken care of.
+
+    logInfo(" Fix duplicate concepts");
+
+    List<ConceptRelationship> duplicateConcepts = new ArrayList<>();
+
+    try {
+
+      // Identify all relationship identities that have duplicates
+      // REAL QUERY
+      Query query = getEntityManager().createNativeQuery(
+          "select id from concept_relationships where publishable and terminology != 'NCIMTH' limit 55");
+
+
+      logInfo("[TEST] ");
+
+      List<Object> list = query.getResultList();
+      int ct = 0;
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        ConceptRelationship cptRel = (ConceptRelationship)getRelationship(id, ConceptRelationshipJpa.class);
+        duplicateConcepts.add(cptRel);
+        ct++;
+        if (ct == 50) {
+          break;
+        }
+      }
+
+      setSteps(duplicateConcepts.size());
+
+      logInfo("[TEST] " + duplicateConcepts.size()
+          + " Concept duplicates identified");
+
+      for (final ConceptRelationship rel : duplicateConcepts) {
+        System.out.println("rel before: " + rel);
+        rel.getAlternateTerminologyIds().clear();
+        updateRelationship(rel);
+        //updateProgress();
+        //System.out.println("rel after: " + rel);
+      }
+
+      commitClearBegin();
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+
+    }
+    
+    logInfo("Finished " + getName());
+    
+  }*/
+  
+  private void fixNullRUIs() throws Exception {
+    // 12/17/2018 Ensure all components are attached to their identity.  
+    // Concept rels inexplicably got null RUIs and the RUIs need to be 
+    // reassigned.
+
+    logInfo(" Fix null RUIs");
+
+    List<Long> relsToFix = new ArrayList<>();
+    Map<String, String> relTypeMap = new HashMap<>();
+    
+    IdentifierAssignmentHandler handler = newIdentifierAssignmentHandler(getProject().getTerminology());
+    handler.setTransactionPerOperation(false);
+    handler.beginTransaction();
+    
+    try {
+
+      for (final RelationshipType rel : getRelationshipTypes(
+          getProject().getTerminology(), getProject().getVersion())
+              .getObjects()) {
+        relTypeMap.put(rel.getAbbreviation(),
+            rel.getInverse().getAbbreviation());
+      }
+      for (final AdditionalRelationshipType rel : getAdditionalRelationshipTypes(
+          getProject().getTerminology(), getProject().getVersion())
+              .getObjects()) {
+        relTypeMap.put(rel.getAbbreviation(),
+            rel.getInverse().getAbbreviation());
+      }
+      
+      // Identify all concept relationships with null alternate terminology ids (RUIs)
+      // REAL QUERY
+      Query query = getEntityManager().createNativeQuery(
+          "select cr.id from concept_relationships cr left join conceptrelationshipjpa_alternateterminologyids crat on cr.id=crat.ConceptRelationshipJpa_id where cr.publishable and crat.alternateTerminologyIds is null and terminology != 'NCIMTH'");
+
+      List<Object> list = query.getResultList();
+    
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        relsToFix.add(id);
+      }
+      
+      logInfo("[FixNullRUIs] " + relsToFix.size()
+      + " Concept relationships identified with null RUIs");
+      
+
+      setSteps(relsToFix.size());
+      for (Long relId : relsToFix) {
+        ConceptRelationship relationship = (ConceptRelationship)getRelationship(relId, ConceptRelationshipJpa.class);       
+        
+        if (!relationship.getTerminology().equals("MTH")) {
+          continue;
+        }
+        final String inverseRelType =
+            relTypeMap.get(relationship.getRelationshipType());
+        final String inverseAdditionalRelType =
+            relTypeMap.get(relationship.getAdditionalRelationshipType());
+        final String relationshipRui = handler.getTerminologyId(relationship,
+            inverseRelType, inverseAdditionalRelType);
+        relationship.getAlternateTerminologyIds().size();
+        relationship.getAlternateTerminologyIds().put(getProject().getTerminology(), relationshipRui);
+        updateRelationship(relationship);
+        updateProgress();
+      }
+
+      commitClearBegin();      
+      handler.commit();
+      handler.close();
+      
+    } catch (Exception e) {
+      e.printStackTrace();
+      handler.rollback();
+      handler.close();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+
+    }
+    
+    logInfo("Finished " + getName());
+    
+  }
+  
+ 
 
   private void removeOldRelationships() throws Exception {
     // 12/15/2018 concept_relationships were created by MTH_2018AB test
@@ -2377,20 +2522,19 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     AlgorithmParameter param = new AlgorithmParameterJpa("Action Name",
         "actionName", "Name of Ad Hoc Action to be performed",
         "e.g. Fix Orphan Definitions", 200, AlgorithmParameter.Type.ENUM, "");
-    param.setPossibleValues(Arrays.asList("Fix Orphan Definitions",
-        "Undo Stampings", "Remove Bad Relationships", "Remove SNOMED Subsets",
-        "Remove Orphaned Tracking Records",
-        "Inactivate Old SRC atoms and AtomRels", "Fix SRC_ATOM_IDs",
-        "Redo Molecular Actions", "Fix Bad Relationship Identities",
-        "Fix Component Info Relationships", "Remove Concepts without Atoms",
-        "Set Component Info Relationships To Publishable",
-        "Set Stamped Worklists To Ready For Publication",
-        "Add Disposition Atoms", "Fix RelGroups", "Fix Source Level Rels",
-        "Fix AdditionalRelType Inverses", "Fix Snomed Family",
-        "Turn off CTRP-SDC", "Fix Terminology Names", "Fix RHT Atoms",
-        "Fix MDR Descriptors", "Clear Worklists and Checklists",
-        "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts",
-        "Remove old relationships"));
+    param.setPossibleValues(
+        Arrays.asList("Fix Orphan Definitions", "Undo Stampings",
+            "Remove Bad Relationships", "Remove SNOMED Subsets", "Remove Orphaned Tracking Records",
+            "Inactivate Old SRC atoms and AtomRels", "Fix SRC_ATOM_IDs",
+            "Redo Molecular Actions", "Fix Bad Relationship Identities",
+            "Fix Component Info Relationships", "Remove Concepts without Atoms",
+            "Set Component Info Relationships To Publishable",
+            "Set Stamped Worklists To Ready For Publication",
+            "Add Disposition Atoms", "Fix RelGroups", "Fix Source Level Rels",
+            "Fix AdditionalRelType Inverses", "Fix Snomed Family",
+            "Turn off CTRP-SDC", "Fix Terminology Names", "Fix RHT Atoms",
+            "Fix MDR Descriptors", "Clear Worklists and Checklists",
+            "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts", "Fix Null RUIs", "Remove old relationships"));
     params.add(param);
 
     return params;
