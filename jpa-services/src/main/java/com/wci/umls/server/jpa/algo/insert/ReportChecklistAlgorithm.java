@@ -107,13 +107,13 @@ public class ReportChecklistAlgorithm
         // All four queries start with the same clauses
         final String queryPrefix =
             "select c.id as conceptId from concepts c, concepts_atoms ca, atoms a "
-            + "where c.id=ca.concepts_id and ca.atoms_id = a.id and "
-            + "a.terminology='"+term+"' and a.version='"+version+"'";
+                + "where c.id=ca.concepts_id and ca.atoms_id = a.id and c.terminology=':terminology' "
+                + "a.terminology='" + term + "' and a.version='" + version
+                + "'";
 
         Checklist checklist = computeChecklist(getProject(),
-            queryPrefix + " AND a.workflowStatus='NEEDS_REVIEW'",
-            QueryType.SQL, "chk_" + term + "_" + version + "_NEEDS_REVIEW",
-            null, true);
+            queryPrefix + " AND a.workflowStatus='NEEDS_REVIEW'", QueryType.SQL,
+            "chk_" + term + "_" + version + "_NEEDS_REVIEW", null, true);
         String result = "Created chk_" + term + "_" + version
             + "_NEEDS_REVIEW checklist, containing "
             + checklist.getTrackingRecords().size() + " tracking records.";
@@ -122,9 +122,8 @@ public class ReportChecklistAlgorithm
         commitClearBegin();
 
         checklist = computeChecklist(getProject(),
-            queryPrefix + " AND a.workflowStatus='DEMOTION'",
-            QueryType.SQL, "chk_" + term + "_" + version + "_DEMOTION", null,
-            true);
+            queryPrefix + " AND a.workflowStatus='DEMOTION'", QueryType.SQL,
+            "chk_" + term + "_" + version + "_DEMOTION", null, true);
         result = "Created chk_" + term + "_" + version
             + "_DEMOTION checklist, containing "
             + checklist.getTrackingRecords().size() + " tracking records.";
@@ -133,7 +132,8 @@ public class ReportChecklistAlgorithm
         commitClearBegin();
 
         checklist = computeChecklist(getProject(),
-            queryPrefix + " AND (a.workflowStatus='READY_FOR_PUBLICATION' OR a.workflowStatus='PUBLISHED')",
+            queryPrefix
+                + " AND (a.workflowStatus='READY_FOR_PUBLICATION' OR a.workflowStatus='PUBLISHED')",
             QueryType.SQL,
             "chk_" + term + "_" + version + "_READY_FOR_PUBLICATION", null,
             true);
@@ -180,8 +180,9 @@ public class ReportChecklistAlgorithm
         ConfigUtility.sendEmail(
             "Report Checklist Algorithm Complete for Process: "
                 + getProcess().getName(),
-            from, recipients, "Checklist counts attached - please edit and email.",
-            config, outputFile.getAbsolutePath());
+            from, recipients,
+            "Checklist counts attached - please edit and email.", config,
+            outputFile.getAbsolutePath());
       }
 
     } catch (
