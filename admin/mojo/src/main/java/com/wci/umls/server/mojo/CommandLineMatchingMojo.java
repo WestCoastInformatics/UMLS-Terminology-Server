@@ -104,6 +104,12 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 			/*
 			 * Error Checking
 			 */
+			if (terminology == null || terminology.isEmpty()) {
+				throw new Exception("Must define a terminology to search against i.e. SNOMEDCT");
+			}
+			if (version == null || version.isEmpty()) {
+				throw new Exception("Must define a version to search against i.e. latest");
+			}
 			if (searchTerm != null && !searchTerm.isEmpty() && searchFilePath != null && !searchFilePath.isEmpty()) {
 				throw new Exception("Must either specify a search term or a search file path, but not both");
 			}
