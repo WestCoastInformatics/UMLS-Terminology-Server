@@ -53,6 +53,11 @@ import com.wci.umls.server.services.SecurityService;
  */
 @Mojo(name = "match-term", defaultPhase = LifecyclePhase.PACKAGE)
 public class CommandLineMatchingMojo extends AbstractMojo {
+
+	/** The run config file path. */
+	@Parameter
+	private String runConfig;
+
 	/**
 	 * Name of terminology to be loaded.
 	 */
@@ -95,6 +100,7 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 		try {
 
 			getLog().info("Matching Mojo");
+			getLog().info("  runConfig = " + runConfig);
 			getLog().info("  terminology = " + terminology);
 			getLog().info("  version = " + version);
 			getLog().info("  maxCount = " + maxCount);
@@ -123,6 +129,9 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 			 * Setup
 			 */
 			// Handle creating the database if the mode parameter is set
+			if (runConfig != null && !runConfig.isEmpty()) {
+				System.setProperty("run.config." + ConfigUtility.getConfigLabel(), runConfig);
+			}
 			final Properties properties = ConfigUtility.getConfigProperties();
 			final ContentClientRest client = new ContentClientRest(properties);
 
@@ -191,7 +200,8 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 		if (maxCount == null) {
 			getLog().info("Found " + results.getTotalCount() + " results and outputing all");
 		} else {
-			getLog().info("Found " + results.getTotalCount() + " results and only outputing no more than " + maxCount);
+			getLog().info(
+					"Found " + results.getTotalCount() + " results and per request, outputing at most " + maxCount);
 		}
 
 		if (outputFile != null) {
