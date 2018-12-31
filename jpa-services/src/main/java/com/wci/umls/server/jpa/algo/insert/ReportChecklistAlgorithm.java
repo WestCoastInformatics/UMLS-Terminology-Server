@@ -106,12 +106,14 @@ public class ReportChecklistAlgorithm
 
         // All four queries start with the same clauses
         final String queryPrefix =
-            "atoms.terminology:" + term + " AND atoms.version:" + version;
+            "select c.id as conceptId from ConceptJpa c join c.atoms a "
+                + "where c.terminology=:projectTerminology and "
+                + "a.terminology='" + term + "' and a.version='" + version
+                + "'";
 
         Checklist checklist = computeChecklist(getProject(),
-            queryPrefix + " AND atoms.workflowStatus:NEEDS_REVIEW",
-            QueryType.LUCENE, "chk_" + term + "_" + version + "_NEEDS_REVIEW",
-            null, true);
+            queryPrefix + " AND a.workflowStatus='NEEDS_REVIEW'", QueryType.JPQL,
+            "chk_" + term + "_" + version + "_NEEDS_REVIEW", null, true);
         String result = "Created chk_" + term + "_" + version
             + "_NEEDS_REVIEW checklist, containing "
             + checklist.getTrackingRecords().size() + " tracking records.";
@@ -120,9 +122,8 @@ public class ReportChecklistAlgorithm
         commitClearBegin();
 
         checklist = computeChecklist(getProject(),
-            queryPrefix + " AND atoms.workflowStatus:DEMOTION",
-            QueryType.LUCENE, "chk_" + term + "_" + version + "_DEMOTION", null,
-            true);
+            queryPrefix + " AND a.workflowStatus='DEMOTION'", QueryType.JPQL,
+            "chk_" + term + "_" + version + "_DEMOTION", null, true);
         result = "Created chk_" + term + "_" + version
             + "_DEMOTION checklist, containing "
             + checklist.getTrackingRecords().size() + " tracking records.";
@@ -131,8 +132,9 @@ public class ReportChecklistAlgorithm
         commitClearBegin();
 
         checklist = computeChecklist(getProject(),
-            queryPrefix + " AND (atoms.workflowStatus:READY_FOR_PUBLICATION OR atoms.workflowStatus:PUBLISHED)",
-            QueryType.LUCENE,
+            queryPrefix
+                + " AND (a.workflowStatus='READY_FOR_PUBLICATION' OR a.workflowStatus='PUBLISHED')",
+            QueryType.JPQL,
             "chk_" + term + "_" + version + "_READY_FOR_PUBLICATION", null,
             true);
         result = "Created chk_" + term + "_" + version
@@ -143,7 +145,7 @@ public class ReportChecklistAlgorithm
         commitClearBegin();
 
         checklist = computeChecklist(getProject(),
-            queryPrefix + " AND atoms.lastModifiedBy:ENG-*", QueryType.LUCENE,
+            queryPrefix + " AND a.lastModifiedBy like 'ENG-%'", QueryType.JPQL,
             "chk_" + term + "_" + version + "_MIDMERGES", null, true);
         result = "Created chk_" + term + "_" + version
             + "_MIDMERGES checklist, containing "
@@ -178,8 +180,9 @@ public class ReportChecklistAlgorithm
         ConfigUtility.sendEmail(
             "Report Checklist Algorithm Complete for Process: "
                 + getProcess().getName(),
-            from, recipients, "Checklist counts attached - please edit and email.",
-            config, outputFile.getAbsolutePath());
+            from, recipients,
+            "Checklist counts attached - please edit and email.", config,
+            outputFile.getAbsolutePath());
       }
 
     } catch (
