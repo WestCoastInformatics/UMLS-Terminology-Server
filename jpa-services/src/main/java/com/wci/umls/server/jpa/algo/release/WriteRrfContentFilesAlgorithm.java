@@ -758,8 +758,10 @@ public class WriteRrfContentFilesAlgorithm
               + "where a.publishable = true and b.publishable = true");
       ct = 0;
       for (final Long id : (List<Long>) query.getResultList()) {
-        map.get(id).markAttributes();
-        logAndCommit(ct++, RootService.logCt, RootService.commitCt);
+        if (map.get(id) != null) {
+          map.get(id).markAttributes();
+          logAndCommit(ct++, RootService.logCt, RootService.commitCt);
+        }
       }
       logInfo("      ct = " + ct);
 
@@ -782,8 +784,10 @@ public class WriteRrfContentFilesAlgorithm
               + "where a.publishable = true and a.node.publishable = true");
       ct = 0;
       for (final Long id : (List<Long>) query.getResultList()) {
-        map.get(id).markTreePositions();
-        logAndCommit(ct++, RootService.logCt, RootService.commitCt);
+        if (map.get(id) != null) {
+          map.get(id).markTreePositions();
+          logAndCommit(ct++, RootService.logCt, RootService.commitCt);
+        }
       }
       logInfo("      ct = " + ct);
 
@@ -795,8 +799,10 @@ public class WriteRrfContentFilesAlgorithm
                 + "where a.publishable = true and a.member.publishable = true");
         ct = 0;
         for (final Long id : (List<Long>) query.getResultList()) {
-          map.get(id).markMembers();
-          logAndCommit(ct++, RootService.logCt, RootService.commitCt);
+          if (map.get(id) != null) {
+            map.get(id).markMembers();
+            logAndCommit(ct++, RootService.logCt, RootService.commitCt);
+          }
         }
         logInfo("      ct = " + ct);
       }
@@ -809,8 +815,10 @@ public class WriteRrfContentFilesAlgorithm
             + "and d.publishable = true");
         ct = 0;
         for (final Long id : (List<Long>) query.getResultList()) {
-          map.get(id).markDefinitions();
-          logAndCommit(ct++, RootService.logCt, RootService.commitCt);
+          if (map.get(id) != null) {
+            map.get(id).markDefinitions();
+            logAndCommit(ct++, RootService.logCt, RootService.commitCt);
+          }
         }
         logInfo("      ct = " + ct);
       }
