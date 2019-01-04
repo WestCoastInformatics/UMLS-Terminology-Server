@@ -698,9 +698,10 @@ public class WriteRrfHistoryFilesAlgorithm
           final Concept concept = getConcept(cui, getProject().getTerminology(),
               getProject().getVersion(), Branch.ROOT);
           if (concept == null) {
-            throw new Exception("Unable to find name for dead cui = " + cui);
+            logWarn("Unable to find name for dead cui = " + cui);
+          } else {
+            oldConceptName = concept.getName();
           }
-          oldConceptName = concept.getName();
         } else {
           handler.computePreferredName(atoms, precedenceList);
         }
