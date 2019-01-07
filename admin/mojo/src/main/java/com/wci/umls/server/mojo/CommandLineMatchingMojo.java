@@ -89,7 +89,7 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 	private String searchFilePath;
 
 	/** The partial df. */
-	private final DateTimeFormatter partialDf = DateTimeFormatter.ofPattern(" dd HH-mm-ss");
+	private final DateTimeFormatter partialDf = DateTimeFormatter.ofPattern(" dd HH-mm");
 
 	/** The output file path. */
 	private String outputFilePath;
@@ -161,9 +161,7 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 				bufferedReader.close();
 			}
 
-			if (outputFile != null) {
-				outputFile.close();
-			}
+			outputFile.close();
 
 			getLog().info("Output avaiable at: " + outputFilePath);
 			getLog().info("done ...");
@@ -204,9 +202,7 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 					"Found " + results.getTotalCount() + " results and per request, outputing at most " + maxCount);
 		}
 
-		if (outputFile != null) {
-			writeResultsToFile(outputFile, line, results);
-		}
+		writeResultsToFile(outputFile, line, results);
 	}
 
 	/**
@@ -224,7 +220,7 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 		final String timestamp = partialDf.format(now);
 		final String month = now.getMonth().getDisplayName(TextStyle.SHORT, Locale.getDefault());
 
-		File f = new File("matcherOutputFile-" + terminology + "-" + month + timestamp + ".xls");
+		File f = new File("matcherOutput-" + terminology + "-" + month + timestamp + ".xls");
 		outputFilePath = f.getAbsolutePath();
 		getLog().info("Creating file at: " + outputFilePath);
 
@@ -236,7 +232,9 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 		pw.write("\t");
 		pw.write("Concept Id");
 		pw.write("\t");
-		pw.println("Concept Description");
+		pw.print("Concept Description");
+		pw.write("\t");
+		pw.println("Score");
 
 		return pw;
 	}
@@ -258,18 +256,23 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 		outputFile.println(line);
 
 		int counter = 0;
+		float lastScore = 0;
 		for (SearchResult singleResult : results.getObjects()) {
-			getLog().info("    match" + (++counter) + " = " + singleResult.getTerminologyId() + " | "
-					+ singleResult.getValue() + " | ");
+			if (maxCount != null && ++counter >= maxCount && lastScore != singleResult.getScore()) {
+				break;
+			}
+
+			getLog().info("    match" + (counter) + " = " + singleResult.getTerminologyId() + " | "
+					+ singleResult.getValue() + " | " + "with score: " + singleResult.getScore() + " | ");
 
 			outputFile.write("\t");
 			outputFile.write(singleResult.getTerminologyId());
 			outputFile.write("\t");
-			outputFile.println(singleResult.getValue());
+			outputFile.print(singleResult.getValue());
+			outputFile.write("\t");
+			outputFile.println(singleResult.getScore());
 
-			if (maxCount != null && counter >= maxCount) {
-				break;
-			}
+			lastScore = singleResult.getScore();
 		}
 
 		outputFile.println();
