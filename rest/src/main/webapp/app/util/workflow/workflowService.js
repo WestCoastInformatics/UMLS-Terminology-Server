@@ -1066,14 +1066,12 @@ tsApp.service('workflowService', [
       // success
       function(response) {
         console.debug('  successful regenerate bin ', gpService.getGlassPane().counter);
-        /*if (gpService.getGlassPane > 0) {
-          gpService.decrement('Regenerating bins...  DO NOT refresh browser.');
-        }*/
+        gpService.decrement('Regenerating bin...');
         deferred.resolve(response.data);
       },
       // error
       function(response) {
-        //utilService.handleError(response);
+        utilService.handleError(response);
         deferred.reject(response.data);
       });
       return deferred.promise;
@@ -1093,13 +1091,13 @@ tsApp.service('workflowService', [
         // success
         function(response) {
           console.debug('  successful regenerate bins');
-          //gpService.decrement('Regenerating bins...  DO NOT refresh browser.');
+          gpService.decrement('Regenerating bins...  DO NOT refresh browser.');
           deferred.resolve(response.data);
         },
         // error
         function(response) {
-          /*utilService.handleError(response);
-          gpService.decrement('Regenerating bins...');*/
+          utilService.handleError(response);
+          gpService.decrement('Regenerating bins...  DO NOT refresh browser.');
           deferred.reject(response.data);
         });
       
