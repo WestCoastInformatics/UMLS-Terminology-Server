@@ -94,6 +94,12 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 	/** The output file path. */
 	private String outputFilePath;
 
+	/** The user name. */
+	private String userName;
+
+	/** The user password */
+	private String userPassword;
+
 	/* see superclass */
 	@Override
 	public void execute() throws MojoFailureException {
@@ -105,7 +111,8 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 			getLog().info("  version = " + version);
 			getLog().info("  maxCount = " + maxCount);
 			getLog().info("  searchTerm = " + searchTerm);
-			getLog().info("  searchFilePath = " + searchFilePath);
+			getLog().info("  userName = " + userName);
+			getLog().info("  userName = " + userName);
 
 			/*
 			 * Error Checking
@@ -136,10 +143,13 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 			final ContentClientRest client = new ContentClientRest(properties);
 
 			// authenticate
+			if (userName == null || userPassword == null) {
+				userName = properties.getProperty("viewer.user");
+				userPassword = properties.getProperty("viewer.password");
+			}
+
 			final SecurityService service = new SecurityServiceJpa();
-			final String authToken = service
-					.authenticate(properties.getProperty("viewer.user"), properties.getProperty("viewer.password"))
-					.getAuthToken();
+			final String authToken = service.authenticate(userName, userPassword).getAuthToken();
 			service.close();
 
 			/*
