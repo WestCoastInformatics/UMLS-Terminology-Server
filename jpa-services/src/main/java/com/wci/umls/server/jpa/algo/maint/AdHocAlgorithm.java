@@ -63,6 +63,7 @@ import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
+import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.UmlsIdentityService;
 import com.wci.umls.server.services.WorkflowService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
@@ -179,6 +180,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixNullRUIs();
     } else if (actionName.equals("Remove old relationships")) {
       removeOldRelationships();
+    } else if (actionName.equals("Assign Missing STY ATUIs")) {
+      assignMissingStyAtui();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -2482,6 +2485,61 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
 
   }
+  
+  private void assignMissingStyAtui() throws Exception {
+    // 1/8/2019 ATUI is missing on STY C0303976|T104|A1.4.1.2|Chemical Viewed Structurally|||
+    // May need to be run during release process if AssignReleaseIdentifiersAlgorithm misses it again
+
+    logInfo(" Assign missing sty ATUI");
+
+    logInfo("[AssignMissingStyAtui] Assigning "
+        + "missing ATUI to publishable concept semantic type component");
+
+    // get handler
+    final IdentifierAssignmentHandler handler =
+        getIdentifierAssignmentHandler(getProject().getTerminology());
+
+    // Assign ATUIs for semantic types
+    final javax.persistence.Query query = manager.createQuery(
+        "select c.id, s.id from ConceptJpa c join c.semanticTypes s "
+            + "where c.terminology = :terminology "
+            + "  and c.version = :version and s.terminologyId = '' and c.publishable = true ");
+    query.setParameter("terminology", getProject().getTerminology());
+    query.setParameter("version", getProject().getVersion());
+    @SuppressWarnings("unchecked")
+    final List<Object[]> ids = query.getResultList();
+
+    setSteps(ids.size());
+    for (final Object[] result : ids) {
+      final Concept c = getConcept(Long.valueOf(result[0].toString()));
+      final SemanticTypeComponent sty =
+          getSemanticTypeComponent(Long.valueOf(result[1].toString()));
+
+      if (sty == null) {
+        logInfo("sty is null " + result.toString() + " " + c.toString());
+      }
+      logInfo("[AssignMissingStyAtui]  "
+          + c.getTerminologyId() + " " + sty.getId());
+      // For each semantic type component (e.g. concept.getSemanticTypes())
+      final String origAtui = sty.getTerminologyId();
+      sty.setTerminologyId("");
+
+      final String atui = handler.getTerminologyId(sty, c);
+      logInfo("[AssignMissingStyAtui] atui= " + atui);
+      if (!origAtui.equals(atui)) {
+        sty.setTerminologyId(atui);
+        updateSemanticTypeComponent(sty, c);
+      } else {
+        sty.setTerminologyId(origAtui);
+      }
+
+      updateProgress();
+    }
+    commitClearBegin();
+    updateProgress();
+    logInfo("Finished " + getName());
+
+  }
 
   /* see superclass */
   @Override
@@ -2534,7 +2592,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Fix AdditionalRelType Inverses", "Fix Snomed Family",
             "Turn off CTRP-SDC", "Fix Terminology Names", "Fix RHT Atoms",
             "Fix MDR Descriptors", "Clear Worklists and Checklists",
-            "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts", "Fix Null RUIs", "Remove old relationships"));
+            "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts", "Fix Null RUIs", 
+            "Remove old relationships", "Assign Missing STY ATUIs"));
     params.add(param);
 
     return params;
