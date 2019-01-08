@@ -88,6 +88,14 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 	@Parameter
 	private String searchFilePath;
 
+	/**  The user name. */
+	@Parameter
+	private String userName;
+
+	/**  The user password. */
+	@Parameter
+	private String userPassword;
+
 	/** The partial df. */
 	private final DateTimeFormatter partialDf = DateTimeFormatter.ofPattern(" dd HH-mm");
 
@@ -105,7 +113,8 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 			getLog().info("  version = " + version);
 			getLog().info("  maxCount = " + maxCount);
 			getLog().info("  searchTerm = " + searchTerm);
-			getLog().info("  searchFilePath = " + searchFilePath);
+			getLog().info("  userName = " + userName);
+			getLog().info("  userName = " + userName);
 
 			/*
 			 * Error Checking
@@ -136,10 +145,13 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 			final ContentClientRest client = new ContentClientRest(properties);
 
 			// authenticate
+			if (userName == null || userPassword == null) {
+				userName = properties.getProperty("viewer.user");
+				userPassword = properties.getProperty("viewer.password");
+			}
+
 			final SecurityService service = new SecurityServiceJpa();
-			final String authToken = service
-					.authenticate(properties.getProperty("viewer.user"), properties.getProperty("viewer.password"))
-					.getAuthToken();
+			final String authToken = service.authenticate(userName, userPassword).getAuthToken();
 			service.close();
 
 			/*
