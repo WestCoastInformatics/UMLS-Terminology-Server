@@ -88,6 +88,14 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 	@Parameter
 	private String searchFilePath;
 
+	/**  The user name. */
+	@Parameter
+	private String userName;
+
+	/**  The user password. */
+	@Parameter
+	private String userPassword;
+
 	/** The partial df. */
 	private final DateTimeFormatter partialDf = DateTimeFormatter.ofPattern(" dd HH-mm");
 
