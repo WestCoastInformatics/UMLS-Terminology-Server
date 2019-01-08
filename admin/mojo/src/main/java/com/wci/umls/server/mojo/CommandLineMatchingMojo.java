@@ -40,6 +40,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.rest.client.ContentClientRest;
 import com.wci.umls.server.services.SecurityService;
@@ -114,7 +115,6 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 			getLog().info("  maxCount = " + maxCount);
 			getLog().info("  searchTerm = " + searchTerm);
 			getLog().info("  userName = " + userName);
-			getLog().info("  userName = " + userName);
 
 			/*
 			 * Error Checking
@@ -152,7 +152,12 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 
 			final SecurityService service = new SecurityServiceJpa();
 			final String authToken = service.authenticate(userName, userPassword).getAuthToken();
+			service.getUsernameForToken(authToken);
 			service.close();
+			
+		    PfsParameterJpa pfs = new PfsParameterJpa();
+		    pfs.setStartIndex(0);
+		    pfs.setMaxResults(maxCount);
 
 			/*
 			 * Make the call
@@ -160,14 +165,14 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 			PrintWriter outputFile = prepareOutputFile();
 
 			if (searchTerm != null && !searchTerm.isEmpty()) {
-				findConceptsAndProcessResults(client, outputFile, terminology, version, searchTerm, authToken);
+				findConceptsAndProcessResults(client, outputFile, terminology, version, searchTerm, pfs, authToken);
 			} else if (searchFilePath != null && !searchFilePath.isEmpty()) {
 				final BufferedReader bufferedReader = new BufferedReader(
 						new InputStreamReader(new FileInputStream(searchFilePath)));
 
 				String line;
 				while ((line = bufferedReader.readLine()) != null) {
-					findConceptsAndProcessResults(client, outputFile, terminology, version, line, authToken);
+					findConceptsAndProcessResults(client, outputFile, terminology, version, line, pfs, authToken);
 				}
 
 				bufferedReader.close();
@@ -196,16 +201,17 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 	 *            the version
 	 * @param line
 	 *            the line
+	 * @param pfs 
 	 * @param authToken
 	 *            the auth token
 	 * @throws Exception
 	 *             the exception
 	 */
 	private void findConceptsAndProcessResults(ContentClientRest client, PrintWriter outputFile, String terminology,
-			String version, String line, String authToken) throws Exception {
+			String version, String line, PfsParameterJpa pfs, String authToken) throws Exception {
 		getLog().info("Processing on: " + line);
 
-		final SearchResultList results = client.findConcepts(terminology, version, line, null, authToken);
+		final SearchResultList results = client.findConcepts(terminology, version, line, pfs, authToken);
 
 		if (maxCount == null) {
 			getLog().info("Found " + results.getTotalCount() + " results and outputing all");
@@ -288,5 +294,6 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 		}
 
 		outputFile.println();
+		outputFile.flush();
 	}
 }
