@@ -102,12 +102,6 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 	/** The output file path. */
 	private String outputFilePath;
 
-	/** The user name. */
-	private String userName;
-
-	/** The user password */
-	private String userPassword;
-
 	/* see superclass */
 	@Override
 	public void execute() throws MojoFailureException {
