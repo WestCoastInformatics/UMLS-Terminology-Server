@@ -279,6 +279,7 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 	 */
 	private void writeResultsToFile(PrintWriter outputFile, String line, SearchResultList results) throws IOException {
 		outputFile.write(line);
+		outputFile.println();
 
 		int counter = 0;
 		float lastScore = 0;
