@@ -282,7 +282,7 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 		int counter = 0;
 		float lastScore = 0;
 		for (SearchResult singleResult : results.getObjects()) {
-			if (maxCount != null && ++counter >= maxCount && lastScore != singleResult.getScore()) {
+			if (maxCount != null && ++counter > maxCount && lastScore != singleResult.getScore()) {
 				break;
 			}
 
