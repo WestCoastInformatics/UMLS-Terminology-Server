@@ -152,7 +152,6 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 
 			final SecurityService service = new SecurityServiceJpa();
 			final String authToken = service.authenticate(userName, userPassword).getAuthToken();
-			service.getUsernameForToken(authToken);
 			service.close();
 			
 		    PfsParameterJpa pfs = new PfsParameterJpa();
