@@ -213,6 +213,10 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 		// TODO: This needs a better solution as was workaround for some terminologies 
 		line = line.replaceAll(",", "");
 		line = line.replaceAll("[(&)]", "");
+
+		// TODO: This needs to use the acronyms file
+		line = applyAcronyms(line);
+		
 		final SearchResultList results = client.findConcepts(terminology, version, line, pfs, authToken);
 
 		if (maxCount == null) {
@@ -276,9 +280,6 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 	private void writeResultsToFile(PrintWriter outputFile, String line, SearchResultList results) throws IOException {
 		getLog().info("  text = " + line);
 
-		// TODO: This needs to use the acronyms file
-		line = applyAcronyms(line);
-		
 		int counter = 0;
 		float lastScore = 0;
 		for (SearchResult singleResult : results.getObjects()) {
