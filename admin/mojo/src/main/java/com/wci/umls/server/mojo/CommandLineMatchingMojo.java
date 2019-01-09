@@ -278,6 +278,8 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 	 *             Signals that an I/O exception has occurred.
 	 */
 	private void writeResultsToFile(PrintWriter outputFile, String line, SearchResultList results) throws IOException {
+		outputFile.write(line);
+
 		int counter = 0;
 		float lastScore = 0;
 		for (SearchResult singleResult : results.getObjects()) {
