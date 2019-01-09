@@ -156,7 +156,7 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 			
 		    PfsParameterJpa pfs = new PfsParameterJpa();
 		    pfs.setStartIndex(0);
-		    pfs.setMaxResults(maxCount);
+		    pfs.setMaxResults(maxCount*2);
 
 			/*
 			 * Make the call
