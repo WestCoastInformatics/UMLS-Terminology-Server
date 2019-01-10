@@ -65,6 +65,7 @@ ASCVD	Atherosclerotic Cardiovascular Disease
 ASD	Atrial Septal Defect
 ASHD	Arteriosclerotic Heart Disease
 AST	Aspartate Aminotransferase
+ATAC	Assay Transposase Accessible Chromatin
 ATN	Acute Tubular Necrosis
 AU	Auris Utraque
 AuD	Audiology
@@ -294,6 +295,7 @@ ESWL	Extracorporeal Shockwave Lithotripsy
 ETCO2	End Tidal Carbon Dioxide
 ETT	Endotracheal Tube
 EUA	Examination Under Anesthesia
+EFVPTC	Encapsulated Follicular Variant of Papillary Thyroid Carcinoma
 F&R	Force and Rhythm
 FA	Fatty Acid
 FAP	Familial Adenomatous Polyposis
@@ -331,6 +333,7 @@ FRCSI	Fellow Royal College of Surgeons of Ireland
 FRS	Fellow of the Royal Society
 FRSH	Fellow Royal Society of Health
 FSH	Follicle Stimulating Hormone
+FTP	Flexible Transgastric Peritoneoscopy
 FUO	Fever of Unknown Origin
 FVC	Forced Vital Capacity
 FVD	Fluid Volume Deficit
@@ -427,6 +430,7 @@ ICSH	Interstitial Cell Stimulating Hormone
 ICT	Inflammation of Connective Tissue
 ICU	Intensive Care Unit
 IDDM	Insulin Dependent Diabetes Mellitus
+IDH	Isocitrate Dehydrogenase
 IDM	Infant of Diabetic Mother
 IDU	Inject* Drug User
 IE	Inspiratory Exerciser

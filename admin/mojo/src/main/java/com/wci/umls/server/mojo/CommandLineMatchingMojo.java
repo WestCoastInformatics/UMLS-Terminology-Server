@@ -40,6 +40,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.rest.client.ContentClientRest;
 import com.wci.umls.server.services.SecurityService;
@@ -86,7 +87,7 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 	 * The searchFile.
 	 */
 	@Parameter
-	private String searchFilePath;
+	private String searchTermsFilepath;
 
 	/**  The user name. */
 	@Parameter
@@ -97,7 +98,7 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 	private String userPassword;
 
 	/** The partial df. */
-	private final DateTimeFormatter partialDf = DateTimeFormatter.ofPattern(" dd HH-mm");
+	private final DateTimeFormatter partialDf = DateTimeFormatter.ofPattern("_dd_HH-mm");
 
 	/** The output file path. */
 	private String outputFilePath;
@@ -114,7 +115,6 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 			getLog().info("  maxCount = " + maxCount);
 			getLog().info("  searchTerm = " + searchTerm);
 			getLog().info("  userName = " + userName);
-			getLog().info("  userName = " + userName);
 
 			/*
 			 * Error Checking
@@ -125,11 +125,11 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 			if (version == null || version.isEmpty()) {
 				throw new Exception("Must define a version to search against i.e. latest");
 			}
-			if (searchTerm != null && !searchTerm.isEmpty() && searchFilePath != null && !searchFilePath.isEmpty()) {
+			if (searchTerm != null && !searchTerm.isEmpty() && searchTermsFilepath != null && !searchTermsFilepath.isEmpty()) {
 				throw new Exception("Must either specify a search term or a search file path, but not both");
 			}
 
-			if ((searchTerm == null || searchTerm.isEmpty()) && (searchFilePath == null || searchFilePath.isEmpty())) {
+			if ((searchTerm == null || searchTerm.isEmpty()) && (searchTermsFilepath == null || searchTermsFilepath.isEmpty())) {
 				throw new Exception(
 						"Must either specify a search term or a search file path, but neither were defined");
 			}
@@ -153,6 +153,10 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 			final SecurityService service = new SecurityServiceJpa();
 			final String authToken = service.authenticate(userName, userPassword).getAuthToken();
 			service.close();
+			
+		    PfsParameterJpa pfs = new PfsParameterJpa();
+		    pfs.setStartIndex(0);
+		    pfs.setMaxResults(maxCount*2);
 
 			/*
 			 * Make the call
@@ -160,14 +164,14 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 			PrintWriter outputFile = prepareOutputFile();
 
 			if (searchTerm != null && !searchTerm.isEmpty()) {
-				findConceptsAndProcessResults(client, outputFile, terminology, version, searchTerm, authToken);
-			} else if (searchFilePath != null && !searchFilePath.isEmpty()) {
+				findConceptsAndProcessResults(client, outputFile, terminology, version, searchTerm, pfs, authToken);
+			} else if (searchTermsFilepath != null && !searchTermsFilepath.isEmpty()) {
 				final BufferedReader bufferedReader = new BufferedReader(
-						new InputStreamReader(new FileInputStream(searchFilePath)));
+						new InputStreamReader(new FileInputStream(searchTermsFilepath)));
 
 				String line;
 				while ((line = bufferedReader.readLine()) != null) {
-					findConceptsAndProcessResults(client, outputFile, terminology, version, line, authToken);
+					findConceptsAndProcessResults(client, outputFile, terminology, version, line, pfs, authToken);
 				}
 
 				bufferedReader.close();
@@ -196,16 +200,24 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 	 *            the version
 	 * @param line
 	 *            the line
+	 * @param pfs 
 	 * @param authToken
 	 *            the auth token
 	 * @throws Exception
 	 *             the exception
 	 */
 	private void findConceptsAndProcessResults(ContentClientRest client, PrintWriter outputFile, String terminology,
-			String version, String line, String authToken) throws Exception {
+			String version, String line, PfsParameterJpa pfs, String authToken) throws Exception {
 		getLog().info("Processing on: " + line);
 
-		final SearchResultList results = client.findConcepts(terminology, version, line, null, authToken);
+		// TODO: This needs a better solution as was workaround for some terminologies 
+		line = line.replaceAll(",", "");
+		line = line.replaceAll("[(&)]", "");
+
+		// TODO: This needs to use the acronyms file
+		line = applyAcronyms(line);
+		
+		final SearchResultList results = client.findConcepts(terminology, version, line, pfs, authToken);
 
 		if (maxCount == null) {
 			getLog().info("Found " + results.getTotalCount() + " results and outputing all");
@@ -232,7 +244,9 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 		final String timestamp = partialDf.format(now);
 		final String month = now.getMonth().getDisplayName(TextStyle.SHORT, Locale.getDefault());
 
-		File f = new File("matcherOutput-" + terminology + "-" + month + timestamp + ".xls");
+		File userFolder = new File("results" + File.separator + userName);
+		userFolder.mkdirs();
+		File f = new File(userFolder.getPath() + File.separator + "matcherOutput-" + terminology + "-" + month + timestamp + ".xls");
 		outputFilePath = f.getAbsolutePath();
 		getLog().info("Creating file at: " + outputFilePath);
 
@@ -264,13 +278,13 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 	 *             Signals that an I/O exception has occurred.
 	 */
 	private void writeResultsToFile(PrintWriter outputFile, String line, SearchResultList results) throws IOException {
-		getLog().info("  text = " + line);
-		outputFile.println(line);
+		outputFile.write(line);
+		outputFile.println();
 
 		int counter = 0;
 		float lastScore = 0;
 		for (SearchResult singleResult : results.getObjects()) {
-			if (maxCount != null && ++counter >= maxCount && lastScore != singleResult.getScore()) {
+			if (maxCount != null && ++counter > maxCount && lastScore != singleResult.getScore()) {
 				break;
 			}
 
@@ -288,5 +302,40 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 		}
 
 		outputFile.println();
+		outputFile.flush();
+	}
+
+	private String applyAcronyms(String line) {
+		boolean found = true;
+		
+		while (found) {
+			found = false;
+			
+			if (line.contains("FTP")) {
+				line = replace(line, "FTP", "Flexible Transgastric Peritoneoscopy");
+				found = true;
+			} 
+			if (line.contains("ATAC")) {
+				line = replace(line, "ATAC", "Assay Transposase Accessible Chromatin");
+				found = true;
+			} 
+			if (line.contains("EFVPTC")) {
+				line = replace(line, "EFVPTC", "Encapsulated Follicular Variant of Papillary Thyroid Carcinoma");
+				found = true;
+			} 
+			if (line.contains("IDH")) {
+				line = replace(line, "IDH", "Isocitrate Dehydrogenase");
+				found = true;
+			} 
+		}	
+		
+		return line;
+	}
+
+	private String replace(String line, String acronym, String expanded) {
+		int beginIdx = line.indexOf(acronym);
+		int endIdx = beginIdx + acronym.length();
+		
+		return line.substring(0, beginIdx) + expanded + line.substring(endIdx);
 	}
 }
