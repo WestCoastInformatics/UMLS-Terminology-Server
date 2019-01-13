@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -28,8 +29,14 @@ import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
@@ -38,9 +45,11 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.rest.client.ContentClientRest;
 import com.wci.umls.server.services.SecurityService;
@@ -50,7 +59,7 @@ import com.wci.umls.server.services.SecurityService;
  * 
  * See matcher/pom.xml for a sample invocation.
  *
- * @author ${author}
+ * @author Jesse Efron
  */
 @Mojo(name = "match-term", defaultPhase = LifecyclePhase.PACKAGE)
 public class CommandLineMatchingMojo extends AbstractMojo {
@@ -75,7 +84,7 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 	 * The max concepts per term.
 	 */
 	@Parameter
-	private Integer maxCount;
+	private Integer maxCount = 10;
 
 	/**
 	 * The searchTerm.
@@ -89,11 +98,11 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 	@Parameter
 	private String searchTermsFilepath;
 
-	/**  The user name. */
+	/** The user name. */
 	@Parameter
 	private String userName;
 
-	/**  The user password. */
+	/** The user password. */
 	@Parameter
 	private String userPassword;
 
@@ -103,7 +112,9 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 	/** The output file path. */
 	private String outputFilePath;
 
-	/* see superclass */
+	/** The acronym expansion map. */
+	private Map<String, Set<String>> acronymExpansionMap = new HashMap<>();
+
 	@Override
 	public void execute() throws MojoFailureException {
 		try {
@@ -125,53 +136,49 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 			if (version == null || version.isEmpty()) {
 				throw new Exception("Must define a version to search against i.e. latest");
 			}
-			if (searchTerm != null && !searchTerm.isEmpty() && searchTermsFilepath != null && !searchTermsFilepath.isEmpty()) {
+			if (searchTerm != null && !searchTerm.isEmpty() && searchTermsFilepath != null
+					&& !searchTermsFilepath.isEmpty()) {
 				throw new Exception("Must either specify a search term or a search file path, but not both");
 			}
 
-			if ((searchTerm == null || searchTerm.isEmpty()) && (searchTermsFilepath == null || searchTermsFilepath.isEmpty())) {
+			if ((searchTerm == null || searchTerm.isEmpty())
+					&& (searchTermsFilepath == null || searchTermsFilepath.isEmpty())) {
 				throw new Exception(
 						"Must either specify a search term or a search file path, but neither were defined");
+			}
+
+			if (maxCount < 0) {
+				throw new Exception("Must select a positive integer for max count.");
 			}
 
 			/*
 			 * Setup
 			 */
-			// Handle creating the database if the mode parameter is set
-			if (runConfig != null && !runConfig.isEmpty()) {
-				System.setProperty("run.config." + ConfigUtility.getConfigLabel(), runConfig);
-			}
-			final Properties properties = ConfigUtility.getConfigProperties();
+			Properties properties = setupProperties();
+
 			final ContentClientRest client = new ContentClientRest(properties);
-
-			// authenticate
-			if (userName == null || userPassword == null) {
-				userName = properties.getProperty("viewer.user");
-				userPassword = properties.getProperty("viewer.password");
-			}
-
 			final SecurityService service = new SecurityServiceJpa();
 			final String authToken = service.authenticate(userName, userPassword).getAuthToken();
 			service.close();
-			
-		    PfsParameterJpa pfs = new PfsParameterJpa();
-		    pfs.setStartIndex(0);
-		    pfs.setMaxResults(maxCount*2);
 
-			/*
-			 * Make the call
-			 */
+			PfsParameterJpa pfs = new PfsParameterJpa();
+			pfs.setStartIndex(0);
+			pfs.setMaxResults(maxCount * 2);
+
 			PrintWriter outputFile = prepareOutputFile();
 
+			/*
+			 * Process Terms
+			 */
 			if (searchTerm != null && !searchTerm.isEmpty()) {
-				findConceptsAndProcessResults(client, outputFile, terminology, version, searchTerm, pfs, authToken);
+				findMatchesAndWriteResults(client, outputFile, terminology, version, searchTerm, pfs, authToken);
 			} else if (searchTermsFilepath != null && !searchTermsFilepath.isEmpty()) {
 				final BufferedReader bufferedReader = new BufferedReader(
 						new InputStreamReader(new FileInputStream(searchTermsFilepath)));
 
 				String line;
 				while ((line = bufferedReader.readLine()) != null) {
-					findConceptsAndProcessResults(client, outputFile, terminology, version, line, pfs, authToken);
+					findMatchesAndWriteResults(client, outputFile, terminology, version, line, pfs, authToken);
 				}
 
 				bufferedReader.close();
@@ -179,8 +186,8 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 
 			outputFile.close();
 
+			getLog().info("\nFinished processing...");
 			getLog().info("Output avaiable at: " + outputFilePath);
-			getLog().info("done ...");
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new MojoFailureException("Unexpected exception:", e);
@@ -188,7 +195,7 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 	}
 
 	/**
-	 * Find concepts and process results.
+	 * Find matches to input term and write results.
 	 *
 	 * @param client
 	 *            the client
@@ -200,69 +207,85 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 	 *            the version
 	 * @param line
 	 *            the line
-	 * @param pfs 
+	 * @param pfs
+	 *            the pfs
 	 * @param authToken
 	 *            the auth token
 	 * @throws Exception
 	 *             the exception
 	 */
-	private void findConceptsAndProcessResults(ContentClientRest client, PrintWriter outputFile, String terminology,
+	private void findMatchesAndWriteResults(ContentClientRest client, PrintWriter outputFile, String terminology,
 			String version, String line, PfsParameterJpa pfs, String authToken) throws Exception {
-		getLog().info("Processing on: " + line);
+		if (!line.trim().isEmpty()) {
+			getLog().info("\nProcessing on: " + line);
 
-		// TODO: This needs a better solution as was workaround for some terminologies 
-		line = line.replaceAll(",", "");
-		line = line.replaceAll("[(&)]", "");
+			// TODO: This needs a better solution as was workaround for some terminologies
+			line = line.replaceAll(",", "");
+			line = line.replaceAll("[(&)]", "");
 
-		// TODO: This needs to use the acronyms file
-		line = applyAcronyms(line);
-		
-		final SearchResultList results = client.findConcepts(terminology, version, line, pfs, authToken);
+			Set<String> linesToTest = applyAcronyms(line);
 
-		if (maxCount == null) {
-			getLog().info("Found " + results.getTotalCount() + " results and outputing all");
-		} else {
-			getLog().info(
-					"Found " + results.getTotalCount() + " results and per request, outputing at most " + maxCount);
+			SearchResultList accumilatedResults = new SearchResultListJpa();
+
+			for (String s : linesToTest) {
+				final SearchResultList results = client.findConcepts(terminology, version, s, pfs, authToken);
+				accumilatedResults.getObjects().addAll(results.getObjects());
+				accumilatedResults.setTotalCount(accumilatedResults.getTotalCount() + results.getTotalCount());
+			}
+
+			writeResultsToFile(outputFile, line, accumilatedResults, linesToTest.size() > 1);
 		}
-
-		writeResultsToFile(outputFile, line, results);
 	}
 
 	/**
-	 * Prepare output file.
+	 * Apply acronyms to each line.
 	 *
-	 * @return the prints the writer
-	 * @throws FileNotFoundException
-	 *             the file not found exception
-	 * @throws UnsupportedEncodingException
-	 *             the unsupported encoding exception
+	 * @param term
+	 *            the term
+	 * @return the sets the
+	 * @throws Exception
+	 *             the exception
 	 */
-	private PrintWriter prepareOutputFile() throws FileNotFoundException, UnsupportedEncodingException {
+	private Set<String> applyAcronyms(String term) throws Exception {
+		Set<String> linesToExpand = new HashSet<>();
+		Set<String> expanded = new HashSet<>();
+		linesToExpand.add(term);
 
-		final LocalDateTime now = LocalDateTime.now();
-		final String timestamp = partialDf.format(now);
-		final String month = now.getMonth().getDisplayName(TextStyle.SHORT, Locale.getDefault());
+		for (String key : acronymExpansionMap.keySet()) {
+			Pattern pattern = Pattern.compile("\\b" + key + "\\b");
 
-		File userFolder = new File("results" + File.separator + userName);
-		userFolder.mkdirs();
-		File f = new File(userFolder.getPath() + File.separator + "matcherOutput-" + terminology + "-" + month + timestamp + ".xls");
-		outputFilePath = f.getAbsolutePath();
-		getLog().info("Creating file at: " + outputFilePath);
+			// Presumes single abbreviation of a given key per term. Otherwise, need to
+			// enhance e.g. "AB condition with AB"
+			for (String line : linesToExpand) {
+				Matcher matcher = pattern.matcher(line);
 
-		final FileOutputStream fos = new FileOutputStream(f);
-		final OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
+				while (matcher.find()) {
+					for (String expansion : acronymExpansionMap.get(key)) {
+						expanded.add(line.substring(0, matcher.start()) + expansion + line.substring(matcher.end()));
+					}
+				}
 
-		PrintWriter pw = new PrintWriter(osw);
-		pw.write("Search Term");
-		pw.write("\t");
-		pw.write("Concept Id");
-		pw.write("\t");
-		pw.print("Concept Description");
-		pw.write("\t");
-		pw.println("Score");
+				expanded.add(line);
+			}
 
-		return pw;
+			linesToExpand = expanded;
+		}
+
+		// Provide the original if expansion shouldn't have been done.
+		linesToExpand.add(term);
+
+		if (linesToExpand.size() > 1) {
+			// Have expansion, list them
+			for (String expansion : linesToExpand) {
+				if (!expansion.equals(term)) {
+					getLog().info("Have expanded acronyms on term and will query with: " + expansion);
+				}
+			}
+
+			getLog().info("Will also query with the original term: " + term);
+		}
+
+		return linesToExpand;
 	}
 
 	/**
@@ -274,10 +297,24 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 	 *            the line
 	 * @param results
 	 *            the results
+	 * @param acronymExpanded
+	 *            the acronym expanded
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-	private void writeResultsToFile(PrintWriter outputFile, String line, SearchResultList results) throws IOException {
+	private void writeResultsToFile(PrintWriter outputFile, String line, SearchResultList results,
+			boolean acronymExpanded) throws IOException {
+		if (!acronymExpanded) {
+			getLog().info("Found " + results.getTotalCount() + " results");
+		} else {
+			getLog().info("Found " + results.getTotalCount()
+					+ " results which may be more than expected, but is due to acronym expansion.");
+		}
+
+		if (acronymExpanded) {
+			results.sortBy((SearchResult o1, SearchResult o2) -> o2.getScore().compareTo(o1.getScore()));
+		}
+
 		outputFile.write(line);
 		outputFile.println();
 
@@ -305,37 +342,79 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 		outputFile.flush();
 	}
 
-	private String applyAcronyms(String line) {
-		boolean found = true;
-		
-		while (found) {
-			found = false;
-			
-			if (line.contains("FTP")) {
-				line = replace(line, "FTP", "Flexible Transgastric Peritoneoscopy");
-				found = true;
-			} 
-			if (line.contains("ATAC")) {
-				line = replace(line, "ATAC", "Assay Transposase Accessible Chromatin");
-				found = true;
-			} 
-			if (line.contains("EFVPTC")) {
-				line = replace(line, "EFVPTC", "Encapsulated Follicular Variant of Papillary Thyroid Carcinoma");
-				found = true;
-			} 
-			if (line.contains("IDH")) {
-				line = replace(line, "IDH", "Isocitrate Dehydrogenase");
-				found = true;
-			} 
-		}	
-		
-		return line;
+	/**
+	 * Setup properties.
+	 *
+	 * @return the properties
+	 * @throws Exception
+	 *             the exception
+	 */
+	private Properties setupProperties() throws Exception {
+		// Handle creating the database if the mode parameter is set
+		if (runConfig != null && !runConfig.isEmpty()) {
+			System.setProperty("run.config." + ConfigUtility.getConfigLabel(), runConfig);
+		}
+		final Properties properties = ConfigUtility.getConfigProperties();
+
+		// authenticate
+		if (userName == null || userPassword == null) {
+			userName = properties.getProperty("viewer.user");
+			userPassword = properties.getProperty("viewer.password");
+		}
+
+		if (properties.containsKey("search.handler.ATOMCLASS.acronymsFile")) {
+			final BufferedReader in = new BufferedReader(
+					new FileReader(new File(properties.getProperty("search.handler.ATOMCLASS.acronymsFile"))));
+			String fileLine;
+			while ((fileLine = in.readLine()) != null) {
+				String[] tokens = FieldedStringTokenizer.split(fileLine, "\t");
+				if (!acronymExpansionMap.containsKey(tokens[0])) {
+					acronymExpansionMap.put(tokens[0], new HashSet<String>(2));
+				}
+				acronymExpansionMap.get(tokens[0]).add(tokens[1]);
+			}
+			in.close();
+		} else {
+			throw new Exception("Required property acronymsFile not present.");
+		}
+
+		return properties;
 	}
 
-	private String replace(String line, String acronym, String expanded) {
-		int beginIdx = line.indexOf(acronym);
-		int endIdx = beginIdx + acronym.length();
-		
-		return line.substring(0, beginIdx) + expanded + line.substring(endIdx);
+	/**
+	 * Prepare output file.
+	 *
+	 * @return the prints the writer
+	 * @throws FileNotFoundException
+	 *             the file not found exception
+	 * @throws UnsupportedEncodingException
+	 *             the unsupported encoding exception
+	 */
+	private PrintWriter prepareOutputFile() throws FileNotFoundException, UnsupportedEncodingException {
+
+		final LocalDateTime now = LocalDateTime.now();
+		final String timestamp = partialDf.format(now);
+		final String month = now.getMonth().getDisplayName(TextStyle.SHORT, Locale.getDefault());
+
+		File userFolder = new File("results" + File.separator + userName);
+		userFolder.mkdirs();
+		File f = new File(userFolder.getPath() + File.separator + "matcherOutput-" + terminology + "-" + month
+				+ timestamp + ".xls");
+		outputFilePath = f.getAbsolutePath();
+		getLog().info("Creating file at: " + outputFilePath);
+
+		final FileOutputStream fos = new FileOutputStream(f);
+		final OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
+
+		PrintWriter pw = new PrintWriter(osw);
+		pw.write("Search Term");
+		pw.write("\t");
+		pw.write("Concept Id");
+		pw.write("\t");
+		pw.print("Concept Description");
+		pw.write("\t");
+		pw.println("Score");
+
+		return pw;
 	}
 }
