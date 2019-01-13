@@ -1593,9 +1593,11 @@ public class WriteRrfContentFilesAlgorithm
       key = atomContentsMap.get(a.getId()).getAui()
           + getProject().getTerminology() + a.getType();
       List<ComponentInfoRelationship> comInfoRels = getComponentInfoRels(key);
-      key = atomContentsMap.get(a.getAlternateTerminologyIds().get(getProject().getTerminology())).getAui()
+      if (!a.getAlternateTerminologyIds().isEmpty()) {
+        key = atomContentsMap.get(a.getAlternateTerminologyIds().get(getProject().getTerminology())).getAui()
             + getProject().getTerminology() + a.getType();
-      comInfoRels.addAll(getComponentInfoRels(key));
+        comInfoRels.addAll(getComponentInfoRels(key));
+      }
       for (final ComponentInfoRelationship rel : comInfoRels) {
         if (!rel.isPublishable()) {
           continue;
