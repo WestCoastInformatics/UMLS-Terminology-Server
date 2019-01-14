@@ -20,6 +20,7 @@ import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
 
+import com.mchange.v1.util.MapUtils;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ComponentInfo;
@@ -1592,11 +1593,19 @@ public class WriteRrfContentFilesAlgorithm
       // look up component info relationships where STYPE1=AUI
       key = atomContentsMap.get(a.getId()).getAui()
           + getProject().getTerminology() + a.getType();
-      List<ComponentInfoRelationship> comInfoRels = getComponentInfoRels(key);
-      if (!a.getAlternateTerminologyIds().isEmpty()) {
-        key = atomContentsMap.get(a.getAlternateTerminologyIds().get(getProject().getTerminology())).getAui()
-            + getProject().getTerminology() + a.getType();
+      List<ComponentInfoRelationship> comInfoRels = new ArrayList<>();
+      if (getComponentInfoRels(key) != null && !getComponentInfoRels(key).isEmpty()) {
         comInfoRels.addAll(getComponentInfoRels(key));
+      }      
+      if (a.getAlternateTerminologyIds() != null && !a.getAlternateTerminologyIds().isEmpty()) {
+        AtomContents atomContents = atomContentsMap.get(a.getAlternateTerminologyIds().get(getProject().getTerminology()));
+        if (atomContents != null) {
+          key = atomContents.getAui()
+            + getProject().getTerminology() + a.getType();
+          if (getComponentInfoRels(key) != null && !getComponentInfoRels(key).isEmpty()) {
+            comInfoRels.addAll(getComponentInfoRels(key));
+          }
+        }
       }
       for (final ComponentInfoRelationship rel : comInfoRels) {
         if (!rel.isPublishable()) {
