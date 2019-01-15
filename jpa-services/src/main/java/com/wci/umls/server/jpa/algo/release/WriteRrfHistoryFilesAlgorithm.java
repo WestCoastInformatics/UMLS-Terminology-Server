@@ -301,12 +301,12 @@ public class WriteRrfHistoryFilesAlgorithm
               || ch.getRelationshipType().startsWith("R")) {
 
             if (ch.getRelationshipType().equals("SY")) {
-              history.addMerge(c.getTerminologyId(), ch.getVersion(),
+              history.addMerge(c.getTerminologyId(), ch.getAssociatedRelease(),
                   ch.getReferencedTerminologyId());
             }
 
             else {
-              history.addBequeathal(c.getTerminologyId(), ch.getVersion(),
+              history.addBequeathal(c.getTerminologyId(), ch.getAssociatedRelease(),
                   ch.getRelationshipType(), ch.getReferencedTerminologyId(),
                   currentCuis);
 
