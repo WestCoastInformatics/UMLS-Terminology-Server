@@ -293,8 +293,7 @@ public class WriteRrfHistoryFilesAlgorithm
         for (final ComponentHistory ch : c.getComponentHistory()) {
           // if DEL -> write out component history as is.
           if (ch.getRelationshipType().equals("DEL")) {
-            history.addDeleted(c.getTerminologyId(), ch.getVersion());
-
+            history.addDeleted(c.getTerminologyId(), ch.getAssociatedRelease());
           }
 
           // If SY or R?
