@@ -34,6 +34,7 @@ import com.wci.umls.server.jpa.algo.action.RedoMolecularAction;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
+import com.wci.umls.server.jpa.content.ComponentHistoryJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
@@ -181,7 +182,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     } else if (actionName.equals("Remove old relationships")) {
       removeOldRelationships();
     } else if (actionName.equals("Assign Missing STY ATUIs")) {
-      assignMissingStyAtui();
+      assignMissingStyAtui(); 
+    } else if (actionName.equals("Fix Component History Version")) {
+      fixComponentHistoryVersion();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -2540,6 +2543,55 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
 
   }
+  
+  private void fixComponentHistoryVersion() throws Exception {
+    // 1/16/2019 ComponentHistory version should match associatedRelease, not be
+    // 'latest'
+
+    logInfo(" Fix ComponentHistory Version");
+
+    logInfo("[FixComponentHistoryVersion] Assigning "
+        + "associatedRelease to version field");
+
+    int updatedHistories = 0;
+
+    final List<ComponentHistoryJpa> componentHistories = new ArrayList<>();
+
+    try {
+      Query query = getEntityManager().createNativeQuery(
+          "select id from component_histories where version='latest'");
+
+      logInfo("[FixComponentHistoryVersion] Identifying "
+          + "ComponentHistories with version 'latest'");
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        componentHistories.add(
+            (ComponentHistoryJpa) getComponent(id, ComponentHistoryJpa.class));
+      }
+
+      setSteps(componentHistories.size());
+
+      logInfo("[FixComponentHistoryVersion] " + componentHistories.size()
+          + " ComponentHistories with version 'latest'");
+
+      for (final ComponentHistory componentHistory : componentHistories) {
+
+        componentHistory.setVersion(componentHistory.getAssociatedRelease());
+        updateComponent(componentHistory);
+        updatedHistories++;
+        updateProgress();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+    }
+
+    logInfo("Updated " + updatedHistories + " component histories.");
+    logInfo("Finished " + getName());
+  }
 
   /* see superclass */
   @Override
@@ -2593,7 +2645,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Turn off CTRP-SDC", "Fix Terminology Names", "Fix RHT Atoms",
             "Fix MDR Descriptors", "Clear Worklists and Checklists",
             "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts", "Fix Null RUIs", 
-            "Remove old relationships", "Assign Missing STY ATUIs"));
+            "Remove old relationships", "Assign Missing STY ATUIs", "Fix Component History Version"));
     params.add(param);
 
     return params;
