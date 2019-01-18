@@ -842,7 +842,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       return attribute;
     }
 
-    else if (type.equals("CODE_SOURCE") || type.equals("CODE_TERMGROUP")) {
+    else if (type.equals("ROOT_CODE_SOURCE") || type.equals("CODE_SOURCE") || type.equals("CODE_TERMGROUP")) {
       if (!codeCachedTerms.contains(terminology)) {
         cacheExistingCodeIds(terminology);
       }
