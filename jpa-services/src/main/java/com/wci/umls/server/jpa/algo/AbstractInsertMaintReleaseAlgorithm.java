@@ -204,10 +204,9 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    */
   private static Map<String, Terminology> cachedTerminologies = new HashMap<>();
 
-  /**  The warning counts. */
-  private static Map<String,Integer> warningCounts = new HashMap<>();
-  
-  
+  /** The warning counts. */
+  private static Map<String, Integer> warningCounts = new HashMap<>();
+
   /**
    * Load file into string list.
    *
@@ -509,10 +508,10 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
   /**
    * Cache existing terminologies. Keys = Terminology_Version, or just
-   * Terminology if version = "latest" or if id_type is ROOT_SOURCE_CUI. 
-   * Also cache Key = TerminologyVersion
-   * without the underscore (some terminologies don't follow the normal
-   * convention, e.g. MVX2016_09_07)
+   * Terminology if version = "latest" or if id_type is ROOT_SOURCE_CUI or
+   * ROOT_CODE_SOURCE. Also cache Key = TerminologyVersion without the
+   * underscore (some terminologies don't follow the normal convention, e.g.
+   * MVX2016_09_07)
    *
    * @throws Exception the exception
    */
@@ -522,11 +521,14 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       // lazy init
       term.getSynonymousNames().size();
       term.getRootTerminology().getTerminology();
+      // Add the current version of this terminology to the map, with key=just
+      // terminology
+      if (term.isCurrent()) {
         cachedTerminologies.put(term.getTerminology(), term);
-        cachedTerminologies.put(term.getTerminology() + "_" + term.getVersion(),
-            term);
-        cachedTerminologies.put(term.getTerminology() + term.getVersion(),
-            term);
+      }
+      cachedTerminologies.put(term.getTerminology() + "_" + term.getVersion(),
+          term);
+      cachedTerminologies.put(term.getTerminology() + term.getVersion(), term);
     }
   }
 
@@ -842,7 +844,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       return attribute;
     }
 
-    else if (type.equals("ROOT_CODE_SOURCE") || type.equals("CODE_SOURCE") || type.equals("CODE_TERMGROUP")) {
+    else if (type.equals("CODE_ROOT_SOURCE") || type.equals("CODE_SOURCE")
+        || type.equals("CODE_TERMGROUP")) {
       if (!codeCachedTerms.contains(terminology)) {
         cacheExistingCodeIds(terminology);
       }
@@ -1341,7 +1344,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
         warningMessage + " Could not process the following line:\n\t" + line);
     updateProgress();
   }
-  
+
   /**
    * Log warn and update.
    *
@@ -1350,12 +1353,13 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    * @param warningGroup the warning group
    * @throws Exception the exception
    */
-  public void logWarnAndUpdate(String line, String warningMessage, String warningGroup)
-    throws Exception {
+  public void logWarnAndUpdate(String line, String warningMessage,
+    String warningGroup) throws Exception {
     logWarn(
-        warningMessage + " Could not process the following line:\n\t" + line, warningGroup);
+        warningMessage + " Could not process the following line:\n\t" + line,
+        warningGroup);
     updateProgress();
-  }  
+  }
 
   /**
    * Update progress.
@@ -1432,20 +1436,21 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
         + " Relationship Alternate Terminology Ids from database");
 
     for (final String relPrefix : relationshipPrefixes) {
-      
+
       final Query query = getEntityManager().createQuery("select a.id from "
           + relPrefix
           + "RelationshipJpa a join a.alternateTerminologyIds b where KEY(b)  = :terminology and a.publishable=true");
       query.setParameter("terminology", getProject().getTerminology() + "-SRC");
 
       final List<Long> list = query.getResultList();
-      logInfo("[SourceLoader] Removing " + list.size() + " " + relPrefix + "RelationshipJpa"
-          + " Alternate Terminology Ids");
+      logInfo("[SourceLoader] Removing " + list.size() + " " + relPrefix
+          + "RelationshipJpa" + " Alternate Terminology Ids");
 
       for (final Long id : list) {
         final Relationship<?, ?> relationship = getRelationship(id,
             (Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>>) Class
-                .forName("com.wci.umls.server.jpa.content." + relPrefix + "RelationshipJpa"));
+                .forName("com.wci.umls.server.jpa.content." + relPrefix
+                    + "RelationshipJpa"));
         relationship.getAlternateTerminologyIds()
             .remove(getProject().getTerminology() + "-SRC");
         updateRelationship(relationship);
@@ -1508,7 +1513,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     // Load the mergefacts.src file
     //
     try {
-      lines = loadFileIntoStringList(srcDirFile, "mergefacts.src", null, null, null);
+      lines = loadFileIntoStringList(srcDirFile, "mergefacts.src", null, null,
+          null);
     }
     // If file not found, return null
     catch (Exception e) {
@@ -1531,8 +1537,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     mergeSets.addAll(mergeSetsUnique);
 
     return mergeSets;
-  }  
-  
+  }
+
   /**
    * Compute version. Note: the version found in sources.src fields[5] is not
    * always accurate (e.g. RXNORM_2016AA_2016_09_06F shows version of
@@ -1564,25 +1570,26 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    * @throws Exception the exception
    */
   public void logWarn(String message, String warningGroup) throws Exception {
-    //Initialize or increment warning count for this particular warning group
-    if(!warningCounts.containsKey(warningGroup)){
+    // Initialize or increment warning count for this particular warning group
+    if (!warningCounts.containsKey(warningGroup)) {
       warningCounts.put(warningGroup, 0);
-    }
-    else{
+    } else {
       warningCounts.put(warningGroup, warningCounts.get(warningGroup) + 1);
     }
-    
-    //If we have fired less than 100 of this type of warning, send the warning as-is
-    if(warningCounts.get(warningGroup) <= 100){
+
+    // If we have fired less than 100 of this type of warning, send the warning
+    // as-is
+    if (warningCounts.get(warningGroup) <= 100) {
       logWarn(message);
     }
-    //If we have fired 100 of this type of warning, send a message that we won't be firing any more of this type
-    else if(warningCounts.get(warningGroup) == 101){
-      logWarn("Limit of 100 " + warningGroup + " warnings has been reached. No further warnings will be displayed in the log.");
-    }
-    else{
+    // If we have fired 100 of this type of warning, send a message that we
+    // won't be firing any more of this type
+    else if (warningCounts.get(warningGroup) == 101) {
+      logWarn("Limit of 100 " + warningGroup
+          + " warnings has been reached. No further warnings will be displayed in the log.");
+    } else {
       // Otherwise do nothing
     }
-  }  
-  
+  }
+
 }
