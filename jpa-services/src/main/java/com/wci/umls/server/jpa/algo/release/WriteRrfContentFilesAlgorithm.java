@@ -1575,6 +1575,7 @@ public class WriteRrfContentFilesAlgorithm
       }
 
       final String aui1 = atomContentsMap.get(a.getId()).getAui();
+      final String saui1 = atomContentsMap.get(a.getId()).getSrcAui();
 
       if (atomContentsMap.containsKey(a.getId())
           && atomContentsMap.get(a.getId()).hasRelationships()) {
@@ -1597,16 +1598,12 @@ public class WriteRrfContentFilesAlgorithm
       if (getComponentInfoRels(key) != null && !getComponentInfoRels(key).isEmpty()) {
         comInfoRels.addAll(getComponentInfoRels(key));
       }      
-      if (a.getAlternateTerminologyIds() != null && !a.getAlternateTerminologyIds().isEmpty()) {
-        AtomContents atomContents = atomContentsMap.get(a.getAlternateTerminologyIds().get(getProject().getTerminology()));
-        if (atomContents != null) {
-          key = atomContents.getAui()
-            + getProject().getTerminology() + a.getType();
-          if (getComponentInfoRels(key) != null && !getComponentInfoRels(key).isEmpty()) {
-            comInfoRels.addAll(getComponentInfoRels(key));
-          }
-        }
-      }
+      key = atomContentsMap.get(a.getId()).getSrcAui()
+          + getProject().getTerminology() + a.getType();
+      if (getComponentInfoRels(key) != null && !getComponentInfoRels(key).isEmpty()) {
+        comInfoRels.addAll(getComponentInfoRels(key));
+      }      
+     
       for (final ComponentInfoRelationship rel : comInfoRels) {
         if (!rel.isPublishable()) {
           continue;
