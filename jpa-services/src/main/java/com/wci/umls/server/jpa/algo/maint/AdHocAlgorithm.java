@@ -185,6 +185,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       assignMissingStyAtui(); 
     } else if (actionName.equals("Fix Component History Version")) {
       fixComponentHistoryVersion();
+    } else if (actionName.equals("Fix AdditionalRelType Inverses 2")) {
+      fixAdditionalRelTypeInverses2();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -2592,6 +2594,75 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Updated " + updatedHistories + " component histories.");
     logInfo("Finished " + getName());
   }
+  
+  private void fixAdditionalRelTypeInverses2() throws Exception {
+    // 1/25/2019 Issues identified with additional relationship types where
+    // new one was added, but old one was not made unpublishable or detached from inverse.
+    // set the old inverse to pubishable=false.
+    // Update inverse to point to the new correct one.
+    logInfo(" Fix Additional Rel Type Inverses 2");
+
+    int updatedAdditionalRelationshipTypes = 0;
+    List<AdditionalRelationshipTypeJpa> additionalRelationshipsTypes =
+        new ArrayList<>();
+
+    try {
+
+      // Get the three affected additional relationship types
+      Query query = getEntityManager().createNativeQuery(
+          "select abbreviation from additional_relationship_types where id in (1398,1399,1322352)");
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final String abbreviation = entry.toString();
+        additionalRelationshipsTypes
+            .add((AdditionalRelationshipTypeJpa) getAdditionalRelationshipType(
+                abbreviation, "NCIMTH", "latest"));
+      }
+
+      setSteps(additionalRelationshipsTypes.size());
+
+      logInfo("[FixAdditionalRelTypeInverses2] "
+          + additionalRelationshipsTypes.size()
+          + " additional relationship types identified");
+
+      for (final AdditionalRelationshipType additionalRelationshipType : additionalRelationshipsTypes) {
+
+        // Set the no-longer-referenced additionalRelationshipType to
+        // publishable=false
+        if (additionalRelationshipType.getId() == 1398) {
+          additionalRelationshipType.setPublishable(false);
+          updateAdditionalRelationshipType(additionalRelationshipType);
+          updatedAdditionalRelationshipTypes++;
+        }
+        // Set the one incorrectly-inverted additional relationship type to its
+        // correct inverse
+        else if (additionalRelationshipType.getId() == 1399) {
+          AdditionalRelationshipType inverseRelType =
+              getAdditionalRelationshipType("develops_into", "NCIMTH",
+                  "latest");
+          additionalRelationshipType.setInverse(inverseRelType);
+          updateAdditionalRelationshipType(additionalRelationshipType);
+          updatedAdditionalRelationshipTypes++;
+        }
+        // We should never get here
+        else {
+          logError("WHAT HAPPENED!!!????");
+        }
+        updateProgress();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+      // n/a
+    }
+
+    logInfo("Updated " + updatedAdditionalRelationshipTypes
+        + " additional relationship types updated 2.");
+    logInfo("Finished " + getName());
+  }
+
 
   /* see superclass */
   @Override
@@ -2645,7 +2716,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Turn off CTRP-SDC", "Fix Terminology Names", "Fix RHT Atoms",
             "Fix MDR Descriptors", "Clear Worklists and Checklists",
             "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts", "Fix Null RUIs", 
-            "Remove old relationships", "Assign Missing STY ATUIs", "Fix Component History Version"));
+            "Remove old relationships", "Assign Missing STY ATUIs", "Fix Component History Version",
+            "Fix AdditionalRelType Inverses 2"));
     params.add(param);
 
     return params;
