@@ -496,7 +496,21 @@ public class MetadataLoaderAlgorithm
         final Terminology term = new TerminologyJpa();
         term.setCitation(new CitationJpa(fields[16]));
         term.setCurrent(true);
-        term.setPreferredName(fields[7]);
+        
+        //Preferred Name version suffix is different depending on terminology's family
+        String versionSuffix = null;
+        if (fields[6].equals("NCI")
+            || fields[6].equals("SNOMEDCT_US")
+            || fields[6].equals("MED-RT")) {
+          versionSuffix = ", " + fields[5];
+        } else if (fields[6].equals("MDR")) {
+          versionSuffix = ", " + fields[5].replace("_", ".");
+        }
+        else{
+          throw new Exception("Unhandled terminology family=" + fields[6]);
+        }
+        
+        term.setPreferredName(fields[7] + versionSuffix);
         term.setTerminology(fields[4]);
         term.setVersion(computeVersion(fields[0], fields[4]));
         term.setDescriptionLogicTerminology(false);
