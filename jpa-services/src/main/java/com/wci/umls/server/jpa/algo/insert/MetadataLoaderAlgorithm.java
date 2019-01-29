@@ -1180,6 +1180,13 @@ public class MetadataLoaderAlgorithm
         rela.setInverse(inverseRela);
         updateAdditionalRelationshipType(rela);
         getCachedAdditionalRelationshipTypes().put(abbreviation, rela);
+        // NE-588 inverseRela may also need to be updated if it is pointing to a rela that is now
+        // deprecated and needs to be made unpublishable
+        if (inverseRela.getInverse() != null && !inverseRela.getInverse().equals(rela)) {
+          inverseRela.getInverse().setPublishable(false);
+          inverseRela.setInverse(rela);
+          updateAdditionalRelationshipType(inverseRela);
+        }
       }
     }
 
