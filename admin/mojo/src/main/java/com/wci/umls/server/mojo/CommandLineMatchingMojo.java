@@ -169,7 +169,7 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 
 			PfsParameterJpa pfs = new PfsParameterJpa();
 			pfs.setStartIndex(0);
-			pfs.setMaxResults(300);
+			pfs.setMaxResults(3 * maxCount);
 
 			PrintWriter outputFile = prepareOutputFile();
 
