@@ -274,6 +274,50 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     return lines;
   }
 
+  public int filterFileForCount(File srcDirFile, String fileName,
+    String keepRegexFilter, String skipRegexFilter)
+    throws Exception {
+    final String sourcesFile = srcDirFile + File.separator + fileName;
+    BufferedReader sources = null;
+    try {
+      sources = new BufferedReader(new FileReader(sourcesFile));
+    } catch (Exception e) {
+      throw new Exception("File not found: " + sourcesFile);
+    }
+
+    int ct = 0;
+    String linePre = null;
+    while ((linePre = sources.readLine()) != null) {
+      linePre = linePre.replace("\r", "");
+      // Filter rows if defined
+      if (ConfigUtility.isEmpty(keepRegexFilter)
+          && ConfigUtility.isEmpty(skipRegexFilter)) {
+        ct++;
+      } else if (!ConfigUtility.isEmpty(keepRegexFilter)
+          && ConfigUtility.isEmpty(skipRegexFilter)) {
+        if (linePre.matches(keepRegexFilter)) {
+          ct++;
+        }
+      } else if (ConfigUtility.isEmpty(keepRegexFilter)
+          && !ConfigUtility.isEmpty(skipRegexFilter)) {
+        if (!linePre.matches(skipRegexFilter)) {
+          ct++;
+        }
+      } else if (!ConfigUtility.isEmpty(keepRegexFilter)
+          && !ConfigUtility.isEmpty(skipRegexFilter)) {
+        if (linePre.matches(keepRegexFilter)
+            && !linePre.matches(skipRegexFilter)) {
+          ct++;
+        }
+      }
+    }
+
+    sources.close();
+
+
+    return ct;
+  }
+  
   /**
    * Cache existing atoms' alternateTerminologyIds and IDs.
    *

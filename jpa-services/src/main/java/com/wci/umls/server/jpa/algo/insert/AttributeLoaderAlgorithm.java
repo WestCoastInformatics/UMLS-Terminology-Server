@@ -3,7 +3,9 @@
  */
 package com.wci.umls.server.jpa.algo.insert;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -124,16 +126,25 @@ public class AttributeLoaderAlgorithm
       commitClearBegin();
 
       //
+      // Filter the attributes.src file, skipping SEMANTIC_TYPE, CONTEXT,
+      // SUBSET_MEMBER, XMAP, XMAPTO, XMAPFROM, UMLSCUI  and return the number
+      // of lines that meet this condition
+      //
+      final int ct =
+          filterFileForCount(getSrcDirFile(), "attributes.src", null,
+              "(.*)(SEMANTIC_TYPE|CONTEXT|SUBSET_MEMBER|XMAP|XMAPTO|XMAPFROM|UMLSCUI)(.*)");
+
+      // Set the number of steps to the number of lines to be processed
+      setSteps(ct);
+      
+      //
       // Load the attributes.src file, skipping SEMANTIC_TYPE, CONTEXT,
       // SUBSET_MEMBER, XMAP, XMAPTO, XMAPFROM, UMLSCUI
       //
-      final List<String> lines =
+      /*final List<String> lines =
           loadFileIntoStringList(getSrcDirFile(), "attributes.src", null,
               "(.*)(SEMANTIC_TYPE|CONTEXT|SUBSET_MEMBER|XMAP|XMAPTO|XMAPFROM|UMLSCUI)(.*)",
-              null);
-
-      // Set the number of steps to the number of lines to be processed
-      setSteps(lines.size());
+              null);*/
 
       final String fields[] = new String[14];
 
@@ -149,13 +160,52 @@ public class AttributeLoaderAlgorithm
         final Set<Pair<String, String>> terminologyAttributesToRemove =
             new HashSet<>();
 
-        for (final String line : lines) {
+        final String sourcesFile = getSrcDirFile() + File.separator + "attributes.src";
+        BufferedReader sources = null;
+        try {
+          sources = new BufferedReader(new FileReader(sourcesFile));
+        } catch (Exception e) {
+          throw new Exception("File not found: " + sourcesFile);
+        }
 
-          FieldedStringTokenizer.split(line, "|", 14, fields);
-          final Pair<String, String> terminologyAttribute =
-              new ImmutablePair<>(fields[5], fields[3]);
+        String linePre = null;
+        String line = null;
+        String keepRegexFilter = null;
+        String skipRegexFilter = "(.*)(SEMANTIC_TYPE|CONTEXT|SUBSET_MEMBER|XMAP|XMAPTO|XMAPFROM|UMLSCUI)(.*)";
+        while ((linePre = sources.readLine()) != null) {
+          linePre = linePre.replace("\r", "");
+          // Filter rows if defined
+          if (ConfigUtility.isEmpty(keepRegexFilter)
+              && ConfigUtility.isEmpty(skipRegexFilter)) {
+            line = linePre;
+          } else if (!ConfigUtility.isEmpty(keepRegexFilter)
+              && ConfigUtility.isEmpty(skipRegexFilter)) {
+            if (linePre.matches(keepRegexFilter)) {
+              line = linePre;
+            }
+          } else if (ConfigUtility.isEmpty(keepRegexFilter)
+              && !ConfigUtility.isEmpty(skipRegexFilter)) {
+            if (!linePre.matches(skipRegexFilter)) {
+              line = linePre;
+            }
+          } else if (!ConfigUtility.isEmpty(keepRegexFilter)
+              && !ConfigUtility.isEmpty(skipRegexFilter)) {
+            if (linePre.matches(keepRegexFilter)
+                && !linePre.matches(skipRegexFilter)) {
+              line = linePre;
+            }
+          }
 
-          terminologyAttributesToRemove.add(terminologyAttribute);
+
+          if (line != null) {
+            FieldedStringTokenizer.split(line, "|", 14, fields);
+            final Pair<String, String> terminologyAttribute =
+                new ImmutablePair<>(fields[5], fields[3]);
+
+            terminologyAttributesToRemove.add(terminologyAttribute);
+          }
+          
+          sources.close();
         }
 
         // Once all unique terminology/attribute name pairs have been
@@ -236,7 +286,42 @@ public class AttributeLoaderAlgorithm
       //
 
       // Each line of attributes.src corresponds to one attribute.
-      for (final String line : lines) {
+      final String sourcesFile = getSrcDirFile() + File.separator + "attributes.src";
+      BufferedReader sources = null;
+      try {
+        sources = new BufferedReader(new FileReader(sourcesFile));
+      } catch (Exception e) {
+        throw new Exception("File not found: " + sourcesFile);
+      }
+
+      String linePre = null;
+      String line = null;
+      String keepRegexFilter = null;
+      String skipRegexFilter = "(.*)(SEMANTIC_TYPE|CONTEXT|SUBSET_MEMBER|XMAP|XMAPTO|XMAPFROM|UMLSCUI)(.*)";
+      while ((linePre = sources.readLine()) != null) {
+        linePre = linePre.replace("\r", "");
+        // Filter rows if defined
+        if (ConfigUtility.isEmpty(keepRegexFilter)
+            && ConfigUtility.isEmpty(skipRegexFilter)) {
+          line = linePre;
+        } else if (!ConfigUtility.isEmpty(keepRegexFilter)
+            && ConfigUtility.isEmpty(skipRegexFilter)) {
+          if (linePre.matches(keepRegexFilter)) {
+            line = linePre;
+          }
+        } else if (ConfigUtility.isEmpty(keepRegexFilter)
+            && !ConfigUtility.isEmpty(skipRegexFilter)) {
+          if (!linePre.matches(skipRegexFilter)) {
+            line = linePre;
+          }
+        } else if (!ConfigUtility.isEmpty(keepRegexFilter)
+            && !ConfigUtility.isEmpty(skipRegexFilter)) {
+          if (linePre.matches(keepRegexFilter)
+              && !linePre.matches(skipRegexFilter)) {
+            line = linePre;
+          }
+        }
+
 
         // Check for a cancelled call once every 100 lines
         if (getStepsCompleted() % 100 == 0) {
@@ -500,6 +585,8 @@ public class AttributeLoaderAlgorithm
             RootService.commitCt);
       }
 
+      sources.close();
+      
       // Clear the caches to free up memory
       clearCaches();
 
