@@ -263,7 +263,7 @@ public class ReloadConceptHistoryAlgorithm
         history.setPublishable(true);
         history.setTerminology(getProject().getTerminology());
         history.setTerminologyId(fields[0]);
-        history.setVersion(getProject().getVersion());
+        history.setVersion(getProcess().getVersion());
 
         if (!fields[5].isEmpty()) {
           /*final Concept concept2 =

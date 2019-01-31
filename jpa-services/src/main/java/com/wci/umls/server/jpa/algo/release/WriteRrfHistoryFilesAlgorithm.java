@@ -293,8 +293,7 @@ public class WriteRrfHistoryFilesAlgorithm
         for (final ComponentHistory ch : c.getComponentHistory()) {
           // if DEL -> write out component history as is.
           if (ch.getRelationshipType().equals("DEL")) {
-            history.addDeleted(c.getTerminologyId(), ch.getVersion());
-
+            history.addDeleted(c.getTerminologyId(), ch.getAssociatedRelease());
           }
 
           // If SY or R?
@@ -302,12 +301,12 @@ public class WriteRrfHistoryFilesAlgorithm
               || ch.getRelationshipType().startsWith("R")) {
 
             if (ch.getRelationshipType().equals("SY")) {
-              history.addMerge(c.getTerminologyId(), ch.getVersion(),
+              history.addMerge(c.getTerminologyId(), ch.getAssociatedRelease(),
                   ch.getReferencedTerminologyId());
             }
 
             else {
-              history.addBequeathal(c.getTerminologyId(), ch.getVersion(),
+              history.addBequeathal(c.getTerminologyId(), ch.getAssociatedRelease(),
                   ch.getRelationshipType(), ch.getReferencedTerminologyId(),
                   currentCuis);
 

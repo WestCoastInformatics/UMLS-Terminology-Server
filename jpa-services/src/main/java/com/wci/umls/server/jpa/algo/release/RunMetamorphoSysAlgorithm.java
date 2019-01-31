@@ -148,6 +148,11 @@ public class RunMetamorphoSysAlgorithm
     FileUtils.fileWrite(releaseDat.getPath(), data.toString());
     FileUtils.fileWrite(metaReleaseDat.getPath(), data.toString());
     FileUtils.fileWrite(mmsysReleaseDat.getPath(), data.toString());
+    final File mmsysReleaseConfigVersion = new File(config.getProperty("source.data.dir")
+        + "/" + getProcess().getInputPath() + "/" + getProcess().getVersion()
+        + "/MMSYS/config/" + getProcess().getVersion());
+    mmsysReleaseConfigVersion.mkdirs();
+    mmsysReleaseConfigDat.createNewFile();
     FileUtils.fileWrite(mmsysReleaseConfigDat.getPath(), data.toString());
     updateProgress();
 

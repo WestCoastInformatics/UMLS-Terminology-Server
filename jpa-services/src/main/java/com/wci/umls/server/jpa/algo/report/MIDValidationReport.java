@@ -82,7 +82,9 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
           throw new Exception(
               "Check with duplicate name: " + definition.getName());
         }
-        queries.put(definition.getName(), definition.getQuery());
+        if (definition.isEnabled()) {
+          queries.put(definition.getName(), definition.getQuery());
+        }
       }
     }
     final WorkflowConfig workflowConfig2 =
@@ -98,7 +100,9 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
           throw new Exception(
               "Check with duplicate name: " + definition.getName());
         }
-        queries.put(definition.getName(), definition.getQuery());
+        if (definition.isEnabled()) {
+          queries.put(definition.getName(), definition.getQuery());
+        }
       }
     }
 

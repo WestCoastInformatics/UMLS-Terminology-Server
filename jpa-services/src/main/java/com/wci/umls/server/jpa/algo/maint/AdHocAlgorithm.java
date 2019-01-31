@@ -34,6 +34,7 @@ import com.wci.umls.server.jpa.algo.action.RedoMolecularAction;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
+import com.wci.umls.server.jpa.content.ComponentHistoryJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
@@ -181,7 +182,11 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     } else if (actionName.equals("Remove old relationships")) {
       removeOldRelationships();
     } else if (actionName.equals("Assign Missing STY ATUIs")) {
-      assignMissingStyAtui();
+      assignMissingStyAtui(); 
+    } else if (actionName.equals("Fix Component History Version")) {
+      fixComponentHistoryVersion();
+    } else if (actionName.equals("Fix AdditionalRelType Inverses 2")) {
+      fixAdditionalRelTypeInverses2();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -2540,6 +2545,124 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
 
   }
+  
+  private void fixComponentHistoryVersion() throws Exception {
+    // 1/16/2019 ComponentHistory version should match associatedRelease, not be
+    // 'latest'
+
+    logInfo(" Fix ComponentHistory Version");
+
+    logInfo("[FixComponentHistoryVersion] Assigning "
+        + "associatedRelease to version field");
+
+    int updatedHistories = 0;
+
+    final List<ComponentHistoryJpa> componentHistories = new ArrayList<>();
+
+    try {
+      Query query = getEntityManager().createNativeQuery(
+          "select id from component_histories where version='latest'");
+
+      logInfo("[FixComponentHistoryVersion] Identifying "
+          + "ComponentHistories with version 'latest'");
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        componentHistories.add(
+            (ComponentHistoryJpa) getComponent(id, ComponentHistoryJpa.class));
+      }
+
+      setSteps(componentHistories.size());
+
+      logInfo("[FixComponentHistoryVersion] " + componentHistories.size()
+          + " ComponentHistories with version 'latest'");
+
+      for (final ComponentHistory componentHistory : componentHistories) {
+
+        componentHistory.setVersion(componentHistory.getAssociatedRelease());
+        updateComponent(componentHistory);
+        updatedHistories++;
+        updateProgress();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+    }
+
+    logInfo("Updated " + updatedHistories + " component histories.");
+    logInfo("Finished " + getName());
+  }
+  
+  private void fixAdditionalRelTypeInverses2() throws Exception {
+    // 1/25/2019 Issues identified with additional relationship types where
+    // new one was added, but old one was not made unpublishable or detached from inverse.
+    // set the old inverse to pubishable=false.
+    // Update inverse to point to the new correct one.
+    logInfo(" Fix Additional Rel Type Inverses 2");
+
+    int updatedAdditionalRelationshipTypes = 0;
+    List<AdditionalRelationshipTypeJpa> additionalRelationshipsTypes =
+        new ArrayList<>();
+
+    try {
+
+      // Get the three affected additional relationship types
+      Query query = getEntityManager().createNativeQuery(
+          "select abbreviation from additional_relationship_types where id in (1398,1399,1322352)");
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final String abbreviation = entry.toString();
+        additionalRelationshipsTypes
+            .add((AdditionalRelationshipTypeJpa) getAdditionalRelationshipType(
+                abbreviation, "NCIMTH", "latest"));
+      }
+
+      setSteps(additionalRelationshipsTypes.size());
+
+      logInfo("[FixAdditionalRelTypeInverses2] "
+          + additionalRelationshipsTypes.size()
+          + " additional relationship types identified");
+
+      for (final AdditionalRelationshipType additionalRelationshipType : additionalRelationshipsTypes) {
+
+        // Set the no-longer-referenced additionalRelationshipType to
+        // publishable=false
+        if (additionalRelationshipType.getId() == 1398) {
+          additionalRelationshipType.setPublishable(false);
+          updateAdditionalRelationshipType(additionalRelationshipType);
+          updatedAdditionalRelationshipTypes++;
+        }
+        // Set the one incorrectly-inverted additional relationship type to its
+        // correct inverse
+        else if (additionalRelationshipType.getId() == 1399) {
+          AdditionalRelationshipType inverseRelType =
+              getAdditionalRelationshipType("develops_into", "NCIMTH",
+                  "latest");
+          additionalRelationshipType.setInverse(inverseRelType);
+          updateAdditionalRelationshipType(additionalRelationshipType);
+          updatedAdditionalRelationshipTypes++;
+        }
+        // We should never get here
+        else {
+          logError("WHAT HAPPENED!!!????");
+        }
+        updateProgress();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+      // n/a
+    }
+
+    logInfo("Updated " + updatedAdditionalRelationshipTypes
+        + " additional relationship types updated 2.");
+    logInfo("Finished " + getName());
+  }
+
 
   /* see superclass */
   @Override
@@ -2593,7 +2716,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Turn off CTRP-SDC", "Fix Terminology Names", "Fix RHT Atoms",
             "Fix MDR Descriptors", "Clear Worklists and Checklists",
             "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts", "Fix Null RUIs", 
-            "Remove old relationships", "Assign Missing STY ATUIs"));
+            "Remove old relationships", "Assign Missing STY ATUIs", "Fix Component History Version",
+            "Fix AdditionalRelType Inverses 2"));
     params.add(param);
 
     return params;
