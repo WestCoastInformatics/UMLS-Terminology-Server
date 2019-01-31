@@ -51,6 +51,8 @@ import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
+import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.rest.client.ContentClientRest;
 import com.wci.umls.server.services.SecurityService;
 
@@ -63,6 +65,10 @@ import com.wci.umls.server.services.SecurityService;
  */
 @Mojo(name = "match-term", defaultPhase = LifecyclePhase.PACKAGE)
 public class CommandLineMatchingMojo extends AbstractMojo {
+
+	private static final String NCI_MTH = "NCIMTH";
+
+	private static final String NCI_MTH_VERSION = "latest";
 
 	/** The run config file path. */
 	@Parameter
@@ -163,7 +169,7 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 
 			PfsParameterJpa pfs = new PfsParameterJpa();
 			pfs.setStartIndex(0);
-			pfs.setMaxResults(maxCount * 2);
+			pfs.setMaxResults(3 * maxCount);
 
 			PrintWriter outputFile = prepareOutputFile();
 
@@ -186,7 +192,8 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 
 			outputFile.close();
 
-			getLog().info("\nFinished processing...");
+			getLog().info("");
+			getLog().info("Finished processing...");
 			getLog().info("Output avaiable at: " + outputFilePath);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -217,8 +224,11 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 	private void findMatchesAndWriteResults(ContentClientRest client, PrintWriter outputFile, String terminology,
 			String version, String line, PfsParameterJpa pfs, String authToken) throws Exception {
 		if (!line.trim().isEmpty()) {
-			getLog().info("\nProcessing on: " + line);
+			getLog().info("");
+			getLog().info("Processing on: " + line);
 
+			String originalLine = line;
+			
 			// TODO: This needs a better solution as was workaround for some terminologies
 			line = line.replaceAll(",", "");
 			line = line.replaceAll("[(&)]", "");
@@ -227,13 +237,28 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 
 			SearchResultList accumilatedResults = new SearchResultListJpa();
 
-			for (String s : linesToTest) {
-				final SearchResultList results = client.findConcepts(terminology, version, s, pfs, authToken);
-				accumilatedResults.getObjects().addAll(results.getObjects());
-				accumilatedResults.setTotalCount(accumilatedResults.getTotalCount() + results.getTotalCount());
+			for (String term : linesToTest) {
+				
+				if (terminology.equals(NCI_MTH)) {
+					// Terminology is NCI-MTH, no further processing. Just return results.
+					final SearchResultList results = client.findConcepts(NCI_MTH.toString(), NCI_MTH_VERSION, term, pfs, authToken);
+
+					accumilatedResults.getObjects().addAll(results.getObjects());
+					accumilatedResults.setTotalCount(accumilatedResults.getTotalCount() + results.getTotalCount());
+				} else {
+					// Terminology is not NCI-MTH, need to ensure that concepts considered matches contain at least one atom from the requested terminology
+					final String query = term + " AND atoms.terminology: " + terminology;
+					final SearchResultList results2 = client.findConcepts(NCI_MTH.toString(), NCI_MTH_VERSION, query, pfs, authToken);
+					
+					accumilatedResults.getObjects().addAll(results2.getObjects());
+					accumilatedResults.setTotalCount(accumilatedResults.getTotalCount() + results2.getTotalCount());
+				}
 			}
 
-			writeResultsToFile(outputFile, line, accumilatedResults, linesToTest.size() > 1);
+			// Sort the results in order to handle acronym expansion
+			accumilatedResults.sortBy((SearchResult o1, SearchResult o2) -> o2.getScore().compareTo(o1.getScore()));
+
+			writeResultsToFile(outputFile, originalLine, accumilatedResults, linesToTest.size() > 1);
 		}
 	}
 
@@ -311,25 +336,28 @@ public class CommandLineMatchingMojo extends AbstractMojo {
 					+ " results which may be more than expected, but is due to acronym expansion.");
 		}
 
-		if (acronymExpanded) {
-			results.sortBy((SearchResult o1, SearchResult o2) -> o2.getScore().compareTo(o1.getScore()));
-		}
-
 		outputFile.write(line);
 		outputFile.println();
 
 		int counter = 0;
 		float lastScore = 0;
+		Set<String> seenResults = new HashSet<>();
 		for (SearchResult singleResult : results.getObjects()) {
 			if (maxCount != null && ++counter > maxCount && lastScore != singleResult.getScore()) {
 				break;
 			}
 
+			// With acronym expansion, want to ensure don't list duplicate results
+			if (seenResults.contains(singleResult.getTerminologyId())) {
+				continue;
+			}
+			
 			getLog().info("    match" + (counter) + " = " + singleResult.getTerminologyId() + " | "
 					+ singleResult.getValue() + " | " + "with score: " + singleResult.getScore() + " | ");
 
 			outputFile.write("\t");
 			outputFile.write(singleResult.getTerminologyId());
+			seenResults.add(singleResult.getTerminologyId());
 			outputFile.write("\t");
 			outputFile.print(singleResult.getValue());
 			outputFile.write("\t");
