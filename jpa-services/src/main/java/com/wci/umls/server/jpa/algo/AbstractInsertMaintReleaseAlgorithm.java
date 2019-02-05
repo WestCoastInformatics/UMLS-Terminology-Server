@@ -49,6 +49,7 @@ import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
+// TODO: Auto-generated Javadoc
 /**
  * Abstract support for source-file insertion algorithms.
  */
@@ -274,6 +275,18 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     return lines;
   }
 
+  
+  /**
+   * Return count of lines in srcDirFile when rows with SEMANTIC_TYPE, CONTEXT,
+   * SUBSET_MEMBER, XMAP, XMAPTO, XMAPFROM, UMLSCUI are removed 
+   *
+   * @param srcDirFile the src dir file
+   * @param fileName the file name
+   * @param keepRegexFilter the keep regex filter
+   * @param skipRegexFilter the skip regex filter
+   * @return the int
+   * @throws Exception the exception
+   */
   public int filterFileForCount(File srcDirFile, String fileName,
     String keepRegexFilter, String skipRegexFilter)
     throws Exception {

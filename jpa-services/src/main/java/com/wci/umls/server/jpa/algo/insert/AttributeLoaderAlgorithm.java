@@ -133,18 +133,10 @@ public class AttributeLoaderAlgorithm
       final int ct =
           filterFileForCount(getSrcDirFile(), "attributes.src", null,
               "(.*)(SEMANTIC_TYPE|CONTEXT|SUBSET_MEMBER|XMAP|XMAPTO|XMAPFROM|UMLSCUI)(.*)");
-
+      logInfo("  Steps: " + ct + " filtered attribute rows to process");
+      
       // Set the number of steps to the number of lines to be processed
       setSteps(ct);
-      
-      //
-      // Load the attributes.src file, skipping SEMANTIC_TYPE, CONTEXT,
-      // SUBSET_MEMBER, XMAP, XMAPTO, XMAPFROM, UMLSCUI
-      //
-      /*final List<String> lines =
-          loadFileIntoStringList(getSrcDirFile(), "attributes.src", null,
-              "(.*)(SEMANTIC_TYPE|CONTEXT|SUBSET_MEMBER|XMAP|XMAPTO|XMAPFROM|UMLSCUI)(.*)",
-              null);*/
 
       final String fields[] = new String[14];
 
@@ -160,6 +152,10 @@ public class AttributeLoaderAlgorithm
         final Set<Pair<String, String>> terminologyAttributesToRemove =
             new HashSet<>();
 
+        //
+        // Load the attributes.src file, skipping SEMANTIC_TYPE, CONTEXT,
+        // SUBSET_MEMBER, XMAP, XMAPTO, XMAPFROM, UMLSCUI
+        //
         final String sourcesFile = getSrcDirFile() + File.separator + "attributes.src";
         BufferedReader sources = null;
         try {
@@ -170,32 +166,10 @@ public class AttributeLoaderAlgorithm
 
         String linePre = null;
         String line = null;
-        String keepRegexFilter = null;
-        String skipRegexFilter = "(.*)(SEMANTIC_TYPE|CONTEXT|SUBSET_MEMBER|XMAP|XMAPTO|XMAPFROM|UMLSCUI)(.*)";
         while ((linePre = sources.readLine()) != null) {
           linePre = linePre.replace("\r", "");
-          // Filter rows if defined
-          if (ConfigUtility.isEmpty(keepRegexFilter)
-              && ConfigUtility.isEmpty(skipRegexFilter)) {
-            line = linePre;
-          } else if (!ConfigUtility.isEmpty(keepRegexFilter)
-              && ConfigUtility.isEmpty(skipRegexFilter)) {
-            if (linePre.matches(keepRegexFilter)) {
-              line = linePre;
-            }
-          } else if (ConfigUtility.isEmpty(keepRegexFilter)
-              && !ConfigUtility.isEmpty(skipRegexFilter)) {
-            if (!linePre.matches(skipRegexFilter)) {
-              line = linePre;
-            }
-          } else if (!ConfigUtility.isEmpty(keepRegexFilter)
-              && !ConfigUtility.isEmpty(skipRegexFilter)) {
-            if (linePre.matches(keepRegexFilter)
-                && !linePre.matches(skipRegexFilter)) {
-              line = linePre;
-            }
-          }
-
+          
+          line = filterLine(linePre);
 
           if (line != null) {
             FieldedStringTokenizer.split(line, "|", 14, fields);
@@ -203,10 +177,9 @@ public class AttributeLoaderAlgorithm
                 new ImmutablePair<>(fields[5], fields[3]);
 
             terminologyAttributesToRemove.add(terminologyAttribute);
-          }
-          
-          sources.close();
+          }         
         }
+        sources.close();
 
         // Once all unique terminology/attribute name pairs have been
         // identified, remove them all from the database
@@ -296,38 +269,21 @@ public class AttributeLoaderAlgorithm
 
       String linePre = null;
       String line = null;
-      String keepRegexFilter = null;
-      String skipRegexFilter = "(.*)(SEMANTIC_TYPE|CONTEXT|SUBSET_MEMBER|XMAP|XMAPTO|XMAPFROM|UMLSCUI)(.*)";
       while ((linePre = sources.readLine()) != null) {
-        linePre = linePre.replace("\r", "");
-        // Filter rows if defined
-        if (ConfigUtility.isEmpty(keepRegexFilter)
-            && ConfigUtility.isEmpty(skipRegexFilter)) {
-          line = linePre;
-        } else if (!ConfigUtility.isEmpty(keepRegexFilter)
-            && ConfigUtility.isEmpty(skipRegexFilter)) {
-          if (linePre.matches(keepRegexFilter)) {
-            line = linePre;
-          }
-        } else if (ConfigUtility.isEmpty(keepRegexFilter)
-            && !ConfigUtility.isEmpty(skipRegexFilter)) {
-          if (!linePre.matches(skipRegexFilter)) {
-            line = linePre;
-          }
-        } else if (!ConfigUtility.isEmpty(keepRegexFilter)
-            && !ConfigUtility.isEmpty(skipRegexFilter)) {
-          if (linePre.matches(keepRegexFilter)
-              && !linePre.matches(skipRegexFilter)) {
-            line = linePre;
-          }
-        }
-
-
+        
+        //skipping SEMANTIC_TYPE, CONTEXT,
+        // SUBSET_MEMBER, XMAP, XMAPTO, XMAPFROM, UMLSCUI
+        line = filterLine(linePre);
+        
         // Check for a cancelled call once every 100 lines
         if (getStepsCompleted() % 100 == 0) {
           checkCancel();
         }
 
+        if (line == null) {
+          continue;
+        }
+        
         FieldedStringTokenizer.split(line, "|", 14, fields);
 
         // Fields:
@@ -650,6 +606,41 @@ public class AttributeLoaderAlgorithm
   @Override
   public String getDescription() {
     return "Loads and processes an attributes.src file to load Attribute and Definition objects.";
+  }
+  
+  /*filter out lines with SEMANTIC_TYPE, CONTEXT,
+  SUBSET_MEMBER, XMAP, XMAPTO, XMAPFROM, UMLSCUI*/
+  public String filterLine(String linePre) {
+    String line = null;
+    String keepRegexFilter = null;
+    String skipRegexFilter = "(.*)(SEMANTIC_TYPE|CONTEXT|SUBSET_MEMBER|XMAP|XMAPTO|XMAPFROM|UMLSCUI)(.*)";
+    
+    linePre = linePre.replace("\r", "");
+    // Filter rows if defined
+    if (ConfigUtility.isEmpty(keepRegexFilter)
+        && ConfigUtility.isEmpty(skipRegexFilter)) {
+      line = linePre;
+    } else if (!ConfigUtility.isEmpty(keepRegexFilter)
+        && ConfigUtility.isEmpty(skipRegexFilter)) {
+      if (linePre.matches(keepRegexFilter)) {
+        line = linePre;
+      }
+    } else if (ConfigUtility.isEmpty(keepRegexFilter)
+        && !ConfigUtility.isEmpty(skipRegexFilter)) {
+      if (!linePre.matches(skipRegexFilter)) {
+        line = linePre;
+      }
+    } else if (!ConfigUtility.isEmpty(keepRegexFilter)
+        && !ConfigUtility.isEmpty(skipRegexFilter)) {
+      if (linePre.matches(keepRegexFilter)
+          && !linePre.matches(skipRegexFilter)) {
+        line = linePre;
+      }
+    } else {
+      line = null;
+    }
+
+    return line;
   }
 
 }
