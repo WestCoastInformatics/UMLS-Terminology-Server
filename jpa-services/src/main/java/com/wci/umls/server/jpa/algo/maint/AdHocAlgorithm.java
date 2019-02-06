@@ -2493,7 +2493,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   
   private void assignMissingStyAtui() throws Exception {
     // 1/8/2019 ATUI is missing on STY C0303976|T104|A1.4.1.2|Chemical Viewed Structurally|||
-    // May need to be run during release process if AssignReleaseIdentifiersAlgorithm misses it again
+    // May need to be run ONLY DURING RELEASE PROCESS if AssignReleaseIdentifiersAlgorithm misses it again
 
     logInfo(" Assign missing sty ATUI");
 

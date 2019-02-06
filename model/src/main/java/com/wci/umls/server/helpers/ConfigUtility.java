@@ -116,7 +116,7 @@ public class ConfigUtility {
 
   /** The Constant DATE_FORMAT4. */
   public final static FastDateFormat DATE_FORMAT4 =
-      FastDateFormat.getInstance("yyyy-MM-dd hh:mm:ss");
+      FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
 
   /** The Constant DATE_FORMAT5. */
   public final static FastDateFormat DATE_FORMAT5 =
