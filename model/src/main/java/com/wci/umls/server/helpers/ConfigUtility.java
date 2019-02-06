@@ -124,7 +124,7 @@ public class ConfigUtility {
 
   /** The Constant DATE_FORMAT4. */
   public final static FastDateFormat DATE_YYYYMMDDHHMMSS =
-      FastDateFormat.getInstance("yyyyMMddhhmmss");
+      FastDateFormat.getInstance("yyyyMMddHHmmss");
 
   /** The Constant PUNCTUATION. */
   public final static String PUNCTUATION =
