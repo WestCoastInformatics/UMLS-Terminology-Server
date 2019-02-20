@@ -499,15 +499,11 @@ public class MetadataLoaderAlgorithm
         
         //Preferred Name version suffix is different depending on terminology's family
         String versionSuffix = null;
-        if (fields[6].equals("NCI")
-            || fields[6].equals("SNOMEDCT_US")
-            || fields[6].equals("MED-RT")) {
-          versionSuffix = ", " + fields[5];
-        } else if (fields[6].equals("MDR")) {
+        if (fields[6].equals("MDR")) {
           versionSuffix = ", " + fields[5].replace("_", ".");
         }
-        else{
-          throw new Exception("Unhandled terminology family=" + fields[6]);
+        else {
+          versionSuffix = ", " + fields[5];
         }
         
         term.setPreferredName(fields[7] + versionSuffix);
