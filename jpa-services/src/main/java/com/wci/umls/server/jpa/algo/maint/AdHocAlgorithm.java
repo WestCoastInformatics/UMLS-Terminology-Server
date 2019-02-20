@@ -18,6 +18,8 @@ import java.util.UUID;
 
 import javax.persistence.Query;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Hibernate;
 
 import com.wci.umls.server.AlgorithmParameter;
@@ -187,6 +189,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixComponentHistoryVersion();
     } else if (actionName.equals("Fix AdditionalRelType Inverses 2")) {
       fixAdditionalRelTypeInverses2();
+    } else if (actionName.equals("Find Missed Merges")) {
+      findMissedMerges();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -2662,7 +2666,51 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         + " additional relationship types updated 2.");
     logInfo("Finished " + getName());
   }
+  
+  
+  private void findMissedMerges() throws Exception {
+    // 7/3/2018 Add an NCIMTH/PN atom to every concept that has a SNOMEDCT_US/FN
+    // atom in it with the word (disposition) at the end of the name.
 
+    logInfo(" Find missed merges");
+  
+    try {
+
+      Query query = getEntityManager().createNativeQuery(
+          "select a1.id, a2.id from concepts c1, concepts_atoms ca1, atoms a1, concepts c2, concepts_atoms ca2, atoms a2 "
+              + "where ca1.concepts_id = c1.id and ca1.atoms_id = a1.id and "
+              + "ca2.concepts_id = c2.id and ca2.atoms_id = a2.id and "
+              + "c1.terminology='NCIMTH' and c2.terminology='NCIMTH' and "
+              + "c1.id != c2.id and "
+              + "a1.lexicalClassId = a2.lexicalClassId");
+      
+      List<Pair<Atom, Atom>> atomPairs = new ArrayList<>();
+
+      final List<Object[]> ids = query.getResultList();
+      for (final Object[] result : ids) {
+        final Atom a1 = getAtom(Long.valueOf(result[0].toString()));
+        final Atom a2 = getAtom(Long.valueOf(result[1].toString()));
+        
+        if (!a1.getTermType().equals(a2.getTermType()) && 
+            a1.getCodeId().equals(a2.getCodeId()) &&
+            a1.getTerminology().equals(a2.getTerminology())) {
+          atomPairs.add(new ImmutablePair<Atom, Atom>(a1, a2));
+        }
+      }
+      
+      setSteps(atomPairs.size());
+
+      logInfo("[FindMissedMerges] " + atomPairs.size()
+          + " Concepts that need an NCIMTH/PN disposition atom");
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+      // n/a
+    }
+
+  }
 
   /* see superclass */
   @Override
@@ -2717,7 +2765,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Fix MDR Descriptors", "Clear Worklists and Checklists",
             "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts", "Fix Null RUIs", 
             "Remove old relationships", "Assign Missing STY ATUIs", "Fix Component History Version",
-            "Fix AdditionalRelType Inverses 2"));
+            "Fix AdditionalRelType Inverses 2", "Find Missed Merges"));
     params.add(param);
 
     return params;
