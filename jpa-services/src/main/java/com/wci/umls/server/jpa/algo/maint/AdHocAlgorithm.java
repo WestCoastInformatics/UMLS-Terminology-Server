@@ -2677,7 +2677,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     try {
 
       Query query = getEntityManager().createNativeQuery(
-          "select a1.id, a2.id from concepts c1, concepts_atoms ca1, atoms a1, concepts c2, concepts_atoms ca2, atoms a2 "
+          "select a1.id as a1id, a2.id as a2id, c1.id as c1id, c2.id as c2id from concepts c1, concepts_atoms ca1, atoms a1, concepts c2, concepts_atoms ca2, atoms a2 "
               + "where ca1.concepts_id = c1.id and ca1.atoms_id = a1.id and "
               + "ca2.concepts_id = c2.id and ca2.atoms_id = a2.id and "
               + "c1.terminology='NCIMTH' and c2.terminology='NCIMTH' and "
@@ -2690,9 +2690,14 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       for (final Object[] result : ids) {
         final Atom a1 = getAtom(Long.valueOf(result[0].toString()));
         final Atom a2 = getAtom(Long.valueOf(result[1].toString()));
+
+        final Concept c1 = getConcept(Long.valueOf(result[2].toString()));
+        final Concept c2 = getConcept(Long.valueOf(result[3].toString()));
         
         if (!a1.getTermType().equals(a2.getTermType()) && 
             a1.getCodeId().equals(a2.getCodeId()) &&
+            !a1.isPublishable() && a2.isPublishable() &&
+            !c1.isPublishable() && c2.isPublishable() &&
             a1.getTerminology().equals(a2.getTerminology())) {
           atomPairs.add(new ImmutablePair<Atom, Atom>(a1, a2));
         }
@@ -2701,7 +2706,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       setSteps(atomPairs.size());
 
       logInfo("[FindMissedMerges] " + atomPairs.size()
-          + " Concepts that need an NCIMTH/PN disposition atom");
+          + " Missed merges");
 
     } catch (Exception e) {
       e.printStackTrace();
