@@ -3,18 +3,22 @@
  */
 package com.wci.umls.server.jpa.algo.maint;
 
+import static java.lang.Math.toIntExact;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.persistence.Query;
 
@@ -23,8 +27,11 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Hibernate;
 
 import com.wci.umls.server.AlgorithmParameter;
+import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.meta.TerminologyList;
@@ -45,6 +52,8 @@ import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa;
 import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
+import com.wci.umls.server.jpa.workflow.ChecklistJpa;
+import com.wci.umls.server.jpa.workflow.TrackingRecordJpa;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
@@ -64,6 +73,8 @@ import com.wci.umls.server.model.meta.RelationshipIdentity;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.Terminology;
+import com.wci.umls.server.model.workflow.Checklist;
+import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.services.RootService;
@@ -2669,8 +2680,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   
   
   private void findMissedMerges() throws Exception {
-    // 7/3/2018 Add an NCIMTH/PN atom to every concept that has a SNOMEDCT_US/FN
-    // atom in it with the word (disposition) at the end of the name.
+    // 2/21/2019 In effort to reduce deleted_cuis, find missed merged opportunities based
+    // on same-string-same-code-same-sab-diff-tty cases
 
     logInfo(" Find missed merges");
   
@@ -2685,8 +2696,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
               + "a1.lexicalClassId = a2.lexicalClassId");
       
       List<Pair<Atom, Atom>> atomPairs = new ArrayList<>();
-
+      List<Long[]> conceptPairs = new ArrayList<>();
       final List<Object[]> ids = query.getResultList();
+      /*List<Object[]> ids = new ArrayList<>();
+      ids.add(new Object[]{11519L, 3L, 719L, 2L });*/
       for (final Object[] result : ids) {
         final Atom a1 = getAtom(Long.valueOf(result[0].toString()));
         final Atom a2 = getAtom(Long.valueOf(result[1].toString()));
@@ -2700,6 +2713,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             !c1.isPublishable() && c2.isPublishable() &&
             a1.getTerminology().equals(a2.getTerminology())) {
           atomPairs.add(new ImmutablePair<Atom, Atom>(a1, a2));
+          conceptPairs.add(new Long[]{c1.getId(), c2.getId()});
+          logInfo("[FindMissedMerges] " + a1.getId() + " " + 
+            a2.getId() + " " + c1.getId() + " " + c2.getId());
         }
       }
       
@@ -2707,6 +2723,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       logInfo("[FindMissedMerges] " + atomPairs.size()
           + " Missed merges");
+      
+      convertToChecklist("missed_merges", 39751L, conceptPairs, null);
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -2782,4 +2800,88 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     return "Perform Ad Hoc Action, normally for data fixes.";
   }
 
+  
+  private void convertToChecklist(String name, long projectId, List<Long[]> results, PfsParameter pfs) throws Exception {
+    WorkflowService workflowService = new WorkflowServiceJpa();
+    final Project project = workflowService.getProject(projectId);
+    final ChecklistList checklists = findChecklists(project, null, null);
+    for (final Checklist checklist : checklists.getObjects()) {
+      if (checklist.getName().equals(name)
+          && checklist.getProject().equals(project)) {
+          throw new LocalException(
+              "A checklist for project " + project.getName() + " with name "
+                  + checklist.getName() + " already exists.");
+        
+      }
+    }
+
+    // Add checklist
+    final Checklist checklist = new ChecklistJpa();
+    checklist.setName(name);
+    checklist.setDescription(name + " description");
+    checklist.setProject(project);
+    checklist.setTimestamp(new Date());
+
+
+    // keys should remain sorted
+    final Set<Long> clustersEncountered = new HashSet<>();
+    final Map<Long, List<Long>> entries = new TreeMap<>();
+    for (final Long[] result : results) {
+      clustersEncountered.add(result[0]);
+
+      final PfsParameter localPfs =
+          (pfs == null) ? new PfsParameterJpa() : new PfsParameterJpa(pfs);
+      // Keep only prescribed range from the query
+      if ((localPfs.getStartIndex() > -1
+          && (clustersEncountered.size() - 1) < localPfs.getStartIndex())
+          || (localPfs.getMaxResults() > -1
+              && clustersEncountered.size() > localPfs.getMaxResults())) {
+        continue;
+      }
+
+      if (!entries.containsKey(result[0])) {
+        entries.put(result[0], new ArrayList<>());
+      }
+      entries.get(result[0]).add(result[1]);
+    }
+    clustersEncountered.clear();
+
+    // Add tracking records
+    long i = 1L;
+    for (final Long clusterId : entries.keySet()) {
+
+      final TrackingRecord record = new TrackingRecordJpa();
+      record.setChecklistName(name);
+      // recluster from 1
+      record.setClusterId(i++);
+      record.setClusterType("");
+      record.setProject(project);
+      record.setTerminology(project.getTerminology());
+      record.setTimestamp(new Date());
+      record.setVersion(project.getVersion());
+      final StringBuilder sb = new StringBuilder();
+      for (final Long conceptId : entries.get(clusterId)) {
+        final Concept concept = getConcept(conceptId);
+        record.getComponentIds().addAll(concept.getAtoms().stream()
+            .map(a -> a.getId()).collect(Collectors.toSet()));
+        if (!record.getOrigConceptIds().contains(concept.getId())) {
+          sb.append(concept.getName()).append(" ");
+        }
+        record.getOrigConceptIds().add(concept.getId());
+
+      }
+
+      record.setIndexedData(sb.toString());
+      record.setWorkflowStatus(computeTrackingRecordStatus(record, true));
+      final TrackingRecord newRecord = addTrackingRecord(record);
+
+      // Add the record to the checklist.
+      checklist.getTrackingRecords().add(newRecord);
+
+      silentIntervalCommit(toIntExact(i), logCt, commitCt);
+    }
+
+    // Add the checklist
+    final Checklist newChecklist = addChecklist(checklist);
+  }
 }
