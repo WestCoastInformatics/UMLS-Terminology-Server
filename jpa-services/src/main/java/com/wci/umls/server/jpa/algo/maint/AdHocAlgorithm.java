@@ -2698,8 +2698,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       List<Pair<Atom, Atom>> atomPairs = new ArrayList<>();
       List<Long[]> conceptPairs = new ArrayList<>();
       final List<Object[]> ids = query.getResultList();
-      /*List<Object[]> ids = new ArrayList<>();
-      ids.add(new Object[]{11519L, 3L, 719L, 2L });*/
+      //List<Object[]> ids = new ArrayList<>();
+      //ids.add(new Object[]{11519L, 3L, 719L, 2L });
+      long index = 1;
       for (final Object[] result : ids) {
         final Atom a1 = getAtom(Long.valueOf(result[0].toString()));
         final Atom a2 = getAtom(Long.valueOf(result[1].toString()));
@@ -2713,7 +2714,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             !c1.isPublishable() && c2.isPublishable() &&
             a1.getTerminology().equals(a2.getTerminology())) {
           atomPairs.add(new ImmutablePair<Atom, Atom>(a1, a2));
-          conceptPairs.add(new Long[]{c1.getId(), c2.getId()});
+          conceptPairs.add(new Long[]{index, c1.getId()});
+          conceptPairs.add(new Long[]{index, c2.getId()});
+          index++;
           logInfo("[FindMissedMerges] " + a1.getId() + " " + 
             a2.getId() + " " + c1.getId() + " " + c2.getId());
         }
