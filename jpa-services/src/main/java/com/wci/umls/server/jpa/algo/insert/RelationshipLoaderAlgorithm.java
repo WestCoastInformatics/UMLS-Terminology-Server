@@ -703,13 +703,13 @@ public class RelationshipLoaderAlgorithm
 
     // Check to see if relationship with matching RUI already exists in the
     // database
-    final Relationship oldRelationship = (Relationship) getComponent("RUI",
-        newRelationshipRui,
-        getCachedTerminology(sourceTermAndVersion).getTerminology(), relClass);
-    final Relationship oldInverseRelationship =
+    final Relationship oldRelationship = (newRelationshipRui.equals("") ? null : 
+        (Relationship) getComponent("RUI", newRelationshipRui,
+        getCachedTerminology(sourceTermAndVersion).getTerminology(), relClass));
+    final Relationship oldInverseRelationship = (newInverseRelationshipRui.equals("") ? null : 
         (Relationship) getComponent("RUI", newInverseRelationshipRui,
             getCachedTerminology(sourceTermAndVersion).getTerminology(),
-            relClass);
+            relClass));
 
     // If no relationships with the same RUI exists, add this new
     // relationship
