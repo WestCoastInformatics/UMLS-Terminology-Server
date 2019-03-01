@@ -300,22 +300,24 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
 
     commitClearBegin();
 
-    // Once all atoms are updated, update their containing concepts as well, to
+    // If any atoms were updated, update their containing concepts as well, to
     // get the concepts' indexes up to date
-    query = "SELECT DISTINCT c.id " + "FROM ConceptJpa c JOIN c.atoms a "
-        + "WHERE a.id in (" + StringUtils.join(updatedAtomIds, ',') + ")) ";
+      if (updatedAtomIds.size() > 0) {
+      query = "SELECT DISTINCT c.id " + "FROM ConceptJpa c JOIN c.atoms a "
+          + "WHERE a.id in (" + StringUtils.join(updatedAtomIds, ',') + ")) ";
 
-    List<Long> conceptIds = new ArrayList<>();
-    conceptIds.addAll(executeSingleComponentIdQuery(query, QueryType.JPQL,
-        getDefaultQueryParams(getProject()), ConceptJpa.class, false));
+      List<Long> conceptIds = new ArrayList<>();
+      conceptIds.addAll(executeSingleComponentIdQuery(query, QueryType.JPQL,
+          getDefaultQueryParams(getProject()), ConceptJpa.class, false));
 
-    for (final Long conceptId : conceptIds) {
-      final Concept concept = getConcept(conceptId);
-      updateConcept(concept);
+      for (final Long conceptId : conceptIds) {
+        final Concept concept = getConcept(conceptId);
+        updateConcept(concept);
+      }
+
+      commitClearBegin();
     }
-
-    commitClearBegin();
-
+    
     logInfo("  new atoms safe-replaced = " + safeReplacedAtomIds.size());
     logInfo("Finished " + getName());
 
