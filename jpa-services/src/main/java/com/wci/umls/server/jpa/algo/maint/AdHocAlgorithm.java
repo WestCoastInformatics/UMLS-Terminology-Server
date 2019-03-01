@@ -126,7 +126,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     }
 
     final String srcFullPath =
-        ConfigUtility.getConfigProperties().getProperty("source.data.dir");
+        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
+            + File.separator + getProcess().getInputPath();
 
     setSrcDirFile(new File(srcFullPath));
     
