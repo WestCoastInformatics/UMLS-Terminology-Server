@@ -2735,6 +2735,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         deletedCuis.add(c);
       }
       for (Concept c : deletedCuis) {
+        List<String> potentialParentBequeathals = new ArrayList<>();
+        List<String> potentialGrandparentBequeathals = new ArrayList<>();
         for (Atom a : c.getAtoms()) {
           for (AtomRelationship ar : a.getInverseRelationships()) {
             if (ar.getRelationshipType().equals("PAR")) {
@@ -2749,7 +2751,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
               Long ncimthConceptId = srl.getObjects().get(0).getId();
               Concept ncimthParentConcept = getConcept(ncimthConceptId);
               
-              if (ncimthParentConcept.isPublishable()) {
+              if (noXRRel(c, ncimthParentConcept) && ncimthParentConcept.isPublishable()) {
                 /*logInfo("[AddBequeathals parent] " + c.getId()  
                 + " " + ncimthParentConcept.getId() + " " + ar.getFrom().getId() + " "
                 + ar.getRelationshipType() + " " + ar.getTo().getId());*/
@@ -2759,9 +2761,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
                 sb.append(c.getId()).append("|");
                 sb.append("BBT").append("|");
                 sb.append(ncimthParentConcept.getId()).append("|");
-                sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI||SOURCE_CUI||||");
-                out.write(sb.toString());
-                out.write("\n");
+                sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI||SOURCE_CUI||||").append("\n");
+                potentialParentBequeathals.add(sb.toString());
               } else {
                 // consider publishable grandparent
                 for (AtomRelationship ar2 : parentAtom.getInverseRelationships()) {
@@ -2777,7 +2778,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
                     Long ncimthConceptId2 = srl2.getObjects().get(0).getId();
                     Concept ncimthParentConcept2 = getConcept(ncimthConceptId2);
                    
-                    if (ncimthParentConcept2.isPublishable()) {
+                    if (noXRRel(c, ncimthParentConcept2) && ncimthParentConcept2.isPublishable()) {
                       /*out.write("[AddBequeathals- grandparent] " + c.getId()  + " " + ncimthParentConcept.getId()
                       + " " + ncimthParentConcept2.getId() + " " +  ar.getFrom().getId() + " "
                       + ar.getRelationshipType() + " " + ar.getTo().getId() + " " + ar2.getFrom().getId() + " "
@@ -2789,10 +2790,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
                       sb.append(c.getId()).append("|");
                       sb.append("BBT").append("|");
                       sb.append(ncimthParentConcept2.getId()).append("|");
-                      sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI||SOURCE_CUI||||");
-                      out.write(sb.toString());
-                      out.write("\n");
-                      out.flush();
+                      sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI||SOURCE_CUI||||").append("\n");
+                      potentialGrandparentBequeathals.add(sb.toString());
                     } 
                   }
                 }
@@ -2800,7 +2799,22 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             }
           }
         }
+        // write out a max of two bequeathals, parent bequeathals get precedence over grandparent ones
+        if (potentialParentBequeathals.size() >= 2) {
+          out.write(potentialParentBequeathals.get(0));
+          out.write(potentialParentBequeathals.get(1));
+        } else if (potentialParentBequeathals.size() == 1) {
+          out.write(potentialParentBequeathals.get(0));
+          if (potentialGrandparentBequeathals.size() >= 1) {
+            out.write(potentialGrandparentBequeathals.get(0));
+          }
+        } else if (potentialGrandparentBequeathals.size() >= 1) {
+          out.write(potentialGrandparentBequeathals.get(0));
+        }
         updateProgress();
+        if (index % 100 == 0) {
+          out.flush();
+        }
       }
       
       out.close();
@@ -2812,6 +2826,16 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       // n/a
     }
 
+  }
+  
+  private boolean noXRRel(Concept a, Concept b) {
+    for (ConceptRelationship cr : a.getRelationships()) {
+      if (cr.getRelationshipType().equals("XR")) {
+        System.out.println("found XR rel: " + a.getId() + " " + b.getId());
+        return false;
+      }
+    }
+    return true;
   }
 
   /* see superclass */
