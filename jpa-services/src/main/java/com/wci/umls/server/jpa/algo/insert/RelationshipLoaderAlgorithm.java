@@ -23,11 +23,13 @@ import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
+import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
+import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
-import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
@@ -593,38 +595,34 @@ public class RelationshipLoaderAlgorithm
     // }
 
     // Create the relationship.
-    // If id_type_1 equals id_type_2, the relationship is of that type.
-    // If they are not equal, it's a Component Info Relationship
+    // If id_type_1 and id_type_2 resolve to the same type of object, the relationship is of that type.
+    // Otherwise, it's a Component Info Relationship
     Relationship newRelationship = null;
     Class relClass = null;
 
-    if (!fromClassIdType.equals(toClassIdType)) {
+    if (!fromComponent.getClass().equals(toComponent.getClass())) {
       relClass = ComponentInfoRelationshipJpa.class;
       newRelationship = new ComponentInfoRelationshipJpa();
       // Handle ComponentInfoRelationship atom components
       // Change terminology and version from atom's to project's
-      if (fromComponent instanceof Atom) {
+      if (AtomJpa.class.isAssignableFrom(fromComponent.getClass())) {
         fromComponent.setTerminology(getProject().getTerminology());
         fromComponent.setVersion(getProject().getVersion());
       }
-      if (toComponent instanceof Atom) {
+      if (AtomJpa.class.isAssignableFrom(toComponent.getClass())) {
         toComponent.setTerminology(getProject().getTerminology());
         toComponent.setVersion(getProject().getVersion());
       }
-    } else if (fromClassIdType.equals("SOURCE_CUI")
-        || fromClassIdType.equals("ROOT_SOURCE_CUI")
-        || fromClassIdType.equals("CUI")
-        || fromClassIdType.equals("CUI_CURRENT")) {
+    } else if (ConceptJpa.class.isAssignableFrom(fromComponent.getClass())) {
       relClass = ConceptRelationshipJpa.class;
       newRelationship = new ConceptRelationshipJpa();
-    } else if (fromClassIdType.equals("SOURCE_DUI")) {
+    } else if (DescriptorJpa.class.isAssignableFrom(fromComponent.getClass())) {
       relClass = DescriptorRelationshipJpa.class;
       newRelationship = new DescriptorRelationshipJpa();
-    } else if (fromClassIdType.equals("CODE_SOURCE")
-        || fromClassIdType.equals("CODE_TERMGROUP")) {
+    } else if (CodeJpa.class.isAssignableFrom(fromComponent.getClass())) {
       relClass = CodeRelationshipJpa.class;
       newRelationship = new CodeRelationshipJpa();
-    } else if (fromClassIdType.equals("SRC_ATOM_ID")) {
+    } else if (AtomJpa.class.isAssignableFrom(fromComponent.getClass())) {
       relClass = AtomRelationshipJpa.class;
       newRelationship = new AtomRelationshipJpa();
     } else {
