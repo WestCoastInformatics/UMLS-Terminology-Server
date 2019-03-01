@@ -759,7 +759,7 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
     Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship,
     String inverseRelType, String inverseAdditionalRelType) throws Exception {
 
-    if (!relationship.isPublishable()) {
+    if (!relationship.isPublishable() && !inverseRelType.startsWith("B")) {
       return "";
     }
     // Return the id if it's already a RUI

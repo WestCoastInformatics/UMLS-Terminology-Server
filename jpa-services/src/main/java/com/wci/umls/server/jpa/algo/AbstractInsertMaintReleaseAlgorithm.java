@@ -275,10 +275,9 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     return lines;
   }
 
-  
   /**
    * Return count of lines in srcDirFile when rows with SEMANTIC_TYPE, CONTEXT,
-   * SUBSET_MEMBER, XMAP, XMAPTO, XMAPFROM, UMLSCUI are removed 
+   * SUBSET_MEMBER, XMAP, XMAPTO, XMAPFROM, UMLSCUI are removed
    *
    * @param srcDirFile the src dir file
    * @param fileName the file name
@@ -288,8 +287,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    * @throws Exception the exception
    */
   public int filterFileForCount(File srcDirFile, String fileName,
-    String keepRegexFilter, String skipRegexFilter)
-    throws Exception {
+    String keepRegexFilter, String skipRegexFilter) throws Exception {
     final String sourcesFile = srcDirFile + File.separator + fileName;
     BufferedReader sources = null;
     try {
@@ -327,10 +325,9 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
     sources.close();
 
-
     return ct;
   }
-  
+
   /**
    * Cache existing atoms' alternateTerminologyIds and IDs.
    *
@@ -957,6 +954,26 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       }
       final Long componentId = cuiPreferredAtomConceptIdCache
           .get(terminologyId + processTerminologyVersion);
+      if (componentId == null) {
+        return null;
+      }
+
+      return getComponent(componentId, ConceptJpa.class);
+    }
+
+    else if (type.equals("CUI_PREVIOUS")) {
+      if (terminology != null) {
+        throw new Exception("CUI_PREVIOUS = " + terminologyId
+            + " is associated with a terminology. This should not happen.");
+      }
+      final String processTerminologyPreviousVersion =
+          getProcess().getTerminology() + getPreviousVersion(getProcess().getTerminology());
+      if (!cuiPreferredAtomConceptCachedTerms
+          .contains(processTerminologyPreviousVersion)) {
+        cacheExistingCuiPreferredAtomConceptIds(processTerminologyPreviousVersion);
+      }
+      final Long componentId = cuiPreferredAtomConceptIdCache
+          .get(terminologyId + processTerminologyPreviousVersion);
       if (componentId == null) {
         return null;
       }
