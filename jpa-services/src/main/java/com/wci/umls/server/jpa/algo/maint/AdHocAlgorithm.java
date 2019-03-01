@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -124,6 +125,12 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       throw new Exception("Ad Hoc algorithms requires a project to be set");
     }
 
+    final String srcFullPath =
+        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
+            + File.separator + getProcess().getInputPath();
+
+    setSrcDirFile(new File(srcFullPath));
+    
     return validationResult;
   }
 
@@ -2694,7 +2701,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     try {
 
       Set<Concept> deletedCuis = new HashSet<>();
-      BufferedWriter out = new BufferedWriter(new FileWriter("C:/Temp/bequeathals.src"));
+      File srcDir = getSrcDirFile();
+      logInfo("bequeathal srcDir:" + srcDir);
+      BufferedWriter out = new BufferedWriter(new FileWriter(new File(srcDir, "bequeathals.src")));
       
       Query query = getEntityManager().createNativeQuery(
           "SELECT   DISTINCT c.id conceptId FROM   concepts c,   "
