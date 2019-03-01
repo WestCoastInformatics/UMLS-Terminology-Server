@@ -59,6 +59,7 @@ public class ComponentInfoRelationshipJpa
   private String fromVersion;
 
   /** The from name. */
+  @Column(length = 4000)
   private String fromName;
 
   /** The from type. */
@@ -75,6 +76,7 @@ public class ComponentInfoRelationshipJpa
   private String toVersion;
 
   /** The to name. */
+  @Column(length = 4000)  
   private String toName;
 
   /** The to type. */
