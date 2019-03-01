@@ -7,6 +7,8 @@ import static java.lang.Math.toIntExact;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -29,11 +31,13 @@ import org.hibernate.Hibernate;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.QueryType;
+import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -57,6 +61,7 @@ import com.wci.umls.server.jpa.workflow.TrackingRecordJpa;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHistory;
@@ -77,6 +82,7 @@ import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
+import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.UmlsIdentityService;
 import com.wci.umls.server.services.WorkflowService;
@@ -200,8 +206,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixComponentHistoryVersion();
     } else if (actionName.equals("Fix AdditionalRelType Inverses 2")) {
       fixAdditionalRelTypeInverses2();
-    } else if (actionName.equals("Find Missed Merges")) {
-      findMissedMerges();
+    } else if (actionName.equals("Add Bequeathals")) {
+      addBequeathals();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -2679,56 +2685,126 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   }
   
   
-  private void findMissedMerges() throws Exception {
-    // 2/21/2019 In effort to reduce deleted_cuis, find missed merged opportunities based
-    // on same-string-same-code-same-sab-diff-tty cases
+  private void addBequeathals() throws Exception {
+    // 2/21/2019 In effort to reduce deleted_cuis, create bequeathals to the live parent 
+    // or grandparent concept.
 
-    logInfo(" Find missed merges");
+    logInfo(" Add Bequeathals");
   
     try {
 
-      Query query = getEntityManager().createNativeQuery(
-          "select a1.id as a1id, a2.id as a2id, c1.id as c1id, c2.id as c2id from concepts c1, concepts_atoms ca1, atoms a1, concepts c2, concepts_atoms ca2, atoms a2 "
-              + "where ca1.concepts_id = c1.id and ca1.atoms_id = a1.id and "
-              + "ca2.concepts_id = c2.id and ca2.atoms_id = a2.id and "
-              + "c1.terminology='NCIMTH' and c2.terminology='NCIMTH' and "
-              + "c1.id != c2.id and "
-              + "a1.lexicalClassId = a2.lexicalClassId");
+      Set<Concept> deletedCuis = new HashSet<>();
+      BufferedWriter out = new BufferedWriter(new FileWriter("C:/Temp/bequeathals.src"));
       
-      List<Pair<Atom, Atom>> atomPairs = new ArrayList<>();
-      List<Long[]> conceptPairs = new ArrayList<>();
-      final List<Object[]> ids = query.getResultList();
-      //List<Object[]> ids = new ArrayList<>();
-      //ids.add(new Object[]{11519L, 3L, 719L, 2L });
-      long index = 1;
-      for (final Object[] result : ids) {
-        final Atom a1 = getAtom(Long.valueOf(result[0].toString()));
-        final Atom a2 = getAtom(Long.valueOf(result[1].toString()));
+      Query query = getEntityManager().createNativeQuery(
+          "SELECT   DISTINCT c.id conceptId FROM   concepts c,   "
+          + "concepts_atoms ca,   atoms a WHERE   c.terminology = 'NCIMTH'   "
+          + "AND c.id != c.terminologyId   AND c.id = ca.concepts_id   AND "
+          + "ca.atoms_id = a.id   "
+          + "AND a.publishable = FALSE   AND NOT c.id IN ("
+          +   "SELECT       DISTINCT c.id conceptId     " 
+          +   " FROM       concepts c,       concepts_atoms ca,       atoms a     "
+          +   " WHERE       c.terminology = 'NCIMTH'       AND c.id = ca.concepts_id   "
+          +   " AND ca.atoms_id = a.id       AND a.publishable = TRUE   )   " 
+          +   " AND NOT c.id IN (     "
+          +   "   SELECT       DISTINCT c.id conceptId     "
+          +   "    FROM       concepts c,       concept_relationships cr     "
+          +   "    WHERE       c.terminology = 'NCIMTH'       AND c.id = cr.from_id       "
+          +   "    AND cr.relationshipType like 'B%'   )   AND NOT c.id IN (     "
+          +   "      SELECT       c.id conceptId     " 
+          +   "        FROM       concepts c,       concepts_atoms ca     "
+          +   "        WHERE       c.terminology = 'NCIMTH'       "
+          +   "        AND c.id = ca.concepts_id       AND ca.concepts_id IN (         "
+          +   "      SELECT           ca.concepts_id         FROM           concepts_atoms ca,           atoms a         " 
+          +   "        WHERE           ca.atoms_id = a.id           "
+          +   "        AND a.terminology IN ('MTH', 'NCIMTH')           " 
+          +   "        AND a.termType = 'PN'       )     GROUP BY       ca.concepts_id     "
+          +   "        HAVING       COUNT(DISTINCT ca.atoms_id) = 1   )");
+      
 
-        final Concept c1 = getConcept(Long.valueOf(result[2].toString()));
-        final Concept c2 = getConcept(Long.valueOf(result[3].toString()));
-        
-        if (!a1.getTermType().equals(a2.getTermType()) && 
-            a1.getCodeId().equals(a2.getCodeId()) &&
-            !a1.isPublishable() && a2.isPublishable() &&
-            !c1.isPublishable() && c2.isPublishable() &&
-            a1.getTerminology().equals(a2.getTerminology())) {
-          atomPairs.add(new ImmutablePair<Atom, Atom>(a1, a2));
-          conceptPairs.add(new Long[]{index, c1.getId()});
-          conceptPairs.add(new Long[]{index, c2.getId()});
-          index++;
-          logInfo("[FindMissedMerges] " + a1.getId() + " " + 
-            a2.getId() + " " + c1.getId() + " " + c2.getId());
+      List<Object> list = query.getResultList();
+      setSteps(list.size());
+      /*List<Object> list = new ArrayList<>();
+      list.add(2228275L);
+      list.add(2752574L);
+      list.add(1048702L);*/
+      int index = 1;
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        Concept c = getConcept(id);
+        deletedCuis.add(c);
+      }
+      for (Concept c : deletedCuis) {
+        for (Atom a : c.getAtoms()) {
+          for (AtomRelationship ar : a.getInverseRelationships()) {
+            if (ar.getRelationshipType().equals("PAR")) {
+              Atom parentAtom = ar.getFrom();
+              // Find the NCIMTH concept for the parent atom
+              SearchResultList srl = findConceptSearchResults(
+                  getProject().getTerminology(), getProject().getVersion(),
+                  Branch.ROOT, "atoms.id:" + parentAtom.getId(), null);
+              if (srl.size()!= 1) {
+                continue;
+              }
+              Long ncimthConceptId = srl.getObjects().get(0).getId();
+              Concept ncimthParentConcept = getConcept(ncimthConceptId);
+              
+              if (ncimthParentConcept.isPublishable()) {
+                /*logInfo("[AddBequeathals parent] " + c.getId()  
+                + " " + ncimthParentConcept.getId() + " " + ar.getFrom().getId() + " "
+                + ar.getRelationshipType() + " " + ar.getTo().getId());*/
+                StringBuffer sb = new StringBuffer();
+                sb.append(index++).append("|");
+                sb.append("C").append("|");
+                sb.append(c.getId()).append("|");
+                sb.append("BBT").append("|");
+                sb.append(ncimthParentConcept.getId()).append("|");
+                sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI||SOURCE_CUI||||");
+                out.write(sb.toString());
+                out.write("\n");
+              } else {
+                // consider publishable grandparent
+                for (AtomRelationship ar2 : parentAtom.getInverseRelationships()) {
+                  if (ar2.getRelationshipType().equals("PAR")) {
+                    Atom grandparentAtom = ar2.getFrom();
+                    // Find the NCIMTH concept for the grandparent atom
+                    SearchResultList srl2 = findConceptSearchResults(
+                        getProject().getTerminology(), getProject().getVersion(),
+                        Branch.ROOT, "atoms.id:" + grandparentAtom.getId(), null);
+                    if (srl2.size()!= 1) {
+                      continue;
+                    }
+                    Long ncimthConceptId2 = srl2.getObjects().get(0).getId();
+                    Concept ncimthParentConcept2 = getConcept(ncimthConceptId2);
+                   
+                    if (ncimthParentConcept2.isPublishable()) {
+                      /*out.write("[AddBequeathals- grandparent] " + c.getId()  + " " + ncimthParentConcept.getId()
+                      + " " + ncimthParentConcept2.getId() + " " +  ar.getFrom().getId() + " "
+                      + ar.getRelationshipType() + " " + ar.getTo().getId() + " " + ar2.getFrom().getId() + " "
+                      + ar2.getRelationshipType() + " " + ar2.getTo().getId());
+                      out.write("\n");*/
+                      StringBuffer sb = new StringBuffer();
+                      sb.append(index++).append("|");
+                      sb.append("C").append("|");
+                      sb.append(c.getId()).append("|");
+                      sb.append("BBT").append("|");
+                      sb.append(ncimthParentConcept2.getId()).append("|");
+                      sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI||SOURCE_CUI||||");
+                      out.write(sb.toString());
+                      out.write("\n");
+                      out.flush();
+                    } 
+                  }
+                }
+              }
+            }
+          }
         }
+        updateProgress();
       }
       
-      setSteps(atomPairs.size());
-
-      logInfo("[FindMissedMerges] " + atomPairs.size()
-          + " Missed merges");
+      out.close();
       
-      convertToChecklist("missed_merges", 39751L, conceptPairs, null);
-
     } catch (Exception e) {
       e.printStackTrace();
       fail("Unexpected exception thrown - please review stack trace.");
@@ -2791,7 +2867,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Fix MDR Descriptors", "Clear Worklists and Checklists",
             "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts", "Fix Null RUIs", 
             "Remove old relationships", "Assign Missing STY ATUIs", "Fix Component History Version",
-            "Fix AdditionalRelType Inverses 2", "Find Missed Merges"));
+            "Fix AdditionalRelType Inverses 2", "Add Bequeathals"));
     params.add(param);
 
     return params;
