@@ -270,6 +270,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass()).debug("Content Service - get concept " + id);
 
     Concept concept = getComponent(id, ConceptJpa.class);
+    concept.getAtoms().size();
 
     return concept;
   }

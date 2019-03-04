@@ -2728,7 +2728,25 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           +   "        WHERE           ca.atoms_id = a.id           "
           +   "        AND a.terminology IN ('MTH', 'NCIMTH')           " 
           +   "        AND a.termType = 'PN'       )     GROUP BY       ca.concepts_id     "
-          +   "        HAVING       COUNT(DISTINCT ca.atoms_id) = 1   )");
+          +   "        HAVING       COUNT(DISTINCT ca.atoms_id) = 1   )"
+          +   " AND NOT c.id IN (   "
+          +   "   SELECT  " 
+          +   "     ca.concepts_id conceptId  "
+          +   "   FROM  "
+          +   "     mrcui mr,  "
+          +  "      atomjpa_conceptterminologyids ac,  "
+          +  "      concepts_atoms ca,  "
+          +  "      concepts cpt  "
+          + "     WHERE  "
+          +  "      mr.cui1 = ac.conceptTerminologyIds  "
+          +  "      AND ca.atoms_id = ac.AtomJpa_id  "
+          +  "      AND cpt.id = ca.concepts_id  "
+          +  "      AND cpt.terminology = 'NCIMTH'  "
+          +  "      AND ac.conceptTerminologyIds_KEY = 'NCIMTH'  "
+          +  "      AND mr.rel = 'DEL'  )"
+        
+          
+          );
       
 
       List<Object> list = query.getResultList();
