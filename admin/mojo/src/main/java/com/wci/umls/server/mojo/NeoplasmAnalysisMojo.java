@@ -222,12 +222,24 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 
 				String line = reader.readLine(); // Don't want header
 				line = reader.readLine();
+				Set<String> conceptsProcessed = new HashSet<>();
 				try {
 					while (line != null) {
 						String[] columns = line.split("\t");
+						if (testing) {
+							if (!columns[0].equals("100731000119107") && !columns[0].equals("100721000119109"))
+								continue;
+						}
+						
+//						Concept con = client.getConcept(Long.parseLong(columns[0]), null, authToken);
 
 						processDesc(descParser, columns[0], columns[1], outputDescFile);
-						processRel(relParser, columns[0], columns[1], outputRelFile, client, authToken);
+						
+						if (!conceptsProcessed.contains(columns[0])) {
+							processRel(relParser, columns[0], columns[1], outputRelFile, client, authToken);
+							conceptsProcessed.add(columns[0]);
+						}
+						
 						line = reader.readLine();
 
 						if (!clearCache(outputDescFile, outputRelFile)) {
