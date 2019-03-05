@@ -2788,9 +2788,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
                 StringBuffer sb = new StringBuffer();
                 sb.append(index++).append("|");
                 sb.append("C").append("|");
-                sb.append(c.getId()).append("|");
-                sb.append("BBT").append("|");
-                sb.append(ncimthParentConcept.getId()).append("|");
+                sb.append(c.getTerminologyId()).append("|");
+                sb.append("BBT").append("|").append("|");
+                sb.append(ncimthParentConcept.getTerminologyId()).append("|");
                 sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI||SOURCE_CUI||||").append("\n");
                 potentialParentBequeathals.add(sb.toString());
               } else {
@@ -2817,9 +2817,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
                       StringBuffer sb = new StringBuffer();
                       sb.append(index++).append("|");
                       sb.append("C").append("|");
-                      sb.append(c.getId()).append("|");
-                      sb.append("BBT").append("|");
-                      sb.append(ncimthParentConcept2.getId()).append("|");
+                      sb.append(c.getTerminologyId()).append("|");
+                      sb.append("BBT").append("|").append("|");
+                      sb.append(ncimthParentConcept2.getTerminologyId()).append("|");
                       sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI||SOURCE_CUI||||").append("\n");
                       potentialGrandparentBequeathals.add(sb.toString());
                     } 
