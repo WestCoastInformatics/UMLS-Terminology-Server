@@ -6,7 +6,7 @@ package com.wci.umls.server.mojo.model;
  *
  * @author ${author}
  */
-public class SctSourceDescription {
+public class SctNeoplasmDescription extends AbstractSctComponent {
 
 	/** The description. */
 	private String description;
@@ -338,6 +338,8 @@ public class SctSourceDescription {
 		this.isLocalRecurrance = isLocalRecurrance;
 	}
 
+	/* see superclass */
+	@Override
 	public String printForExcel() {
 		StringBuffer str = new StringBuffer();
 
@@ -358,20 +360,6 @@ public class SctSourceDescription {
 		str.append(processForExcel(isLocalRecurrance));
 
 		return str.toString();
-	}
-
-	private Object processForExcel(String str) {
-		if (str != null) {
-			return str + "\t";
-		}
-		return "\t";
-	}
-
-	private Object processForExcel(boolean val) {
-		if (val) {
-			return "X\t";
-		}
-		return "\t";
 	}
 
 
@@ -407,7 +395,7 @@ public class SctSourceDescription {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SctSourceDescription other = (SctSourceDescription) obj;
+		SctNeoplasmDescription other = (SctNeoplasmDescription) obj;
 		if (description == null) {
 			if (other.description != null)
 				return false;

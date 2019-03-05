@@ -50,8 +50,10 @@ import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Relationship;
-import com.wci.umls.server.mojo.model.SctSourceDescription;
-import com.wci.umls.server.mojo.processes.SctSourceDescriptionParser;
+import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
+import com.wci.umls.server.mojo.model.SctRelationship;
+import com.wci.umls.server.mojo.processes.SctNeoplasmDescriptionParser;
+import com.wci.umls.server.mojo.processes.SctRelationshipParser;
 import com.wci.umls.server.rest.client.ContentClientRest;
 import com.wci.umls.server.services.SecurityService;
 
@@ -98,9 +100,6 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 
 	/** The output file path for relationships. */
 	private String inputFilePath = "C:\\Users\\yishai\\Desktop\\Neoplasm\\sctNeoplasmInputFile2.txt";
-
-	/** The output file path for relationships. */
-	private String previousExecutionInputFilePath = "C:\\Users\\yishai\\Desktop\\Neoplasm\\Neoplasm Descriptions v5.txt";
 
 	/** The output file path. */
 	private boolean testing = false;
@@ -181,15 +180,15 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 			apostropheMap.put("Gartner's duct", "Gartner duct");
 
 			PrintWriter outputDescFile = prepareDescOutputFile();
-			PrintWriter outputRelFile = null; // prepareRelOutputFile();
+			PrintWriter outputRelFile = prepareRelOutputFile();
+
+			Properties properties = setupProperties();
+			final ContentClientRest client = new ContentClientRest(properties);
+			final SecurityService service = new SecurityServiceJpa();
+			final String authToken = service.authenticate(userName, userPassword).getAuthToken();
+			service.close();
 
 			if (inputFilePath == null) {
-				Properties properties = setupProperties();
-
-				final ContentClientRest client = new ContentClientRest(properties);
-				final SecurityService service = new SecurityServiceJpa();
-				final String authToken = service.authenticate(userName, userPassword).getAuthToken();
-				service.close();
 
 				PfsParameterJpa pfs = new PfsParameterJpa();
 
@@ -210,12 +209,13 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 						}
 					}
 
-					if (!clearCache(outputDescFile)) {
+					if (!clearCache(outputDescFile, outputRelFile)) {
 						break;
 					}
 				}
 			} else {
-				SctSourceDescriptionParser descParser = new SctSourceDescriptionParser();
+				SctNeoplasmDescriptionParser descParser = new SctNeoplasmDescriptionParser();
+				SctRelationshipParser relParser = new SctRelationshipParser();
 
 				// Now parse to write out contents
 				BufferedReader reader = new BufferedReader(new FileReader(inputFilePath));
@@ -227,9 +227,10 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 						String[] columns = line.split("\t");
 
 						processDesc(descParser, columns[0], columns[1], outputDescFile);
+						processRel(relParser, columns[0], columns[1], outputRelFile, client, authToken);
 						line = reader.readLine();
 
-						if (!clearCache(outputDescFile)) {
+						if (!clearCache(outputDescFile, outputRelFile)) {
 							break;
 						}
 					}
@@ -241,7 +242,7 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 			}
 
 			outputDescFile.close();
-			// outputRelFile.close();
+			outputRelFile.close();
 
 			getLog().info("");
 			getLog().info("Finished processing...");
@@ -253,7 +254,7 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 		}
 	}
 
-	private void processDesc(SctSourceDescriptionParser descParser, String conId, String descString,
+	private void processDesc(SctNeoplasmDescriptionParser descParser, String conId, String descString,
 			PrintWriter outputDescFile) {
 
 		try {
@@ -263,14 +264,13 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 					descString = "";
 				} else if (counter == 1) {
 					descString = "Neoplasm of Meckel's diverticulum";
-/*
-				} else if (counter == 2) {
-					descString = "Neoplasm of uncertain behaviour of salivary gland duct";
-				} else if (counter == 3) { 
-					descString = "Mixed cell type lymphosarcoma of lymph nodes of head";
-				} else if (counter == 4) { 
-					descString = "Hodgkin's paragranuloma of intrathoracic lymph nodes";
- */
+					/*
+					 * } else if (counter == 2) { descString =
+					 * "Neoplasm of uncertain behaviour of salivary gland duct"; } else if (counter
+					 * == 3) { descString = "Mixed cell type lymphosarcoma of lymph nodes of head";
+					 * } else if (counter == 4) { descString =
+					 * "Hodgkin's paragranuloma of intrathoracic lymph nodes";
+					 */
 				} else {
 					descString = "";
 				}
@@ -291,7 +291,7 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 
 			outputDescFile.write(conId);
 			outputDescFile.write("\t");
-			SctSourceDescription desc = descParser.parse(descString);
+			SctNeoplasmDescription desc = descParser.parse(descString);
 
 			outputDescFile.print(desc.printForExcel());
 
@@ -302,11 +302,10 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 
 	}
 
-	private boolean clearCache(PrintWriter outputDescFile) {
-		// processRel(con, result, outputRelFile, client, authToken);
+	private boolean clearCache(PrintWriter outputDescFile, PrintWriter outputRelFile) {
 		if (counter++ % 50 == 0) {
 			outputDescFile.flush();
-			// outputRelFile.flush();
+			outputRelFile.flush();
 		} else if (counter % 500 == 0) {
 			getLog().info("Have processed " + counter + " descriptions");
 		}
@@ -706,44 +705,23 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 		return pw;
 	}
 
-	private void processRel(Concept con, SearchResult result, PrintWriter outputRelFile, ContentClientRest client,
-			String authToken) throws Exception {
+	private void processRel(SctRelationshipParser parser, String conId, String conName, PrintWriter outputRelFile,
+			ContentClientRest client, String authToken) throws Exception {
 
-		RelationshipList relsList = client.findConceptRelationships(con.getTerminologyId(), terminology, version, null,
+		RelationshipList relsList = client.findConceptRelationships(conId, terminology, version, null,
 				new PfsParameterJpa(), authToken);
+
 		for (final Relationship<?, ?> relResult : relsList.getObjects()) {
-			// Only process active & inferred rels
-			if (!relResult.isObsolete() && relResult.isInferred() && !relResult.isStated()) {
-				// Concept Id
-				outputRelFile.write(result.getTerminologyId());
-
-				// Concept Name
-				outputRelFile.write("\t");
-				outputRelFile.print(con.getName());
-
-				// Relationship Type
-				outputRelFile.write("\t");
-				if (relResult.getRelationshipType().equals("Is a")) {
-					outputRelFile.write(relResult.getRelationshipType());
-				} else {
-					outputRelFile.write(relResult.getAdditionalRelationshipType());
-				}
-
-				// Relationship Destination
-				outputRelFile.write("\t");
-				outputRelFile.write(relResult.getTo().getName());
-
-				// Role Group
-				outputRelFile.write("\t");
-				outputRelFile.write(relResult.getGroup());
-
-				// Pathology Representation
+			SctRelationship rel = parser.parse(conName, relResult);
+			
+			if (rel != null) {
+				outputRelFile.print(conId);
 				outputRelFile.print("\t");
-
+				outputRelFile.print(rel.printForExcel());
+	
 				outputRelFile.println();
 			}
 		}
-
 	}
 
 	/**

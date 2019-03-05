@@ -17,12 +17,10 @@ package com.wci.umls.server.mojo;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -48,11 +46,18 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.Relationship;
+import com.wci.umls.server.mojo.model.SctNeoplasmConcept;
+import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
+import com.wci.umls.server.mojo.model.SctRelationship;
+import com.wci.umls.server.mojo.processes.SctNeoplasmDescriptionParser;
+import com.wci.umls.server.mojo.processes.SctRelationshipParser;
 import com.wci.umls.server.rest.client.ContentClientRest;
 import com.wci.umls.server.services.SecurityService;
 
@@ -105,6 +110,14 @@ public class ICD11MatchingMojo extends AbstractMojo {
 	/** The acronym expansion map. */
 	private Map<String, Set<String>> acronymExpansionMap = new HashMap<>();
 
+	private SctNeoplasmDescriptionParser descParser;
+
+	private SctRelationshipParser relParser;
+
+	private ContentClientRest client;
+
+	private String authToken;
+
 	@Override
 	public void execute() throws MojoFailureException {
 		try {
@@ -138,9 +151,9 @@ public class ICD11MatchingMojo extends AbstractMojo {
 			 */
 			Properties properties = setupProperties();
 
-			final ContentClientRest client = new ContentClientRest(properties);
+			client = new ContentClientRest(properties);
 			final SecurityService service = new SecurityServiceJpa();
-			final String authToken = service.authenticate(userName, userPassword).getAuthToken();
+			authToken = service.authenticate(userName, userPassword).getAuthToken();
 			service.close();
 
 			PfsParameterJpa pfs = new PfsParameterJpa();
@@ -148,6 +161,9 @@ public class ICD11MatchingMojo extends AbstractMojo {
 			pfs.setMaxResults(3 * maxCount);
 
 			PrintWriter outputFile = prepareOutputFile();
+
+			descParser = new SctNeoplasmDescriptionParser();
+			relParser = new SctRelationshipParser();
 
 			/*
 			 * Process Terms
@@ -171,25 +187,68 @@ public class ICD11MatchingMojo extends AbstractMojo {
 		PfsParameterJpa eclPfs = new PfsParameterJpa();
 		eclPfs.setExpression("<< 123");
 		final SearchResultList eclResults = client.findConcepts(sourceTerminology, sourceVersion, null, pfs, authToken);
+		Map<String, SctNeoplasmConcept> concepts = processEclQuery(eclResults);
+
+		for (SctNeoplasmConcept con : concepts.values()) {
+			// Try the full string, then just pathology
+			final SearchResultList fullStringResults = client.findConcepts(targetTerminology, targetVersion, con.getName(), pfs, authToken);
+			
+			// Try pathology. See how many per concept
+			Set<String> conPathologies = new HashSet<>();
+			for (SctNeoplasmDescription desc : concepts.get(con.getConceptId()).getDescs()) {
+				conPathologies.add(desc.getPathology());
+			}
+			
+			for (String pathology : conPathologies) {
+				String query = pathology + " AND concept.code: 2*";
+				final SearchResultList pathologyResults = client.findConcepts(targetTerminology, targetVersion, query , pfs, authToken);
+				int i = 1;
+			}
+			
+			// Try histopathology. See how many per concept
+			Set<String> conHistopathologies = new HashSet<>();
+			for (SctNeoplasmDescription desc : concepts.get(con.getConceptId()).getDescs()) {
+				conHistopathologies.add(desc.getBodyStructure());
+			}
+			
+			for (String pathology : conHistopathologies) {
+				String query = pathology + " AND concept.code: xh*";
+				final SearchResultList histopathologyResults = client.findConcepts(targetTerminology, targetVersion, query , pfs, authToken);
+				int i = 1;
+			}
+		}
+	}
+
+	private Map<String, SctNeoplasmConcept> processEclQuery(SearchResultList eclResults) throws Exception {
+		Map<String, SctNeoplasmConcept> concepts = new HashMap<>();
 
 		for (SearchResult result : eclResults.getObjects()) {
 
-			// Get Desc?
+			// Get Desc
+			Concept clientConcept = client.getConcept(result.getId(), null, authToken);
+			SctNeoplasmConcept con = new SctNeoplasmConcept(result.getTerminology(), result.getValue());
 
-			// Get Associated Rels?
+			for (Atom atom : clientConcept.getAtoms()) {
+				if (!atom.isObsolete() && !atom.getTermType().equals("Fully specified name")
+						&& !atom.getTermType().equals("Definition")) {
+					SctNeoplasmDescription desc = descParser.parse(atom.getName());
+					con.getDescs().add(desc);
+				}
+			}
 
-			outputFile.write(result.getTerminologyId());
-			outputFile.write("\t");
-			outputFile.print(result.getValue());
-			outputFile.println();
+			// Get Associated Rels
+			RelationshipList relsList = client.findConceptRelationships(result.getTerminology(), sourceTerminology,
+					sourceVersion, null, new PfsParameterJpa(), authToken);
 
-			System.out.println(result.getTerminologyId() + "\t" + result.getValue());
+			for (final Relationship<?, ?> relResult : relsList.getObjects()) {
+				SctRelationship rel = relParser.parse(result.getValue(), relResult);
+				con.getRels().add(rel);
+			}
+
+			concepts.put(result.getTerminologyId(), con);
 		}
 
-		// Get Desc?
-
-		// Get Associated Rels?
-
+		return concepts;
 	}
 
 	/**

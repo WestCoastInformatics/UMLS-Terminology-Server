@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.wci.umls.server.mojo.model.SctSourceDescription;
+import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
 
-public class SctSourceDescriptionParser {
+public class SctNeoplasmDescriptionParser {
 	private final List<String> NEOPLASM_SYNONYMS = Arrays.asList("neoplasm", "neoplasms", "neoplastic", "tumor",
 			"tumorous", "tumoru", "tumour", "tumoural", "tumours", "cancer", "cancerous", "cancerphobia", "carcinoma",
 			"carcinomas", "carcinomatosis", "carcinomatous", "carcinoma-induced", "carcinomaphobia", "Adenocarcinoma",
@@ -55,7 +55,7 @@ public class SctSourceDescriptionParser {
 	/** The output file path for relationships. */
 	private final String previousExecutionInputFilePath = "C:\\Users\\yishai\\Desktop\\Neoplasm\\Neoplasm Descriptions v5.txt";
 
-	public SctSourceDescriptionParser() {
+	public SctNeoplasmDescriptionParser() {
 		try {
 			// Preprocess file to identify unique body structures
 			BufferedReader reader = new BufferedReader(new FileReader(previousExecutionInputFilePath));
@@ -82,9 +82,9 @@ public class SctSourceDescriptionParser {
 		}
 	}
 
-	public SctSourceDescription parse(String descString) {
+	public SctNeoplasmDescription parse(String descString) {
 
-		SctSourceDescription desc = new SctSourceDescription();
+		SctNeoplasmDescription desc = new SctNeoplasmDescription();
 
 		try {
 			// desc = "Pathological fracture of hip due to neoplastic disease";
@@ -309,7 +309,7 @@ public class SctSourceDescriptionParser {
 		return null;
 	}
 
-	private void outputBooleanValues(String descString, SctSourceDescription desc) {
+	private void outputBooleanValues(String descString, SctNeoplasmDescription desc) {
 		// Has Uncertainty
 		for (String uncertainStr : UNCERTAINTY) {
 			if (descString.toLowerCase().contains(uncertainStr)) {

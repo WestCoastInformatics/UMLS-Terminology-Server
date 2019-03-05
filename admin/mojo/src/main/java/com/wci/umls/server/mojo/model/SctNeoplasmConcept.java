@@ -3,13 +3,15 @@ package com.wci.umls.server.mojo.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.wci.umls.server.model.content.Concept;
+
 // TODO: Auto-generated Javadoc
 /**
  * The Class SctSourceConcept.
  *
  * @author ${author}
  */
-public class SctSourceConcept {
+public class SctNeoplasmConcept {
 
 	/** The concept id. */
 	private String conceptId;
@@ -18,10 +20,15 @@ public class SctSourceConcept {
 	private String name;
 
 	/** The descs. */
-	private Set<SctSourceDescription> descs = new HashSet<>();
+	private Set<SctNeoplasmDescription> descs = new HashSet<>();
 
 	/** The rels. */
-	private Set<SctSourceRelationship> rels = new HashSet<>();
+	private Set<SctRelationship> rels = new HashSet<>();
+
+	public SctNeoplasmConcept(String conId, String value) {
+		this.conceptId = conId;
+		this.name = value;
+	}
 
 	/**
 	 * Returns the concept id.
@@ -66,7 +73,7 @@ public class SctSourceConcept {
 	 *
 	 * @return the descs
 	 */
-	public Set<SctSourceDescription> getDescs() {
+	public Set<SctNeoplasmDescription> getDescs() {
 		return descs;
 	}
 
@@ -76,7 +83,7 @@ public class SctSourceConcept {
 	 * @param descs
 	 *            the descs
 	 */
-	public void setDescs(Set<SctSourceDescription> descs) {
+	public void setDescs(Set<SctNeoplasmDescription> descs) {
 		this.descs = descs;
 	}
 
@@ -85,7 +92,7 @@ public class SctSourceConcept {
 	 *
 	 * @return the rels
 	 */
-	public Set<SctSourceRelationship> getRels() {
+	public Set<SctRelationship> getRels() {
 		return rels;
 	}
 
@@ -95,7 +102,7 @@ public class SctSourceConcept {
 	 * @param rels
 	 *            the rels
 	 */
-	public void setRels(Set<SctSourceRelationship> rels) {
+	public void setRels(Set<SctRelationship> rels) {
 		this.rels = rels;
 	}
 
@@ -120,7 +127,7 @@ public class SctSourceConcept {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SctSourceConcept other = (SctSourceConcept) obj;
+		SctNeoplasmConcept other = (SctNeoplasmConcept) obj;
 		if (conceptId == null) {
 			if (other.conceptId != null)
 				return false;
