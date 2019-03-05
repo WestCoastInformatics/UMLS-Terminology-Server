@@ -50,6 +50,8 @@ import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Relationship;
+import com.wci.umls.server.mojo.model.SctSourceDescription;
+import com.wci.umls.server.mojo.processes.SctSourceDescriptionParser;
 import com.wci.umls.server.rest.client.ContentClientRest;
 import com.wci.umls.server.services.SecurityService;
 
@@ -96,7 +98,7 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 
 	/** The output file path for relationships. */
 	private String inputFilePath = "C:\\Users\\yishai\\Desktop\\Neoplasm\\sctNeoplasmInputFile2.txt";
-	
+
 	/** The output file path for relationships. */
 	private String previousExecutionInputFilePath = "C:\\Users\\yishai\\Desktop\\Neoplasm\\Neoplasm Descriptions v5.txt";
 
@@ -136,8 +138,8 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 
 	private Set<String> distinctBodyStructures = new HashSet<>();
 
-	private List<String> bodyStructuresRequireSecondaryInfo = Arrays.asList("arterial cartilage", "blood vessel", "bone ",
-			"bone and arterial cartilage", "bones", "bone structure", "brain", "connective and soft tissue",
+	private List<String> bodyStructuresRequireSecondaryInfo = Arrays.asList("arterial cartilage", "blood vessel",
+			"bone ", "bone and arterial cartilage", "bones", "bone structure", "brain", "connective and soft tissue",
 			"connective and soft tissues", "connective tissue", "epithelium", "lymph node", "lymph node from neoplasm",
 			"lymph node sites", "lymph nodes", "mucosa", "mucous membrane", "muscle", "non-pigmented epithelium",
 			"peripheral nerve", "peripheral nerves", "pigmented epithelium", "ribs", "skin",
@@ -213,29 +215,18 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 					}
 				}
 			} else {
-				// Preprocess file to identify unique body structures
-				BufferedReader reader = new BufferedReader(new FileReader(previousExecutionInputFilePath));
-
-				String line = reader.readLine(); // Don't want header
-				line = reader.readLine();
-				while (line != null) {
-					String[] columns = line.split("\t");
-					if (columns.length > 4 && !columns[4].isEmpty()) {
-						distinctBodyStructures.add(columns[4]);
-					}
-					line = reader.readLine();
-				}
-				reader.close();
+				SctSourceDescriptionParser descParser = new SctSourceDescriptionParser();
 
 				// Now parse to write out contents
-				reader = new BufferedReader(new FileReader(inputFilePath));
+				BufferedReader reader = new BufferedReader(new FileReader(inputFilePath));
 
-				line = reader.readLine(); // Don't want header
+				String line = reader.readLine(); // Don't want header
 				line = reader.readLine();
 				try {
 					while (line != null) {
 						String[] columns = line.split("\t");
-						processDesc(columns[0], columns[1], outputDescFile);
+
+						processDesc(descParser, columns[0], columns[1], outputDescFile);
 						line = reader.readLine();
 
 						if (!clearCache(outputDescFile)) {
@@ -260,6 +251,55 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 			e.printStackTrace();
 			throw new MojoFailureException("Unexpected exception:", e);
 		}
+	}
+
+	private void processDesc(SctSourceDescriptionParser descParser, String conId, String descString,
+			PrintWriter outputDescFile) {
+
+		try {
+			if (testing) {
+				// desc = "Pathological fracture of hip due to neoplastic disease";
+				if (counter == 0) {
+					descString = "";
+				} else if (counter == 1) {
+					descString = "Neoplasm of Meckel's diverticulum";
+/*
+				} else if (counter == 2) {
+					descString = "Neoplasm of uncertain behaviour of salivary gland duct";
+				} else if (counter == 3) { 
+					descString = "Mixed cell type lymphosarcoma of lymph nodes of head";
+				} else if (counter == 4) { 
+					descString = "Hodgkin's paragranuloma of intrathoracic lymph nodes";
+ */
+				} else {
+					descString = "";
+				}
+
+				if (counter > 4 || descString.isEmpty()) {
+					return;
+				}
+				/*
+				 * if (testing && (descString.equals("Melanocytic nevus of lip") || startPause))
+				 * { startPause = true; }
+				 */
+			}
+
+			if (descString.startsWith("Chondroma of periosteum")
+					|| descString.startsWith("Benign chondroblastoma of bone")) {
+				int a = 2;
+			}
+
+			outputDescFile.write(conId);
+			outputDescFile.write("\t");
+			SctSourceDescription desc = descParser.parse(descString);
+
+			outputDescFile.print(desc.printForExcel());
+
+			outputDescFile.println();
+		} catch (Exception e) {
+			System.out.println("Failed processing: '" + descString + "' with exception: " + e.getMessage());
+		}
+
 	}
 
 	private boolean clearCache(PrintWriter outputDescFile) {
@@ -299,30 +339,30 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 					desc = "Neoplasm of uterus affecting pregnancy";
 				} else if (counter == 2) {
 					desc = "Neoplasm of uncertain behaviour of salivary gland duct";
-/*
-				} else if (counter == 3) {
-					desc = "Mixed cell type lymphosarcoma of lymph nodes of head";
-	
-				} else if (counter == 4) {
-					desc = "Hodgkin's paragranuloma of intrathoracic lymph nodes";
-*/					
+					/*
+					 * } else if (counter == 3) { desc =
+					 * "Mixed cell type lymphosarcoma of lymph nodes of head";
+					 * 
+					 * } else if (counter == 4) { desc =
+					 * "Hodgkin's paragranuloma of intrathoracic lymph nodes";
+					 */
 				} else {
 					desc = "";
 				}
-				
+
 				if (counter > 4 || desc.isEmpty()) {
 					return;
 				}
 				/*
 				 * if (testing && (desc.equals("Melanocytic nevus of lip") || startPause)) {
 				 * startPause = true; }
-				 */ 
+				 */
 			}
 
 			if (desc.startsWith("Chondroma of periosteum") || desc.startsWith("Benign chondroblastoma of bone")) {
 				int a = 2;
 			}
-				
+
 			outputDescFile.write(conId);
 			outputDescFile.write("\t");
 			outputDescFile.print(desc.trim());
@@ -336,7 +376,6 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 				}
 			}
 
-			int secondaryIdx = -1;
 			boolean containsBodyStructure = true;
 			String secondaryInfo = null;
 
@@ -344,7 +383,7 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 			// of body structure
 			if (splitKeyWord != null && desc.contains(splitKeyWord)) {
 				int bodyStructIdx = desc.indexOf(splitKeyWord);
- 
+
 				if (splitKeyWord.equals(" of ")) {
 					// Ignore Local Recurrence 'of'
 					if (desc.startsWith("Local recurrence of")) {
@@ -361,12 +400,11 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 				}
 
 				// Ignore 'of' uncertain xyz
-				String pathology = null;
 				for (String uncertainStr : UNCERTAINTY) {
 					String afterSplitWord = desc.substring(bodyStructIdx + splitKeyWord.length()).trim().toLowerCase();
 					if (afterSplitWord.startsWith(uncertainStr)) {
 						String secondSplitKeyWord = identifySplitKeyword(afterSplitWord);
-						
+
 						if (secondSplitKeyWord != null) {
 							bodyStructIdx = desc.indexOf(splitKeyWord) + splitKeyWord.length();
 							bodyStructIdx += afterSplitWord.indexOf(secondSplitKeyWord);
@@ -374,11 +412,11 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 							containsBodyStructure = false;
 						}
 
-/*						if (!afterSplitWord.endsWith(uncertainStr)) {
-							secondaryIdx = afterSplitWord.indexOf(splitKeyWord.trim()) + bodyStructIdx + splitKeyWord.length();
-							secondaryInfo = desc.substring(secondaryIdx).trim();
-						}
-*/						break;
+						/*
+						 * if (!afterSplitWord.endsWith(uncertainStr)) { secondaryIdx =
+						 * afterSplitWord.indexOf(splitKeyWord.trim()) + bodyStructIdx +
+						 * splitKeyWord.length(); secondaryInfo = desc.substring(secondaryIdx).trim(); }
+						 */ break;
 					}
 				}
 
@@ -389,15 +427,16 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 
 				// Print content prior to Body Structure
 				if (!containsBodyStructure) {
-					handleNoBodyStructure(desc, secondaryInfo, secondaryIdx, outputDescFile);
+					outputDescFile.print("\t");
+					outputDescFile.print(desc.trim());
+					outputDescFile.print("\t");
+					outputDescFile.print("\t");
 				} else {
 					// Body Structure found... Print part prior to Body Structure
 					outputDescFile.print("\t");
 
 					// Print Pathology
-					if (pathology != null) {
-						outputDescFile.print(pathology.trim());
-					} else if (desc.substring(0, bodyStructIdx).trim().endsWith(" " + splitKeyWord.trim())) {
+					if (desc.substring(0, bodyStructIdx).trim().endsWith(" " + splitKeyWord.trim())) {
 						outputDescFile
 								.print(desc.substring(0, bodyStructIdx).trim().substring(0, bodyStructIdx - 3).trim());
 					} else {
@@ -502,35 +541,6 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 			System.out.println("Failed processing: '" + desc + "' with exception: " + e.getMessage());
 		}
 
-	}
-
-	private void handleNoBodyStructure(String desc, String secondaryInfo, int secondaryIdx,
-			PrintWriter outputDescFile) {
-		// No body structure found... all is pathology
-		if (secondaryInfo == null) {
-			outputDescFile.print("\t");
-			outputDescFile.print(desc.trim());
-			outputDescFile.print("\t");
-			outputDescFile.print("\t");
-		} else {
-			outputDescFile.print("\t");
-			outputDescFile.print(desc.substring(0, secondaryIdx).trim());
-			outputDescFile.print("\t");
-			if (secondaryInfo.substring(2).contains(" of ")) {
-				// Body Structure & Secondary Info
-				String bodyStruct = secondaryInfo.substring(2).trim();
-				int bodyStructIdx = secondaryInfo.substring(2).trim().indexOf(" of ");
-				outputDescFile.print(bodyStruct.substring(0, bodyStructIdx).trim());
-				secondaryInfo = bodyStruct.substring(bodyStructIdx).trim();
-
-			}
-			outputDescFile.print("\t");
-			if (secondaryInfo.startsWith("of")) {
-				outputDescFile.print(secondaryInfo.substring(secondaryInfo.indexOf("of") + 2).trim());
-			} else {
-				outputDescFile.print(secondaryInfo.trim());
-			}
-		}
 	}
 
 	private String identifySplitKeyword(String desc) {
