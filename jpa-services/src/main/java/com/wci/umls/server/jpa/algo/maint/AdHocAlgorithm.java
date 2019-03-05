@@ -2760,11 +2760,14 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         final Long id = Long.valueOf(entry.toString());
         Concept c = getConcept(id);
         deletedCuis.add(c);
+        c.getAtoms().size();
+        c.getRelationships().size();
       }
       for (Concept c : deletedCuis) {
         List<String> potentialParentBequeathals = new ArrayList<>();
         List<String> potentialGrandparentBequeathals = new ArrayList<>();
-        for (Atom a : c.getAtoms()) {
+        for (Atom atom : c.getAtoms()) {
+          Atom a = getAtom(atom.getId());
           for (AtomRelationship ar : a.getInverseRelationships()) {
             if (ar.getRelationshipType().equals("PAR")) {
               Atom parentAtom = ar.getFrom();
@@ -2857,9 +2860,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   
   private boolean noXRRel(Concept a, Concept b) {
     for (ConceptRelationship cr : a.getRelationships()) {
-      if (cr.getRelationshipType().equals("XR")) {
-        System.out.println("found XR rel: " + a.getId() + " " + b.getId());
-        return false;
+      if (cr.getRelationshipType().equals("XR") && (cr.getFrom().getId() == b.getId() || cr.getTo().getId() == b.getId())) {
+          System.out.println("found XR rel: " + a.getId() + " " + b.getId());
+          return false;
       }
     }
     return true;
