@@ -623,12 +623,13 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
-  private void cacheExistingConceptIds(String terminology) throws Exception {
+  private void cacheExistingConceptIds(String terminology, boolean unpublishable) throws Exception {
 
     // Skip concepts where terminologyId is blank, no point
     final Query query =
         getEntityManager().createQuery("select c.terminologyId, c.id "
-            + "from ConceptJpa c where terminology = :terminology AND publishable = true "
+            + "from ConceptJpa c where terminology = :terminology " 
+            + (unpublishable ? "" : " AND publishable = true ")
             + "and c.terminologyId != ''");
     query.setParameter("terminology", terminology);
 
@@ -794,7 +795,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   }
 
   /**
-   * Returns the component.
+   * Gets the component.
    *
    * @param type the type
    * @param terminologyId the terminology id
@@ -803,9 +804,27 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    * @return the component
    * @throws Exception the exception
    */
-  @SuppressWarnings("rawtypes")
   public Component getComponent(String type, String terminologyId,
     String terminology, Class<? extends Relationship<?, ?>> relClass)
+    throws Exception {
+    return getComponent(type, terminologyId, terminology, relClass, false);   
+  }
+  
+
+  /**
+   * Gets the component.
+   *
+   * @param type the type
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param relClass the rel class
+   * @param unpublishable the unpublishable
+   * @return the component
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("rawtypes")
+  public Component getComponent(String type, String terminologyId,
+    String terminology, Class<? extends Relationship<?, ?>> relClass, boolean unpublishable)
     throws Exception {
 
     if (type.equals("AUI")) {
@@ -913,7 +932,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
     else if (type.equals("SOURCE_CUI") || type.equals("ROOT_SOURCE_CUI")) {
       if (!conceptCachedTerms.contains(terminology)) {
-        cacheExistingConceptIds(terminology);
+        cacheExistingConceptIds(terminology, unpublishable);
       }
       final Long componentId = conceptIdCache.get(terminologyId + terminology);
       if (componentId == null) {

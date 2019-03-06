@@ -559,12 +559,16 @@ public class RelationshipLoaderAlgorithm
     // return;
     // }
 
+    // indicate that concept caching needs to include unpublishable concepts
+    // this is because child concept in bequeathal rel is unpublishable
+    boolean unpublishable = true;
+    
     // Load the from and to objects based on type
     final Component fromComponent =
         getComponent(fromClassIdType, fromTermId,
             fromTermAndVersion.equals("") ? null
                 : getCachedTerminology(fromTermAndVersion).getTerminology(),
-            null);
+            null, unpublishable);
 
     if (fromComponent == null) {
       logWarnAndUpdate(line, "Could not find from Component for this line.",
@@ -576,7 +580,7 @@ public class RelationshipLoaderAlgorithm
         getComponent(toClassIdType, toTermId,
             toTermAndVersion.equals("") ? null
                 : getCachedTerminology(toTermAndVersion).getTerminology(),
-            null);
+            null, unpublishable);
 
     if (toComponent == null) {
       logWarnAndUpdate(line, "Could not find to Component for this line.",
