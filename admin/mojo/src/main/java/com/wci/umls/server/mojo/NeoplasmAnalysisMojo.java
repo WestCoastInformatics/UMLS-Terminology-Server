@@ -149,7 +149,7 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 	public void execute() throws MojoFailureException {
 		try {
 
-			getLog().info("ECL Mojo");
+			getLog().info("Neoplasm Mojo");
 			getLog().info("  runConfig = " + runConfig);
 			getLog().info("  terminology = " + terminology);
 			getLog().info("  version = " + version);
@@ -669,11 +669,11 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 		final String timestamp = partialDf.format(now);
 		final String month = now.getMonth().getDisplayName(TextStyle.SHORT, Locale.getDefault());
 
-		File userFolder = new File("ecl-results" + File.separator + userName);
+		File userFolder = new File("neoplasm-results");
 		userFolder.mkdirs();
 
 		// Setup Description File
-		File fd = new File(userFolder.getPath() + File.separator + "eclDescOutput-" + month + timestamp + ".xls");
+		File fd = new File(userFolder.getPath() + File.separator + "neoplasmDescOutput-" + month + timestamp + ".xls");
 		outputDescFilePath = fd.getAbsolutePath();
 		getLog().info("Creating file at: " + outputDescFilePath);
 
@@ -751,11 +751,11 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 		final String timestamp = partialDf.format(now);
 		final String month = now.getMonth().getDisplayName(TextStyle.SHORT, Locale.getDefault());
 
-		File userFolder = new File("ecl-results" + File.separator + userName);
+		File userFolder = new File("neoplasm-results" + File.separator + userName);
 		userFolder.mkdirs();
 
 		// Setup Description File
-		File fd = new File(userFolder.getPath() + File.separator + "eclRelOutput-" + month + timestamp + ".xls");
+		File fd = new File(userFolder.getPath() + File.separator + "neoplasmRelOutput-" + month + timestamp + ".xls");
 		outputRelFilePath = fd.getAbsolutePath();
 		getLog().info("Creating file at: " + outputRelFilePath);
 
