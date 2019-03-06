@@ -215,6 +215,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixAdditionalRelTypeInverses2();
     } else if (actionName.equals("Add Bequeathals")) {
       addBequeathals();
+    } else if (actionName.equals("Add RORB Bequeathals")) {
+      addRORBBequeathals();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -2867,6 +2869,161 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     }
     return true;
   }
+  
+  private void addRORBBequeathals() throws Exception {
+    // 2/21/2019 In effort to reduce deleted_cuis, create bequeathals based on RO/RB rels
+    // when there are no PAR rels.  addBequeathals() AdHoc should be run before this algorithm.
+
+    logInfo(" Add RO/RB Bequeathals");
+  
+    try {
+
+      Set<Concept> deletedCuis = new HashSet<>();
+      File srcDir = getSrcDirFile();
+      logInfo("bequeathal srcDir:" + srcDir);
+      BufferedWriter out = new BufferedWriter(new FileWriter(new File(srcDir, "bequeathal.relationships.src")));
+      
+      Query query = getEntityManager().createNativeQuery(
+          "SELECT   DISTINCT c.id conceptId FROM   concepts c,   "
+          + "concepts_atoms ca,   atoms a WHERE   c.terminology = 'NCIMTH'   "
+          + "AND c.id != c.terminologyId   AND c.id = ca.concepts_id   AND "
+          + "ca.atoms_id = a.id   "
+          + "AND a.publishable = FALSE   AND NOT c.id IN ("
+          +   "SELECT       DISTINCT c.id conceptId     " 
+          +   " FROM       concepts c,       concepts_atoms ca,       atoms a     "
+          +   " WHERE       c.terminology = 'NCIMTH'       AND c.id = ca.concepts_id   "
+          +   " AND ca.atoms_id = a.id       AND a.publishable = TRUE   )   " 
+          +   " AND NOT c.id IN (     "
+          +   "   SELECT       DISTINCT c.id conceptId     "
+          +   "    FROM       concepts c,       concept_relationships cr     "
+          +   "    WHERE       c.terminology = 'NCIMTH'       AND c.id = cr.from_id       "
+          +   "    AND cr.relationshipType like 'B%'   )   AND NOT c.id IN (     "
+          +   "      SELECT       c.id conceptId     " 
+          +   "        FROM       concepts c,       concepts_atoms ca     "
+          +   "        WHERE       c.terminology = 'NCIMTH'       "
+          +   "        AND c.id = ca.concepts_id       AND ca.concepts_id IN (         "
+          +   "      SELECT           ca.concepts_id         FROM           concepts_atoms ca,           atoms a         " 
+          +   "        WHERE           ca.atoms_id = a.id           "
+          +   "        AND a.terminology IN ('MTH', 'NCIMTH')           " 
+          +   "        AND a.termType = 'PN'       )     GROUP BY       ca.concepts_id     "
+          +   "        HAVING       COUNT(DISTINCT ca.atoms_id) = 1   )"
+          +   " AND NOT c.id IN (   "
+          +   "   SELECT  " 
+          +   "     ca.concepts_id conceptId  "
+          +   "   FROM  "
+          +   "     mrcui mr,  "
+          +  "      atomjpa_conceptterminologyids ac,  "
+          +  "      concepts_atoms ca,  "
+          +  "      concepts cpt  "
+          + "     WHERE  "
+          +  "      mr.cui1 = ac.conceptTerminologyIds  "
+          +  "      AND ca.atoms_id = ac.AtomJpa_id  "
+          +  "      AND cpt.id = ca.concepts_id  "
+          +  "      AND cpt.terminology = 'NCIMTH'  "
+          +  "      AND ac.conceptTerminologyIds_KEY = 'NCIMTH'  "
+          +  "      AND mr.rel = 'DEL'  )"
+        
+          
+          );
+      
+
+      List<Object> list = query.getResultList();
+      setSteps(list.size());
+      /*List<Object> list = new ArrayList<>();
+      list.add(2228275L);
+      list.add(2752574L);
+      list.add(1048702L);*/
+      int index = 1;
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        Concept c = getConcept(id);
+        deletedCuis.add(c);
+        c.getAtoms().size();
+        c.getRelationships().size();
+      }
+      for (Concept c : deletedCuis) {
+        List<String> potentialROBequeathals = new ArrayList<>();
+        List<String> potentialRBBequeathals = new ArrayList<>();
+        for (Atom atom : c.getAtoms()) {
+          Atom a = getAtom(atom.getId());
+          for (AtomRelationship ar : a.getInverseRelationships()) {
+            if (ar.getRelationshipType().equals("RO")) {
+              Atom otherAtom = ar.getFrom();
+              // Find the NCIMTH concept for the parent atom
+              SearchResultList srl = findConceptSearchResults(
+                  getProject().getTerminology(), getProject().getVersion(),
+                  Branch.ROOT, "atoms.id:" + otherAtom.getId(), null);
+              if (srl.size()!= 1) {
+                continue;
+              }
+              Long ncimthConceptId = srl.getObjects().get(0).getId();
+              Concept ncimthOtherConcept = getConcept(ncimthConceptId);
+              
+              if (noXRRel(c, ncimthOtherConcept) && ncimthOtherConcept.isPublishable()) {
+                logInfo("[AddBequeathals RO] " + c.getId()  
+                + " " + ncimthOtherConcept.getId() + " " + ar.getFrom().getId() + " "
+                + ar.getRelationshipType() + " " + ar.getTo().getId());
+                StringBuffer sb = new StringBuffer();
+                sb.append(index++).append("|");
+                sb.append("C").append("|");
+                sb.append(c.getTerminologyId()).append("|");
+                sb.append("BBT").append("|").append("|");
+                sb.append(ncimthOtherConcept.getTerminologyId()).append("|");
+                sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI|NCIMTH|SOURCE_CUI|NCIMTH|||").append("\n");
+                potentialROBequeathals.add(sb.toString());
+            
+              }
+            } else if (ar.getRelationshipType().equals("RB")) {
+              Atom otherAtom = ar.getFrom();
+              // Find the NCIMTH concept for the parent atom
+              SearchResultList srl = findConceptSearchResults(
+                  getProject().getTerminology(), getProject().getVersion(),
+                  Branch.ROOT, "atoms.id:" + otherAtom.getId(), null);
+              if (srl.size()!= 1) {
+                continue;
+              }
+              Long ncimthConceptId = srl.getObjects().get(0).getId();
+              Concept ncimthOtherConcept = getConcept(ncimthConceptId);
+              
+              if (noXRRel(c, ncimthOtherConcept) && ncimthOtherConcept.isPublishable()) {
+                logInfo("[AddBequeathals RB] " + c.getId()  
+                + " " + ncimthOtherConcept.getId() + " " + ar.getFrom().getId() + " "
+                + ar.getRelationshipType() + " " + ar.getTo().getId());
+                StringBuffer sb = new StringBuffer();
+                sb.append(index++).append("|");
+                sb.append("C").append("|");
+                sb.append(c.getTerminologyId()).append("|");
+                sb.append("BBT").append("|").append("|");
+                sb.append(ncimthOtherConcept.getTerminologyId()).append("|");
+                sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI|NCIMTH|SOURCE_CUI|NCIMTH|||").append("\n");
+                potentialRBBequeathals.add(sb.toString());
+            
+              }
+            }
+          }
+        }
+        // write out a max of two bequeathals, parent bequeathals get precedence over grandparent ones
+        if (potentialRBBequeathals.size() >= 1) {
+          out.write(potentialRBBequeathals.get(0));
+        } else if (potentialROBequeathals.size() >= 1) {
+          out.write(potentialROBequeathals.get(0));
+        } 
+        updateProgress();
+        if (index % 100 == 0) {
+          out.flush();
+        }
+      }
+      
+      out.close();
+      
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+      // n/a
+    }
+
+  }
 
   /* see superclass */
   @Override
@@ -2921,7 +3078,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Fix MDR Descriptors", "Clear Worklists and Checklists",
             "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts", "Fix Null RUIs", 
             "Remove old relationships", "Assign Missing STY ATUIs", "Fix Component History Version",
-            "Fix AdditionalRelType Inverses 2", "Add Bequeathals"));
+            "Fix AdditionalRelType Inverses 2", "Add Bequeathals", "Add RORB Bequeathals"));
     params.add(param);
 
     return params;
