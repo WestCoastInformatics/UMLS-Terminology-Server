@@ -71,7 +71,7 @@ public class BasicEclMojo extends AbstractMojo {
 	@Parameter
 //	private String eclDesc = "<< 127331007 : ( 116676008 =   << 108369006 AND 363698007 = <<245415005)";
 	private String eclDesc = "<< 55342001";
-	
+
 	/** The user name. */
 	@Parameter
 	private String userName;
@@ -148,7 +148,7 @@ public class BasicEclMojo extends AbstractMojo {
 			outputFile.write("\t");
 			outputFile.print(result.getValue());
 			outputFile.println();
-			
+
 			System.out.println(result.getTerminologyId() + "\t" + result.getValue());
 		}
 	}
@@ -168,11 +168,11 @@ public class BasicEclMojo extends AbstractMojo {
 		final String timestamp = partialDf.format(now);
 		final String month = now.getMonth().getDisplayName(TextStyle.SHORT, Locale.getDefault());
 
-		File userFolder = new File("ecl-results" + File.separator + userName);
+		File userFolder = new File("ecl-results");
 		userFolder.mkdirs();
 
 		// Setup Description File
-		File fd = new File(userFolder.getPath() + File.separator + "EclOutput-" + month + timestamp + ".xls");
+		File fd = new File(userFolder.getPath() + File.separator + "eclOutput-" + month + timestamp + ".xls");
 		outputFilePath = fd.getAbsolutePath();
 		getLog().info("Creating file at: " + outputFilePath);
 
@@ -189,7 +189,7 @@ public class BasicEclMojo extends AbstractMojo {
 		return pw;
 	}
 
-		/**
+	/**
 	 * Setup properties.
 	 *
 	 * @return the properties
