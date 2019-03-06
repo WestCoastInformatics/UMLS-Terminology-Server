@@ -15,51 +15,31 @@
  */
 package com.wci.umls.server.mojo;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.TextStyle;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
 
-import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
-import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.mojo.model.SctNeoplasmConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
 import com.wci.umls.server.mojo.model.SctRelationship;
-import com.wci.umls.server.mojo.processes.SctNeoplasmDescriptionParser;
-import com.wci.umls.server.mojo.processes.SctRelationshipParser;
 import com.wci.umls.server.rest.client.ContentClientRest;
-import com.wci.umls.server.services.SecurityService;
 
 /**
  * Used to search the term-server database for concepts with a matching string.
@@ -69,28 +49,7 @@ import com.wci.umls.server.services.SecurityService;
  * @author Jesse Efron
  */
 @Mojo(name = "icd11-matcher", defaultPhase = LifecyclePhase.PACKAGE)
-public class ICD11MatchingMojo extends AbstractMojo {
-
-	/** The run config file path. */
-	@Parameter
-	private String runConfig;
-
-	/**
-	 * The max concepts per term.
-	 */
-	@Parameter
-	private Integer maxCount = 10;
-
-	/** The user name. */
-	@Parameter
-	private String userName;
-
-	/** The user password. */
-	@Parameter
-	private String userPassword;
-
-	/** The partial df. */
-	private final DateTimeFormatter partialDf = DateTimeFormatter.ofPattern("_dd_HH-mm");
+public class ICD11MatchingMojo extends AbstractMatchingAnalysisMojo {
 
 	/** The output file path. */
 	private String outputFilePath;
@@ -107,16 +66,7 @@ public class ICD11MatchingMojo extends AbstractMojo {
 	/** The version. */
 	private String targetVersion = "latest";
 
-	/** The acronym expansion map. */
-	private Map<String, Set<String>> acronymExpansionMap = new HashMap<>();
-
-	private SctNeoplasmDescriptionParser descParser;
-
-	private SctRelationshipParser relParser;
-
-	private ContentClientRest client;
-
-	private String authToken;
+	private boolean analysis = true;
 
 	@Override
 	public void execute() throws MojoFailureException {
@@ -130,6 +80,7 @@ public class ICD11MatchingMojo extends AbstractMojo {
 			getLog().info("  target version = " + targetVersion);
 			getLog().info("  maxCount = " + maxCount);
 			getLog().info("  userName = " + userName);
+			getLog().info("  analysis = " + analysis);
 
 			/*
 			 * Error Checking
@@ -149,28 +100,24 @@ public class ICD11MatchingMojo extends AbstractMojo {
 			/*
 			 * Setup
 			 */
-			Properties properties = setupProperties();
+			setup("icd11-matcher");
 
-			client = new ContentClientRest(properties);
-			final SecurityService service = new SecurityServiceJpa();
-			authToken = service.authenticate(userName, userPassword).getAuthToken();
-			service.close();
+			// Get ECL Results
+			PfsParameterJpa eclPfs = new PfsParameterJpa();
+			eclPfs.setExpression("<< 55342001 : 116676008 = 399919001");
+			eclPfs.setStartIndex(0);
+			eclPfs.setMaxResults(8000);
 
-			PfsParameterJpa pfs = new PfsParameterJpa();
-			pfs.setStartIndex(0);
-			pfs.setMaxResults(3 * maxCount);
+			final SearchResultList eclResults = client.findConcepts(sourceTerminology, sourceVersion, null, eclPfs, authToken);
+			getLog().info("With ECL, have: " + eclResults.getObjects().size());
+			Map<String, SctNeoplasmConcept> concepts = processEclQuery(eclResults);
 
-			PrintWriter outputFile = prepareOutputFile();
-
-			descParser = new SctNeoplasmDescriptionParser();
-			relParser = new SctRelationshipParser();
-
-			/*
-			 * Process Terms
-			 */
-			executeRule1(client, outputFile, pfs, authToken);
-
-			outputFile.close();
+			if (analysis) {
+				printOutNonIsaRels(concepts);
+			} else {
+				// Process Terms
+				executeRule1(concepts, client, pfs, authToken);
+			}
 
 			getLog().info("");
 			getLog().info("Finished processing...");
@@ -181,14 +128,23 @@ public class ICD11MatchingMojo extends AbstractMojo {
 		}
 	}
 
-	private void executeRule1(ContentClientRest client, PrintWriter outputFile, PfsParameterJpa pfs, String authToken)
-			throws Exception {
-		// Get ECL Results
-		PfsParameterJpa eclPfs = new PfsParameterJpa();
-		eclPfs.setExpression("<< 123");
-		final SearchResultList eclResults = client.findConcepts(sourceTerminology, sourceVersion, null, pfs, authToken);
-		Map<String, SctNeoplasmConcept> concepts = processEclQuery(eclResults);
+	private void printOutNonIsaRels(Map<String, SctNeoplasmConcept> concepts) throws Exception {
+		// Setup File
+		PrintWriter writer = prepareRelOutputFile("nonIsaRels", "ECL Analysis");
 
+		for (SctNeoplasmConcept con : concepts.values()) {
+			for (SctRelationship rel : con.getRels()) {
+				if (rel.getRelationshipType() != "Is a") {
+					exportRels(rel, con.getConceptId(), writer);
+				}
+			}
+		}
+
+		writer.close();
+	}
+
+	private void executeRule1(Map<String, SctNeoplasmConcept> concepts, ContentClientRest client, PfsParameterJpa pfs, String authToken)
+			throws Exception {
 		for (SctNeoplasmConcept con : concepts.values()) {
 			// Try the full string, then just pathology
 			final SearchResultList fullStringResults = client.findConcepts(targetTerminology, targetVersion, con.getName(), pfs, authToken);
@@ -221,12 +177,13 @@ public class ICD11MatchingMojo extends AbstractMojo {
 
 	private Map<String, SctNeoplasmConcept> processEclQuery(SearchResultList eclResults) throws Exception {
 		Map<String, SctNeoplasmConcept> concepts = new HashMap<>();
+		setupDescParser();
 
 		for (SearchResult result : eclResults.getObjects()) {
 
 			// Get Desc
 			Concept clientConcept = client.getConcept(result.getId(), null, authToken);
-			SctNeoplasmConcept con = new SctNeoplasmConcept(result.getTerminology(), result.getValue());
+			SctNeoplasmConcept con = new SctNeoplasmConcept(result.getTerminologyId(), result.getValue());
 
 			for (Atom atom : clientConcept.getAtoms()) {
 				if (!atom.isObsolete() && !atom.getTermType().equals("Fully specified name")
@@ -237,12 +194,14 @@ public class ICD11MatchingMojo extends AbstractMojo {
 			}
 
 			// Get Associated Rels
-			RelationshipList relsList = client.findConceptRelationships(result.getTerminology(), sourceTerminology,
+			RelationshipList relsList = client.findConceptRelationships(result.getTerminologyId(), sourceTerminology,
 					sourceVersion, null, new PfsParameterJpa(), authToken);
 
 			for (final Relationship<?, ?> relResult : relsList.getObjects()) {
 				SctRelationship rel = relParser.parse(result.getValue(), relResult);
-				con.getRels().add(rel);
+				if (rel != null) {
+					con.getRels().add(rel);
+				}
 			}
 
 			concepts.put(result.getTerminologyId(), con);
@@ -410,81 +369,4 @@ public class ICD11MatchingMojo extends AbstractMojo {
 		outputFile.println();
 		outputFile.flush();
 	}
-
-	/**
-	 * Setup properties.
-	 *
-	 * @return the properties
-	 * @throws Exception
-	 *             the exception
-	 */
-	private Properties setupProperties() throws Exception {
-		// Handle creating the database if the mode parameter is set
-		if (runConfig != null && !runConfig.isEmpty()) {
-			System.setProperty("run.config." + ConfigUtility.getConfigLabel(), runConfig);
-		}
-		final Properties properties = ConfigUtility.getConfigProperties();
-
-		// authenticate
-		if (userName == null || userPassword == null) {
-			userName = properties.getProperty("viewer.user");
-			userPassword = properties.getProperty("viewer.password");
-		}
-
-		if (properties.containsKey("search.handler.ATOMCLASS.acronymsFile")) {
-			final BufferedReader in = new BufferedReader(
-					new FileReader(new File(properties.getProperty("search.handler.ATOMCLASS.acronymsFile"))));
-			String fileLine;
-			while ((fileLine = in.readLine()) != null) {
-				String[] tokens = FieldedStringTokenizer.split(fileLine, "\t");
-				if (!acronymExpansionMap.containsKey(tokens[0])) {
-					acronymExpansionMap.put(tokens[0], new HashSet<String>(2));
-				}
-				acronymExpansionMap.get(tokens[0]).add(tokens[1]);
-			}
-			in.close();
-		} else {
-			throw new Exception("Required property acronymsFile not present.");
-		}
-
-		return properties;
-	}
-
-	/**
-	 * Prepare output file.
-	 *
-	 * @return the prints the writer
-	 * @throws FileNotFoundException
-	 *             the file not found exception
-	 * @throws UnsupportedEncodingException
-	 *             the unsupported encoding exception
-	 */
-	private PrintWriter prepareOutputFile() throws FileNotFoundException, UnsupportedEncodingException {
-
-		final LocalDateTime now = LocalDateTime.now();
-		final String timestamp = partialDf.format(now);
-		final String month = now.getMonth().getDisplayName(TextStyle.SHORT, Locale.getDefault());
-
-		File userFolder = new File("results" + File.separator + userName);
-		userFolder.mkdirs();
-		File f = new File(userFolder.getPath() + File.separator + "matcherOutput-" + targetTerminology + "-" + month
-				+ timestamp + ".xls");
-		outputFilePath = f.getAbsolutePath();
-		getLog().info("Creating file at: " + outputFilePath);
-
-		final FileOutputStream fos = new FileOutputStream(f);
-		final OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
-
-		PrintWriter pw = new PrintWriter(osw);
-		pw.write("Search Term");
-		pw.write("\t");
-		pw.write("Concept Id");
-		pw.write("\t");
-		pw.print("Concept Description");
-		pw.write("\t");
-		pw.println("Score");
-
-		return pw;
-	}
-
 }

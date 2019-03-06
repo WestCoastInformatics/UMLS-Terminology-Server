@@ -69,8 +69,8 @@ public class BasicEclMojo extends AbstractMojo {
 	 * The searchTerm.
 	 */
 	@Parameter
-//	private String eclDesc = "<< 127331007 : ( 116676008 =   << 108369006 AND 363698007 = <<245415005)";
-	private String eclDesc = "<< 55342001";
+//	private String eclDesc = "<< 55342001 | Neoplastic Disease : ( 116676008 | Associated Morphology | =   << 109355002 | Carcinoma in situ | ";
+	private String eclDesc = "<< 55342001 : 116676008 = 399919001";
 
 	/** The user name. */
 	@Parameter

@@ -35,7 +35,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -65,21 +64,11 @@ import com.wci.umls.server.services.SecurityService;
  * @author Jesse Efron
  */
 @Mojo(name = "neoplasm-analyzer", defaultPhase = LifecyclePhase.PACKAGE)
-public class NeoplasmAnalysisMojo extends AbstractMojo {
+public class NeoplasmAnalysisMojo extends AbstractMatchingAnalysisMojo {
 
 	/** The run config file path. */
 	@Parameter
 	private String runConfig;
-
-	/**
-	 * Name of terminology to be loaded.
-	 */
-	private String terminology = "SNOMEDCT";
-
-	/**
-	 * The version.
-	 */
-	private String version = "latest";
 
 	/** The user name. */
 	@Parameter
@@ -133,8 +122,6 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 	private final List<String> BODY_STRUCTURE_DASH_SPLIT_EXCEPTIONS = Arrays.asList("-cell", "pharyngo-", "mucosa-",
 			"cardio-", "gastro-", "ill-", "intra-", "lower-", "non-", "two-", "upper-", "co-", "para-");
 
-	private boolean startPause = false;
-
 	private Set<String> distinctBodyStructures = new HashSet<>();
 
 	private List<String> bodyStructuresRequireSecondaryInfo = Arrays.asList("arterial cartilage", "blood vessel",
@@ -148,22 +135,31 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 	@Override
 	public void execute() throws MojoFailureException {
 		try {
+			/**
+			 * Name of targetTerminology to be loaded.
+			 */
+			targetTerminology = "SNOMEDCT";
+
+			/**
+			 * The targetVersion.
+			 */
+			targetVersion = "latest";
 
 			getLog().info("Neoplasm Mojo");
 			getLog().info("  runConfig = " + runConfig);
-			getLog().info("  terminology = " + terminology);
-			getLog().info("  version = " + version);
+			getLog().info("  targetTerminology = " + targetTerminology);
+			getLog().info("  targetVersion = " + targetVersion);
 			getLog().info("  ecl = " + eclDesc);
 			getLog().info("  userName = " + userName);
 
 			/*
 			 * Error Checking
 			 */
-			if (terminology == null || terminology.isEmpty()) {
-				throw new Exception("Must define a terminology to search against i.e. SNOMEDCT");
+			if (targetTerminology == null || targetTerminology.isEmpty()) {
+				throw new Exception("Must define a targetTerminology to search against i.e. SNOMEDCT");
 			}
-			if (version == null || version.isEmpty()) {
-				throw new Exception("Must define a version to search against i.e. latest");
+			if (targetVersion == null || targetVersion.isEmpty()) {
+				throw new Exception("Must define a targetVersion to search against i.e. latest");
 			}
 			if (eclDesc == null || eclDesc.isEmpty()) {
 				throw new Exception("Must specify an ecl expression");
@@ -194,7 +190,8 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 
 				pfs.setExpression(eclDesc);
 
-				final SearchResultList results = client.findConcepts(terminology, version, null, pfs, authToken);
+				final SearchResultList results = client.findConcepts(targetTerminology, targetVersion, null, pfs,
+						authToken);
 				getLog().info("Have " + results.getTotalCount() + " ECL Results");
 
 				for (SearchResult result : results.getObjects()) {
@@ -215,7 +212,6 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 				}
 			} else {
 				SctNeoplasmDescriptionParser descParser = new SctNeoplasmDescriptionParser();
-				SctRelationshipParser relParser = new SctRelationshipParser();
 
 				// Now parse to write out contents
 				BufferedReader reader = new BufferedReader(new FileReader(inputFilePath));
@@ -230,16 +226,24 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 							if (!columns[0].equals("100731000119107") && !columns[0].equals("100721000119109"))
 								continue;
 						}
-						
-//						Concept con = client.getConcept(Long.parseLong(columns[0]), null, authToken);
+
+						// Concept con = client.getConcept(Long.parseLong(columns[0]), null, authToken);
 
 						processDesc(descParser, columns[0], columns[1], outputDescFile);
-						
+
 						if (!conceptsProcessed.contains(columns[0])) {
-							processRel(relParser, columns[0], columns[1], outputRelFile, client, authToken);
+
+							RelationshipList relsList = client.findConceptRelationships(columns[0], targetTerminology,
+									targetVersion, null, new PfsParameterJpa(), authToken);
+
+							for (final Relationship<?, ?> relResult : relsList.getObjects()) {
+								SctRelationship rel = relParser.parse(columns[2], relResult);
+								exportRels(rel, columns[2], outputRelFile);
+							}
+
 							conceptsProcessed.add(columns[0]);
 						}
-						
+
 						line = reader.readLine();
 
 						if (!clearCache(outputDescFile, outputRelFile)) {
@@ -260,7 +264,9 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 			getLog().info("Finished processing...");
 			getLog().info("Output avaiable at: " + outputDescFilePath + " and at " + outputRelFilePath);
 
-		} catch (Exception e) {
+		} catch (
+
+		Exception e) {
 			e.printStackTrace();
 			throw new MojoFailureException("Unexpected exception:", e);
 		}
@@ -717,25 +723,6 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 		return pw;
 	}
 
-	private void processRel(SctRelationshipParser parser, String conId, String conName, PrintWriter outputRelFile,
-			ContentClientRest client, String authToken) throws Exception {
-
-		RelationshipList relsList = client.findConceptRelationships(conId, terminology, version, null,
-				new PfsParameterJpa(), authToken);
-
-		for (final Relationship<?, ?> relResult : relsList.getObjects()) {
-			SctRelationship rel = parser.parse(conName, relResult);
-			
-			if (rel != null) {
-				outputRelFile.print(conId);
-				outputRelFile.print("\t");
-				outputRelFile.print(rel.printForExcel());
-	
-				outputRelFile.println();
-			}
-		}
-	}
-
 	/**
 	 * Prepare relationship output file.
 	 *
@@ -775,28 +762,5 @@ public class NeoplasmAnalysisMojo extends AbstractMojo {
 
 		pw.println();
 		return pw;
-	}
-
-	/**
-	 * Setup properties.
-	 *
-	 * @return the properties
-	 * @throws Exception
-	 *             the exception
-	 */
-	private Properties setupProperties() throws Exception {
-		// Handle creating the database if the mode parameter is set
-		if (runConfig != null && !runConfig.isEmpty()) {
-			System.setProperty("run.config." + ConfigUtility.getConfigLabel(), runConfig);
-		}
-		final Properties properties = ConfigUtility.getConfigProperties();
-
-		// authenticate
-		if (userName == null || userPassword == null) {
-			userName = properties.getProperty("viewer.user");
-			userPassword = properties.getProperty("viewer.password");
-		}
-
-		return properties;
 	}
 }
