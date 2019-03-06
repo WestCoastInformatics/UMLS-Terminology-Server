@@ -2703,7 +2703,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       Set<Concept> deletedCuis = new HashSet<>();
       File srcDir = getSrcDirFile();
       logInfo("bequeathal srcDir:" + srcDir);
-      BufferedWriter out = new BufferedWriter(new FileWriter(new File(srcDir, "bequeathals.src")));
+      BufferedWriter out = new BufferedWriter(new FileWriter(new File(srcDir, "bequeathal.relationships.src")));
       
       Query query = getEntityManager().createNativeQuery(
           "SELECT   DISTINCT c.id conceptId FROM   concepts c,   "
@@ -2791,7 +2791,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
                 sb.append(c.getTerminologyId()).append("|");
                 sb.append("BBT").append("|").append("|");
                 sb.append(ncimthParentConcept.getTerminologyId()).append("|");
-                sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI||SOURCE_CUI||||").append("\n");
+                sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI|NCIMTH|SOURCE_CUI|NCIMTH|||").append("\n");
                 potentialParentBequeathals.add(sb.toString());
               } else {
                 // consider publishable grandparent
@@ -2820,7 +2820,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
                       sb.append(c.getTerminologyId()).append("|");
                       sb.append("BBT").append("|").append("|");
                       sb.append(ncimthParentConcept2.getTerminologyId()).append("|");
-                      sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI||SOURCE_CUI||||").append("\n");
+                      sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI|NCIMTH|SOURCE_CUI|NCIMTH|||").append("\n");
                       potentialGrandparentBequeathals.add(sb.toString());
                     } 
                   }
