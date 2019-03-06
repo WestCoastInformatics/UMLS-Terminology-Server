@@ -132,11 +132,17 @@ public class ICD11MatchingMojo extends AbstractMatchingAnalysisMojo {
 		// Setup File
 		PrintWriter writer = prepareRelOutputFile("nonIsaRels", "ECL Analysis");
 
+		int counter = 0;
 		for (SctNeoplasmConcept con : concepts.values()) {
 			for (SctRelationship rel : con.getRels()) {
-				if (rel.getRelationshipType() != "Is a") {
+				if (!rel.getRelationshipType().equals("Is a")) {
 					exportRels(rel, con.getConceptId(), writer);
 				}
+			}
+			
+			if (counter++ %100 == 0) {
+				getLog().info("Processed " + counter + " out of " + concepts.size() + " concepts");
+				writer.flush();
 			}
 		}
 
