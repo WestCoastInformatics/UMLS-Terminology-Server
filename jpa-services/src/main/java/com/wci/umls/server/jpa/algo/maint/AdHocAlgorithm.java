@@ -2766,6 +2766,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         c.getRelationships().size();
       }
       for (Concept c : deletedCuis) {
+        index++;
         List<String> potentialParentBequeathals = new ArrayList<>();
         List<String> potentialGrandparentBequeathals = new ArrayList<>();
         for (Atom atom : c.getAtoms()) {
@@ -2788,7 +2789,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
                 + " " + ncimthParentConcept.getId() + " " + ar.getFrom().getId() + " "
                 + ar.getRelationshipType() + " " + ar.getTo().getId());*/
                 StringBuffer sb = new StringBuffer();
-                sb.append(index++).append("|");
+                sb.append("").append("|");
                 sb.append("C").append("|");
                 sb.append(c.getTerminologyId()).append("|");
                 sb.append("BBT").append("|").append("|");
@@ -2817,7 +2818,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
                       + ar2.getRelationshipType() + " " + ar2.getTo().getId());
                       out.write("\n");*/
                       StringBuffer sb = new StringBuffer();
-                      sb.append(index++).append("|");
+                      sb.append("").append("|");
                       sb.append("C").append("|");
                       sb.append(c.getTerminologyId()).append("|");
                       sb.append("BBT").append("|").append("|");
@@ -2930,9 +2931,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       List<Object> list = query.getResultList();
       setSteps(list.size());
       /*List<Object> list = new ArrayList<>();
-      list.add(2228275L);
-      list.add(2752574L);
-      list.add(1048702L);*/
+      list.add(401413L);
+      list.add(401408L);
+      list.add(155653L);
+      setSteps(3);*/
       int index = 1;
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
@@ -2940,13 +2942,51 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         deletedCuis.add(c);
         c.getAtoms().size();
         c.getRelationships().size();
+        c.getInverseRelationships().size();
       }
       for (Concept c : deletedCuis) {
+        index++;
         List<String> potentialROBequeathals = new ArrayList<>();
         List<String> potentialRBBequeathals = new ArrayList<>();
+        for (ConceptRelationship cr : c.getInverseRelationships()) {
+          if (cr.getRelationshipType().equals("RB")) {
+            Concept otherConcept = cr.getFrom();
+            Concept ncimthOtherConcept = getConcept(otherConcept.getId());
+            if (noXRRel(c, ncimthOtherConcept) && ncimthOtherConcept.isPublishable()) {
+              /*logInfo("[AddBequeathals RB] " + c.getId()  
+              + " " + ncimthOtherConcept.getId() + " " + cr.getFrom().getId() + " "
+              + cr.getRelationshipType() + " " + cr.getTo().getId());*/
+              StringBuffer sb = new StringBuffer();
+              sb.append("").append("|");
+              sb.append("C").append("|");
+              sb.append(c.getTerminologyId()).append("|");
+              sb.append("BBT").append("|").append("|");
+              sb.append(ncimthOtherConcept.getTerminologyId()).append("|");
+              sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI|NCIMTH|SOURCE_CUI|NCIMTH|||").append("\n");
+              potentialRBBequeathals.add(sb.toString());
+          
+            }
+          } else if (cr.getRelationshipType().equals("RO")) {
+            Concept otherConcept = cr.getFrom();
+            Concept ncimthOtherConcept = getConcept(otherConcept.getId());
+            if (noXRRel(c, ncimthOtherConcept) && ncimthOtherConcept.isPublishable()) {
+              /*logInfo("[AddBequeathals RO] " + c.getId()  
+              + " " + ncimthOtherConcept.getId() + " " + cr.getFrom().getId() + " "
+              + cr.getRelationshipType() + " " + cr.getTo().getId());*/
+              StringBuffer sb = new StringBuffer();
+              sb.append("").append("|");
+              sb.append("C").append("|");
+              sb.append(c.getTerminologyId()).append("|");
+              sb.append("BRT").append("|").append("|");
+              sb.append(ncimthOtherConcept.getTerminologyId()).append("|");
+              sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI|NCIMTH|SOURCE_CUI|NCIMTH|||").append("\n");
+              potentialROBequeathals.add(sb.toString());         
+            }
+          }
+        }
         for (Atom atom : c.getAtoms()) {
           Atom a = getAtom(atom.getId());
-          for (AtomRelationship ar : a.getInverseRelationships()) {
+          for (AtomRelationship ar : a.getRelationships()) {
             if (ar.getRelationshipType().equals("RO")) {
               Atom otherAtom = ar.getFrom();
               // Find the NCIMTH concept for the parent atom
@@ -2964,10 +3004,11 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
                 + " " + ncimthOtherConcept.getId() + " " + ar.getFrom().getId() + " "
                 + ar.getRelationshipType() + " " + ar.getTo().getId());
                 StringBuffer sb = new StringBuffer();
-                sb.append(index++).append("|");
+                sb.append("").append("|");
                 sb.append("C").append("|");
                 sb.append(c.getTerminologyId()).append("|");
-                sb.append("BBT").append("|").append("|");
+                // will get converted to 'BRO'
+                sb.append("BRT").append("|").append("|");
                 sb.append(ncimthOtherConcept.getTerminologyId()).append("|");
                 sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI|NCIMTH|SOURCE_CUI|NCIMTH|||").append("\n");
                 potentialROBequeathals.add(sb.toString());
@@ -2990,7 +3031,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
                 + " " + ncimthOtherConcept.getId() + " " + ar.getFrom().getId() + " "
                 + ar.getRelationshipType() + " " + ar.getTo().getId());
                 StringBuffer sb = new StringBuffer();
-                sb.append(index++).append("|");
+                sb.append("").append("|");
                 sb.append("C").append("|");
                 sb.append(c.getTerminologyId()).append("|");
                 sb.append("BBT").append("|").append("|");
