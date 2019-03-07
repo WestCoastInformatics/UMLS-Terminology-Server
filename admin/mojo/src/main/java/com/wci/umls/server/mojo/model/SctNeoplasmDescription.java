@@ -367,7 +367,7 @@ public class SctNeoplasmDescription extends AbstractSctComponent {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = super.hashCode();
+	    int result = 1;
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((neoplasmSynonym == null) ? 0 : neoplasmSynonym.hashCode());
 		result = prime * result + ((pathology == null) ? 0 : pathology.hashCode());
@@ -391,8 +391,6 @@ public class SctNeoplasmDescription extends AbstractSctComponent {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (!super.equals(obj))
-			return false;
 		if (getClass() != obj.getClass())
 			return false;
 		SctNeoplasmDescription other = (SctNeoplasmDescription) obj;

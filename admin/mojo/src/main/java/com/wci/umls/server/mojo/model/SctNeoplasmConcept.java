@@ -110,7 +110,7 @@ public class SctNeoplasmConcept {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = super.hashCode();
+	    int result = 1;
 		result = prime * result + ((conceptId == null) ? 0 : conceptId.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((descs == null) ? 0 : descs.hashCode());
@@ -123,8 +123,6 @@ public class SctNeoplasmConcept {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (!super.equals(obj))
-			return false;
 		if (getClass() != obj.getClass())
 			return false;
 		SctNeoplasmConcept other = (SctNeoplasmConcept) obj;
