@@ -31,6 +31,7 @@ import org.hibernate.Hibernate;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.Project;
+import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ChecklistList;
@@ -43,7 +44,10 @@ import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
+import com.wci.umls.server.jpa.algo.action.AbstractMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddAtomMolecularAction;
+import com.wci.umls.server.jpa.algo.action.AddRelationshipMolecularAction;
+import com.wci.umls.server.jpa.algo.action.ApproveMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RedoMolecularAction;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
@@ -73,6 +77,7 @@ import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.ConceptTreePosition;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.RelationshipIdentity;
@@ -217,6 +222,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       addBequeathals();
     } else if (actionName.equals("Add RORB Bequeathals")) {
       addRORBBequeathals();
+    } else if (actionName.equals("Add Concept RORB Bequeathals")) {
+      addRORBConceptBequeathals();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -2871,6 +2878,242 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     return true;
   }
   
+  private void addRORBConceptBequeathals() throws Exception {
+    // 2/21/2019 In effort to reduce deleted_cuis, create bequeathals based on RO/RB concept rels
+    // when there are no PAR rels.  addBequeathals() AdHoc should be run before this algorithm.
+
+    logInfo("Add Concept RORB Bequeathals");
+  
+    try {
+
+      Set<Concept> deletedCuis = new HashSet<>();
+      Query query = getEntityManager().createNativeQuery(
+          "SELECT   DISTINCT c.id conceptId FROM   concepts c,   "
+          + "concepts_atoms ca,   atoms a WHERE   c.terminology = 'NCIMTH'   "
+          + "AND c.id != c.terminologyId   AND c.id = ca.concepts_id   AND "
+          + "ca.atoms_id = a.id   "
+          + "AND a.publishable = FALSE   AND NOT c.id IN ("
+          +   "SELECT       DISTINCT c.id conceptId     " 
+          +   " FROM       concepts c,       concepts_atoms ca,       atoms a     "
+          +   " WHERE       c.terminology = 'NCIMTH'       AND c.id = ca.concepts_id   "
+          +   " AND ca.atoms_id = a.id       AND a.publishable = TRUE   )   " 
+          +   " AND NOT c.id IN (     "
+          +   "   SELECT       DISTINCT c.id conceptId     "
+          +   "    FROM       concepts c,       concept_relationships cr     "
+          +   "    WHERE       c.terminology = 'NCIMTH'       AND c.id = cr.from_id       "
+          +   "    AND cr.relationshipType like 'B%'   )   AND NOT c.id IN (     "
+          +   "      SELECT       c.id conceptId     " 
+          +   "        FROM       concepts c,       concepts_atoms ca     "
+          +   "        WHERE       c.terminology = 'NCIMTH'       "
+          +   "        AND c.id = ca.concepts_id       AND ca.concepts_id IN (         "
+          +   "      SELECT           ca.concepts_id         FROM           concepts_atoms ca,           atoms a         " 
+          +   "        WHERE           ca.atoms_id = a.id           "
+          +   "        AND a.terminology IN ('MTH', 'NCIMTH')           " 
+          +   "        AND a.termType = 'PN'       )     GROUP BY       ca.concepts_id     "
+          +   "        HAVING       COUNT(DISTINCT ca.atoms_id) = 1   )"
+          +   " AND NOT c.id IN (   "
+          +   "   SELECT  " 
+          +   "     ca.concepts_id conceptId  "
+          +   "   FROM  "
+          +   "     mrcui mr,  "
+          +  "      atomjpa_conceptterminologyids ac,  "
+          +  "      concepts_atoms ca,  "
+          +  "      concepts cpt  "
+          + "     WHERE  "
+          +  "      mr.cui1 = ac.conceptTerminologyIds  "
+          +  "      AND ca.atoms_id = ac.AtomJpa_id  "
+          +  "      AND cpt.id = ca.concepts_id  "
+          +  "      AND cpt.terminology = 'NCIMTH'  "
+          +  "      AND ac.conceptTerminologyIds_KEY = 'NCIMTH'  "
+          +  "      AND mr.rel = 'DEL'  )"
+        
+          
+          );
+      
+
+      List<Object> list = query.getResultList();
+      setSteps(list.size());
+      List<Long> conceptsToBeApproved = new ArrayList<>();
+
+     /* List<Object> list = new ArrayList<>();
+      list.add(401456L);
+      list.add(155706L);
+      list.add(401471L);
+      setSteps(3);*/
+      // get the deleted cui concepts that will be evaluated
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        Concept c = getConcept(id);
+        deletedCuis.add(c);
+        c.getAtoms().size();
+        c.getRelationships().size();
+        c.getInverseRelationships().size();
+      }
+      
+      // for each deleted cui concept, find potential bequeathal rels
+      for (Concept c : deletedCuis) {
+        index++;
+        Map<Concept, Concept> potentialROBequeathals = new HashMap<>();
+        Map<Concept, Concept> potentialRBBequeathals = new HashMap<>();
+        for (ConceptRelationship cr : c.getInverseRelationships()) {
+          if (cr.getRelationshipType().equals("RB")) {
+            Concept otherConcept = cr.getFrom();
+            Concept ncimthOtherConcept = getConcept(otherConcept.getId());
+            if (noXRRel(c, ncimthOtherConcept)
+                && ncimthOtherConcept.isPublishable()) {
+              potentialRBBequeathals.put(c, ncimthOtherConcept);
+            }
+          } else if (cr.getRelationshipType().equals("RO")) {
+            Concept otherConcept = cr.getFrom();
+            Concept ncimthOtherConcept = getConcept(otherConcept.getId());
+            if (noXRRel(c, ncimthOtherConcept)
+                && ncimthOtherConcept.isPublishable()) {
+              potentialROBequeathals.put(c, ncimthOtherConcept);
+            }
+          }
+        }
+
+        // choose which one bequeathal to add
+        ConceptRelationship relationship = new ConceptRelationshipJpa();
+
+        if (potentialRBBequeathals.size() >= 1) {
+          relationship.setFrom(potentialRBBequeathals.entrySet().stream()
+              .findFirst().get().getKey());
+          relationship.setTo(potentialRBBequeathals.entrySet().stream()
+              .findFirst().get().getValue());
+          relationship.setRelationshipType("BRN");
+          logInfo("[AddConceptBequeathals RB] " + relationship.getFrom().getId() + " "
+              + relationship.getFrom().getTerminologyId() + " RB " +
+              relationship.getTo().getId() + " " + relationship.getTo().getTerminologyId());
+        } else if (potentialROBequeathals.size() >= 1) {
+          relationship.setFrom(potentialROBequeathals.entrySet().stream()
+              .findFirst().get().getKey());
+          relationship.setTo(potentialROBequeathals.entrySet().stream()
+              .findFirst().get().getValue());
+          relationship.setRelationshipType("BRO");
+          logInfo("[AddConceptBequeathals RO] " + relationship.getFrom().getId() + " "
+              + relationship.getFrom().getTerminologyId() + " RO " +
+              relationship.getTo().getId() + " " + relationship.getTo().getTerminologyId());
+        } else {
+          continue;
+        }
+
+        // save prev workflow state, bc AddRelationshipMolecularAction will
+        // change all states to NEEDS_REVIEW, but editors won't want to review
+        // all of these, so we'll need to approve all of those that were
+        // READY_FOR_PUBLICATION or PUBLISHED
+        WorkflowStatus fromConceptPrevWorkflow =
+            relationship.getFrom().getWorkflowStatus();
+        WorkflowStatus toConceptPrevWorkflow =
+            relationship.getTo().getWorkflowStatus();
+
+        // Instantiate services
+        final AddRelationshipMolecularAction action =
+            new AddRelationshipMolecularAction();
+
+        // All new content is unpublished and publishable
+        relationship.setPublished(false);
+        relationship.setPublishable(true);
+
+        relationship.setTerminology("NCIMTH");
+        relationship.setVersion("latest");
+        relationship.setAdditionalRelationshipType("");
+        relationship.setTerminologyId("");
+
+        // Set defaults for a concept level relationship
+        relationship.setStated(true);
+        relationship.setInferred(true);
+        relationship.setSuppressible(false);
+        relationship.setObsolete(false);
+
+        // If RelGroup is null, set to blank
+        if (relationship.getGroup() == null) {
+          relationship.setGroup("");
+        }
+
+        // Configure the action
+        action.setProject(getProject());
+        action.setActivityId("AddRORBConceptBequeathals");
+        // The relationship is FROM conceptId -> conceptId2, and REL
+        // is represented in that direction
+        action.setConceptId(relationship.getFrom().getId());
+        action.setConceptId2(relationship.getTo().getId());
+        action.setLastModifiedBy("loader");
+        action.setLastModified(
+            relationship.getFrom().getLastModified().getTime());
+        action.setOverrideWarnings(true);
+        action.setTransactionPerOperation(false);
+        action.setMolecularActionFlag(true);
+        action.setChangeStatusFlag(true);
+
+        action.setRelationship(relationship);
+
+        // Perform the action
+        final ValidationResult validationResult =
+            action.performMolecularAction(action, "loader", true, false);
+
+        // If the action failed, bail out now.
+        if (!validationResult.isValid()) {
+          logError("Unexpected problem - " + validationResult);
+        }
+
+        // add to list if concepts were already reviewed and require ApprovalMolecularAction
+        if (fromConceptPrevWorkflow == WorkflowStatus.READY_FOR_PUBLICATION
+            || fromConceptPrevWorkflow == WorkflowStatus.PUBLISHED) {
+          conceptsToBeApproved.add(relationship.getFrom().getId());
+        }
+
+        if (toConceptPrevWorkflow == WorkflowStatus.READY_FOR_PUBLICATION
+            || toConceptPrevWorkflow == WorkflowStatus.PUBLISHED) {
+          conceptsToBeApproved.add(relationship.getTo().getId());
+        }
+
+        //commitClearBegin();
+        updateProgress();
+
+      }
+      // confirm that all concepts have been committed
+      commitClearBegin();
+      
+      // approve those concepts that were previously PUBLISHED or READY_FOR_PUBLICATION
+      for (Long conceptId : conceptsToBeApproved) {
+        Concept refreshedConcept = getConcept(conceptId);
+        AbstractMolecularAction approveAction = new ApproveMolecularAction();
+        approveAction.setProject(getProject());
+        approveAction.setActivityId(getActivityId());
+        approveAction.setConceptId(refreshedConcept.getId());
+        approveAction.setConceptId2(null);
+        approveAction.setLastModifiedBy(getLastModifiedBy());
+        approveAction
+            .setLastModified(refreshedConcept.getLastModified().getTime());
+        approveAction.setOverrideWarnings(true);
+        approveAction.setTransactionPerOperation(false);
+        approveAction.setMolecularActionFlag(true);
+        approveAction.setChangeStatusFlag(true);
+
+        // Perform the approveAction
+        ValidationResult approveValidationResult =
+            approveAction.performMolecularAction(approveAction,
+                getLastModifiedBy(), true, false);
+
+        // If the approveAction failed, bail out now.
+        if (!approveValidationResult.isValid()) {
+          logError("  unable to approve " + refreshedConcept.getId());
+          for (final String error : approveValidationResult.getErrors()) {
+            logError("    error = " + error);
+          }
+        }
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+      // n/a
+    }
+
+  }
+  
   private void addRORBBequeathals() throws Exception {
     // 2/21/2019 In effort to reduce deleted_cuis, create bequeathals based on RO/RB rels
     // when there are no PAR rels.  addBequeathals() AdHoc should be run before this algorithm.
@@ -3119,7 +3362,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Fix MDR Descriptors", "Clear Worklists and Checklists",
             "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts", "Fix Null RUIs", 
             "Remove old relationships", "Assign Missing STY ATUIs", "Fix Component History Version",
-            "Fix AdditionalRelType Inverses 2", "Add Bequeathals", "Add RORB Bequeathals"));
+            "Fix AdditionalRelType Inverses 2", "Add Bequeathals", "Add RORB Bequeathals",
+            "Add Concept RORB Bequeathals"));
     params.add(param);
 
     return params;
