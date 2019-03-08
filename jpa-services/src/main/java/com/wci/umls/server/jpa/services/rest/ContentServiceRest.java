@@ -490,6 +490,19 @@ public interface ContentServiceRest {
     String inputDir, String authToken) throws Exception;
 
   /**
+   * Load terminology icd 11 simple.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param inputDir the input dir
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void loadTerminologyIcd11Simple(String terminology, String version,
+    String inputDir, String authToken) throws Exception;
+
+  
+  /**
    * Export terminology simple.
    *
    * @param terminology the terminology

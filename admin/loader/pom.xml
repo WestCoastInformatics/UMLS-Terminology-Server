@@ -137,6 +137,36 @@
         </plugins>
       </build>
     </profile>
+    
+    <!-- Load ICD11 Simple, specify -Drun.config.umls=... -Dterminology=... -->
+    <profile>
+      <id>ICD11Simple</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.wcinformatics.umls.server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>icd11-load-simple</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>icd11-load-simple</goal>
+                </goals>
+                <configuration>
+                  <terminology>${terminology}</terminology>
+                  <version>${version}</version>
+                  <inputDir>${input.dir}</inputDir>
+                  <server>${server}</server>
+                  <mode>${mode}</mode>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>    
 
     <!-- Load RRF UMLS, specify -Drun.config.umls=... -Dterminology=... -->
     <profile>
