@@ -2883,7 +2883,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // when there are no PAR rels.  addBequeathals() AdHoc should be run before this algorithm.
 
     logInfo("Add Concept RORB Bequeathals");
-  
+
+    AddRelationshipMolecularAction action = new AddRelationshipMolecularAction();
+    AbstractMolecularAction approveAction = new ApproveMolecularAction();
+    
     try {
 
       Set<Concept> deletedCuis = new HashSet<>();
@@ -2934,7 +2937,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       List<Object> list = query.getResultList();
       setSteps(list.size());
       List<Long> conceptsToBeApproved = new ArrayList<>();
-
+      
      /* List<Object> list = new ArrayList<>();
       list.add(401456L);
       list.add(155706L);
@@ -2952,7 +2955,6 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       
       // for each deleted cui concept, find potential bequeathal rels
       for (Concept c : deletedCuis) {
-        index++;
         Map<Concept, Concept> potentialROBequeathals = new HashMap<>();
         Map<Concept, Concept> potentialRBBequeathals = new HashMap<>();
         for (ConceptRelationship cr : c.getInverseRelationships()) {
@@ -3008,7 +3010,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             relationship.getTo().getWorkflowStatus();
 
         // Instantiate services
-        final AddRelationshipMolecularAction action =
+        action =
             new AddRelationshipMolecularAction();
 
         // All new content is unpublished and publishable
@@ -3056,6 +3058,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         if (!validationResult.isValid()) {
           logError("Unexpected problem - " + validationResult);
         }
+        
+        action.close();
 
         // add to list if concepts were already reviewed and require ApprovalMolecularAction
         if (fromConceptPrevWorkflow == WorkflowStatus.READY_FOR_PUBLICATION
@@ -3078,7 +3082,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       // approve those concepts that were previously PUBLISHED or READY_FOR_PUBLICATION
       for (Long conceptId : conceptsToBeApproved) {
         Concept refreshedConcept = getConcept(conceptId);
-        AbstractMolecularAction approveAction = new ApproveMolecularAction();
+        approveAction = new ApproveMolecularAction();
         approveAction.setProject(getProject());
         approveAction.setActivityId(getActivityId());
         approveAction.setConceptId(refreshedConcept.getId());
@@ -3095,6 +3099,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         ValidationResult approveValidationResult =
             approveAction.performMolecularAction(approveAction,
                 getLastModifiedBy(), true, false);
+        approveAction.close();
 
         // If the approveAction failed, bail out now.
         if (!approveValidationResult.isValid()) {
@@ -3109,7 +3114,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       e.printStackTrace();
       fail("Unexpected exception thrown - please review stack trace.");
     } finally {
-      // n/a
+      action.close();
+      approveAction.close();
     }
 
   }
@@ -3196,9 +3202,6 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             Concept otherConcept = cr.getFrom();
             Concept ncimthOtherConcept = getConcept(otherConcept.getId());
             if (noXRRel(c, ncimthOtherConcept) && ncimthOtherConcept.isPublishable()) {
-              /*logInfo("[AddBequeathals RB] " + c.getId()  
-              + " " + ncimthOtherConcept.getId() + " " + cr.getFrom().getId() + " "
-              + cr.getRelationshipType() + " " + cr.getTo().getId());*/
               StringBuffer sb = new StringBuffer();
               sb.append("").append("|");
               sb.append("C").append("|");
@@ -3213,9 +3216,6 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             Concept otherConcept = cr.getFrom();
             Concept ncimthOtherConcept = getConcept(otherConcept.getId());
             if (noXRRel(c, ncimthOtherConcept) && ncimthOtherConcept.isPublishable()) {
-              /*logInfo("[AddBequeathals RO] " + c.getId()  
-              + " " + ncimthOtherConcept.getId() + " " + cr.getFrom().getId() + " "
-              + cr.getRelationshipType() + " " + cr.getTo().getId());*/
               StringBuffer sb = new StringBuffer();
               sb.append("").append("|");
               sb.append("C").append("|");
