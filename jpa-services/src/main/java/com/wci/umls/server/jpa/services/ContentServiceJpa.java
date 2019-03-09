@@ -2480,6 +2480,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
         sr.setScore(scoreMap.get(r.getId()));
         sr.setWorkflowStatus(r.getWorkflowStatus());
         sr.setType(r.getType());
+        sr.setObsolete(r.isObsolete());
         list.getObjects().add(sr);
       }
     }
