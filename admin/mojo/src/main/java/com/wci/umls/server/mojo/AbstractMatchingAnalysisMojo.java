@@ -91,7 +91,7 @@ abstract public class AbstractMatchingAnalysisMojo extends AbstractMojo {
 			"31610004");
 
 	protected List<String> nonFindingSiteStrings = Arrays.asList("of", "part", "structure", "system", "and/or", "and",
-			"region", "area", "or");
+			"region", "area", "or", "the");
 
 	protected void setup(String folderName, String st, String sv, String tt, String tv) throws Exception {
 		sourceTerminology = st;

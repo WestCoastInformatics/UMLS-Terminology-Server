@@ -68,7 +68,7 @@ public class ICD11MatchingMojo extends AbstractMatchingAnalysisMojo {
 	private String sv = "latest";
 
 	/** Name of terminology to be loaded. */
-	private String tt = "icd11-10";
+	private String tt = "icd11-13";
 
 	/** The version. */
 	private String tv = "latest";
@@ -150,7 +150,7 @@ public class ICD11MatchingMojo extends AbstractMatchingAnalysisMojo {
 		for (SctNeoplasmConcept sctCon : snomedConcepts.values()) {
 			boolean foundMatch = false;
 
-			 if (!sctCon.getConceptId().equals("92719006")) { continue; }
+//			 if (!sctCon.getConceptId().equals("92719006")) { continue; }
 
 			Set<String> findingSites = identifyValidFindingSites(sctCon);
 			StringBuffer newConInfoStr = constructConInfoStr(findingSites, sctCon, ++counter);
