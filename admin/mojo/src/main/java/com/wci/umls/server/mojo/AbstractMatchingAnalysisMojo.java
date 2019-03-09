@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -210,17 +211,16 @@ abstract public class AbstractMatchingAnalysisMojo extends AbstractMojo {
 		return con;
 	}
 
-	protected String getRelDestination(SctNeoplasmConcept con, String relType) {
-		String target = null;
+	protected Set<SctRelationship> getDestRels(SctNeoplasmConcept con, String relType) {
+		Set<SctRelationship> targets = new HashSet<>();
 
 		for (SctRelationship rel : con.getRels()) {
-			if (rel.getRelationshipType().equals("Finding site")) {
-				target = rel.getRelationshipDestination();
-				break;
+			if (rel.getRelationshipType().equals(relType)) {
+				targets.add(rel);
 			}
 		}
 
-		return target;
+		return targets;
 	}
 
 	protected Map<String, SctNeoplasmConcept> processEclQuery(SearchResultList eclResults) throws Exception {
