@@ -159,7 +159,7 @@ public class SctRelationship extends AbstractSctComponent {
 	/* see superclass */
 	@Override
 	public String toString() {
-		return "SctSourceDescription [description=" + description + ", relationshipType=" + relationshipType
+		return "SctSourceRelationship [description=" + description + ", relationshipType=" + relationshipType
 				+ ", relationshipDestination=" + relationshipDestination + ", roleGroup=" + roleGroup + "]";
 	}
 }
