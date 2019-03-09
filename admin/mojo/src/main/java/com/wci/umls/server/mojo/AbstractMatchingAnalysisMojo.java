@@ -9,8 +9,11 @@ import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -20,8 +23,10 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
@@ -78,6 +83,15 @@ abstract public class AbstractMatchingAnalysisMojo extends AbstractMojo {
 
 	/** The acronym expansion map. */
 	protected Map<String, Set<String>> acronymExpansionMap = new HashMap<>();
+	protected HashMap<String, SctNeoplasmConcept> conceptsFromDescs = new HashMap<>();
+	protected Map<String, Map<Concept, Set<String>>> findingSitePotentialTermsMapCache = new HashMap<>();
+
+	protected List<String> topLevelBodyStructureIds = Arrays.asList("86762007", "20139000", "39937001", "81745001",
+			"387910009", "127882003", "64033007", "117590005", "21514008", "76752008", "113331007", "363667005",
+			"31610004");
+
+	protected List<String> nonFindingSiteStrings = Arrays.asList("of", "part", "structure", "system", "and/or", "and",
+			"region", "area", "or");
 
 	protected void setup(String folderName, String st, String sv, String tt, String tv) throws Exception {
 		sourceTerminology = st;
@@ -275,16 +289,19 @@ abstract public class AbstractMatchingAnalysisMojo extends AbstractMojo {
 	}
 
 	protected SctNeoplasmConcept getSctConceptFromDesc(String desc) throws Exception {
-		final SearchResultList possibleMatches = client.findConcepts(sourceTerminology, sourceVersion,
-				"\"" + desc + "\"", pfsMinimal, authToken);
+		if (!conceptsFromDescs.containsKey(desc)) {
+			final SearchResultList possibleMatches = client.findConcepts(sourceTerminology, sourceVersion,
+					"\"" + desc + "\"", pfsMinimal, authToken);
 
-		for (SearchResult result : possibleMatches.getObjects()) {
-			if (!result.isObsolete()) {
-				return populateSctConcept(result);
+			for (SearchResult result : possibleMatches.getObjects()) {
+				if (!result.isObsolete()) {
+					SctNeoplasmConcept retConcept = populateSctConcept(result);
+					conceptsFromDescs.put(desc, retConcept);
+				}
 			}
 		}
 
-		return null;
+		return conceptsFromDescs.get(desc);
 	}
 
 
@@ -292,4 +309,146 @@ abstract public class AbstractMatchingAnalysisMojo extends AbstractMojo {
 		return (!atom.isObsolete() && !atom.getTermType().equals("Fully specified name")
 				&& !atom.getTermType().equals("Definition"));
 	}
+
+
+	protected void generateStringOutput(Map<String, Integer> lowestDepthMap, Map<String, String> matchMap,
+			StringBuffer str) {
+		int lowestDepth = 10000;
+		Set<String> lowestDepthStrings = new HashSet<>();
+
+		for (String icdConId : lowestDepthMap.keySet()) {
+			if (lowestDepthMap.get(icdConId) < lowestDepth) {
+				lowestDepthStrings.clear();
+				lowestDepthStrings.add(matchMap.get(icdConId));
+				lowestDepth = lowestDepthMap.get(icdConId);
+			} else if (lowestDepthMap.get(icdConId) == lowestDepth) {
+				lowestDepthStrings.add(matchMap.get(icdConId));
+			}
+		}
+
+		// System.out.println("\n\nBut actually outputing:");
+		for (String s : lowestDepthStrings) {
+			// System.out.println(s);
+			str.append(s);
+		}
+	}
+
+
+	protected Set<SctNeoplasmConcept> identifyPotentialFSConcepts(Set<String> findingSites) throws Exception {
+		Set<SctNeoplasmConcept> retConcepts = new HashSet<>();
+
+		for (String site : findingSites) {
+			// Get the finding site as a concept
+			SctNeoplasmConcept fsConcept = getSctConceptFromDesc(site);
+			retConcepts.add(fsConcept);
+
+			if (findingSitePotentialTermsMapCache.containsKey(fsConcept.getConceptId())) {
+				return retConcepts;
+			}
+
+			Map<Concept, Set<String>> potentialFSConTerms = new HashMap<>();
+			findingSitePotentialTermsMapCache.put(fsConcept.getConceptId(), potentialFSConTerms);
+
+			if (topLevelBodyStructureIds.contains(fsConcept.getConceptId())) {
+				Concept mapCon = client.getConcept(fsConcept.getConceptId(), sourceTerminology, sourceVersion, null,
+						authToken);
+				Set<String> bucket = new HashSet<>();
+				potentialFSConTerms.put(mapCon, bucket);
+			} else {
+				// Get all fsCon's ancestors
+				String topLevelSctId = null;
+				final ConceptList ancestorResults = client.findAncestorConcepts(fsConcept.getConceptId(),
+						sourceTerminology, sourceVersion, false, pfsLimitless, authToken);
+
+				// Find the body structure hierarchy it falls under
+				for (Concept ancestor : ancestorResults.getObjects()) {
+					if (topLevelBodyStructureIds.contains(ancestor.getTerminologyId())) {
+						topLevelSctId = ancestor.getTerminologyId();
+						break;
+					}
+				}
+
+				// Have list of possibleFindingSites. Test them for matches
+				if (topLevelSctId == null) {
+					System.out.println(
+							"ERROR ERROR ERROR: Found a finding site without an identified top level BS ancestor: "
+									+ fsConcept.getConceptId() + "---" + fsConcept.getName());
+					return null;
+				}
+
+				// TODO: Because can't do ancestors via ECL, need this work around
+				// Identify all descendants of top level bodyStructure concept
+				pfsEcl.setExpression("<< " + topLevelSctId);
+				final SearchResultList descendentResults = client.findConcepts(sourceTerminology, sourceVersion, null,
+						pfsEcl, authToken);
+
+				// Create a list of concepts that are both ancestors of fsConcept and
+				// descendents of topLevelBodyStructure Concept
+				// TODO: This could be a Rest Call in of itself
+				for (Concept ancestor : ancestorResults.getObjects()) {
+
+					for (SearchResult potentialFindingSite : descendentResults.getObjects()) {
+						if (ancestor.getTerminologyId().equals(potentialFindingSite.getTerminologyId())) {
+							Concept mapCon = client.getConcept(ancestor.getTerminologyId(), sourceTerminology,
+									sourceVersion, null, authToken);
+							Set<String> bucket = new HashSet<>();
+							potentialFSConTerms.put(mapCon, bucket);
+							break;
+						}
+					}
+				}
+			}
+
+			for (Concept testCon : potentialFSConTerms.keySet()) {
+				for (Atom atom : testCon.getAtoms()) {
+					if (isValidDescription(atom)) {
+						String normalizedStr = atom.getName().toLowerCase();
+						for (String s : nonFindingSiteStrings) {
+							normalizedStr = normalizedStr.replaceAll("\\b" + s + "s" + "\\b", " ").trim();
+							normalizedStr = normalizedStr.replaceAll("\\b" + s + "\\b", " ").trim();
+						}
+
+						normalizedStr = normalizedStr.replaceAll(" {2,}", " ").trim();
+
+						if (!potentialFSConTerms.get(testCon).contains(normalizedStr)) {
+							potentialFSConTerms.get(testCon).add(normalizedStr);
+						}
+					}
+				}
+			}
+		}
+
+		return retConcepts;
+	}
+
+	protected Set<String> identifyValidFindingSites(SctNeoplasmConcept sctCon) {
+		Set<String> targets = new HashSet<>();
+
+		Set<SctRelationship> amRels = getDestRels(sctCon, "Associated morphology");
+		Set<SctRelationship> findingSites = getDestRels(sctCon, "Finding site");
+
+		for (SctRelationship morphology : amRels) {
+			for (SctRelationship site : findingSites) {
+				if (site.getRoleGroup() == morphology.getRoleGroup()) {
+					targets.add(site.getRelationshipDestination());
+				}
+			}
+
+		}
+		return targets;
+	}
+	
+	protected Set<String> splitTokens(String str) {
+		String[] splitString = FieldedStringTokenizer.split(str.toLowerCase(), " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
+		Set<String> retStrings = new HashSet<>();
+
+		for (int i = 0; i < splitString.length; i++) {
+			if (!splitString[i].trim().isEmpty() && splitString[i].trim().length() != 1) {
+				retStrings.add(splitString[i].trim());
+			}
+		}
+
+		return retStrings;
+	}
+
 }
