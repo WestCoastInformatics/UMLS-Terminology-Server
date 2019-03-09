@@ -48,8 +48,8 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
  */
 @AnalyzerDefs({
     @AnalyzerDef(name = "noStopWord", tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class), filters = {
-        @TokenFilterDef(factory = StandardFilterFactory.class),
-        @TokenFilterDef(factory = LowerCaseFilterFactory.class)
+            @TokenFilterDef(factory = StandardFilterFactory.class),
+            @TokenFilterDef(factory = LowerCaseFilterFactory.class)
     }), @AnalyzerDef(name = "whitespace", tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class), filters = {
         @TokenFilterDef(factory = StandardFilterFactory.class),
         @TokenFilterDef(factory = LowerCaseFilterFactory.class)
@@ -247,8 +247,7 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
   /* see superclass */
   @Override
   public String toString() {
-    return getClass().getSimpleName() + " [" + super.toString() + ", name="
-        + name + "]";
+    return getClass().getSimpleName() + " [name = " + name + ", " + super.toString() + "]";
   }
 
 }
