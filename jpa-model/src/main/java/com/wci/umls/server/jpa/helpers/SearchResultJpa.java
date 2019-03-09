@@ -275,8 +275,8 @@ public class SearchResultJpa implements SearchResult {
   @Override
   public String toString() {
     return "SearchResultJpa [id=" + id + ", terminologyId=" + terminologyId
-        + ", terminology=" + terminology + ", version=" + version + ", type="
-        + type + ", property=" + property + ", value=" + value + ", obsolete="
+        + ",  value=" + value + ", terminology=" + terminology + ", version=" + version + ", type="
+        + type + ", property=" + property + ", obsolete="
         + obsolete + ", score=" + score + ", workflowStatus=" + workflowStatus
         + "]";
   }
