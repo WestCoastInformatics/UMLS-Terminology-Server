@@ -65,7 +65,7 @@ import com.wci.umls.server.services.helpers.PushBackReader;
  * Implementation of an algorithm to import data from two files.
  * 
  * <pre>
- * 1. a conceptId|type|pt[|sy]* file 2. a par/chd relationships file
+ * 1. a conceptId|code|pt|isLeaf|hasPostcoordination[|sy]* file 2. a par/chd relationships file
  */
 public class ICD11SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
@@ -205,49 +205,52 @@ public class ICD11SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorit
   private void loadMetadata() throws Exception {
     logInfo("  Load Semantic types");
 
-    String line = null;
-    int objectCt = 0;
-    PushBackReader reader = new PushBackReader(
-        new FileReader(new File(getInputPath(), "concepts.txt")));
-    final String[] fields = new String[10];
-
-    Set<String> types = new HashSet<>();
-    while ((line = reader.readLine()) != null) {
-
-      line = line.replace("\r", "");
-      FieldedStringTokenizer.split(line, "|", 10, fields);
-
-      if (!ConfigUtility.isEmpty(fields[1])) {
-        types.add(fields[1]);
-      }
-    }
-    reader.close();
-
-    // Create a semantic type for each unique value
-    for (final String type : types) {
-
-      final SemanticType sty = new SemanticTypeJpa();
-      sty.setAbbreviation(type);
-      sty.setDefinition("");
-      sty.setExample("");
-      sty.setExpandedForm(type);
-      sty.setNonHuman(false);
-      sty.setTerminology(getTerminology());
-      sty.setVersion(getVersion());
-      sty.setTreeNumber("");
-      sty.setTypeId("");
-      sty.setUsageNote("");
-      sty.setTimestamp(date);
-      sty.setLastModified(date);
-      sty.setLastModifiedBy(loader);
-      sty.setPublished(true);
-      sty.setPublishable(true);
-      Logger.getLogger(getClass()).debug("    add semantic type - " + sty);
-      addSemanticType(sty);
-      logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
-
-    }
-    commitClearBegin();
+    // No semantic types for ICD11 (at least, not at this time)
+    
+//    String line = null;
+//    int objectCt = 0;
+//    PushBackReader reader = new PushBackReader(
+//        new FileReader(new File(getInputPath(), "concepts.txt")));
+//    final String[] fields = new String[10];
+//
+//    
+//    Set<String> types = new HashSet<>();
+//    while ((line = reader.readLine()) != null) {
+//
+//      line = line.replace("\r", "");
+//      FieldedStringTokenizer.split(line, "|", 10, fields);
+//
+//      if (!ConfigUtility.isEmpty(fields[1])) {
+//        types.add(fields[1]);
+//      }
+//    }
+//    reader.close();
+//
+//    // Create a semantic type for each unique value
+//    for (final String type : types) {
+//
+//      final SemanticType sty = new SemanticTypeJpa();
+//      sty.setAbbreviation(type);
+//      sty.setDefinition("");
+//      sty.setExample("");
+//      sty.setExpandedForm(type);
+//      sty.setNonHuman(false);
+//      sty.setTerminology(getTerminology());
+//      sty.setVersion(getVersion());
+//      sty.setTreeNumber("");
+//      sty.setTypeId("");
+//      sty.setUsageNote("");
+//      sty.setTimestamp(date);
+//      sty.setLastModified(date);
+//      sty.setLastModifiedBy(loader);
+//      sty.setPublished(true);
+//      sty.setPublishable(true);
+//      Logger.getLogger(getClass()).debug("    add semantic type - " + sty);
+//      addSemanticType(sty);
+//      logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+//
+//    }
+//    commitClearBegin();
 
     // Root terminology
     final RootTerminology root = new RootTerminologyJpa();
@@ -392,13 +395,15 @@ public class ICD11SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorit
 
       line = line.replace("\r", "");
       final String[] fields = FieldedStringTokenizer.split(line, "|");
-
+      
       // Field Description
       // 0 conceptid
-      // 1 type
+      // 1 code
       // 2 pt
-      // 3-9 sy
-
+      // 3 isLeaf
+      // 4 hasPostCoordination
+      // 5-9 sy      
+      
       final Concept concept = new ConceptJpa();
       setCommonFields(concept);
       concept.setTerminologyId(fields[0]);
@@ -412,18 +417,20 @@ public class ICD11SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorit
       atom.setTerminologyId("");
       atom.setTermType("PT");
       atom.setLanguage("en");
-      atom.setCodeId("");
+      atom.setCodeId(fields[1]);
       atom.setConceptId(fields[0]);
       atom.setDescriptorId("");
       atom.setStringClassId("");
       atom.setLexicalClassId("");
+      atom.setLeafNode(("Y").equals(fields[3]));
+      atom.setHasPostCoordination(("Y").equals(fields[4]));
       // Add atom
       addAtom(atom);
       concept.getAtoms().add(atom);
       concept.setName(atom.getName());
 
       // Add any synonyms
-      for (int i = 3; i < fields.length; i++) {
+      for (int i = 5; i < fields.length; i++) {
         final Atom sy = new AtomJpa();
         sy.setTimestamp(date);
         sy.setLastModified(date);
@@ -449,14 +456,14 @@ public class ICD11SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorit
         concept.getAtoms().add(sy);
       }
 
-      // Add semantic type
-      final SemanticTypeComponent sty = new SemanticTypeComponentJpa();
-      setCommonFields(sty);
-      sty.setSemanticType(fields[1]);
-      sty.setTerminologyId("");
-      sty.setWorkflowStatus(WorkflowStatus.PUBLISHED);
-      addSemanticTypeComponent(sty, concept);
-      concept.getSemanticTypes().add(sty);
+//      // Add semantic type
+//      final SemanticTypeComponent sty = new SemanticTypeComponentJpa();
+//      setCommonFields(sty);
+//      sty.setSemanticType(fields[1]);
+//      sty.setTerminologyId("");
+//      sty.setWorkflowStatus(WorkflowStatus.PUBLISHED);
+//      addSemanticTypeComponent(sty, concept);
+//      concept.getSemanticTypes().add(sty);
 
       addConcept(concept);
       conceptIdMap.put(concept.getTerminologyId(), concept.getId());

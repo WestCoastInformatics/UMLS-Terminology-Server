@@ -154,6 +154,14 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @Column(nullable = true)
   private String lastPublishedRank = "0";
 
+  /** The is leaf node. */
+  @Column(nullable = false)
+  private boolean leafNode = false;
+  
+  /** The is leaf. */
+  @Column(nullable = false)
+  private boolean hasPostCoordination = false;
+
   /** The notes. */
   // NOTE: this could cause a performance problem with the join
   @OneToMany(mappedBy = "atom", targetEntity = AtomNoteJpa.class)
@@ -264,6 +272,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     this.treePositions = treePositions;
   }
 
+  /* see superclass */
   /*
    * see superc /* see superclass
    */
@@ -518,7 +527,31 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     this.notes = notes;
 
   }
+  
+  /* see superclass */
+  @Override
+  @Field(name = "leafNode", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public boolean isLeafNode() {
+    return leafNode;
+  }
 
+  /* see superclass */
+  public void setLeafNode(boolean isLeafNode) {
+    this.leafNode = isLeafNode;
+  }
+
+  /* see superclass */
+  @Override
+  @Field(name = "hadPostCoordination", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public boolean isHasPostCoordination() {
+    return hasPostCoordination;
+  }
+
+  /* see superclass */
+  public void setHasPostCoordination(boolean hasPostCoordination) {
+    this.hasPostCoordination = hasPostCoordination;
+  }  
+  
   /* see superclass */
   @Override
   @XmlElement(type = AtomNoteJpa.class)
