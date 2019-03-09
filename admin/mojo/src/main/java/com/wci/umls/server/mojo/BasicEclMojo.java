@@ -58,19 +58,19 @@ public class BasicEclMojo extends AbstractMojo {
 	/**
 	 * Name of terminology to be loaded.
 	 */
-	private String terminology = "SNOMEDCT";
+	private String terminology = "SNOMEDCT_US";
 
 	/**
 	 * The version.
 	 */
-	private String version = "latest";
+	private String version = "2015_09_01";
 
 	/**
 	 * The searchTerm.
 	 */
 	@Parameter
 //	private String eclDesc = "<< 55342001 | Neoplastic Disease : ( 116676008 | Associated Morphology | =   << 109355002 | Carcinoma in situ | ";
-	private String eclDesc = "<< 55342001 : 116676008 = 399919001";
+	private String eclDesc = "<< 41216001";
 
 	/** The user name. */
 	@Parameter

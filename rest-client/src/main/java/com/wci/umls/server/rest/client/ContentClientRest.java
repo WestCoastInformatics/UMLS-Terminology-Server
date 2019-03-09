@@ -432,22 +432,22 @@ public class ContentClientRest extends RootClientRest
     // converting to object
     return ConfigUtility.getGraphForString(resultString, DescriptorJpa.class);
   }
-  
 
   /* see superclass */
   @Override
   public String getInverseRelationshipType(String terminology, String version,
     String relationshipType, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Client - get inverse relationship type "
-        + relationshipType + ", " + terminology + ", " + version);
+    Logger.getLogger(getClass())
+        .debug("Content Client - get inverse relationship type "
+            + relationshipType + ", " + terminology + ", " + version);
     validateNotEmpty(relationshipType, "relationshipType");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target = client.target(config.getProperty("base.url")
-        + "/content/inverseRelationshipType/" + terminology + "/" + version + "/"
-        + relationshipType);
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/content/inverseRelationshipType/"
+            + terminology + "/" + version + "/" + relationshipType);
     final Response response = target.request(MediaType.TEXT_PLAIN)
         .header("Authorization", authToken).get();
 
@@ -460,7 +460,7 @@ public class ContentClientRest extends RootClientRest
 
     // converting to object
     return ConfigUtility.getGraphForString(resultString, String.class);
-  }  
+  }
 
   /* see superclass */
   @Override
@@ -497,8 +497,8 @@ public class ContentClientRest extends RootClientRest
   @Override
   public SearchResultList findDescriptorsForGeneralQuery(String query,
     String JPQL, PfsParameterJpa pfs, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find descriptors " + query + ", " + JPQL + ", " + pfs);
+    Logger.getLogger(getClass()).debug("Content Client - find descriptors "
+        + query + ", " + JPQL + ", " + pfs);
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(
@@ -2313,8 +2313,7 @@ public class ContentClientRest extends RootClientRest
     }
 
     // converting to object
-    return ConfigUtility.getGraphForString(resultString,
-        Set.class);
+    return ConfigUtility.getGraphForString(resultString, Set.class);
   }
 
   /* see superclass */
@@ -2466,13 +2465,40 @@ public class ContentClientRest extends RootClientRest
     return resultString;
   }
 
-
   @Override
   public ConceptList getConceptsForQuery(String terminology, String version,
     Long projectId, String query, PfsParameterJpa pfs, String authToken)
     throws Exception {
     // TODO Auto-generated method stub
     return null;
+  }
+
+  /* see superclass */
+  @Override
+  public void loadTerminologyIcd11Simple(String terminology, String version,
+    String inputDir, String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Client - load terminology icd11 simple " + terminology + ", "
+            + version + ", " + inputDir);
+
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+    validateNotEmpty(inputDir, "inputDir");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/terminology/icd11/load/simple?terminology="
+            + terminology + "&version=" + version);
+
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).put(Entity.text(inputDir));
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // do nothing
+    } else {
+      throw new Exception("Unexpected status " + response.getStatus());
+    }
+
   }
 
 }

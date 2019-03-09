@@ -218,6 +218,8 @@ public class AtomJpaUnitTest extends ModelUnitSupport {
     tester.include("name");
     tester.include("termType");
     tester.include("workflowStatus");
+    tester.include("leafNode");
+    tester.include("hasPostCoordination");
 
     assertTrue(tester.testNotNullFields());
   }
@@ -265,6 +267,8 @@ public class AtomJpaUnitTest extends ModelUnitSupport {
     tester.include("language");
     tester.include("workflowStatus");
     tester.include("branch");
+    tester.include("leafNode");
+    tester.include("hasPostCoordination");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
 

@@ -198,4 +198,32 @@ public interface Atom extends ComponentHasAttributesAndName,
    */
   public List<Note> getNotes();
 
+  /**
+   * Indicates whether or not leaf is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isLeafNode();
+
+  /**
+   * Sets the leaf.
+   *
+   * @param isLeaf the leaf
+   */
+  public void setLeafNode(boolean isLeafNode);
+
+  /**
+   * Indicates whether or not checks for post coordination is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isHasPostCoordination();
+
+  /**
+   * Sets the checks for post coordination.
+   *
+   * @param hasPostCoordination the checks for post coordination
+   */
+  public void setHasPostCoordination(boolean hasPostCoordination);
+
 }

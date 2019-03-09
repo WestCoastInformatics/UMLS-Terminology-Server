@@ -55,6 +55,7 @@ import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.ComponentInfoJpa;
 import com.wci.umls.server.jpa.algo.ClamlLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.EclConceptIndexingAlgorithm;
+import com.wci.umls.server.jpa.algo.ICD11SimpleLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.LabelSetMarkedParentAlgorithm;
 import com.wci.umls.server.jpa.algo.LuceneReindexAlgorithm;
 import com.wci.umls.server.jpa.algo.OwlLoaderAlgorithm;
@@ -480,6 +481,88 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     }
   }
 
+  /* see superclass */
+  @Override
+  @PUT
+  @Path("/terminology/icd11/load/simple")
+  @Consumes(MediaType.TEXT_PLAIN)
+  @ApiOperation(value = "Load simple icd11 terminology from directory", notes = "Loads simple terminology from specified directory")
+  public void loadTerminologyIcd11Simple(
+    @ApiParam(value = "Terminology, e.g. UMLS", required = true) @QueryParam("terminology") String terminology,
+    @ApiParam(value = "version, e.g. latest", required = true) @QueryParam("version") String version,
+    @ApiParam(value = "Input directory", required = true) String inputDir,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /terminology/icd11/load/simple " + terminology
+            + ", " + version + " from input directory " + inputDir);
+
+    // Track system level information
+    ContentService contentService = null;
+    ICD11SimpleLoaderAlgorithm algo = new ICD11SimpleLoaderAlgorithm();
+    TransitiveClosureAlgorithm algo2 = null;
+    TreePositionAlgorithm algo3 = null;
+    try {
+      final String userName = authorizeApp(securityService, authToken,
+          "load simple", UserRole.ADMINISTRATOR);
+
+      algo = new ICD11SimpleLoaderAlgorithm();
+      algo.setLastModifiedBy(userName);
+      algo.setTerminology(terminology);
+      algo.setVersion(version);
+      algo.setInputPath(inputDir);
+      algo.compute();
+      algo.close();
+
+      // Compute transitive closure
+      contentService = new ContentServiceJpa();
+        final TerminologyList list = contentService.getTerminologyLatestVersions();
+        for (final Terminology t : list.getObjects()) {
+            // Only compute for organizing class types
+            if (t.getOrganizingClassType() != null) {
+                algo2 = new TransitiveClosureAlgorithm();
+                algo2.setLastModifiedBy(userName);
+                algo2.setTerminology(t.getTerminology());
+                algo2.setVersion(t.getVersion());
+                algo2.setIdType(t.getOrganizingClassType());
+                // some terminologies may have cycles, allow these for now.
+                algo2.setCycleTolerant(true);
+                algo2.compute();
+                algo2.close();
+            }
+        }
+
+      //
+      // Compute tree positions
+      //
+      algo3 = new TreePositionAlgorithm();
+      algo3.setLastModifiedBy(userName);
+      algo3.setTerminology(terminology);
+      algo3.setVersion(version);
+      algo3.setIdType(IdType.CONCEPT);
+      // some terminologies may have cycles, allow these for now.
+      algo3.setCycleTolerant(true);
+      // compute "semantic types" for concept hierarchies
+      algo3.setComputeSemanticType(true);
+      algo3.compute();
+      algo3.close();
+
+    } catch (Exception e) {
+      handleException(e, "trying to load icd11 simple terminology from directory");
+    } finally {
+      algo.close();
+      if (algo2 != null) {
+        algo2.close();
+      }
+      algo3.close();
+
+      contentService.close();
+      securityService.close();
+    }
+  }
+  
+  
   /**
    * Load terminology rrf.
    *
