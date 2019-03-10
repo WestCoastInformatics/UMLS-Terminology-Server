@@ -12,7 +12,6 @@ import java.time.format.TextStyle;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -158,40 +157,31 @@ abstract public class AbstractMatchingAnalysisMojo extends AbstractMojo {
 		final Properties properties = ConfigUtility.getConfigProperties();
 
 		// authenticate
-		if (userName == null || userPassword == null) {
+		if (userName == null || userPassword == null) {	
 			userName = properties.getProperty("viewer.user");
 			userPassword = properties.getProperty("viewer.password");
 		}
 
-		/*
-		 * if (properties.containsKey("search.handler.ATOMCLASS.acronymsFile")) { final
-		 * BufferedReader in = new BufferedReader( new FileReader(new
-		 * File(properties.getProperty("search.handler.ATOMCLASS.acronymsFile"))));
-		 * String fileLine; while ((fileLine = in.readLine()) != null) { String[] tokens
-		 * = FieldedStringTokenizer.split(fileLine, "\t"); if
-		 * (!acronymExpansionMap.containsKey(tokens[0])) {
-		 * acronymExpansionMap.put(tokens[0], new HashSet<String>(2)); }
-		 * acronymExpansionMap.get(tokens[0]).add(tokens[1]); } in.close(); } else {
-		 * throw new Exception("Required property acronymsFile not present."); }
-		 */
 		return properties;
 	}
 
-	protected PrintWriter prepareOutputFile(String filePrefix, String outputDescription) throws FileNotFoundException, UnsupportedEncodingException {
+	protected PrintWriter prepareOutputFile(String filePrefix, String outputDescription)
+			throws FileNotFoundException, UnsupportedEncodingException {
 		File fd = new File(userFolder.getPath() + File.separator + filePrefix + "-" + month + timestamp + ".xls");
 		getLog().info("Creating " + outputDescription + " file (" + filePrefix + ") at: " + fd.getAbsolutePath());
 
 		final FileOutputStream fos = new FileOutputStream(fd);
 		final OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
 		PrintWriter pw = new PrintWriter(osw);
-		
+
 		return pw;
 
 	}
+
 	protected PrintWriter prepareRelOutputFile(String filePrefix, String outputDescription)
 			throws FileNotFoundException, UnsupportedEncodingException {
 		PrintWriter pw = prepareOutputFile(filePrefix, outputDescription);
-		
+
 		pw.write("Concept Id");
 		pw.write("\t");
 		pw.print("Concept Name");
@@ -203,7 +193,7 @@ abstract public class AbstractMatchingAnalysisMojo extends AbstractMojo {
 		pw.print("Role Group");
 
 		pw.println();
-		
+
 		return pw;
 	}
 
@@ -304,12 +294,10 @@ abstract public class AbstractMatchingAnalysisMojo extends AbstractMojo {
 		return conceptsFromDescs.get(desc);
 	}
 
-
 	protected boolean isValidDescription(Atom atom) {
 		return (!atom.isObsolete() && !atom.getTermType().equals("Fully specified name")
 				&& !atom.getTermType().equals("Definition"));
 	}
-
 
 	protected void generateStringOutput(Map<String, Integer> lowestDepthMap, Map<String, String> matchMap,
 			StringBuffer str) {
@@ -332,7 +320,6 @@ abstract public class AbstractMatchingAnalysisMojo extends AbstractMojo {
 			str.append(s);
 		}
 	}
-
 
 	protected Set<SctNeoplasmConcept> identifyPotentialFSConcepts(Set<String> findingSites) throws Exception {
 		Set<SctNeoplasmConcept> retConcepts = new HashSet<>();
@@ -437,7 +424,7 @@ abstract public class AbstractMatchingAnalysisMojo extends AbstractMojo {
 		}
 		return targets;
 	}
-	
+
 	protected Set<String> splitTokens(String str) {
 		String[] splitString = FieldedStringTokenizer.split(str.toLowerCase(), " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
 		Set<String> retStrings = new HashSet<>();

@@ -20,22 +20,19 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 
-import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
-import com.wci.umls.server.helpers.content.ConceptList;
-import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.mojo.model.SctNeoplasmConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
@@ -68,17 +65,18 @@ public class ICD11MatchingMojo extends AbstractMatchingAnalysisMojo {
 	private String sv = "latest";
 
 	/** Name of terminology to be loaded. */
-	private String tt = "icd11-13";
+	private String tt = "ICD11";
 
 	/** The version. */
-	private String tv = "latest";
+	private String tv = "201812";
 
 	private String tcInputFilePath = "C:\\Code\\wci\\myTransClosureFile.csv";
 
 	private Map<String, Map<String, Integer>> transClosureMap = new HashMap<>();
 	private Map<String, Map<String, Integer>> inverseTransClosureMap = new HashMap<>();
 
-	private PrintWriter outputWriter;
+	private PrintWriter outputDeveloperWriter;
+	private PrintWriter outputTerminologistWriter;
 
 	private Map<String, SearchResultList> alreadyLookedUpTokenCache = new HashMap<>();
 
@@ -150,13 +148,14 @@ public class ICD11MatchingMojo extends AbstractMatchingAnalysisMojo {
 		for (SctNeoplasmConcept sctCon : snomedConcepts.values()) {
 			boolean foundMatch = false;
 
-//			 if (!sctCon.getConceptId().equals("92719006")) { continue; }
+			// if (!sctCon.getConceptId().equals("92719006")) { continue; }
 
 			Set<String> findingSites = identifyValidFindingSites(sctCon);
 			StringBuffer newConInfoStr = constructConInfoStr(findingSites, sctCon, ++counter);
 
 			System.out.println(newConInfoStr);
-			outputWriter.println(newConInfoStr);
+			outputDeveloperWriter.println(newConInfoStr);
+			outputTerminologistWriter.println(newConInfoStr);
 
 			StringBuffer str = new StringBuffer();
 
@@ -178,23 +177,53 @@ public class ICD11MatchingMojo extends AbstractMatchingAnalysisMojo {
 
 			if (foundMatch) {
 				System.out.println(str.toString());
-				outputWriter.println(str);
-				outputWriter.println();
-				outputWriter.println();
+				outputDeveloperWriter.println(str);
+				outputDeveloperWriter.println();
+				outputDeveloperWriter.println();
+
+				outputTerminologistWriter.println(cleanResultsForTerminologist(str));
+				outputTerminologistWriter.println();
+				outputTerminologistWriter.println();
 			} else {
 				noMatchList.add(sctCon.getConceptId() + "\t" + sctCon.getName());
 			}
 
-			outputWriter.flush();
+			outputDeveloperWriter.flush();
+			outputTerminologistWriter.flush();
 		}
 
 		System.out.println("\n\n\nCouldn't Match the following: ");
 		for (String s : noMatchList) {
-			outputWriter.println(s);
+			outputDeveloperWriter.println(s);
+			outputTerminologistWriter.println(s);
 			System.out.println(s);
 		}
 
-		outputWriter.close();
+		outputTerminologistWriter.close();
+		outputDeveloperWriter.close();
+	}
+
+	private StringBuffer cleanResultsForTerminologist(StringBuffer str) {
+		String[] lines = str.toString().split("\n");
+
+		Map<String, String> processedIdsMap = new TreeMap<>();
+		for (String line : lines) {
+			String[] columns = line.split("\t");
+			if (columns.length > 4) {
+				if (!processedIdsMap.containsKey(columns[1])) {
+					String ouputToReturn = "\t" + columns[1] + "\t" + columns[2] + "\t" + columns[3] + "\t" + columns[4]
+							+ "\n";
+					processedIdsMap.put(columns[1], ouputToReturn);
+				}
+			}
+		}
+
+		StringBuffer returnBuffer = new StringBuffer();
+		for (String code : processedIdsMap.keySet()) {
+			returnBuffer.append(processedIdsMap.get(code));
+		}
+
+		return returnBuffer;
 	}
 
 	private StringBuffer constructConInfoStr(Set<String> findingSites, SctNeoplasmConcept sctCon, int counter) {
@@ -239,15 +268,15 @@ public class ICD11MatchingMojo extends AbstractMatchingAnalysisMojo {
 
 								for (SearchResult icd11Con : icd11Targets) {
 									if (icd11Con.getValue().toLowerCase().matches(".*\\b" + token + "\\b.*")) {
-										String outputString = "\n3333\t" + icd11Con.getTerminologyId() + "\t"
+										String outputString = "\n3333\t" + icd11Con.getCodeId() + "\t"
 												+ icd11Con.getValue() + "\t" + depth + "\t" + token + "\t"
 												+ icd11Con.getScore();
 
 										// System.out.println(outputString);
-										if (!lowestDepthMap.containsKey(icd11Con.getTerminologyId())
-												|| depth < lowestDepthMap.get(icd11Con.getTerminologyId())) {
-											lowestDepthMap.put(icd11Con.getTerminologyId(), depth);
-											matchMap.put(icd11Con.getTerminologyId(), outputString);
+										if (!lowestDepthMap.containsKey(icd11Con.getCodeId())
+												|| depth < lowestDepthMap.get(icd11Con.getCodeId())) {
+											lowestDepthMap.put(icd11Con.getCodeId(), depth);
+											matchMap.put(icd11Con.getCodeId(), outputString);
 										}
 									}
 								}
@@ -293,14 +322,14 @@ public class ICD11MatchingMojo extends AbstractMatchingAnalysisMojo {
 						SearchResultList results = testRule1FindingSite(normalizedStr);
 						for (SearchResult result : results.getObjects()) {
 							if (isNeoplasmMatch(result)) {
-								String outputString = "\n4444\t" + result.getTerminologyId() + "\t" + result.getValue()
-										+ "\t" + depth + "\t" + normalizedStr + "\t" + result.getScore();
+								String outputString = "\n4444\t" + result.getCodeId() + "\t" + result.getValue() + "\t"
+										+ depth + "\t" + normalizedStr + "\t" + result.getScore();
 
 								// System.out.println(outputString);
-								if (!lowestDepthMap.containsKey(result.getTerminologyId())
-										|| depth < lowestDepthMap.get(result.getTerminologyId())) {
-									lowestDepthMap.put(result.getTerminologyId(), depth);
-									matchMap.put(result.getTerminologyId(), outputString);
+								if (!lowestDepthMap.containsKey(result.getCodeId())
+										|| depth < lowestDepthMap.get(result.getCodeId())) {
+									lowestDepthMap.put(result.getCodeId(), depth);
+									matchMap.put(result.getCodeId(), outputString);
 								}
 							}
 						}
@@ -317,7 +346,6 @@ public class ICD11MatchingMojo extends AbstractMatchingAnalysisMojo {
 		return false;
 	}
 
-
 	private boolean matchApproach2(Set<String> findingSites, Map<String, Integer> alreadyQueriedServerCalls,
 			StringBuffer str) throws Exception {
 		boolean matchFound = false;
@@ -332,7 +360,7 @@ public class ICD11MatchingMojo extends AbstractMatchingAnalysisMojo {
 					SearchResultList results = testRule1FindingSite(desc.getDescription());
 					for (SearchResult result : results.getObjects()) {
 						if (isNeoplasmMatch(result)) {
-							str.append("\n2222\t" + result.getTerminologyId() + "\t" + result.getValue() + "\t0\t"
+							str.append("\n2222\t" + result.getCodeId() + "\t" + result.getValue() + "\t0\t"
 									+ desc.getDescription());
 							matchFound = true;
 						}
@@ -356,8 +384,7 @@ public class ICD11MatchingMojo extends AbstractMatchingAnalysisMojo {
 
 					for (SearchResult icd11Con : icd11Targets) {
 						if (icd11Con.getValue().toLowerCase().matches(".*\\b" + token + "\\b.*")) {
-							str.append("\n111\t" + icd11Con.getTerminologyId() + "\t" + icd11Con.getValue() + "\t0\t"
-									+ token);
+							str.append("\n111\t" + icd11Con.getCodeId() + "\t" + icd11Con.getValue() + "\t0\t" + token);
 							foundMatch = true;
 						}
 					}
@@ -392,7 +419,8 @@ public class ICD11MatchingMojo extends AbstractMatchingAnalysisMojo {
 			line = reader.readLine();
 		}
 
-		outputWriter = prepareOutputFile("results", "ICD11 Matching Results");
+		outputDeveloperWriter = prepareOutputFile("developerResults", "ICD11 Matching Results");
+		outputTerminologistWriter = prepareOutputFile("terminologistResults", "ICD11 Matching Results");
 
 		reader.close();
 	}
@@ -420,19 +448,19 @@ public class ICD11MatchingMojo extends AbstractMatchingAnalysisMojo {
 
 	private Set<SearchResult> getRule1Icd11Concepts() throws Exception {
 		final SearchResultList fullStringResults = client.findConcepts(targetTerminology, targetVersion,
-				"(terminologyId: XH* OR terminologyId: 2*) AND \"Carcinoma\" AND \"in situ\"", pfsLimitless, authToken);
+				"(atoms.codeId: XH* OR atoms.codeId: 2*) AND \"Carcinoma\" AND \"in situ\"", pfsLimitless, authToken);
 
 		System.out.println("Have returned : " + fullStringResults.getTotalCount() + " objects");
 		int matches = 0;
 		for (SearchResult result : fullStringResults.getObjects()) {
-			System.out.println(result.getTerminologyId() + "\t" + result.getValue());
+			System.out.println(result.getCodeId() + "\t" + result.getValue());
 		}
 
 		Set<SearchResult> filteredIcd11List = new HashSet<>();
 		System.out.println("\n\n\nNow Filtering");
 		for (SearchResult result : fullStringResults.getObjects()) {
 			if (isNeoplasmMatch(result)) {
-				System.out.println(result.getTerminologyId() + "\t" + result.getValue());
+				System.out.println(result.getCodeId() + "\t" + result.getValue());
 				filteredIcd11List.add(result);
 				matches++;
 			}
@@ -443,9 +471,9 @@ public class ICD11MatchingMojo extends AbstractMatchingAnalysisMojo {
 	}
 
 	private boolean isNeoplasmMatch(SearchResult result) {
-		if ((result.getTerminologyId().startsWith("XH") || result.getTerminologyId().startsWith("2"))
+		if ((result.getCodeId().startsWith("XH") || result.getCodeId().startsWith("2"))
 				&& result.getValue().toLowerCase().matches(".*\\bcarcinoma\\b.*")
-				&& result.getValue().toLowerCase().matches(".*\\bin situ\\b.*")) {
+				&& result.getValue().toLowerCase().matches(".*\\bin situ\\b.*") && result.isLeafNode()) {
 			return true;
 		}
 
@@ -455,7 +483,7 @@ public class ICD11MatchingMojo extends AbstractMatchingAnalysisMojo {
 	private SearchResultList testRule1FindingSite(String queryPortion) throws Exception {
 		if (!alreadyLookedUpTokenCache.containsKey(queryPortion)) {
 			final SearchResultList straightMatch = client.findConcepts(targetTerminology, targetVersion,
-					"(terminologyId: XH* OR terminologyId: 2*) AND \"Carcinoma\" AND \"in situ\" AND " + queryPortion,
+					"(atoms.codeId: XH* OR atoms.codeId: 2*) AND \"Carcinoma\" AND \"in situ\" AND " + queryPortion,
 					pfsLimited, authToken);
 
 			alreadyLookedUpTokenCache.put(queryPortion, straightMatch);
@@ -517,62 +545,6 @@ public class ICD11MatchingMojo extends AbstractMatchingAnalysisMojo {
 		return concepts;
 	}
 
-	/**
-	 * Write results to file.
-	 *
-	 * @param outputFile
-	 *            the output file
-	 * @param line
-	 *            the line
-	 * @param results
-	 *            the results
-	 * @param acronymExpanded
-	 *            the acronym expanded
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
-	 */
-	private void writeResultsToFile(PrintWriter outputFile, String line, SearchResultList results,
-			boolean acronymExpanded) throws IOException {
-		if (!acronymExpanded) {
-			getLog().info("Found " + results.getTotalCount() + " results");
-		} else {
-			getLog().info("Found " + results.getTotalCount()
-					+ " results which may be more than expected, but is due to acronym expansion.");
-		}
-
-		outputFile.write(line);
-		outputFile.println();
-
-		int counter = 0;
-		float lastScore = 0;
-		Set<String> seenResults = new HashSet<>();
-		for (SearchResult singleResult : results.getObjects()) {
-			if (limitedPfsCount != null && ++counter > limitedPfsCount && lastScore != singleResult.getScore()) {
-				break;
-			}
-
-			// With acronym expansion, want to ensure don't list duplicate results
-			if (seenResults.contains(singleResult.getTerminologyId())) {
-				continue;
-			}
-
-			getLog().info("    match" + (counter) + " = " + singleResult.getTerminologyId() + " | "
-					+ singleResult.getValue() + " | " + "with score: " + singleResult.getScore() + " | ");
-
-			outputFile.write("\t");
-			outputFile.write(singleResult.getTerminologyId());
-			seenResults.add(singleResult.getTerminologyId());
-			outputFile.write("\t");
-			outputFile.print(singleResult.getValue());
-			outputFile.write("\t");
-			outputFile.println(singleResult.getScore());
-
-			lastScore = singleResult.getScore();
-		}
-
-		outputFile.println();
-		outputFile.flush();
-	}
 	/*
 	 * private boolean matchApproach-Abandon1(String findingSite, Set<SearchResult>
 	 * icd11Targets, List<String> noMatchList, StringBuffer str) throws Exception {
