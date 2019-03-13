@@ -273,8 +273,7 @@ public class CreateConceptRelBequeathalAlgorithm extends AbstractInsertMaintRele
           conceptsToBeApproved.add(relationship.getTo().getId());
         }
 
-        //commitClearBegin();
-        updateProgress();
+       updateProgress();
 
       }
       // confirm that all concepts have been committed
@@ -309,6 +308,8 @@ public class CreateConceptRelBequeathalAlgorithm extends AbstractInsertMaintRele
             logError("    error = " + error);
           }
         }
+        
+        commitClearBegin();
       }
 
     } catch (Exception e) {
