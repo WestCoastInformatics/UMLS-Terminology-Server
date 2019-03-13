@@ -1,6 +1,8 @@
 package com.wci.umls.server.mojo.processes;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
@@ -45,9 +47,10 @@ public class NeoplasmConceptSearcher {
 
   protected PfsParameterJpa pfsLimitless = new PfsParameterJpa();
 
+  static private Set<SctNeoplasmConcept> neoplasmConcepts = null;
 
-  public void setup(ContentClientRest contentClient, String st,
-      String sv, String tt, String tv, String token) {
+  public void setup(ContentClientRest contentClient, String st, String sv, String tt, String tv,
+    String token) {
     pfsMinimal.setStartIndex(0);
     pfsMinimal.setMaxResults(5);
     pfsLimited.setStartIndex(0);
@@ -174,4 +177,41 @@ public class NeoplasmConceptSearcher {
     relParser = rp;
   }
 
+  public Set<SctNeoplasmConcept> getAllNeoplasmConcepts() {
+    try {
+      if (neoplasmConcepts == null) {
+        neoplasmConcepts = new HashSet<>();
+
+        for (String conId : descParser.getAllNeoplasmConceptIds()) {
+          neoplasmConcepts.add(populateSctConcept(conId, null));
+        }
+      }
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+
+    return neoplasmConcepts;
+  }
+
+
+  /**
+   * Returns the neoplasm concept's relationship targets based on the provided
+   * relationship type.
+   *
+   * @param con the con
+   * @param relType the rel type
+   * @return the dest rels
+   */
+  protected Set<SctRelationship> getDestRels(SctNeoplasmConcept con, String relType) {
+    Set<SctRelationship> targets = new HashSet<>();
+
+    for (SctRelationship rel : con.getRels()) {
+      if (rel.getRelationshipType().equals(relType)) {
+        targets.add(rel);
+      }
+    }
+
+    return targets;
+  }
 }

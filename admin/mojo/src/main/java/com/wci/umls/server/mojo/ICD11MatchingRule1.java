@@ -15,6 +15,7 @@
  */
 package com.wci.umls.server.mojo;
 
+import java.util.Map;
 import java.util.Set;
 
 import com.wci.umls.server.helpers.SearchResult;
@@ -46,7 +47,7 @@ public class ICD11MatchingRule1 extends AbstractNeoplasmICD11MatchingRule {
     matchApproach2(findingSites, str);
 
     Set<SctNeoplasmConcept> fsConcepts =
-        fsUtility.identifyPotentialFSConcepts(findingSites);
+        fsUtility.identifyPotentialFSConcepts(findingSites, devWriter);
     if (fsConcepts != null) {
       matchApproach3(fsConcepts, str);
       matchApproach4(fsConcepts, str);
@@ -113,17 +114,17 @@ public class ICD11MatchingRule1 extends AbstractNeoplasmICD11MatchingRule {
    */
   protected SearchResultList testMatchingFindingSite(String queryPortion)
     throws Exception {
-    if (!alreadyLookedUpTokenCache.containsKey(queryPortion)) {
+    if (!findingSiteCache.containsKey(queryPortion)) {
       final SearchResultList straightMatch = client.findConcepts(
           targetTerminology, targetVersion,
           "(atoms.codeId: XH* OR atoms.codeId: 2*) AND \"Carcinoma\" AND \"in situ\" AND "
               + queryPortion,
           pfsLimited, authToken);
 
-      alreadyLookedUpTokenCache.put(queryPortion, straightMatch);
+      findingSiteCache.put(queryPortion, straightMatch);
     }
 
-    return alreadyLookedUpTokenCache.get(queryPortion);
+    return findingSiteCache.get(queryPortion);
   }
 
   @Override
@@ -134,5 +135,15 @@ public class ICD11MatchingRule1 extends AbstractNeoplasmICD11MatchingRule {
   @Override
   protected String getRule() {
     return "rule1";
+  }
+
+  @Override
+  public String getDefaultTarget() {
+    return "2E6Y\tCarcinoma in situ of other specified site";
+  }
+
+  @Override
+  protected Map<String, SctNeoplasmConcept> getConceptMap() {
+    return null;
   }
 }

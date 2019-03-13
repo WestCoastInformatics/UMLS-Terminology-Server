@@ -10,12 +10,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -296,26 +294,6 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
   }
 
   /**
-   * Returns the neoplasm concept's relationship targets based on the provided
-   * relationship type.
-   *
-   * @param con the con
-   * @param relType the rel type
-   * @return the dest rels
-   */
-  protected Set<SctRelationship> getDestRels(SctNeoplasmConcept con, String relType) {
-    Set<SctRelationship> targets = new HashSet<>();
-
-    for (SctRelationship rel : con.getRels()) {
-      if (rel.getRelationshipType().equals(relType)) {
-        targets.add(rel);
-      }
-    }
-
-    return targets;
-  }
-
-  /**
    * Execute an ecl query and populate the neoplasm concept with the results.
    *
    * @param eclResults the ecl results
@@ -381,39 +359,16 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
 
     for (String conId : conIdList) {
       SctNeoplasmConcept con = new SctNeoplasmConcept(conId, null);
-  
+
       con.setDescs(descParser.getNeoplasmDescs(con));
       con.setRels(relParser.getNeoplasmRels(con));
-  
+
       con.setName(con.getDescs().iterator().next().getDescription());
-  
+
       concepts.put(conId, con);
     }
-    
+
     return concepts;
-  }
-
-  /**
-   * Identify finding sites related to associated morphology relationships.
-   *
-   * @param sctCon the sct con
-   * @return the sets the
-   */
-  protected Set<String> identifyAssociatedMorphologyBasedFindingSites(SctNeoplasmConcept sctCon) {
-    Set<String> targets = new HashSet<>();
-
-    Set<SctRelationship> amRels = getDestRels(sctCon, "Associated morphology");
-    Set<SctRelationship> findingSites = getDestRels(sctCon, "Finding site");
-
-    for (SctRelationship morphology : amRels) {
-      for (SctRelationship site : findingSites) {
-        if (site.getRoleGroup() == morphology.getRoleGroup()) {
-          targets.add(site.getRelationshipDestination());
-        }
-      }
-
-    }
-    return targets;
   }
 
   /*

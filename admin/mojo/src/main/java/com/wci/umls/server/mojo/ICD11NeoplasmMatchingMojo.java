@@ -140,22 +140,29 @@ public class ICD11NeoplasmMatchingMojo extends AbstractContentAnalysisMojo {
           setupContentParsers();
 
           // Get ECL Results
-          pfsEcl.setExpression(rule.getEclExpression());
-          // concepts = processEclQuery(eclResults);
-           snomedConcepts = processEclQueryFromFiles(rule);
-          /*
-           snomedConcepts = populateTestConcept(Arrays.asList(
-              "92695008"
-              ));
-              */
-
+          if (rule.getEclExpression() != null) {
+            pfsEcl.setExpression(rule.getEclExpression());
+            // concepts = processEclQuery(eclResults);
+             snomedConcepts = processEclQueryFromFiles(rule);
+/*
+             snomedConcepts = populateTestConcept(Arrays.asList(
+                "92540005",
+//                "92695008",
+                "92666004"
+//                ,"255140001"
+                ));
+*/
+          } else {
+            snomedConcepts = rule.getConceptMap();
+          }
+            
           // Identify ICD11 Targets
           rule.identifyIcd11Targets();
           System.out.println("Have " + snomedConcepts.size() + " concepts to process");
 
           // Process Terms
           for (SctNeoplasmConcept sctCon : snomedConcepts.values()) {
-            Set<String> findingSites = identifyAssociatedMorphologyBasedFindingSites(sctCon);
+            Set<String> findingSites = fsUtility.identifyAssociatedMorphologyBasedFindingSites(sctCon);
 
             String resultString = rule.executeRule(sctCon, findingSites, ++counter);
 
@@ -216,6 +223,9 @@ public class ICD11NeoplasmMatchingMojo extends AbstractContentAnalysisMojo {
             targetVersion, authToken);
       } else if (Integer.parseInt(rules[i]) == 2) {
         rule = new ICD11MatchingRule2(client, sourceTerminology, sourceVersion, targetTerminology,
+            targetVersion, authToken);
+      } else if (Integer.parseInt(rules[i]) == 4) {
+        rule = new ICD11MatchingRule4(client, sourceTerminology, sourceVersion, targetTerminology,
             targetVersion, authToken);
       }
 
@@ -404,7 +414,7 @@ public class ICD11NeoplasmMatchingMojo extends AbstractContentAnalysisMojo {
   private void postTermProcessing(Set<String> findingSites, AbstractNeoplasmICD11MatchingRule rule,
     SctNeoplasmConcept sctCon, String resultString, List<String> noMatchList, int counter,
     int totalConcepts) throws Exception {
-    if (resultString != null) {
+    if (resultString != null && !resultString.isEmpty()) {
       System.out.println(resultString);
 
       rule.getDevWriter().println(resultString);
@@ -414,20 +424,42 @@ public class ICD11NeoplasmMatchingMojo extends AbstractContentAnalysisMojo {
       String singleResponse = identifyProperResponse(sctCon, findingSites, resultString);
       
       if (singleResponse == null) {
-        System.out.println("\n\nCouldn't discern between the following options programatically" + resultString);
-        rule.getDevWriter().println("\n\nCouldn't discern between the following options programatically" + resultString);
-        List<String> results = cleanResultsForTerminologist(resultString);
-        rule.getTermWriter().println("\n\nCouldn't discern between the following options programatically" + results);
+        StringBuffer devBuf = new StringBuffer();
+        StringBuffer termBuf = new StringBuffer();
+        devBuf.append("\tCouldn't discern between the following options\n");
+        termBuf.append("\tCouldn't discern between the following options\n");
+        
+        List<String> termResults = cleanResultsForTerminologist(resultString);
+
+        String[] results = resultString.split("\n");
+        for (int i = 0; i< results.length; i++) {
+          devBuf.append("\t" + results[i] + "\n");
+        }
+        
+        for (String r : termResults) {
+          termBuf.append("\t" + r + "\n");
+        }
+        
+        devBuf.append("\n");
+        termBuf.append("\n");
+
+        System.out.println(devBuf.toString());
+        rule.getDevWriter().println(devBuf.toString());
+        rule.getTermWriter().println(termBuf.toString());
       } else {
+        if (!singleResponse.startsWith("\t")) {
+          singleResponse = "\t" + singleResponse;
+        }
         System.out.println("\n\nFinal Response: " + singleResponse);
         rule.getTermWriter().println(singleResponse);
         rule.getTermWriter().println();
         rule.getTermWriter().println();
       }
     } else {
-      rule.getDevWriter().println("\n\n\tCould map to\t2E6Y\tCarcinoma in situ of other specified site\n" + resultString);
-      List<String> results = cleanResultsForTerminologist(resultString);
-      rule.getTermWriter().println("\n\n\tCould map to\t2E6Y\tCarcinoma in situ of other specified site\n" + results);
+      // No matches
+      String outputString = "\t" + rule.getDefaultTarget() + "\tNo direct match. Using default target\n\n";
+      rule.getDevWriter().println(outputString);
+      rule.getTermWriter().println(outputString);
 
       noMatchList.add(sctCon.getConceptId() + "\t" + sctCon.getName());
     }
@@ -446,7 +478,10 @@ public class ICD11NeoplasmMatchingMojo extends AbstractContentAnalysisMojo {
     String resultString) throws Exception {
     
     List<String> results = cleanResultsForTerminologist(resultString);
-    System.out.println("Matches: " + results);
+    System.out.println("\nMatches: ");
+    for (String r : results) {
+      System.out.println(r);
+    }
 
     // Single result, just return
     if (results.size() == 1) {

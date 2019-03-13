@@ -1,5 +1,6 @@
 package com.wci.umls.server.mojo.processes;
 
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,6 +15,7 @@ import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.mojo.model.SctNeoplasmConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
+import com.wci.umls.server.mojo.model.SctRelationship;
 import com.wci.umls.server.rest.client.ContentClientRest;
 
 public class FindingSiteUtility {
@@ -25,13 +27,15 @@ public class FindingSiteUtility {
       new HashMap<>();
 
   /** The non finding site strings. */
-  final static protected List<String> nonFindingSiteStrings = Arrays.asList("of", "part",
-      "structure", "system", "and/or", "and", "region", "area", "or", "the", "in", "tract");
+  final static protected List<String> nonFindingSiteStrings =
+      Arrays.asList("of", "part", "structure", "system", "and/or", "and", "region", "area", "or",
+          "the", "in", "cavity", "tract", "male", "female");
 
   /** The top level body structure ids. */
   final protected List<String> topLevelBodyStructureIds =
       Arrays.asList("86762007", "20139000", "39937001", "81745001", "387910009", "127882003",
-          "64033007", "117590005", "21514008", "76752008", "113331007", "363667005", "31610004");
+          "64033007", "117590005", "21514008", "76752008", "113331007", "363667005", "31610004",
+          "421663001", "416319003", "21483005", "774007", "771314001", "119194000");
 
   protected ContentClientRest client;
 
@@ -65,7 +69,7 @@ public class FindingSiteUtility {
    * @return the sets the
    * @throws Exception the exception
    */
-  public Set<SctNeoplasmConcept> identifyPotentialFSConcepts(Set<String> findingSites)
+  public Set<SctNeoplasmConcept> identifyPotentialFSConcepts(Set<String> findingSites, PrintWriter devWriter)
     throws Exception {
     Set<SctNeoplasmConcept> retConcepts = new HashSet<>();
 
@@ -109,9 +113,13 @@ public class FindingSiteUtility {
 
         // Have list of possibleFindingSites. Test them for matches
         if (topLevelSctId == null) {
-          System.out.println(
-              "ERROR ERROR ERROR: Found a finding site without an identified top level BS ancestor: "
-                  + fsConcept.getConceptId() + "---" + fsConcept.getName());
+          String errorString = "ERROR ERROR ERROR: Found a finding site without an identified top level BS ancestor: "
+              + fsConcept.getConceptId() + "---" + fsConcept.getName();
+          System.out.println(errorString);
+          if (devWriter != null) {
+            devWriter.println(errorString + "\n\n");
+          }
+          
           return null;
         }
 
@@ -149,12 +157,7 @@ public class FindingSiteUtility {
       for (SctNeoplasmConcept testCon : potentialFSConTerms.keySet()) {
         for (SctNeoplasmDescription desc : testCon.getDescs()) {
           String normalizedStr = desc.getDescription().toLowerCase();
-          for (String s : nonFindingSiteStrings) {
-            normalizedStr = normalizedStr.replaceAll("\\b" + s + "s" + "\\b", " ").trim();
-            normalizedStr = normalizedStr.replaceAll("\\b" + s + "\\b", " ").trim();
-          }
-
-          normalizedStr = normalizedStr.replaceAll(" {2,}", " ").trim();
+          normalizedStr = cleanNonFindingSiteString(normalizedStr);
 
           if (!potentialFSConTerms.get(testCon).contains(normalizedStr)) {
             potentialFSConTerms.get(testCon).add(normalizedStr);
@@ -178,4 +181,41 @@ public class FindingSiteUtility {
     return findingSitePotentialTermsMapCache;
   }
 
+  /**
+   * Identify finding sites related to associated morphology relationships.
+   *
+   * @param sctCon the sct con
+   * @return the sets the
+   */
+  public Set<String> identifyAssociatedMorphologyBasedFindingSites(SctNeoplasmConcept sctCon) {
+    Set<String> targets = new HashSet<>();
+
+    Set<SctRelationship> amRels = conceptSearcher.getDestRels(sctCon, "Associated morphology");
+    Set<SctRelationship> findingSites = conceptSearcher.getDestRels(sctCon, "Finding site");
+
+    for (SctRelationship morphology : amRels) {
+      for (SctRelationship site : findingSites) {
+        if (site.getRoleGroup() == morphology.getRoleGroup()) {
+          targets.add(site.getRelationshipDestination());
+        }
+      }
+    }
+
+    for (String target : targets) {
+      target = cleanNonFindingSiteString(target);
+    }
+
+    return targets;
+  }
+
+  public String cleanNonFindingSiteString(String origSiteString) {
+    String site = origSiteString.toLowerCase();
+    for (String s : nonFindingSiteStrings) {
+      site = site.replaceAll("\\b" + s + "s" + "\\b", " ").trim();
+      site = site.replaceAll("\\b" + s + "\\b", " ").trim();
+    }
+    site = site.replaceAll(" {2,}", " ").trim();
+
+    return site;
+  }
 }

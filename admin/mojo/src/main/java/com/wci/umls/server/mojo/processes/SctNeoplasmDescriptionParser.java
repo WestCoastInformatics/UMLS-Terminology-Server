@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -603,5 +604,9 @@ public class SctNeoplasmDescriptionParser {
     }
 
     return conId;
+  }
+
+  public Collection<String> getAllNeoplasmConceptIds() {
+    return neoplasmDescsToConIdMap.values();
   }
 }

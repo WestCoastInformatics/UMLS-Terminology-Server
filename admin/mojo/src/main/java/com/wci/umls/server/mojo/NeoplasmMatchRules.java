@@ -21,7 +21,7 @@ public class NeoplasmMatchRules {
   /** The non finding site strings. */
   final static protected List<String> nonSignificantMatchingStrings =
       Arrays.asList("of", "part", "structure", "system", "and/or", "and", "region", "area", "or",
-          "the", "tract", "other", "specified", "unspecified");
+          "the", "tract", "cavity", "other", "male", "female", "specified", "unspecified");
 
   public NeoplasmMatchRules(FindingSiteUtility fsUtility) {
     this.fsUtility = fsUtility;
@@ -30,7 +30,7 @@ public class NeoplasmMatchRules {
   public String processAllMatchingRules(List<String> results, SctNeoplasmConcept sctCon,
     Set<String> findingSites) throws Exception {
     String result = null;
-    Set<SctNeoplasmConcept> fsConcepts = fsUtility.identifyPotentialFSConcepts(findingSites);
+    Set<SctNeoplasmConcept> fsConcepts = fsUtility.identifyPotentialFSConcepts(findingSites, null);
 
     if (results.size() == 1) {
       return results.iterator().next();
@@ -49,10 +49,59 @@ public class NeoplasmMatchRules {
     } else if ((result =
         processTooNarrowResults(fsConcepts, sctCon, findingSites, results)) != null) {
       return result;
+//    } else if ((result =
+//        processSingleDivergantPrefix(fsConcepts, sctCon, findingSites, results)) != null) {
+//      return result;
     }
     return null;
   }
 
+  /* 
+   * 3 or more are of single prefix while one prefix doesn't match
+   *
+  private String processSingleDivergantPrefix(Set<SctNeoplasmConcept> fsConcepts,
+    SctNeoplasmConcept sctCon, Set<String> findingSites, List<String> results) throws Exception {
+    HashMap<String, Integer> prefixCountMap = new HashMap<>();
+    
+    for (String result : results) {
+      String prefix = result.split("\t")[0];
+      if (!prefixCountMap.keySet().contains(prefix)) {
+          prefixCountMap.put(result, 0);
+      }
+      
+      prefixCountMap.put(prefix, prefixCountMap.get(prefix) + 1);
+    }
+
+    boolean hasPrefixMinimalSize = false;
+    String singlePrefix = null;
+    if (prefixCountMap.keySet().size() == 2) {
+      for (String prefix : prefixCountMap.keySet()) {
+        if (prefixCountMap.get(prefix) == 1) {
+          singlePrefix = prefix;
+        } else {
+          if (prefixCountMap.get(prefix) > 2) {
+            hasPrefixMinimalSize = true;
+          }
+        }
+      }
+      
+      if (hasPrefixMinimalSize && singlePrefix != null) {
+        List<String> newCallList = new ArrayList<>();
+
+        for (String result : results) {
+          if (!singlePrefix.equals(result.split("\t")[0])) {
+            newCallList.add(result);
+          }
+        }
+
+        return processAllMatchingRules(newCallList, sctCon, findingSites);
+      }
+    }
+    return null;
+  }
+*/
+  
+  
   // At this point, there may be too many narrow-matches returned (ie Lobular or
   // ductal carcinoma where the type isn't actually specified)
   /*
@@ -135,7 +184,7 @@ public class NeoplasmMatchRules {
 
     List<String> retList = new ArrayList<>();
 
-    for (String key : minimizedResults.keySet()) {
+    for (String key : leastResults) {
       retList.add(originalResults.get(key));
     }
 
@@ -312,7 +361,7 @@ public class NeoplasmMatchRules {
     // Unless finding site exists in other result
     // i.e. SctId: 92717008
     boolean isSkin = false;
-    Set<SctNeoplasmConcept> fsCons = fsUtility.identifyPotentialFSConcepts(findingSites);
+    Set<SctNeoplasmConcept> fsCons = fsUtility.identifyPotentialFSConcepts(findingSites, null);
     for (SctNeoplasmConcept fsCon : fsCons) {
       for (SctNeoplasmDescription desc : fsCon.getDescs()) {
         if (desc.getDescription().toLowerCase().matches(".*\\bskin\\b.*")) {

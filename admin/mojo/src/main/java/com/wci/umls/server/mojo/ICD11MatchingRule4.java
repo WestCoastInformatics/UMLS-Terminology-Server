@@ -15,27 +15,35 @@
  */
 package com.wci.umls.server.mojo;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.mojo.model.SctNeoplasmConcept;
+import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
 import com.wci.umls.server.rest.client.ContentClientRest;
 
-public class ICD11MatchingRule2 extends AbstractNeoplasmICD11MatchingRule {
+public class ICD11MatchingRule4 extends AbstractNeoplasmICD11MatchingRule {
 
-  public ICD11MatchingRule2(ContentClientRest client, String st, String sv,
+  public ICD11MatchingRule4(ContentClientRest client, String st, String sv,
       String tt, String tv, String authToken) {
     super(client, st, sv, tt, tv, authToken);
   }
 
+  /**
+   * Execute rule 1.
+   *
+   * @param snomedConcepts the snomed concepts
+   * @throws Exception the exception
+   */
   @Override
   public String executeRule(SctNeoplasmConcept sctCon, Set<String> findingSites,
     int counter) throws Exception {
 
-    matchNextConcept(findingSites, sctCon, counter);
     StringBuffer str = new StringBuffer();
+    matchNextConcept(findingSites, sctCon, counter);
 
     matchApproach1(findingSites, str);
     matchApproach2(findingSites, str);
@@ -51,15 +59,15 @@ public class ICD11MatchingRule2 extends AbstractNeoplasmICD11MatchingRule {
   }
 
   /**
-   * Returns the rule 2 icd 11 concepts.
+   * Returns the rule 1 icd 11 concepts.
    *
-   * @return the rule 2 icd 11 concepts
+   * @return the rule 1 icd 11 concepts
    * @throws Exception the exception
    */
   public void identifyIcd11Targets() throws Exception {
-    SearchResultList fullStringResults = client.findConcepts(
+    final SearchResultList fullStringResults = client.findConcepts(
         targetTerminology, targetVersion,
-        "(atoms.codeId: XH* OR atoms.codeId: 2*) AND \"Melanoma\" AND \"in situ\"",
+        "(atoms.codeId: XH* OR atoms.codeId: 2*)",
         pfsLimitless, authToken);
 
     System.out.println(
@@ -71,6 +79,7 @@ public class ICD11MatchingRule2 extends AbstractNeoplasmICD11MatchingRule {
 
     System.out.println("\n\n\nNow Filtering");
     for (SearchResult result : fullStringResults.getObjects()) {
+        
       if (isRuleMatch(result)) {
         System.out.println(result.getCodeId() + "\t" + result.getValue());
         icd11Targets.getObjects().add(result);
@@ -87,11 +96,11 @@ public class ICD11MatchingRule2 extends AbstractNeoplasmICD11MatchingRule {
    * @param result the result
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
-  public boolean isRuleMatch(SearchResult result) {
+  protected boolean isRuleMatch(SearchResult result) {
     if ((result.getCodeId().startsWith("XH")
         || result.getCodeId().startsWith("2"))
-        && result.getValue().toLowerCase().matches(".*\\bmelanoma\\b.*")
-        && result.getValue().toLowerCase().matches(".*\\bin situ\\b.*")
+        && result.getValue().toLowerCase().matches(".*\\bneopl.*")
+        && result.getValue().toLowerCase().matches(".*\\buncertain\\b.*")
         && result.isLeafNode()) {
       return true;
     }
@@ -106,23 +115,15 @@ public class ICD11MatchingRule2 extends AbstractNeoplasmICD11MatchingRule {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList testMatchingFindingSite(String queryPortion)
+  protected SearchResultList testMatchingFindingSite(String queryPortion)
     throws Exception {
     if (!findingSiteCache.containsKey(queryPortion)) {
-      SearchResultList straightMatch = client.findConcepts(
+      final SearchResultList straightMatch = client.findConcepts(
           targetTerminology, targetVersion,
-          "(atoms.codeId: XH* OR atoms.codeId: 2*) AND \"Melanoma\" AND \"neoplasms\" AND \"in situ\" AND "
+          "(atoms.codeId: XH* OR atoms.codeId: 2*)"
               + queryPortion,
           pfsLimited, authToken);
 
-      if (straightMatch.getTotalCount() == 0) {
-        straightMatch = client.findConcepts(
-            targetTerminology, targetVersion,
-            "(atoms.codeId: XH* OR atoms.codeId: 2*) AND \"Melanoma\" AND \"in situ\" AND "
-                + queryPortion,
-            pfsLimited, authToken);
-      }
-      
       findingSiteCache.put(queryPortion, straightMatch);
     }
 
@@ -130,22 +131,33 @@ public class ICD11MatchingRule2 extends AbstractNeoplasmICD11MatchingRule {
   }
 
   @Override
-  public String getEclExpression() {
-    return "<< 55342001 : 116676008 = 77986002";
-  }
-
-  @Override
-  public String getRule() {
-    return "rule2";
-  }
-
-  @Override
-  public String getDefaultTarget() {
-    return "2E63.Y\tOther specified melanoma in situ neoplasms";
+  protected String getEclExpression() {
+    return null;
   }
 
   @Override
   protected Map<String, SctNeoplasmConcept> getConceptMap() {
+    Map<String, SctNeoplasmConcept> retMap = new HashMap<>();
+    
+    for (SctNeoplasmConcept con : conceptSearcher.getAllNeoplasmConcepts()) {
+      for (SctNeoplasmDescription desc : con.getDescs()) {
+          if (desc.getNeoplasmSynonym().toLowerCase().equals("neoplasm") && !desc.getUncertainty().isEmpty()) {
+            retMap.put(con.getConceptId(), con);
+            break;
+          }
+      }
+    }
+    
+    return retMap;
+  }
+  
+  @Override
+  protected String getRule() {
+    return "rule4";
+  }
+
+  @Override
+  public String getDefaultTarget() {
     return null;
   }
 }

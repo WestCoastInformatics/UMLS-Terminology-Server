@@ -53,7 +53,7 @@ public abstract class AbstractNeoplasmICD11MatchingRule {
   static final protected String tcInputFilePath = "C:\\Code\\wci\\myTransClosureFile.csv";
 
   /** The already looked up token cache. */
-  protected Map<String, SearchResultList> alreadyLookedUpTokenCache = new HashMap<>();
+  protected Map<String, SearchResultList> findingSiteCache = new HashMap<>();
 
   /** The trans closure map. */
   static protected Map<String, Map<String, Integer>> transClosureMap = new HashMap<>();
@@ -244,11 +244,11 @@ public abstract class AbstractNeoplasmICD11MatchingRule {
     String[] splitString =
         FieldedStringTokenizer.split(str.toLowerCase(), " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
     Set<String> retStrings = new HashSet<>();
-    
+
     Set<String> tokensToAdd = new HashSet<>();
     for (int i = 0; i < splitString.length; i++) {
       if (!splitString[i].trim().isEmpty() && splitString[i].trim().length() != 1) {
-        
+
         if (sctIcdMismapExceptions.keySet().contains(splitString[i].trim().toLowerCase())) {
           tokensToAdd.add(sctIcdMismapExceptions.get(splitString[i].trim().toLowerCase()));
         }
@@ -300,70 +300,45 @@ public abstract class AbstractNeoplasmICD11MatchingRule {
     }
   }
 
-  /**
-   * Match approach 2.
-   *
-   * @param findingSites the finding sites
-   * @param str the str
-   * @return true, if successful
-   * @throws Exception the exception
-   * 
-   *           protected boolean matchApproach2a(Set<String> findingSites,
-   *           StringBuffer str) throws Exception { boolean matchFound = false;
-   * 
-   *           for (String site : findingSites) { SctNeoplasmConcept fsConcept =
-   *           getSctConceptFromDesc(site);
-   * 
-   *           for (SctNeoplasmDescription desc : fsConcept.getDescs()) { if
-   *           (!alreadyQueriedServerCallsCache.keySet().contains(desc.getDescription()))
-   *           { alreadyQueriedServerCallsCache.put(desc.getDescription(), 0);
-   * 
-   *           SearchResultList results =
-   *           testMatchingFindingSite(desc.getDescription()); for (SearchResult
-   *           result : results.getObjects()) { if (isRuleMatch(result)) {
-   *           str.append("\n2222\t" + result.getCodeId() + "\t" +
-   *           result.getValue() + "\t0\t" + desc.getDescription()); matchFound
-   *           = true; } } } } }
-   * 
-   *           return matchFound; }
-   */
   private void identifyMatchesByConceptDescriptions(SctNeoplasmConcept fsConcept,
     Map<String, String> matchMap, Map<String, Integer> matchDepthMap,
     Map<String, Integer> lowestDepthMap, int depth) throws Exception {
+
     for (SctNeoplasmDescription fullDesc : fsConcept.getDescs()) {
       String desc = fullDesc.getDescription();
+      desc = fsUtility.cleanNonFindingSiteString(desc);
 
-      if (!fsUtility.getNonFindingSiteStrings().contains(desc)) {
-        if (!alreadyQueriedServerResultsCache.keySet().contains(desc)) {
-          SearchResultList results = testMatchingFindingSite(desc);
-          for (SearchResult result : results.getObjects()) {
-            if (isRuleMatch(result)) {
+      if (!alreadyQueriedServerResultsCache.keySet().contains(desc)) {
+        alreadyQueriedServerResultsCache.put(desc, new HashMap<String, String>());
 
-              String resultString = "\t" + result.getCodeId() + "\t" + result.getValue() + "\t"
-                  + desc + "\t" + result.getScore();
+        SearchResultList results = testMatchingFindingSite(desc);
+        for (SearchResult result : results.getObjects()) {
+          if (isRuleMatch(result)) {
 
-              if (!lowestDepthMap.keySet().contains(result.getCodeId())
-                  || depth < lowestDepthMap.get(result.getCodeId())) {
-                lowestDepthMap.put(result.getCodeId(), depth);
-                matchMap.put(result.getCodeId(), resultString);
-                matchDepthMap.put(result.getCodeId(), depth);
-              }
-              alreadyQueriedServerResultsCache.put(desc, new HashMap<String, String>());
-              alreadyQueriedServerResultsCache.get(desc).put(result.getCodeId(), resultString);
+            String resultString = "\t" + result.getCodeId() + "\t" + result.getValue() + "\t" + desc
+                + "\t" + result.getScore();
+
+            if (!lowestDepthMap.keySet().contains(result.getCodeId())
+                || depth < lowestDepthMap.get(result.getCodeId())) {
+              lowestDepthMap.put(result.getCodeId(), depth);
+              matchMap.put(result.getCodeId(), resultString);
+              matchDepthMap.put(result.getCodeId(), depth);
             }
+            alreadyQueriedServerResultsCache.get(desc).put(result.getCodeId(), resultString);
           }
-        } else {
-          for (String icd11ConId : alreadyQueriedServerResultsCache.get(desc).keySet()) {
-            if (!lowestDepthMap.keySet().contains(icd11ConId)
-                || depth < lowestDepthMap.get(icd11ConId)) {
-              lowestDepthMap.put(icd11ConId, depth);
-              matchMap.put(icd11ConId, alreadyQueriedServerResultsCache.get(desc).get(icd11ConId));
-              matchDepthMap.put(icd11ConId, depth);
-            }
+        }
+      } else {
+        for (String icd11ConId : alreadyQueriedServerResultsCache.get(desc).keySet()) {
+          if (!lowestDepthMap.keySet().contains(icd11ConId)
+              || depth < lowestDepthMap.get(icd11ConId)) {
+            lowestDepthMap.put(icd11ConId, depth);
+            matchMap.put(icd11ConId, alreadyQueriedServerResultsCache.get(desc).get(icd11ConId));
+            matchDepthMap.put(icd11ConId, depth);
           }
         }
       }
     }
+
     return;
   }
 
@@ -375,6 +350,7 @@ public abstract class AbstractNeoplasmICD11MatchingRule {
     for (String token : tokens) {
       if (!fsUtility.getNonFindingSiteStrings().contains(token)) {
         if (!alreadyQueriedRegexesResultsCache.keySet().contains(token)) {
+          alreadyQueriedRegexesResultsCache.put(token, new HashMap<String, String>());
 
           for (SearchResult icd11Con : icd11Targets.getObjects()) {
             if (icd11Con.getValue().toLowerCase().matches(".*\\b" + token + "\\b.*")) {
@@ -389,7 +365,6 @@ public abstract class AbstractNeoplasmICD11MatchingRule {
                 matchMap.put(icd11Con.getCodeId(), resultString);
                 matchDepthMap.put(icd11Con.getCodeId(), depth);
               }
-              alreadyQueriedRegexesResultsCache.put(token, new HashMap<String, String>());
               alreadyQueriedRegexesResultsCache.get(token).put(icd11Con.getCodeId(), resultString);
             }
           }
@@ -504,4 +479,8 @@ public abstract class AbstractNeoplasmICD11MatchingRule {
   public static void setFindingSiteUtility(FindingSiteUtility findingSiteUtility) {
     fsUtility = findingSiteUtility;
   }
+
+  abstract public String getDefaultTarget();
+
+  abstract protected Map<String, SctNeoplasmConcept> getConceptMap();
 }
