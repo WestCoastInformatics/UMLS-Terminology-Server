@@ -72,6 +72,16 @@ public abstract class AbstractNeoplasmICD11MatchingRule {
 
   protected Map<String, HashMap<String, String>> alreadyQueriedServerResultsCache = new HashMap<>();
 
+  private static final Map<String, String> sctIcdMismapExceptions = new HashMap<String, String>() {
+    {
+      put("tongue", "oral");
+      put("nose", "respiratory");
+      put("nasal", "respiratory");
+      put("urinary", "bladder");
+      put("lacrimal", "eye");
+    };
+  };
+
   static protected NeoplasmConceptSearcher conceptSearcher;
 
   static protected FindingSiteUtility fsUtility;
@@ -230,17 +240,23 @@ public abstract class AbstractNeoplasmICD11MatchingRule {
    * @param str the str
    * @return the sets the
    */
-  protected Set<String> splitTokens(String str) {
+  private Set<String> splitTokens(String str) {
     String[] splitString =
         FieldedStringTokenizer.split(str.toLowerCase(), " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
     Set<String> retStrings = new HashSet<>();
-
+    
+    Set<String> tokensToAdd = new HashSet<>();
     for (int i = 0; i < splitString.length; i++) {
       if (!splitString[i].trim().isEmpty() && splitString[i].trim().length() != 1) {
+        
+        if (sctIcdMismapExceptions.keySet().contains(splitString[i].trim().toLowerCase())) {
+          tokensToAdd.add(sctIcdMismapExceptions.get(splitString[i].trim().toLowerCase()));
+        }
         retStrings.add(splitString[i].trim());
       }
     }
 
+    retStrings.addAll(tokensToAdd);
     return retStrings;
   }
 
@@ -367,9 +383,9 @@ public abstract class AbstractNeoplasmICD11MatchingRule {
                   + token + "\t" + icd11Con.getScore();
 
               // System.out.println(outputString);
-              if (!lowestDepthMap.keySet().contains(icd11Con.getValue())
-                  || depth < lowestDepthMap.get(icd11Con.getValue())) {
-                lowestDepthMap.put(icd11Con.getValue(), depth);
+              if (!lowestDepthMap.keySet().contains(icd11Con.getCodeId())
+                  || depth < lowestDepthMap.get(icd11Con.getCodeId())) {
+                lowestDepthMap.put(icd11Con.getCodeId(), depth);
                 matchMap.put(icd11Con.getCodeId(), resultString);
                 matchDepthMap.put(icd11Con.getCodeId(), depth);
               }
@@ -472,7 +488,6 @@ public abstract class AbstractNeoplasmICD11MatchingRule {
       identifyBestMatch(matchDepthMap, matchResultMap, 4444, str);
     }
   }
-
 
   public void setDevWriter(PrintWriter writer) {
     devWriter = writer;

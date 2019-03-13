@@ -1084,8 +1084,15 @@ public class ContentServiceJpa extends MetadataServiceJpa implements ContentServ
 		@SuppressWarnings("unchecked")
 		final List<Concept> ancestors = findAncestorsHelper(terminologyId, terminology, version, parentsOnly, branch,
 				pfs, ConceptJpa.class, totalCt);
+		
+		List<Concept> uniqueAncestors = new ArrayList<>();
+		for (Concept ancestor : ancestors) {
+		  if (!uniqueAncestors.contains(ancestor)) {
+		    uniqueAncestors.add(ancestor);
+		  }
+		}
 		final ConceptList list = new ConceptListJpa();
-		list.setObjects(ancestors);
+		list.setObjects(uniqueAncestors);
 		list.setTotalCount((int) totalCt[0]);
 		return list;
 	}

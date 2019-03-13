@@ -26,7 +26,7 @@ public class FindingSiteUtility {
 
   /** The non finding site strings. */
   final static protected List<String> nonFindingSiteStrings = Arrays.asList("of", "part",
-      "structure", "system", "and/or", "and", "region", "area", "or", "the");
+      "structure", "system", "and/or", "and", "region", "area", "or", "the", "in", "tract");
 
   /** The top level body structure ids. */
   final protected List<String> topLevelBodyStructureIds =

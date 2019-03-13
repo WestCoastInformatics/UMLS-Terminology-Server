@@ -24,7 +24,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,7 +37,6 @@ import java.util.Set;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
@@ -332,7 +330,7 @@ public class HierarchyAnalysisMojo extends AbstractContentAnalysisMojo {
 
       outputDescFile.write(conId);
       outputDescFile.write("\t");
-      SctNeoplasmDescription desc = descParser.parse(descString);
+      SctNeoplasmDescription desc = descParser.parse(descString, true);
 
       outputDescFile.print(desc.printForExcel());
 

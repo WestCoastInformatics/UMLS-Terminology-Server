@@ -33,7 +33,6 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.mojo.model.SctNeoplasmConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
@@ -82,11 +81,11 @@ public class ICD11NeoplasmMatchingMojo extends AbstractContentAnalysisMojo {
 
   protected Set<SearchResult> icd11Targets;
 
-  protected Set<AbstractNeoplasmICD11MatchingRule> rulesToProcess = new HashSet<>();
-
   private final String NON_MATCH_HEADER = "\n\n\nCouldn't Match the following: ";
 
   private FindingSiteUtility fsUtility;
+
+  private NeoplasmMatchRules matchingRules;
 
   /*
    * (non-Javadoc)
@@ -118,14 +117,7 @@ public class ICD11NeoplasmMatchingMojo extends AbstractContentAnalysisMojo {
             "Must define a source and target version to search against i.e. latest");
       }
 
-      conceptSearcher.setup(client, sourceTerminology, sourceVersion, targetTerminology,
-          targetVersion, authToken);
-      fsUtility = new FindingSiteUtility(client, sourceTerminology, sourceVersion,
-          targetTerminology, targetVersion, authToken);
-      AbstractNeoplasmICD11MatchingRule.setConceptSearcher(conceptSearcher);
-      fsUtility.setConceptSearcher(conceptSearcher);
-      AbstractNeoplasmICD11MatchingRule.setFindingSiteUtility(fsUtility);
-      defineRulesToProcess();
+      Set<AbstractNeoplasmICD11MatchingRule> rulesToProcess = setupProcess();
 
       for (AbstractNeoplasmICD11MatchingRule rule : rulesToProcess) {
         getLog().info("ICD 11 " + rule.getRule() + " Matching Mojo");
@@ -151,7 +143,11 @@ public class ICD11NeoplasmMatchingMojo extends AbstractContentAnalysisMojo {
           pfsEcl.setExpression(rule.getEclExpression());
           // concepts = processEclQuery(eclResults);
            snomedConcepts = processEclQueryFromFiles(rule);
-//          snomedConcepts = populateTestConcept(Arrays.asList("92637002", "92557009", "92717008"));
+          /*
+           snomedConcepts = populateTestConcept(Arrays.asList(
+              "92695008"
+              ));
+              */
 
           // Identify ICD11 Targets
           rule.identifyIcd11Targets();
@@ -179,6 +175,21 @@ public class ICD11NeoplasmMatchingMojo extends AbstractContentAnalysisMojo {
     }
   }
 
+  private Set<AbstractNeoplasmICD11MatchingRule> setupProcess() {
+    conceptSearcher.setup(client, sourceTerminology, sourceVersion, targetTerminology,
+        targetVersion, authToken);
+    fsUtility = new FindingSiteUtility(client, sourceTerminology, sourceVersion,
+        targetTerminology, targetVersion, authToken);
+    AbstractNeoplasmICD11MatchingRule.setConceptSearcher(conceptSearcher);
+    fsUtility.setConceptSearcher(conceptSearcher);
+    AbstractNeoplasmICD11MatchingRule.setFindingSiteUtility(fsUtility);
+    matchingRules = new NeoplasmMatchRules(fsUtility);
+
+    Set<AbstractNeoplasmICD11MatchingRule> rulesToProcess = defineRulesToProcess();
+    
+    return rulesToProcess;
+  }
+
   private void setupContentParsers() throws IOException {
     setupDescParser();
 
@@ -193,9 +204,11 @@ public class ICD11NeoplasmMatchingMojo extends AbstractContentAnalysisMojo {
 
   }
 
-  private void defineRulesToProcess() {
-    String[] rules = ruleList.split(",");
+  private Set<AbstractNeoplasmICD11MatchingRule> defineRulesToProcess() {
+    Set<AbstractNeoplasmICD11MatchingRule> rulesToProcess = new HashSet<>();
 
+    String[] rules = ruleList.split(",");
+    
     for (int i = 0; i < rules.length; i++) {
       AbstractNeoplasmICD11MatchingRule rule = null;
       if (Integer.parseInt(rules[i]) == 1) {
@@ -210,6 +223,8 @@ public class ICD11NeoplasmMatchingMojo extends AbstractContentAnalysisMojo {
         rulesToProcess.add(rule);
       }
     }
+    
+    return rulesToProcess;
   }
 
   /**
@@ -391,16 +406,29 @@ public class ICD11NeoplasmMatchingMojo extends AbstractContentAnalysisMojo {
     int totalConcepts) throws Exception {
     if (resultString != null) {
       System.out.println(resultString);
+
       rule.getDevWriter().println(resultString);
       rule.getDevWriter().println();
       rule.getDevWriter().println();
 
       String singleResponse = identifyProperResponse(sctCon, findingSites, resultString);
-      System.out.println("\n\nFinal Response: " + singleResponse);
-      rule.getTermWriter().println(singleResponse);
-      rule.getTermWriter().println();
-      rule.getTermWriter().println();
+      
+      if (singleResponse == null) {
+        System.out.println("\n\nCouldn't discern between the following options programatically" + resultString);
+        rule.getDevWriter().println("\n\nCouldn't discern between the following options programatically" + resultString);
+        List<String> results = cleanResultsForTerminologist(resultString);
+        rule.getTermWriter().println("\n\nCouldn't discern between the following options programatically" + results);
+      } else {
+        System.out.println("\n\nFinal Response: " + singleResponse);
+        rule.getTermWriter().println(singleResponse);
+        rule.getTermWriter().println();
+        rule.getTermWriter().println();
+      }
     } else {
+      rule.getDevWriter().println("\n\n\tCould map to\t2E6Y\tCarcinoma in situ of other specified site\n" + resultString);
+      List<String> results = cleanResultsForTerminologist(resultString);
+      rule.getTermWriter().println("\n\n\tCould map to\t2E6Y\tCarcinoma in situ of other specified site\n" + results);
+
       noMatchList.add(sctCon.getConceptId() + "\t" + sctCon.getName());
     }
 
@@ -416,123 +444,16 @@ public class ICD11NeoplasmMatchingMojo extends AbstractContentAnalysisMojo {
 
   private String identifyProperResponse(SctNeoplasmConcept sctCon, Set<String> findingSites,
     String resultString) throws Exception {
+    
     List<String> results = cleanResultsForTerminologist(resultString);
     System.out.println("Matches: " + results);
+
     // Single result, just return
     if (results.size() == 1) {
       return results.iterator().next();
     }
 
     /* Multiple results, select one */
-    String matchedResult = null;
-
-    // If findingSite contains "skin" likely 2E64.Y Other specified carcinoma in
-    // situ of skin
-    // Unless finding site exists in other result
-    // i.e. SctId: 92717008
-    boolean isSkin = false;
-    Set<SctNeoplasmConcept> fsCons = fsUtility.identifyPotentialFSConcepts(findingSites);
-    for (SctNeoplasmConcept fsCon : fsCons) {
-      for (SctNeoplasmDescription desc : fsCon.getDescs()) {
-        if (desc.getDescription().toLowerCase().matches(".*\\bskin\\b.*")) {
-          isSkin = true;
-          break;
-        }
-      }
-
-      if (isSkin) {
-        break;
-      }
-    }
-
-    // Identified Skin, return proper result
-    if (isSkin) {
-      for (SctNeoplasmDescription desc : sctCon.getDescs()) {
-        if (desc.getSecondInfo() != null) {
-          String[] locationTokens = desc.getSecondInfo().split(" ");
-
-          for (int i = 0; i < locationTokens.length; i++) {
-            if (!fsUtility.getNonFindingSiteStrings().contains(locationTokens[i].toLowerCase())) {
-              for (String result : results) {
-                String icd11String = result.split("\t")[1];
-                if (icd11String.toLowerCase().contains(locationTokens[i].toLowerCase())) {
-                  return result;
-                }
-              }
-            }
-          }
-        }
-      }
-
-      for (String result : results) {
-        if (result.contains("2E64.Y")) {
-          return result;
-        }
-      }
-    }
-    // END SKIN
-
-    // If word in finding site exists in single result, return it
-    // i.e. SctId: 92557009
-    Set<SctNeoplasmConcept> fsConcepts = fsUtility.identifyPotentialFSConcepts(findingSites);
-    for (SctNeoplasmConcept con : fsConcepts) {
-      for (SctNeoplasmDescription desc : con.getDescs()) {
-        String[] locationTokens = FieldedStringTokenizer.split(desc.getDescription().toLowerCase(),
-            " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
-
-        for (int i = 0; i < locationTokens.length; i++) {
-          if (!fsUtility.getNonFindingSiteStrings().contains(locationTokens[i].toLowerCase())) {
-            int matches = 0;
-
-            for (String result : results) {
-              String icd11String = result.split("\t")[1];
-              if (icd11String.toLowerCase().contains(locationTokens[i].toLowerCase())) {
-                matches++;
-                matchedResult = result;
-              }
-            }
-
-            if (matches == 1) {
-              return matchedResult;
-            }
-          }
-        }
-      }
-    }
-
-    // Inverse... If word in single result exists in finding site , return it
-    // i.e. SctId: 92637002
-    int matches = 0;
-    for (String result : results) {
-      String icd11String = result.split("\t")[1];
-      String[] locationTokens = FieldedStringTokenizer.split(icd11String.toLowerCase(),
-          " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
-
-      for (int i = 0; i < locationTokens.length; i++) {
-        if (!fsUtility.getNonFindingSiteStrings().contains(locationTokens[i].toLowerCase())) {
-          for (SctNeoplasmConcept con : fsConcepts) {
-            boolean matchFound = false;
-            for (SctNeoplasmDescription desc : con.getDescs()) {
-              if (desc.getDescription().toLowerCase().contains(locationTokens[i].toLowerCase())) {
-                matches++;
-                matchedResult = result;
-                matchFound = true;
-                break;
-              }
-            }
-
-            if (matchFound) {
-              break;
-            }
-          }
-        }
-      }
-    }
-
-    if (matches == 1) {
-      return matchedResult;
-    }
-
-    return null;
+    return matchingRules.processAllMatchingRules(results, sctCon, findingSites);
   }
 }
