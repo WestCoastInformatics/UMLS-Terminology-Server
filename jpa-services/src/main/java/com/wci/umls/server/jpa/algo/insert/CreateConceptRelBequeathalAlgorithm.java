@@ -312,6 +312,8 @@ public class CreateConceptRelBequeathalAlgorithm extends AbstractInsertMaintRele
         commitClearBegin();
       }
 
+      logInfo("Finished " + getName());
+      
     } catch (Exception e) {
       e.printStackTrace();
       fail("Unexpected exception thrown - please review stack trace.");

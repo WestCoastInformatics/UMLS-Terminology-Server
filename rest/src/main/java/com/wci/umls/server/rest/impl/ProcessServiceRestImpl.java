@@ -236,8 +236,10 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       processService.addProcessConfig(processCopy);
       
       // copy steps to cloned processConfig
+      process = (ProcessConfigJpa) processService.getProcessConfig(process.getId());
+
       for (final AlgorithmConfig step : process.getSteps()) {
-          AlgorithmConfigJpa stepCopy = new AlgorithmConfigJpa((AlgorithmConfigJpa) step);
+          AlgorithmConfigJpa stepCopy = new AlgorithmConfigJpa(step);
           // Clear the ids.
           stepCopy.setId(null);
           stepCopy.setProcess(processCopy);
