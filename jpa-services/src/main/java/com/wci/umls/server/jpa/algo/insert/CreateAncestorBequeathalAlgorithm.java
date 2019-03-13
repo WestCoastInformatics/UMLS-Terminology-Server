@@ -82,8 +82,12 @@ public class CreateAncestorBequeathalAlgorithm extends AbstractInsertMaintReleas
 
       Set<Concept> deletedCuis = new HashSet<>();
       File srcDir = getSrcDirFile();
-      logInfo("bequeathal srcDir:" + srcDir);
-      BufferedWriter out = new BufferedWriter(new FileWriter(new File(srcDir, "bequeathal.ancestor.relationships.src")));
+      File maintDir = new File(srcDir, "maint");
+      if (! maintDir.exists()){
+        maintDir.mkdir();
+      }
+      logInfo("maint dir:" + maintDir);
+      BufferedWriter out = new BufferedWriter(new FileWriter(new File(maintDir, "bequeathal.ancestor.relationships.src")));
       
       Query query = getEntityManager().createNativeQuery(
           "SELECT   DISTINCT c.id conceptId FROM   concepts c,   "

@@ -82,8 +82,12 @@ public class CreateAtomRelBequeathalAlgorithm extends AbstractInsertMaintRelease
 
       Set<Concept> deletedCuis = new HashSet<>();
       File srcDir = getSrcDirFile();
-      logInfo("bequeathal srcDir:" + srcDir);
-      BufferedWriter out = new BufferedWriter(new FileWriter(new File(srcDir, "bequeathal.atom.relationships.src")));
+      File maintDir = new File(srcDir, "maint");
+      if (! maintDir.exists()){
+        maintDir.mkdir();
+      }
+      logInfo("maint dir:" + maintDir);
+      BufferedWriter out = new BufferedWriter(new FileWriter(new File(maintDir, "bequeathal.atom.relationships.src")));
       
       Query query = getEntityManager().createNativeQuery(
           "SELECT   DISTINCT c.id conceptId FROM   concepts c,   "
