@@ -172,6 +172,11 @@ public class RelationshipLoaderAlgorithm
       //
       // Load the relationships.src file
       //
+      // if relationships.src file isn't in srcDirFile, check in srcDirFile/maint
+      File f = new File(getSrcDirFile(), fileName);
+      if (!f.exists()) {
+        setSrcDirFile(new File(getSrcDirFile(), "maint"));
+      }
       final List<String> lines =
           loadFileIntoStringList(getSrcDirFile(), fileName, null, null, 14L);
 
