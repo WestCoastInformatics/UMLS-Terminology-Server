@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -29,6 +30,7 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.mojo.model.SctNeoplasmConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
 import com.wci.umls.server.mojo.model.SctRelationship;
+import com.wci.umls.server.mojo.processes.NeoplasmConceptSearcher;
 import com.wci.umls.server.mojo.processes.SctNeoplasmDescriptionParser;
 import com.wci.umls.server.mojo.processes.SctRelationshipParser;
 import com.wci.umls.server.rest.client.ContentClientRest;
@@ -76,12 +78,10 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
   protected String userPassword;
 
   /** The partial df. */
-  protected final DateTimeFormatter partialDf =
-      DateTimeFormatter.ofPattern("_dd_HH-mm");
+  protected final DateTimeFormatter partialDf = DateTimeFormatter.ofPattern("_dd_HH-mm");
 
   /** The Constant relParser. */
-  final static protected SctRelationshipParser relParser =
-      new SctRelationshipParser();
+  final static protected SctRelationshipParser relParser = new SctRelationshipParser();
 
   /** The desc parser. */
   static protected SctNeoplasmDescriptionParser descParser = null;
@@ -108,6 +108,8 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
   @Parameter
   protected String runConfig;
 
+  protected NeoplasmConceptSearcher conceptSearcher = new NeoplasmConceptSearcher();
+
   /**
    * Base setup method.
    *
@@ -118,8 +120,8 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
    * @param tv the tv
    * @throws Exception the exception
    */
-  protected void setup(String folderName, String st, String sv, String tt,
-    String tv) throws Exception {
+  protected void setup(String folderName, String st, String sv, String tt, String tv)
+    throws Exception {
     sourceTerminology = st;
     sourceVersion = sv;
     targetTerminology = tt;
@@ -161,8 +163,8 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
    * @param maxCount the max count
    * @throws Exception the exception
    */
-  protected void setup(String folderName, String st, String sv, String tt,
-    String tv, int maxCount) throws Exception {
+  protected void setup(String folderName, String st, String sv, String tt, String tv, int maxCount)
+    throws Exception {
     sourceTerminology = st;
     sourceVersion = sv;
     targetTerminology = tt;
@@ -182,8 +184,7 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
   protected Properties setupProperties() throws Exception {
     // Handle creating the database if the mode parameter is set
     if (runConfig != null && !runConfig.isEmpty()) {
-      System.setProperty("run.config." + ConfigUtility.getConfigLabel(),
-          runConfig);
+      System.setProperty("run.config." + ConfigUtility.getConfigLabel(), runConfig);
     }
     final Properties properties = ConfigUtility.getConfigProperties();
 
@@ -205,13 +206,12 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
    * @throws FileNotFoundException the file not found exception
    * @throws UnsupportedEncodingException the unsupported encoding exception
    */
-  protected PrintWriter prepareOutputFile(String filePrefix,
-    String outputDescription)
+  protected PrintWriter prepareOutputFile(String filePrefix, String outputDescription)
     throws FileNotFoundException, UnsupportedEncodingException {
-    File fd = new File(userFolder.getPath() + File.separator + filePrefix + "-"
-        + month + timestamp + ".xls");
-    getLog().info("Creating " + outputDescription + " file (" + filePrefix
-        + ") at: " + fd.getAbsolutePath());
+    File fd = new File(
+        userFolder.getPath() + File.separator + filePrefix + "-" + month + timestamp + ".xls");
+    getLog().info(
+        "Creating " + outputDescription + " file (" + filePrefix + ") at: " + fd.getAbsolutePath());
 
     final FileOutputStream fos = new FileOutputStream(fd);
     final OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
@@ -230,16 +230,15 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
    * @throws FileNotFoundException the file not found exception
    * @throws UnsupportedEncodingException the unsupported encoding exception
    */
-  protected PrintWriter prepareResultsFile(String rule, String filePrefix,
-    String outputDescription)
+  protected PrintWriter prepareResultsFile(String rule, String filePrefix, String outputDescription)
     throws FileNotFoundException, UnsupportedEncodingException {
     File dir = new File(userFolder.getPath() + File.separator + rule);
     dir.mkdirs();
 
-    File fd = new File(dir.getAbsolutePath() + File.separator + filePrefix + "-"
-        + month + timestamp + ".xls");
-    getLog().info("Creating " + outputDescription + " file (" + filePrefix
-        + ") at: " + fd.getAbsolutePath());
+    File fd = new File(
+        dir.getAbsolutePath() + File.separator + filePrefix + "-" + month + timestamp + ".xls");
+    getLog().info(
+        "Creating " + outputDescription + " file (" + filePrefix + ") at: " + fd.getAbsolutePath());
 
     final FileOutputStream fos = new FileOutputStream(fd);
     final OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
@@ -258,8 +257,7 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
    * @throws FileNotFoundException the file not found exception
    * @throws UnsupportedEncodingException the unsupported encoding exception
    */
-  protected PrintWriter prepareRelOutputFile(String filePrefix,
-    String outputDescription)
+  protected PrintWriter prepareRelOutputFile(String filePrefix, String outputDescription)
     throws FileNotFoundException, UnsupportedEncodingException {
     PrintWriter pw = prepareOutputFile(filePrefix, outputDescription);
 
@@ -286,8 +284,8 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
    * @param outputFile the output file
    * @throws Exception the exception
    */
-  protected void exportRels(SctRelationship rel, String conId,
-    PrintWriter outputFile) throws Exception {
+  protected void exportRels(SctRelationship rel, String conId, PrintWriter outputFile)
+    throws Exception {
     if (rel != null) {
       outputFile.print(conId);
       outputFile.print("\t");
@@ -305,8 +303,7 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
    * @param relType the rel type
    * @return the dest rels
    */
-  protected Set<SctRelationship> getDestRels(SctNeoplasmConcept con,
-    String relType) {
+  protected Set<SctRelationship> getDestRels(SctNeoplasmConcept con, String relType) {
     Set<SctRelationship> targets = new HashSet<>();
 
     for (SctRelationship rel : con.getRels()) {
@@ -325,28 +322,26 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
    * @return the map
    * @throws Exception the exception
    */
-  protected Map<String, SctNeoplasmConcept> processEclQuery(
-    SearchResultList eclResults) throws Exception {
+  protected Map<String, SctNeoplasmConcept> processEclQuery(SearchResultList eclResults)
+    throws Exception {
     Map<String, SctNeoplasmConcept> concepts = new HashMap<>();
     setupDescParser();
 
     for (SearchResult result : eclResults.getObjects()) {
 
       // Get Desc
-      Concept clientConcept =
-          client.getConcept(result.getId(), null, authToken);
-      SctNeoplasmConcept con =
-          new SctNeoplasmConcept(result.getTerminologyId(), result.getValue());
+      Concept clientConcept = client.getConcept(result.getId(), null, authToken);
+      SctNeoplasmConcept con = new SctNeoplasmConcept(result.getTerminologyId(), result.getValue());
 
       for (Atom atom : clientConcept.getAtoms()) {
-        if (AbstractNeoplasmICD11MatchingRule.isValidDescription(atom)) {
-          SctNeoplasmDescription desc = descParser.parse(atom.getName());
+        if (conceptSearcher.isValidDescription(atom)) {
+          SctNeoplasmDescription desc = descParser.parse(atom.getName(), true);
           con.getDescs().add(desc);
         }
       }
 
       // Get Associated Rels
-      AbstractNeoplasmICD11MatchingRule.populateRelationships(con);
+      conceptSearcher.populateRelationships(con);
       concepts.put(result.getTerminologyId(), con);
     }
 
@@ -364,15 +359,13 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
     AbstractNeoplasmICD11MatchingRule rule) throws Exception {
     Map<String, SctNeoplasmConcept> concepts = new HashMap<>();
 
-    final SearchResultList eclResults = client.findConcepts(
-        sourceTerminology, sourceVersion, null, pfsEcl, authToken);
+    final SearchResultList eclResults =
+        client.findConcepts(sourceTerminology, sourceVersion, null, pfsEcl, authToken);
     getLog().info("With ECL, have: " + eclResults.getObjects().size());
-
 
     for (SearchResult result : eclResults.getObjects()) {
       // Get Desc
-      SctNeoplasmConcept con =
-          new SctNeoplasmConcept(result.getTerminologyId(), result.getValue());
+      SctNeoplasmConcept con = new SctNeoplasmConcept(result.getTerminologyId(), result.getValue());
 
       con.setDescs(descParser.getNeoplasmDescs(con));
       con.setRels(relParser.getNeoplasmRels(con));
@@ -383,7 +376,22 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
     return concepts;
   }
 
+  protected Map<String, SctNeoplasmConcept> populateTestConcept(List<String> conIdList) {
+    Map<String, SctNeoplasmConcept> concepts = new HashMap<>();
 
+    for (String conId : conIdList) {
+      SctNeoplasmConcept con = new SctNeoplasmConcept(conId, null);
+  
+      con.setDescs(descParser.getNeoplasmDescs(con));
+      con.setRels(relParser.getNeoplasmRels(con));
+  
+      con.setName(con.getDescs().iterator().next().getDescription());
+  
+      concepts.put(conId, con);
+    }
+    
+    return concepts;
+  }
 
   /**
    * Identify finding sites related to associated morphology relationships.
@@ -391,8 +399,7 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
    * @param sctCon the sct con
    * @return the sets the
    */
-  protected Set<String> identifyAssociatedMorphologyBasedFindingSites(
-    SctNeoplasmConcept sctCon) {
+  protected Set<String> identifyAssociatedMorphologyBasedFindingSites(SctNeoplasmConcept sctCon) {
     Set<String> targets = new HashSet<>();
 
     Set<SctRelationship> amRels = getDestRels(sctCon, "Associated morphology");

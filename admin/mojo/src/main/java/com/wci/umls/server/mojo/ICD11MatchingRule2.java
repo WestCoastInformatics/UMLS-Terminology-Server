@@ -33,18 +33,16 @@ public class ICD11MatchingRule2 extends AbstractNeoplasmICD11MatchingRule {
   public String executeRule(SctNeoplasmConcept sctCon, Set<String> findingSites,
     int counter) throws Exception {
 
-    // if (!sctCon.getConceptId().equals("92719006")) { continue; }
-
     matchNextConcept(findingSites, sctCon, counter);
     StringBuffer str = new StringBuffer();
 
-    matchApproach1(findingSites, icd11Targets, str);
+    matchApproach1(findingSites, str);
     matchApproach2(findingSites, str);
 
     Set<SctNeoplasmConcept> fsConcepts =
-        identifyPotentialFSConcepts(findingSites);
+        fsUtility.identifyPotentialFSConcepts(findingSites);
     if (fsConcepts != null) {
-      matchApproach3(fsConcepts, icd11Targets, str);
+      matchApproach3(fsConcepts, str);
       matchApproach4(fsConcepts, str);
     }
 

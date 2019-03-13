@@ -23,31 +23,27 @@ import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
 public class SctNeoplasmDescriptionParser {
 
   /** The neoplasm synonyms. */
-  private final List<String> NEOPLASM_SYNONYMS = Arrays.asList("neoplasm",
-      "neoplasms", "neoplastic", "tumor", "tumorous", "tumoru", "tumour",
-      "tumoural", "tumours", "cancer", "cancerous", "cancerphobia", "carcinoma",
-      "carcinomas", "carcinomatosis", "carcinomatous", "carcinoma-induced",
-      "carcinomaphobia", "Adenocarcinoma", "adenoma", "Chondromatosis",
-      "Chromaffinoma", "Glioma", "neoplasia", "Pheochromocytoma",
-      "Proliferating pilar cyst", "Thymoma", "Melanoma", "Melanocytic",
-      "Lipoma", "mesothelioma", "sarcoma", "fibroma", "papilloma", "Lymphoma",
-      "Chondroma", "squamous");
+  private final List<String> NEOPLASM_SYNONYMS = Arrays.asList("neoplasm", "neoplasms",
+      "neoplastic", "tumor", "tumorous", "tumoru", "tumour", "tumoural", "tumours", "cancer",
+      "cancerous", "cancerphobia", "carcinoma", "carcinomas", "carcinomatosis", "carcinomatous",
+      "carcinoma-induced", "carcinomaphobia", "Adenocarcinoma", "adenoma", "Chondromatosis",
+      "Chromaffinoma", "Glioma", "neoplasia", "Pheochromocytoma", "Proliferating pilar cyst",
+      "Thymoma", "Melanoma", "Melanocytic", "Lipoma", "mesothelioma", "sarcoma", "fibroma",
+      "papilloma", "Lymphoma", "Chondroma", "squamous");
 
   /** The false positive body structures. */
-  private final List<String> FALSE_POSITIVE_BODY_STRUCTURES = Arrays.asList(
-      "Borst-Jadassohn", "Brodie", "Brooke", "Buschke-Löwenstein",
-      "Buschke-Lowenstein", "Degos", "Enzinger", "Ferguson-Smith",
-      "Gougerot and Carteaud", "Ito", "Jadassohn", "Langerhans", "Leser-Trélat",
-      "Malherbe", "Nikolowski", "Ota", "Pinkus", "Queyrat", "Reed",
-      "Stewart and Treves", "Vater", "adulthood", "ambiguous lineage", "care",
-      "childhood", "elderly", "infancy", "xiphoid process");
+  private final List<String> FALSE_POSITIVE_BODY_STRUCTURES =
+      Arrays.asList("Borst-Jadassohn", "Brodie", "Brooke", "Buschke-Löwenstein",
+          "Buschke-Lowenstein", "Degos", "Enzinger", "Ferguson-Smith", "Gougerot and Carteaud",
+          "Ito", "Jadassohn", "Langerhans", "Leser-Trélat", "Malherbe", "Nikolowski", "Ota",
+          "Pinkus", "Queyrat", "Reed", "Stewart and Treves", "Vater", "adulthood",
+          "ambiguous lineage", "care", "childhood", "elderly", "infancy", "xiphoid process");
 
   /** The uncertainty. */
   private final List<String> UNCERTAINTY =
       Arrays.asList("undetermined significance", "unknown origin",
-          "unknown origin or ill-defined site", "unknown primary",
-          "uncertain behavior", "uncertain behaviour",
-          "uncertain or unknown behavior", "uncertain or unknown behaviour");
+          "unknown origin or ill-defined site", "unknown primary", "uncertain behavior",
+          "uncertain behaviour", "uncertain or unknown behavior", "uncertain or unknown behaviour");
 
   /** The apostrophe map. */
   private Map<String, String> apostropheMap = new HashMap<>();
@@ -56,43 +52,36 @@ public class SctNeoplasmDescriptionParser {
   private int counter = 0;
 
   /** The body structure split. */
-  private final List<String> BODY_STRUCTURE_SPLIT = Arrays.asList(" of ",
-      " in ", " from ", ", with ", "with ", " due to ", " - ", "-", ", ");
+  private final List<String> BODY_STRUCTURE_SPLIT =
+      Arrays.asList(" of ", " in ", " from ", ", with ", "with ", " due to ", " - ", "-", ", ");
 
   /** The body structure dash split exceptions. */
   private final List<String> BODY_STRUCTURE_DASH_SPLIT_EXCEPTIONS =
-      Arrays.asList("-cell", "pharyngo-", "mucosa-", "cardio-", "gastro-",
-          "ill-", "intra-", "lower-", "non-", "two-", "upper-", "co-", "para-");
+      Arrays.asList("-cell", "pharyngo-", "mucosa-", "cardio-", "gastro-", "ill-", "intra-",
+          "lower-", "non-", "two-", "upper-", "co-", "para-");
 
   /** The distinct body structures. */
   private Set<String> distinctBodyStructures = new HashSet<>();
 
   /** The body structures require secondary info. */
-  private List<String> bodyStructuresRequireSecondaryInfo = Arrays.asList(
-      "arterial cartilage", "blood vessel", "bone ",
-      "bone and arterial cartilage", "bones", "bone structure", "brain",
-      "connective and soft tissue", "connective and soft tissues",
-      "connective tissue", "epithelium", "lymph node",
-      "lymph node from neoplasm", "lymph node sites", "lymph nodes", "mucosa",
-      "mucous membrane", "muscle", "non-pigmented epithelium",
-      "peripheral nerve", "peripheral nerves", "pigmented epithelium", "ribs",
-      "skin", "skin and subcutaneous tissue", "skin and/or subcutaneous tissue",
-      "skin structure", "soft tissue", "soft tissues", "spinal cord", "uterus",
-      "vermilion border", "bertebra", "vertevral column", "vestibule");
+  private List<String> bodyStructuresRequireSecondaryInfo = Arrays.asList("arterial cartilage",
+      "blood vessel", "bone ", "bone and arterial cartilage", "bones", "bone structure", "brain",
+      "connective and soft tissue", "connective and soft tissues", "connective tissue",
+      "epithelium", "lymph node", "lymph node from neoplasm", "lymph node sites", "lymph nodes",
+      "mucosa", "mucous membrane", "muscle", "non-pigmented epithelium", "peripheral nerve",
+      "peripheral nerves", "pigmented epithelium", "ribs", "skin", "skin and subcutaneous tissue",
+      "skin and/or subcutaneous tissue", "skin structure", "soft tissue", "soft tissues",
+      "spinal cord", "uterus", "vermilion border", "bertebra", "vertevral column", "vestibule");
 
   /** The output file path. */
   private boolean testing = false;
-
-  /** The is neoplasm. */
-  private boolean isNeoplasm = false;
 
   /** The output file path for relationships. */
   private final String previousExecutionInputFilePath =
       "C:\\Users\\yishai\\Desktop\\Neoplasm\\Input Files\\neoplasmDescsV6.txt";
 
   /** The all descs. */
-  private Map<String, Set<SctNeoplasmDescription>> neoplasmDescs =
-      new HashMap<>();
+  private Map<String, Set<SctNeoplasmDescription>> neoplasmDescs = new HashMap<>();
 
   /** The desc to con map. */
   private Map<String, String> neoplasmDescsToConIdMap = new HashMap<>();
@@ -105,40 +94,35 @@ public class SctNeoplasmDescriptionParser {
   private Map<String, String> findingSiteDescToConIdMap = new HashMap<>();
 
   /** The all finding site descs. */
-  private Map<String, Set<SctNeoplasmDescription>> allFindingSiteDescs =
-      new HashMap<>();
+  private Map<String, Set<SctNeoplasmDescription>> allFindingSiteDescs = new HashMap<>();
 
   /**
    * Instantiates an empty {@link SctNeoplasmDescriptionParser}.
    */
   public SctNeoplasmDescriptionParser() {
-    if (isNeoplasm) {
-      try {
-        // Preprocess file to identify unique body structures
-        BufferedReader reader =
-            new BufferedReader(new FileReader(previousExecutionInputFilePath));
+    try {
+      // Preprocess file to identify unique body structures
+      BufferedReader reader = new BufferedReader(new FileReader(previousExecutionInputFilePath));
 
-        String line = reader.readLine(); // Don't want header
-        line = reader.readLine();
-        while (line != null) {
-          String[] columns = line.split("\t");
-          if (columns.length > 4 && !columns[4].isEmpty()) {
-            distinctBodyStructures.add(columns[4]);
-          }
-          line = reader.readLine();
+      String line = reader.readLine(); // Don't want header
+      line = reader.readLine();
+      while (line != null) {
+        String[] columns = line.split("\t");
+        if (columns.length > 4 && !columns[4].isEmpty()) {
+          distinctBodyStructures.add(columns[4]);
         }
-        reader.close();
-
-        apostropheMap.put("Meckel's diverticulum", "Meckel diverticulum");
-        apostropheMap.put("Waldeyer's ring", "Waldeyer ring");
-        apostropheMap.put("Bartholin's gland", "Bartholin gland");
-        apostropheMap.put("Douglas' pouch", "the pouch of Douglas");
-        apostropheMap.put("Gartner's duct", "Gartner duct");
-      } catch (Exception e) {
-        System.out.println(
-            "Failed processing input file: '" + previousExecutionInputFilePath
-                + "' with exception: " + e.getMessage());
+        line = reader.readLine();
       }
+      reader.close();
+
+      apostropheMap.put("Meckel's diverticulum", "Meckel diverticulum");
+      apostropheMap.put("Waldeyer's ring", "Waldeyer ring");
+      apostropheMap.put("Bartholin's gland", "Bartholin gland");
+      apostropheMap.put("Douglas' pouch", "the pouch of Douglas");
+      apostropheMap.put("Gartner's duct", "Gartner duct");
+    } catch (Exception e) {
+      System.out.println("Failed processing input file: '" + previousExecutionInputFilePath
+          + "' with exception: " + e.getMessage());
     }
   }
 
@@ -148,7 +132,7 @@ public class SctNeoplasmDescriptionParser {
    * @param descString the desc string
    * @return the sct neoplasm description
    */
-  public SctNeoplasmDescription parse(String descString) {
+  public SctNeoplasmDescription parse(String descString, boolean isNeoplasm) {
 
     SctNeoplasmDescription desc = new SctNeoplasmDescription();
 
@@ -165,8 +149,7 @@ public class SctNeoplasmDescriptionParser {
           } else if (counter == 1) {
             descString = "Neoplasm of uterus affecting pregnancy";
           } else if (counter == 2) {
-            descString =
-                "Neoplasm of uncertain behaviour of salivary gland duct";
+            descString = "Neoplasm of uncertain behaviour of salivary gland duct";
             /*
              * } else if (counter == 3) { desc =
              * "Mixed cell type lymphosarcoma of lymph nodes of head";
@@ -204,31 +187,28 @@ public class SctNeoplasmDescriptionParser {
           if (splitKeyWord.equals(" of ")) {
             // Ignore Local Recurrence 'of'
             if (descString.startsWith("Local recurrence of")) {
-              bodyStructIdx =
-                  descString.substring("Local recurrence of".length())
-                      .indexOf(" of ") + "Local recurrence of".length();
+              bodyStructIdx = descString.substring("Local recurrence of".length()).indexOf(" of ")
+                  + "Local recurrence of".length();
             }
 
             // Ignore 'of' overlapping lesion
             if (descString.substring(bodyStructIdx).toLowerCase()
                 .contains("of overlapping lesion")) {
               bodyStructIdx = bodyStructIdx + descString
-                  .substring(bodyStructIdx + "of overlapping lesion".length())
-                  .indexOf(" of ") + "of overlapping lesion".length();
+                  .substring(bodyStructIdx + "of overlapping lesion".length()).indexOf(" of ")
+                  + "of overlapping lesion".length();
             }
           }
 
           // Ignore 'of' uncertain xyz
           for (String uncertainStr : UNCERTAINTY) {
             String afterSplitWord =
-                descString.substring(bodyStructIdx + splitKeyWord.length())
-                    .trim().toLowerCase();
+                descString.substring(bodyStructIdx + splitKeyWord.length()).trim().toLowerCase();
             if (afterSplitWord.startsWith(uncertainStr)) {
               String secondSplitKeyWord = identifySplitKeyword(afterSplitWord);
 
               if (secondSplitKeyWord != null) {
-                bodyStructIdx =
-                    descString.indexOf(splitKeyWord) + splitKeyWord.length();
+                bodyStructIdx = descString.indexOf(splitKeyWord) + splitKeyWord.length();
                 bodyStructIdx += afterSplitWord.indexOf(secondSplitKeyWord);
               } else {
                 containsBodyStructure = false;
@@ -243,8 +223,8 @@ public class SctNeoplasmDescriptionParser {
             }
           }
 
-          if (FALSE_POSITIVE_BODY_STRUCTURES.contains(descString
-              .substring(descString.indexOf("of") + "of".length()).trim())) {
+          if (FALSE_POSITIVE_BODY_STRUCTURES
+              .contains(descString.substring(descString.indexOf("of") + "of".length()).trim())) {
             containsBodyStructure = false;
           }
 
@@ -257,8 +237,7 @@ public class SctNeoplasmDescriptionParser {
             // Body Structure found... Print part prior to Body Structure
 
             // Print Pathology
-            if (descString.substring(0, bodyStructIdx).trim()
-                .endsWith(" " + splitKeyWord.trim())) {
+            if (descString.substring(0, bodyStructIdx).trim().endsWith(" " + splitKeyWord.trim())) {
               desc.setPathology(descString.substring(0, bodyStructIdx).trim()
                   .substring(0, bodyStructIdx - 3).trim());
             } else {
@@ -276,20 +255,15 @@ public class SctNeoplasmDescriptionParser {
               // If ends with paranthesis (unless plural), make part in
               // parenthesis as
               // secondary Info
-              secondaryInfo =
-                  bodyStruct.substring(bodyStruct.indexOf("(")).trim();
-              secondaryInfo =
-                  secondaryInfo.substring(1, secondaryInfo.length() - 1);
-              bodyStruct =
-                  bodyStruct.substring(0, bodyStruct.indexOf("(")).trim();
+              secondaryInfo = bodyStruct.substring(bodyStruct.indexOf("(")).trim();
+              secondaryInfo = secondaryInfo.substring(1, secondaryInfo.length() - 1);
+              bodyStruct = bodyStruct.substring(0, bodyStruct.indexOf("(")).trim();
             } else if (bodyStruct.contains("affecting")) {
               // If contains "affecting", make everything afterwards (including
               // the word) as
               // secondary Info
-              secondaryInfo =
-                  bodyStruct.substring(bodyStruct.indexOf("affecting")).trim();
-              bodyStruct = bodyStruct
-                  .substring(0, bodyStruct.indexOf("affecting")).trim();
+              secondaryInfo = bodyStruct.substring(bodyStruct.indexOf("affecting")).trim();
+              bodyStruct = bodyStruct.substring(0, bodyStruct.indexOf("affecting")).trim();
             } else {
               for (String splitStr : BODY_STRUCTURE_SPLIT) {
                 if (bodyStruct.contains(splitStr)) {
@@ -312,41 +286,32 @@ public class SctNeoplasmDescriptionParser {
 
                   if (!isException) {
                     secondaryInfo = bodyStruct
-                        .substring(
-                            bodyStruct.indexOf(splitStr) + splitStr.length())
-                        .trim();
+                        .substring(bodyStruct.indexOf(splitStr) + splitStr.length()).trim();
 
                     if (secondaryInfo.endsWith(")")) {
-                      secondaryInfo = secondaryInfo.substring(0,
-                          secondaryInfo.lastIndexOf(")"));
+                      secondaryInfo = secondaryInfo.substring(0, secondaryInfo.lastIndexOf(")"));
                     }
-                    bodyStruct = bodyStruct
-                        .substring(0, bodyStruct.indexOf(splitStr)).trim();
+                    bodyStruct = bodyStruct.substring(0, bodyStruct.indexOf(splitStr)).trim();
                   }
                   break;
                 }
               }
             }
 
-            if (bodyStruct.contains("'")
-                && apostropheMap.containsKey(bodyStruct)) {
+            if (bodyStruct.contains("'") && apostropheMap.containsKey(bodyStruct)) {
               bodyStruct = apostropheMap.get(bodyStruct);
             }
 
             // Check for Lymph Node special case
-            if (bodyStruct.contains("lymph node")
-                && !bodyStruct.trim().startsWith("lymph node")) {
+            if (bodyStruct.contains("lymph node") && !bodyStruct.trim().startsWith("lymph node")) {
               if (secondaryInfo == null || secondaryInfo.isEmpty()) {
-                secondaryInfo = bodyStruct
-                    .substring(0, bodyStruct.indexOf("lymph node")).trim();
-                bodyStruct = bodyStruct
-                    .substring(bodyStruct.indexOf("lymph node")).trim();
+                secondaryInfo = bodyStruct.substring(0, bodyStruct.indexOf("lymph node")).trim();
+                bodyStruct = bodyStruct.substring(bodyStruct.indexOf("lymph node")).trim();
               }
             }
 
             // Check to see if
-            if (!bodyStructuresRequireSecondaryInfo.contains(bodyStruct)
-                && secondaryInfo != null) {
+            if (!bodyStructuresRequireSecondaryInfo.contains(bodyStruct) && secondaryInfo != null) {
               for (String structure : distinctBodyStructures) {
                 if (secondaryInfo.contains(structure)) {
                   bodyStruct = originalBodyStruture;
@@ -374,8 +339,8 @@ public class SctNeoplasmDescriptionParser {
         outputBooleanValues(descString, desc);
       }
     } catch (Exception e) {
-      System.out.println("Failed processing: '" + descString
-          + "' with exception: " + e.getMessage());
+      System.out
+          .println("Failed processing: '" + descString + "' with exception: " + e.getMessage());
       return null;
     }
     return desc;
@@ -395,15 +360,13 @@ public class SctNeoplasmDescriptionParser {
       } else if (desc.contains(" to ") && !desc.contains(" of ")) {
         // i.e. Cancer metastatic to choroid
         return " to ";
-      } else if (!desc.matches(".* to .* to .*")
-          && !desc.matches(".* of .* of .*")
+      } else if (!desc.matches(".* to .* to .*") && !desc.matches(".* of .* of .*")
           && desc.matches(".* to .* of .*")) {
         // i.e. Cancer metastatic to lymph nodes of lower limb
         return " to ";
       }
     } else {
-      if (!desc.matches(".* to .* to .*")
-          && desc.matches(".* of .* due to .*")) {
+      if (!desc.matches(".* to .* to .*") && desc.matches(".* of .* due to .*")) {
         // i.e. Pathological fracture of hip due to neoplastic disease
         return " of ";
       } else if (!desc.contains("of") && !desc.matches(".* to .* to .*")) {
@@ -421,8 +384,7 @@ public class SctNeoplasmDescriptionParser {
    * @param descString the desc string
    * @param desc the desc
    */
-  private void outputBooleanValues(String descString,
-    SctNeoplasmDescription desc) {
+  private void outputBooleanValues(String descString, SctNeoplasmDescription desc) {
     // Has Uncertainty
     for (String uncertainStr : UNCERTAINTY) {
       if (descString.toLowerCase().contains(uncertainStr)) {
@@ -492,18 +454,17 @@ public class SctNeoplasmDescriptionParser {
    */
   public boolean readAllNeoplasmDescsFromFile() throws IOException {
     // Preprocess file to identify unique body structures
-    return parseInputFile(previousExecutionInputFilePath, neoplasmDescs,
-        neoplasmDescsToConIdMap);
+    return parseInputFile(previousExecutionInputFilePath, neoplasmDescs, neoplasmDescsToConIdMap,
+        true);
   }
 
   public boolean readAllFindingSitesFromFile() throws IOException {
-    return parseInputFile(findingSiteInputFilePath, allFindingSiteDescs,
-        findingSiteDescToConIdMap);
+    return parseInputFile(findingSiteInputFilePath, allFindingSiteDescs, findingSiteDescToConIdMap,
+        false);
   }
 
-  private boolean parseInputFile(String filePath,
-    Map<String, Set<SctNeoplasmDescription>> descs,
-    Map<String, String> descsToConMap) {
+  private boolean parseInputFile(String filePath, Map<String, Set<SctNeoplasmDescription>> descs,
+    Map<String, String> descsToConMap, boolean isNeoplasm) {
     String line = null;
 
     try {
@@ -511,12 +472,58 @@ public class SctNeoplasmDescriptionParser {
 
       line = reader.readLine(); // Don't want header
       line = reader.readLine();
+
       while (line != null) {
-        String id = line.substring(0, line.indexOf("\t"));
-        String descPortion = line.substring(line.indexOf("\t"));
-
-        SctNeoplasmDescription desc = parse(descPortion);
-
+        int counter = 0;
+        String origLine = line;
+        String id = null;
+        SctNeoplasmDescription desc = new SctNeoplasmDescription();
+        
+        if (isNeoplasm) {
+          while (line.contains("\t")) {
+            String subStr = line.substring(0, line.indexOf("\t"));
+            if (counter == 0) {
+              id = subStr;
+            } else if (counter == 1) {
+              desc.setDescription(subStr);
+            } else if (counter == 2) {
+              desc.setNeoplasmSynonym(subStr);
+            } else if (counter == 3) {
+              desc.setPathology(subStr);
+            } else if (counter == 4) {
+              desc.setBodyStructure(subStr);
+            } else if (counter == 5) {
+              desc.setSecondInfo(subStr);
+            } else if (counter == 6) {
+              desc.setUncertainty(subStr);
+            } else if (counter == 7) {
+              desc.setStage(!subStr.isEmpty());
+            } else if (counter == 8) {
+              desc.setPrimaryOrSecondary(subStr);
+            } else if (counter == 9) {
+              desc.setBenignOrMalignant(subStr);
+            } else if (counter == 10) {
+              desc.setUpperOrLower(subStr);
+            } else if (counter == 11) {
+              desc.setLeftOrRight(subStr);
+            } else if (counter == 12) {
+              desc.setMetastatic(!subStr.isEmpty());
+            } else if (counter == 13) {
+              desc.setInSitu(!subStr.isEmpty());
+            } else if (counter == 14) {
+              desc.setNode(!subStr.isEmpty());
+            }          
+  
+            line = line.substring(line.indexOf("\t") + "\t".length());
+            counter++;  
+          }
+          desc.setLocalRecurrance(!origLine.substring(origLine.lastIndexOf("\t")).isEmpty());
+        } else {
+          String[] columns = line.split("\t");
+          id = columns[0];
+          desc.setDescription(columns[1]);
+        }
+        
         if (!descs.containsKey(id)) {
           descs.put(id, new HashSet<SctNeoplasmDescription>());
         }
@@ -531,8 +538,7 @@ public class SctNeoplasmDescriptionParser {
       System.out.println("File doesn't exist: " + filePath);
       return false;
     } catch (IOException e) {
-      System.out
-          .println("Faililng on line: " + line + " with: " + e.getMessage());
+      System.out.println("Faililng on line: " + line + " with: " + e.getMessage());
       return false;
     }
 
@@ -545,8 +551,7 @@ public class SctNeoplasmDescriptionParser {
    * @param con the con
    * @return the finding site descs
    */
-  public Set<SctNeoplasmDescription> getFindingSiteDescs(
-    SctNeoplasmConcept con) {
+  public Set<SctNeoplasmDescription> getFindingSiteDescs(SctNeoplasmConcept con) {
     return allFindingSiteDescs.get(con.getConceptId());
   }
 
