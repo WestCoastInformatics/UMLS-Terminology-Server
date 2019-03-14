@@ -136,7 +136,7 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
     timestamp = partialDf.format(now);
     month = now.getMonth().getDisplayName(TextStyle.SHORT, Locale.getDefault());
 
-    userFolder = new File(folderName);
+    userFolder = new File("results" + File.separator + folderName);
     userFolder.mkdirs();
 
     Properties properties = setupProperties();
