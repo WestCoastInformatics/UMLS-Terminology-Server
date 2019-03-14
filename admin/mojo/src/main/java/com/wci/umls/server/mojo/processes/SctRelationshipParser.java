@@ -27,13 +27,13 @@ public class SctRelationshipParser {
 
   /** The output file path for relationships. */
   private final String neoplasmInputFilePath =
-      "C:\\Users\\yishai\\Desktop\\Neoplasm\\Input Files\\neoplasmRels.txt";
+      "src\\main\\resources\\neoplasmRels.txt";
 
   private Map<String, Set<SctRelationship>> neoplasmRels = new HashMap<>();
 
   /** The output file path for relationships. */
   private final String findingSiteInputFilePath =
-      "C:\\Users\\yishai\\Desktop\\Neoplasm\\Input Files\\findingSiteRels.txt";
+      "src\\main\\resources\\findingSiteRels.txt";
 
   private Map<String, Set<SctRelationship>> findingSiteRels = new HashMap<>();
 

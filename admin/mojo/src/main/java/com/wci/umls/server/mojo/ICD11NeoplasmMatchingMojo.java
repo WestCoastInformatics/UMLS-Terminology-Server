@@ -87,6 +87,10 @@ public class ICD11NeoplasmMatchingMojo extends AbstractContentAnalysisMojo {
 
   private NeoplasmMatchRules matchingRules;
 
+  private final String neoplasmDescriptionsFile = "src\\main\\resources\\allNeoplasmDescs.txt";
+
+  private final String nonIsaNeoplasmRelsFile = "src\\main\\resources\\nonIsaNeoplasmRels.txt";
+
   /*
    * (non-Javadoc)
    * 
@@ -296,8 +300,7 @@ public class ICD11NeoplasmMatchingMojo extends AbstractContentAnalysisMojo {
    */
   protected Map<String, SctNeoplasmConcept> populateConceptsFromFiles() throws IOException {
     // Populate Relationships
-    String inputFilePath = "C:\\Users\\yishai\\Desktop\\Neoplasm\\Input Files\\nonIsaRelsRule1.txt";
-    BufferedReader reader = new BufferedReader(new FileReader(inputFilePath));
+    BufferedReader reader = new BufferedReader(new FileReader(nonIsaNeoplasmRelsFile));
     Map<String, SctNeoplasmConcept> concepts = new HashMap<>();
 
     String line = reader.readLine(); // Don't want header
@@ -322,8 +325,7 @@ public class ICD11NeoplasmMatchingMojo extends AbstractContentAnalysisMojo {
     reader.close();
 
     // Populate Descriptions
-    inputFilePath = "C:\\Users\\yishai\\Desktop\\Neoplasm\\Input Files\\allDescs.txt";
-    reader = new BufferedReader(new FileReader(inputFilePath));
+    reader = new BufferedReader(new FileReader(neoplasmDescriptionsFile));
 
     line = reader.readLine(); // Don't want header
     line = reader.readLine();

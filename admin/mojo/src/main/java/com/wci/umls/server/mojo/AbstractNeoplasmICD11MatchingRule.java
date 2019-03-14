@@ -1,6 +1,7 @@
 package com.wci.umls.server.mojo;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -50,7 +51,7 @@ public abstract class AbstractNeoplasmICD11MatchingRule {
   protected PrintWriter devWriter;
 
   /** The tc input file path. */
-  static final protected String tcInputFilePath = "C:\\Code\\wci\\myTransClosureFile.csv";
+  static final protected String tcInputFilePath = "src//main//resources//01312019 core transative closures.txt";
 
   /** The already looked up token cache. */
   protected Map<String, SearchResultList> findingSiteCache = new HashMap<>();

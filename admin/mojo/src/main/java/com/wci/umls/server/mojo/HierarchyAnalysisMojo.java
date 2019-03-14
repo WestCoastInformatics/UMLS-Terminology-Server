@@ -72,7 +72,7 @@ public class HierarchyAnalysisMojo extends AbstractContentAnalysisMojo {
 
   /** The output file path for relationships. */
   private String inputFilePath = null;
-  // "C:\\Users\\yishai\\Desktop\\Neoplasm\\sctNeoplasmInputFile2.txt";
+  // "src\\main\\resources\\sctNeoplasmDescriptionsOnly.txt";
 
   /** The output file path. */
   private boolean testing = false;

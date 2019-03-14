@@ -79,7 +79,7 @@ public class SctNeoplasmDescriptionParser {
 
   /** The output file path for relationships. */
   private final String previousExecutionInputFilePath =
-      "C:\\Users\\yishai\\Desktop\\Neoplasm\\Input Files\\neoplasmDescsV6.txt";
+      "src\\main\\resources\\allNeoplasmDescs.txt";
 
   /** The all descs. */
   private Map<String, Set<SctNeoplasmDescription>> neoplasmDescs = new HashMap<>();
@@ -89,7 +89,7 @@ public class SctNeoplasmDescriptionParser {
 
   /** The finding site input file path. */
   private final String findingSiteInputFilePath =
-      "C:\\Users\\yishai\\Desktop\\Neoplasm\\Input Files\\findingSiteDescs.txt";
+      "src\\main\\resources\\findingSiteDescs.txt";
 
   /** The finding site desc to con map. */
   private Map<String, String> findingSiteDescToConIdMap = new HashMap<>();
