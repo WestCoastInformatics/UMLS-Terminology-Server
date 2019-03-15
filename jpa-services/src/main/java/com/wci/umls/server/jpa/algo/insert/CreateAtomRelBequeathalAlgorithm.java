@@ -159,8 +159,8 @@ public class CreateAtomRelBequeathalAlgorithm extends AbstractInsertMaintRelease
           Atom a = getAtom(atom.getId());
           for (AtomRelationship ar : a.getRelationships()) {
             if (ar.getRelationshipType().equals("RO")) {
-              Atom otherAtom = ar.getFrom();
-              // Find the NCIMTH concept for the parent atom
+              Atom otherAtom = ar.getTo();
+              // Find the NCIMTH concept for the other atom
               SearchResultList srl = findConceptSearchResults(
                   getProject().getTerminology(), getProject().getVersion(),
                   Branch.ROOT, "atoms.id:" + otherAtom.getId(), null);
@@ -184,8 +184,8 @@ public class CreateAtomRelBequeathalAlgorithm extends AbstractInsertMaintRelease
             
               }
             } else if (ar.getRelationshipType().equals("RB")) {
-              Atom otherAtom = ar.getFrom();
-              // Find the NCIMTH concept for the parent atom
+              Atom otherAtom = ar.getTo();
+              // Find the NCIMTH concept for the other atom
               SearchResultList srl = findConceptSearchResults(
                   getProject().getTerminology(), getProject().getVersion(),
                   Branch.ROOT, "atoms.id:" + otherAtom.getId(), null);
@@ -209,7 +209,6 @@ public class CreateAtomRelBequeathalAlgorithm extends AbstractInsertMaintRelease
             }
           }
         }
-        // write out a max of two bequeathals, parent bequeathals get precedence over grandparent ones
         if (potentialRBBequeathals.size() >= 1) {
           out.write(potentialRBBequeathals.get(0));
           logInfo("[CreateBequeathal Atom RB] " + potentialRBBequeathals.get(0));
