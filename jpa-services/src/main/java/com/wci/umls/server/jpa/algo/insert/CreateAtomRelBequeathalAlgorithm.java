@@ -183,7 +183,7 @@ public class CreateAtomRelBequeathalAlgorithm extends AbstractInsertMaintRelease
                 potentialROBequeathals.add(sb.toString());
             
               }
-            } else if (ar.getRelationshipType().equals("RB")) {
+            } else if (ar.getRelationshipType().equals("RN")) {
               Atom otherAtom = ar.getTo();
               // Find the NCIMTH concept for the other atom
               SearchResultList srl = findConceptSearchResults(
