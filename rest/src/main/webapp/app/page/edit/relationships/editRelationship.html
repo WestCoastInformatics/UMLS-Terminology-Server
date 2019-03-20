@@ -38,11 +38,10 @@
             <!-- <tr ng-repeat="concept in toConcepts"
               ng-click="selectToConcept(concept)"
               ng-class="{selected: concept.id == toConcept.id}">  -->
-            <tr ng-repeat="concept in toConcepts"
-              ng-class="{selected: concept.id == toConcept.id}">
-              <td>
+            <tr ng-repeat="concept in toConcepts">
+              <td ng-click="toggleSelection(concept)">
               <input type="checkbox" title="Select/Deselect Concept"
-                    ng-change="selectToConcept(concept);" ng-model="checkboxValue"></input>
+                    ng-checked="isRowSelected(concept)" value="{{selectedToConcepts[concept.id]}}" ></input>
               </td>
               <td class="col-md-2 col-xs-2">{{concept.id}}</td>
               <td class="col-md-5 col-xs-5">{{concept.name}}</td>
@@ -90,7 +89,7 @@
   <span style="float: left;">
     <span finder selected="selected" lists="lists" callbacks="callbacks"></span>
   </span>
-  <button ng-disabled="!toConcept" class="btn btn-primary"
+  <button ng-disabled="!selectedToConcepts" class="btn btn-primary"
     ng-click="addRelationships();" title="Add relationship(s)">Add</button>
   <button class="btn btn-warning" ng-click="cancel()">Close</button>
 </div>

@@ -47,10 +47,13 @@
   </thead>
   <tbody>
     <tr ng-repeat="relationship in pagedRelationships"
-      ng-click="selectRelationship($event, relationship)"
       class="{{getRelationshipClass(relationship)}}"
       ng-class="{selected: isRowSelected(relationship)}">
-      <td>{{relationship.fromName}}</td>
+      <td ng-click="toggleSelection(relationship)">
+        <input type="checkbox" value="{{relationship.fromName}}"
+          ng-checked="isRowSelected(relationship)">&nbsp;
+        {{relationship.fromName}}
+      </td>
       <td>{{relationship.fromId}}</td>
       <td>{{relationship.relationshipType}}&nbsp;
         {{relationship.additionalRelationshipType}}</td>
@@ -90,7 +93,7 @@
         title="Show preferred only">
       <span>Show preferred only</span>
       <button ng-click="transferConceptToEditor()"
-        ng-disabled="!selected.relationship || editingDisabled()"
+        ng-disabled="!isSelectedRelationships() || editingDisabled()"
         title="Transfer concept to editor" class="btn btn-xs btn-primary">Transfer</button>
       <button ng-click="openMergeModal()" ng-disabled="editingDisabled()"
         title="Merge" class="btn btn-xs btn-primary">Merge</button>

@@ -30,9 +30,9 @@ tsApp
         $scope.selected = $scope.parentWindowScope.selected;
         $scope.lists = $scope.parentWindowScope.lists;
         $scope.user = $scope.parentWindowScope.user;
-        $scope.selected.relationship = null;
         $scope.preferredOnly = true;
         $scope.relatedConcept = null;
+        $scope.selected.relationships = {};
 
         // Paging variables
         $scope.pageSizes = utilService.getPageSizes();
@@ -56,7 +56,7 @@ tsApp
 
         // Watch for component changes
         $scope.$watch('selected.component', function() {
-          $scope.selected.relationship = null;
+          $scope.selected.relationships = {};
           $scope.getPagedRelationships();
         });
 
@@ -108,8 +108,14 @@ tsApp
             });
         }
 
+        $scope.isSelectedRelationships = function() {
+          return Object.keys($scope.selected.relationships).length > 0;
+        }
+        
         $scope.transferConceptToEditor = function() {
-          $scope.parentWindowScope.transferConceptToEditor($scope.selected.relationship.fromId);
+          for (var key in $scope.selected.relationships) {
+            $scope.parentWindowScope.transferConceptToEditor($scope.selected.relationships[key].fromId);
+          }
         }
 
         //
@@ -254,15 +260,32 @@ tsApp
         }
 
         // selects an relationship
-        $scope.selectRelationship = function(event, relationship) {
+        /*$scope.selectRelationship = function(event, relationship) {
           $scope.selected.relationship = relationship;
+        };*/
+
+        // indicates if a particular row is selected
+        /*$scope.isRowSelected = function(relationship) {
+          return $scope.selected.relationship && $scope.selected.relationship.id == relationship.id;
+        };*/
+
+        // select/deselect relationship
+        $scope.toggleSelection = function toggleSelection(relationship) {
+          // is currently selected
+          if ($scope.selected.relationships[relationship.id]) {
+            delete $scope.selected.relationships[relationship.id];
+          }
+          // is newly selected
+          else {
+            $scope.selected.relationships[relationship.id] = relationship;
+          }
         };
 
         // indicates if a particular row is selected
         $scope.isRowSelected = function(relationship) {
-          return $scope.selected.relationship && $scope.selected.relationship.id == relationship.id;
-        };
-
+          return $scope.selected.relationships[relationship.id];
+        }
+        
         // returns relationship level
         $scope.getRelationshipLevel = function(rel) {
           if (rel.workflowStatus == 'DEMOTION') {
@@ -312,7 +335,7 @@ tsApp
 
         // Insert modal
         $scope.openInsertModal = function() {
-          if (!$scope.selected.relationship && $scope.lists.concepts.length < 2) {
+          if (!$scope.selected.relationships && $scope.lists.concepts.length < 2) {
             window
               .alert('There is only one concept on the concept list.  Select a \'to\' concept for the relationship.');
             return;
@@ -374,7 +397,7 @@ tsApp
 
           modalInstance.result.then(
           // Success
-          function(data) {     	  
+          function(data) {       
             $scope.getPagedRelationships();
           });
         };
