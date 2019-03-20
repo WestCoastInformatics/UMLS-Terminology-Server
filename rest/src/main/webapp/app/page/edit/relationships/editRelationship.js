@@ -59,6 +59,11 @@ tsApp.controller('EditRelationshipModalCtrl', [
           $scope.selectedToConceptObjects[$scope.lists.concepts[i].id] = $scope.lists.concepts[i];
         }
       }
+      // select those rels already selected on relationshipWindow
+      for (var key in $scope.selected.relationships) {
+          $scope.selectedToConcepts[$scope.selected.relationships[key].fromId] = true;
+      }
+      
       if ($scope.toConcepts.length == 1) {
         $scope.toConcept = $scope.toConcepts[0];
       }
@@ -90,6 +95,8 @@ tsApp.controller('EditRelationshipModalCtrl', [
             }
             $scope.toConcept = data;
             $scope.selectedRelationshipType = $scope.selected.relationships[key].relationshipType;
+            $scope.selectedToConcepts[$scope.toConcept.id] = true;
+            $scope.selectedToConceptObjects[$scope.toConcept.id] = data;
           });
         }
       } else {
@@ -214,7 +221,7 @@ tsApp.controller('EditRelationshipModalCtrl', [
     }; 
 
     // select the to concept
-    $scope.selectToConcept = function(concept) {
+    /*$scope.selectToConcept = function(concept) {
     if($scope.selectedToConcepts[concept.id]){
       $scope.selectedToConcepts[concept.id] = false;
       for (var i =0; i < $scope.selectedToConceptObjects.length; i++) {
@@ -229,7 +236,7 @@ tsApp.controller('EditRelationshipModalCtrl', [
         $scope.selectedToConceptObjects.push(concept);
     }
     
-    }
+    }*/
     
     // Dismiss modal
     $scope.cancel = function() {
