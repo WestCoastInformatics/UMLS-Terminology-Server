@@ -591,7 +591,7 @@ public class IndexUtility {
     try {
       luceneQuery = queryParser.parse(finalQuery);
     } catch (ParseException e) {
-      throw new LocalException("Unable to parse query");
+      throw new LocalException("Unable to parse query: " + finalQuery);
     }
 
     // Validate query terms

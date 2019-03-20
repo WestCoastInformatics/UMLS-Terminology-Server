@@ -37,6 +37,11 @@ public class SctRelationshipParser {
 
   private Map<String, Set<SctRelationship>> findingSiteRels = new HashMap<>();
 
+  private final String eclInputFilePath =
+      "src\\main\\resources\\analyzer-Relationships-250.txt";
+
+  private Map<String, Set<SctRelationship>> eclRels = new HashMap<>();
+
   /** The output file path. */
   public SctRelationship parse(String conName,
     final Relationship<?, ?> relObject) {
@@ -73,6 +78,10 @@ public class SctRelationshipParser {
 
   public boolean readAllFindingSitesFromFile() throws IOException {
     return parseInputFile(findingSiteInputFilePath, findingSiteRels);
+  }
+
+  public boolean readAllEclFromFile() {
+    return parseInputFile(eclInputFilePath, eclRels);
   }
 
   private boolean parseInputFile(String filePath,
@@ -116,6 +125,10 @@ public class SctRelationshipParser {
     return true;
   }
 
+  public Set<SctRelationship> getEclRels(SctNeoplasmConcept con) {
+    return eclRels.get(con.getConceptId());
+  }
+
   public Set<SctRelationship> getNeoplasmRels(SctNeoplasmConcept con) {
     return neoplasmRels.get(con.getConceptId());
   }
@@ -129,6 +142,10 @@ public class SctRelationshipParser {
 
     if (rels == null) {
       rels = getFindingSiteRels(con);
+    }
+
+    if (rels == null) {
+      rels = getEclRels(con);
     }
 
     return rels;

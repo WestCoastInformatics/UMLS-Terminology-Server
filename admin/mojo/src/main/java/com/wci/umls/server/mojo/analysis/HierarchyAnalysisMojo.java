@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wci.umls.server.mojo;
+package com.wci.umls.server.mojo.analysis;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -197,32 +197,9 @@ public class HierarchyAnalysisMojo extends AbstractContentAnalysisMojo {
             targetVersion, null, pfs, authToken);
         getLog().info("Have " + results.getTotalCount() + " ECL Results");
 
-        for (SearchResult result : results.getObjects()) {
-          Concept con = client.getConcept(result.getId(), null, authToken);
-
-          for (Atom atom : con.getAtoms()) {
-            // Only process active & non-FSN & non-Definition descs
-            if (!atom.isObsolete()
-                && !atom.getTermType().equals("Fully specified name")
-                && !atom.getTermType().equals("Definition")) {
-              String desc = atom.getName();
-              processDesc(result.getTerminologyId(), desc, outputDescFile);
-            }
-          }
-          
-          RelationshipList relsList =
-              client.findConceptRelationships(con.getTerminologyId(), targetTerminology,
-                  targetVersion, null, new PfsParameterJpa(), authToken);
-
-          for (final Relationship<?, ?> relResult : relsList.getObjects()) {
-            SctRelationship rel = relParser.parse(con.getName(), relResult);
-            exportRels(rel, con.getTerminologyId(), outputRelFile);
-          }
-
-          if (!clearCache(outputDescFile, outputRelFile)) {
-            break;
-          }
-        }
+        SctMatcherAnalyzer analyzer = new SctMatcherAnalyzer();
+        
+        analyzer.analyze(results, targetTerminology, targetVersion, client, authToken);
       } else {
         SctNeoplasmDescriptionParser descParser =
             new SctNeoplasmDescriptionParser();

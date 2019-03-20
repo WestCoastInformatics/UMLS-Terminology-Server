@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wci.umls.server.mojo;
+package com.wci.umls.server.mojo.analysis.matching.rules;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +31,47 @@ public class ICD11MatchingRule4 extends AbstractNeoplasmICD11MatchingRule {
       String tt, String tv, String authToken) {
     super(client, st, sv, tt, tv, authToken);
   }
+  
+  @Override
+  public String getRuleName() {
+    return "rule4";
+  }
+  
+  @Override
+  protected String getDescription() {
+    return "Description Based: All descendents of 'Neoplastic disease' that contains a 'neoplasm' synonym and has some sort of 'uncertain behavior'";
+  }
+
+  @Override
+  public String getEclExpression() {
+    return null;
+  }
+
+  @Override
+  public Map<String, SctNeoplasmConcept> getConceptMap() {
+    Map<String, SctNeoplasmConcept> retMap = new HashMap<>();
+    
+    for (SctNeoplasmConcept con : conceptSearcher.getAllNeoplasmConcepts()) {
+      for (SctNeoplasmDescription desc : con.getDescs()) {
+          if (desc.getNeoplasmSynonym().toLowerCase().equals("neoplasm") && !desc.getUncertainty().isEmpty()) {
+            retMap.put(con.getConceptId(), con);
+            break;
+          }
+      }
+    }
+    
+    return retMap;
+  }
+
+  @Override
+  public String getDefaultTarget() {
+    return null;
+  }
+
+  @Override
+  protected SctNeoplasmConcept getTopLevelConcept() {
+    return conceptSearcher.getSctConcept("55342001");
+  }
 
   /**
    * Execute rule 1.
@@ -39,7 +80,7 @@ public class ICD11MatchingRule4 extends AbstractNeoplasmICD11MatchingRule {
    * @throws Exception the exception
    */
   @Override
-  public String executeRule(SctNeoplasmConcept sctCon, Set<String> findingSites,
+  public String executeRule(SctNeoplasmConcept sctCon, Set<SctNeoplasmConcept> findingSites,
     int counter) throws Exception {
 
     StringBuffer str = new StringBuffer();
@@ -101,6 +142,8 @@ public class ICD11MatchingRule4 extends AbstractNeoplasmICD11MatchingRule {
         || result.getCodeId().startsWith("2"))
         && result.getValue().toLowerCase().matches(".*\\bneopl.*")
         && result.getValue().toLowerCase().matches(".*\\buncertain\\b.*")
+        && !result.getTerminologyId().equals("2E6Y")
+        && !result.getTerminologyId().equals("2E6Z")
         && result.isLeafNode()) {
       return true;
     }
@@ -128,36 +171,5 @@ public class ICD11MatchingRule4 extends AbstractNeoplasmICD11MatchingRule {
     }
 
     return findingSiteCache.get(queryPortion);
-  }
-
-  @Override
-  protected String getEclExpression() {
-    return null;
-  }
-
-  @Override
-  protected Map<String, SctNeoplasmConcept> getConceptMap() {
-    Map<String, SctNeoplasmConcept> retMap = new HashMap<>();
-    
-    for (SctNeoplasmConcept con : conceptSearcher.getAllNeoplasmConcepts()) {
-      for (SctNeoplasmDescription desc : con.getDescs()) {
-          if (desc.getNeoplasmSynonym().toLowerCase().equals("neoplasm") && !desc.getUncertainty().isEmpty()) {
-            retMap.put(con.getConceptId(), con);
-            break;
-          }
-      }
-    }
-    
-    return retMap;
-  }
-  
-  @Override
-  protected String getRule() {
-    return "rule4";
-  }
-
-  @Override
-  public String getDefaultTarget() {
-    return null;
   }
 }

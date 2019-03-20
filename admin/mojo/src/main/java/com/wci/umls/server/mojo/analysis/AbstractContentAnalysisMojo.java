@@ -1,4 +1,4 @@
-package com.wci.umls.server.mojo;
+package com.wci.umls.server.mojo.analysis;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,6 +25,7 @@ import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.mojo.analysis.matching.rules.AbstractNeoplasmICD11MatchingRule;
 import com.wci.umls.server.mojo.model.SctNeoplasmConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
 import com.wci.umls.server.mojo.model.SctRelationship;
@@ -319,7 +320,7 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
       }
 
       // Get Associated Rels
-      conceptSearcher.populateRelationships(con);
+      conceptSearcher.populateRelationships(con, con.getDescs().iterator().next().getDescription());
       concepts.put(result.getTerminologyId(), con);
     }
 
@@ -345,9 +346,9 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
       // Get Desc
       SctNeoplasmConcept con = new SctNeoplasmConcept(result.getTerminologyId(), result.getValue());
 
-      con.setDescs(descParser.getNeoplasmDescs(con));
-      con.setRels(relParser.getNeoplasmRels(con));
-
+      con.setDescs(descParser.getDescriptions(con));
+      con.setRels(relParser.getRelationships(con));
+      
       concepts.put(result.getTerminologyId(), con);
     }
 

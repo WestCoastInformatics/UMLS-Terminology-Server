@@ -1,7 +1,9 @@
 package com.wci.umls.server.mojo.processes;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import com.wci.umls.server.helpers.SearchResult;
@@ -47,7 +49,7 @@ public class NeoplasmConceptSearcher {
 
   protected PfsParameterJpa pfsLimitless = new PfsParameterJpa();
 
-  static private Set<SctNeoplasmConcept> neoplasmConcepts = null;
+  static private Map<String, SctNeoplasmConcept> neoplasmConcepts = null;
 
   public void setup(ContentClientRest contentClient, String st, String sv, String tt, String tv,
     String token) {
@@ -102,11 +104,24 @@ public class NeoplasmConceptSearcher {
    */
   public SctNeoplasmConcept populateSctConcept(String conId, String name) throws Exception {
     SctNeoplasmConcept con = new SctNeoplasmConcept(conId, name);
-    populateRelationships(con);
-    populateDescriptions(con);
 
-    if (name == null) {
-      con.setName(con.getDescs().iterator().next().getDescription());
+    return populateSctConcept(con);
+  }
+
+  /**
+   * Populate neoplasm sct concept.
+   *
+   * @param result the result
+   * @return the sct neoplasm concept
+   * @throws Exception the exception
+   */
+  public SctNeoplasmConcept populateSctConcept(SctNeoplasmConcept con) throws Exception {
+    populateDescriptions(con);
+    String conName =  con.getDescs().iterator().next().getDescription();
+    populateRelationships(con, conName);
+
+    if (con.getName() == null) {
+      con.setName(conName);
     }
 
     return con;
@@ -116,19 +131,24 @@ public class NeoplasmConceptSearcher {
    * Populate neoplasm relationships.
    *
    * @param con the con
+   * @param desc 
    * @throws Exception the exception
    */
-  public void populateRelationships(SctNeoplasmConcept con) throws Exception {
-
-    if (canPopulateFromFiles) {
+  public void populateRelationships(SctNeoplasmConcept con, String desc) throws Exception {
       con.setRels(relParser.getRelationships(con));
-    } else {
+      
+      if (con.getRels() == null) {
+        con.setRels(new HashSet<SctRelationship>());
+      }
+      
+      if (con.getRels().isEmpty()) {
       RelationshipList relsList = client.findConceptRelationships(con.getConceptId(),
           sourceTerminology, sourceVersion, null, pfsLimitless, authToken);
 
       for (final Relationship<?, ?> relResult : relsList.getObjects()) {
         SctRelationship rel = relParser.parse(con.getName(), relResult);
         if (rel != null) {
+          rel.setDescription(desc);
           con.getRels().add(rel);
         }
       }
@@ -142,9 +162,13 @@ public class NeoplasmConceptSearcher {
    * @throws Exception the exception
    */
   public void populateDescriptions(SctNeoplasmConcept con) throws Exception {
-    if (canPopulateFromFiles) {
-      con.setDescs(descParser.getDescriptions(con));
-    } else {
+    con.setDescs(descParser.getDescriptions(con));
+    
+    if (con.getDescs() == null) {
+      con.setDescs(new HashSet<SctNeoplasmDescription>());
+    }
+    
+    if (con.getDescs().isEmpty()) {
       Concept fullCon =
           client.getConcept(con.getConceptId(), sourceTerminology, sourceVersion, null, authToken);
 
@@ -177,13 +201,13 @@ public class NeoplasmConceptSearcher {
     relParser = rp;
   }
 
-  public Set<SctNeoplasmConcept> getAllNeoplasmConcepts() {
+  public Collection<SctNeoplasmConcept> getAllNeoplasmConcepts() {
     try {
       if (neoplasmConcepts == null) {
-        neoplasmConcepts = new HashSet<>();
+        neoplasmConcepts = new HashMap<>();
 
         for (String conId : descParser.getAllNeoplasmConceptIds()) {
-          neoplasmConcepts.add(populateSctConcept(conId, null));
+          neoplasmConcepts.put(conId, populateSctConcept(conId, null));
         }
       }
     } catch (Exception e) {
@@ -191,7 +215,7 @@ public class NeoplasmConceptSearcher {
       e.printStackTrace();
     }
 
-    return neoplasmConcepts;
+    return neoplasmConcepts.values();
   }
 
 
@@ -213,5 +237,18 @@ public class NeoplasmConceptSearcher {
     }
 
     return targets;
+  }
+
+  public SctNeoplasmConcept getSctConcept(String conId) {
+    if (neoplasmConcepts == null) {
+      getAllNeoplasmConcepts();
+    }
+    
+    return neoplasmConcepts.get(conId);
+  }
+
+  public Set<SctNeoplasmDescription> lookupDescs(SctNeoplasmConcept con) {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

@@ -90,12 +90,22 @@ public class SctNeoplasmDescriptionParser {
   /** The finding site input file path. */
   private final String findingSiteInputFilePath =
       "src\\main\\resources\\findingSiteDescs.txt";
+  
+  /** The finding site input file path. */
+  private final String eclInputFilePath =
+      "src\\main\\resources\\analyzer-Descriptions-250.txt";
 
   /** The finding site desc to con map. */
   private Map<String, String> findingSiteDescToConIdMap = new HashMap<>();
 
+  /** The finding site desc to con map. */
+  private Map<String, String> eclDescToConIdMap = new HashMap<>();
+
   /** The all finding site descs. */
   private Map<String, Set<SctNeoplasmDescription>> allFindingSiteDescs = new HashMap<>();
+
+  /** The all finding site descs. */
+  private Map<String, Set<SctNeoplasmDescription>> allEclDescs = new HashMap<>();
 
   /**
    * Instantiates an empty {@link SctNeoplasmDescriptionParser}.
@@ -464,6 +474,12 @@ public class SctNeoplasmDescriptionParser {
         false);
   }
 
+  public boolean readAllEclFromFile() {
+    return parseInputFile(eclInputFilePath, allEclDescs, eclDescToConIdMap,
+        false);
+  }
+
+
   private boolean parseInputFile(String filePath, Map<String, Set<SctNeoplasmDescription>> descs,
     Map<String, String> descsToConMap, boolean isNeoplasm) {
     String line = null;
@@ -567,6 +583,26 @@ public class SctNeoplasmDescriptionParser {
   }
 
   /**
+   * Returns the finding site descs.
+   *
+   * @param con the con
+   * @return the finding site descs
+   */
+  public Set<SctNeoplasmDescription> getEclDescs(SctNeoplasmConcept con) {
+    return allEclDescs.get(con.getConceptId());
+  }
+
+  /**
+   * Returns the con finding site from desc.
+   *
+   * @param desc the desc
+   * @return the con finding site from desc
+   */
+  public String getEclConIdFromDesc(String desc) {
+    return eclDescToConIdMap.get(desc);
+  }
+
+  /**
    * Returns the descs.
    *
    * @param con the con
@@ -593,6 +629,10 @@ public class SctNeoplasmDescriptionParser {
       descs = getFindingSiteDescs(con);
     }
 
+    if (descs == null) {
+      descs = getEclDescs(con);
+    }
+
     return descs;
   }
 
@@ -601,6 +641,10 @@ public class SctNeoplasmDescriptionParser {
 
     if (conId == null) {
       conId = getFindingSiteConIdFromDesc(desc);
+    }
+
+    if (conId == null) {
+      conId = getEclConIdFromDesc(desc);
     }
 
     return conId;

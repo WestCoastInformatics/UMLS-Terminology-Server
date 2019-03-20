@@ -13,6 +13,7 @@ import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.mojo.analysis.matching.rules.AbstractNeoplasmICD11MatchingRule;
 import com.wci.umls.server.mojo.model.SctNeoplasmConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
 import com.wci.umls.server.mojo.model.SctRelationship;
@@ -29,7 +30,9 @@ public class FindingSiteUtility {
   /** The non finding site strings. */
   final static protected List<String> nonFindingSiteStrings =
       Arrays.asList("of", "part", "structure", "system", "and/or", "and", "region", "area", "or",
-          "the", "in", "cavity", "tract", "male", "female");
+          "the", "in", "cavity", "organ", "genitalia", "canal", "genital", "adnexa", "duct", "tract");// ,
+                                                                                             // "male",
+                                                                                             // "female");
 
   /** The top level body structure ids. */
   final protected List<String> topLevelBodyStructureIds =
@@ -51,6 +54,8 @@ public class FindingSiteUtility {
 
   protected PfsParameterJpa pfsLimitless = new PfsParameterJpa();
 
+  private int jesse = 0;
+
   public FindingSiteUtility(ContentClientRest contentClient, String st, String sv, String tt,
       String tv, String token) {
     client = contentClient;
@@ -69,98 +74,125 @@ public class FindingSiteUtility {
    * @return the sets the
    * @throws Exception the exception
    */
-  public Set<SctNeoplasmConcept> identifyPotentialFSConcepts(Set<String> findingSites, PrintWriter devWriter)
-    throws Exception {
+  public Set<SctNeoplasmConcept> identifyPotentialFSConcepts(Set<SctNeoplasmConcept> findingSites,
+    PrintWriter devWriter) throws Exception {
     Set<SctNeoplasmConcept> retConcepts = new HashSet<>();
 
-    for (String site : findingSites) {
-      // Get the finding site as a concept
-      SctNeoplasmConcept fsConcept = conceptSearcher.getSctConceptFromDesc(site);
-      retConcepts.add(fsConcept);
+    if (findingSites != null) {
+      for (SctNeoplasmConcept fsConcept : findingSites) {
+        // Get the finding site as a concept
+        retConcepts.add(fsConcept);
 
-      if (findingSitePotentialTermsMapCache.containsKey(fsConcept.getConceptId())) {
-        return retConcepts;
-      }
-
-      Map<SctNeoplasmConcept, Set<String>> potentialFSConTerms = new HashMap<>();
-      findingSitePotentialTermsMapCache.put(fsConcept.getConceptId(), potentialFSConTerms);
-
-      if (topLevelBodyStructureIds.contains(fsConcept.getConceptId())) {
-        SctNeoplasmConcept mapCon = null;
-        if (NeoplasmConceptSearcher.canPopulateFromFiles) {
-          mapCon = conceptSearcher.populateSctConcept(fsConcept.getConceptId(), null);
+        if (findingSitePotentialTermsMapCache.containsKey(fsConcept.getConceptId())) {
+          retConcepts.add(fsConcept);
         } else {
-          Concept c = client.getConcept(fsConcept.getConceptId(), sourceTerminology, sourceVersion,
-              null, authToken);
-          mapCon = conceptSearcher.populateSctConcept(c.getTerminologyId(), null);
-        }
 
-        Set<String> bucket = new HashSet<>();
-        potentialFSConTerms.put(mapCon, bucket);
-      } else {
-        // Get all fsCon's ancestors
-        String topLevelSctId = null;
-        final ConceptList ancestorResults = client.findAncestorConcepts(fsConcept.getConceptId(),
-            sourceTerminology, sourceVersion, false, pfsLimitless, authToken);
+          Map<SctNeoplasmConcept, Set<String>> potentialFSConTerms = new HashMap<>();
+          findingSitePotentialTermsMapCache.put(fsConcept.getConceptId(), potentialFSConTerms);
 
-        // Find the body structure hierarchy it falls under
-        for (Concept ancestor : ancestorResults.getObjects()) {
-          if (topLevelBodyStructureIds.contains(ancestor.getTerminologyId())) {
-            topLevelSctId = ancestor.getTerminologyId();
-            break;
-          }
-        }
+          if (topLevelBodyStructureIds.contains(fsConcept.getConceptId())) {
+            SctNeoplasmConcept mapCon = null;
+            if (NeoplasmConceptSearcher.canPopulateFromFiles) {
+              mapCon = conceptSearcher.populateSctConcept(fsConcept.getConceptId(), null);
+            } else {
+              Concept c = client.getConcept(fsConcept.getConceptId(), sourceTerminology,
+                  sourceVersion, null, authToken);
+              mapCon = conceptSearcher.populateSctConcept(c.getTerminologyId(), null);
+            }
 
-        // Have list of possibleFindingSites. Test them for matches
-        if (topLevelSctId == null) {
-          String errorString = "ERROR ERROR ERROR: Found a finding site without an identified top level BS ancestor: "
-              + fsConcept.getConceptId() + "---" + fsConcept.getName();
-          System.out.println(errorString);
-          if (devWriter != null) {
-            devWriter.println(errorString + "\n\n");
-          }
-          
-          return null;
-        }
+            Set<String> bucket = new HashSet<>();
+            potentialFSConTerms.put(mapCon, bucket);
+          } else {
+            // Get all fsCon's ancestors
+            String topLevelSctId = null;
+            final ConceptList ancestorResults =
+                client.findAncestorConcepts(fsConcept.getConceptId(), sourceTerminology,
+                    sourceVersion, false, pfsLimitless, authToken);
 
-        // TODO: Because can't do ancestors via ECL, need this work around
-        // Identify all descendants of top level bodyStructure concept
-        pfsLimitless.setExpression("<< " + topLevelSctId);
-        final SearchResultList descendentResults =
-            client.findConcepts(sourceTerminology, sourceVersion, null, pfsLimitless, authToken);
-        pfsLimitless.setExpression(null);
+            // Find the body structure hierarchy it falls under
+            Set<String> ancestorIds = new HashSet<>();
+            for (Concept ancestor : ancestorResults.getObjects()) {
+              if (!ancestorIds.contains(ancestor.getTerminologyId())) {
+                ancestorIds.add(ancestor.getTerminologyId());
+                if (AbstractNeoplasmICD11MatchingRule.topLevelConcepts
+                    .contains(ancestor.getTerminologyId())) {
+                  continue;
+                }
 
-        // Create a list of concepts that are both ancestors of fsConcept and
-        // descendents of topLevelBodyStructure Concept
-        // TODO: This could be a Rest Call in of itself
-        for (Concept ancestor : ancestorResults.getObjects()) {
+                if (jesse == 0) {
+                  SctNeoplasmConcept mapCon = null;
+                  try {
+                    mapCon = conceptSearcher.populateSctConcept(ancestor.getTerminologyId(), null);
+                  } catch (Exception e) {
+                    Concept c = client.getConcept(ancestor.getTerminologyId(), sourceTerminology,
+                        sourceVersion, null, authToken);
+                    mapCon = conceptSearcher.populateSctConcept(c.getTerminologyId(), null);
+                  }
+                  potentialFSConTerms.put(mapCon, new HashSet<>());
+                } else {
+                  if (topLevelBodyStructureIds.contains(ancestor.getTerminologyId())) {
+                    topLevelSctId = ancestor.getTerminologyId();
+                    break;
+                  }
+                }
+              }
+            }
 
-          for (SearchResult potentialFindingSite : descendentResults.getObjects()) {
-            if (ancestor.getTerminologyId().equals(potentialFindingSite.getTerminologyId())) {
-              SctNeoplasmConcept mapCon = null;
-              if (NeoplasmConceptSearcher.canPopulateFromFiles) {
-                mapCon = conceptSearcher.populateSctConcept(ancestor.getTerminologyId(), null);
-              } else {
-                Concept c = client.getConcept(ancestor.getTerminologyId(), sourceTerminology,
-                    sourceVersion, null, authToken);
-                mapCon = conceptSearcher.populateSctConcept(c.getTerminologyId(), null);
+            if (jesse != 0) {
+              // Have list of possibleFindingSites. Test them for matches
+              if (topLevelSctId == null) {
+                String errorString =
+                    "ERROR ERROR ERROR: Found a finding site without an identified top level BS ancestor: "
+                        + fsConcept.getConceptId() + "---" + fsConcept.getName();
+                System.out.println(errorString);
+                if (devWriter != null) {
+                  devWriter.println(errorString + "\n\n");
+                }
+
+                return null;
               }
 
-              Set<String> bucket = new HashSet<>();
-              potentialFSConTerms.put(mapCon, bucket);
-              break;
+              // TODO: Because can't do ancestors via ECL, need this work around
+              // Identify all descendants of top level bodyStructure concept
+              pfsLimitless.setExpression("<< " + topLevelSctId);
+              final SearchResultList descendentResults = client.findConcepts(sourceTerminology,
+                  sourceVersion, null, pfsLimitless, authToken);
+              pfsLimitless.setExpression(null);
+
+              // Create a list of concepts that are both ancestors of fsConcept
+              // and
+              // descendents of topLevelBodyStructure Concept
+              // TODO: This could be a Rest Call in of itself
+              for (Concept ancestor : ancestorResults.getObjects()) {
+
+                for (SearchResult potentialFindingSite : descendentResults.getObjects()) {
+                  if (ancestor.getTerminologyId().equals(potentialFindingSite.getTerminologyId())) {
+                    SctNeoplasmConcept mapCon = null;
+                    if (NeoplasmConceptSearcher.canPopulateFromFiles) {
+                      mapCon =
+                          conceptSearcher.populateSctConcept(ancestor.getTerminologyId(), null);
+                    } else {
+                      Concept c = client.getConcept(ancestor.getTerminologyId(), sourceTerminology,
+                          sourceVersion, null, authToken);
+                      mapCon = conceptSearcher.populateSctConcept(c.getTerminologyId(), null);
+                    }
+
+                    potentialFSConTerms.put(mapCon, new HashSet<>());
+                    break;
+                  }
+                }
+              }
             }
           }
-        }
-      }
 
-      for (SctNeoplasmConcept testCon : potentialFSConTerms.keySet()) {
-        for (SctNeoplasmDescription desc : testCon.getDescs()) {
-          String normalizedStr = desc.getDescription().toLowerCase();
-          normalizedStr = cleanNonFindingSiteString(normalizedStr);
+          for (SctNeoplasmConcept testCon : potentialFSConTerms.keySet()) {
+            for (SctNeoplasmDescription desc : testCon.getDescs()) {
+              String normalizedStr = desc.getDescription().toLowerCase();
 
-          if (!potentialFSConTerms.get(testCon).contains(normalizedStr)) {
-            potentialFSConTerms.get(testCon).add(normalizedStr);
+              if (!potentialFSConTerms.get(testCon).contains(normalizedStr)) {
+                potentialFSConTerms.get(testCon).add(normalizedStr);
+              }
+            }
           }
         }
       }
@@ -186,9 +218,11 @@ public class FindingSiteUtility {
    *
    * @param sctCon the sct con
    * @return the sets the
+   * @throws Exception
    */
-  public Set<String> identifyAssociatedMorphologyBasedFindingSites(SctNeoplasmConcept sctCon) {
-    Set<String> targets = new HashSet<>();
+  public Set<SctNeoplasmConcept> identifyAssociatedMorphologyBasedFindingSites(
+    SctNeoplasmConcept sctCon) throws Exception {
+    Set<SctNeoplasmConcept> targets = new HashSet<>();
 
     Set<SctRelationship> amRels = conceptSearcher.getDestRels(sctCon, "Associated morphology");
     Set<SctRelationship> findingSites = conceptSearcher.getDestRels(sctCon, "Finding site");
@@ -196,13 +230,11 @@ public class FindingSiteUtility {
     for (SctRelationship morphology : amRels) {
       for (SctRelationship site : findingSites) {
         if (site.getRoleGroup() == morphology.getRoleGroup()) {
-          targets.add(site.getRelationshipDestination());
+          SctNeoplasmConcept fsConcept =
+              conceptSearcher.getSctConceptFromDesc(site.getRelationshipDestination());
+          targets.add(fsConcept);
         }
       }
-    }
-
-    for (String target : targets) {
-      target = cleanNonFindingSiteString(target);
     }
 
     return targets;
@@ -215,6 +247,12 @@ public class FindingSiteUtility {
       site = site.replaceAll("\\b" + s + "\\b", " ").trim();
     }
     site = site.replaceAll(" {2,}", " ").trim();
+
+    /*
+     * if (site.matches(".*\\bgenital\\w{0,}\\b.*") &&
+     * (site.matches(".*\\bmale\\b.*") || site.matches(".*\\bfemale\\b.*"))) {
+     * site = site.replaceAll("\\bgenital\\w{0,}\\b", ""); }
+     */
 
     return site;
   }
