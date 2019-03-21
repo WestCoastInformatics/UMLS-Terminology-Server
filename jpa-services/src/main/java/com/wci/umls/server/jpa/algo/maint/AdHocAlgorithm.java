@@ -1862,7 +1862,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         if (terminology.getRootTerminology().getFamily().equals("NCI")
             || terminology.getRootTerminology().getFamily()
                 .equals("SNOMEDCT_US")
-            || terminology.getRootTerminology().getFamily().equals("MED-RT")) {
+            || terminology.getRootTerminology().getFamily().equals("MED-RT") ||
+             terminology.getRootTerminology().getFamily().equals("NCBI") ||
+             terminology.getRootTerminology().getFamily().equals("MTH")) {
           versionSuffix = ", " + terminology.getVersion();
         } else if (terminology.getRootTerminology().getFamily().equals("MDR")) {
           versionSuffix = ", " + terminology.getVersion().replace("_", ".");
