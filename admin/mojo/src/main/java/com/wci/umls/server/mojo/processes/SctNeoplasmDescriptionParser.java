@@ -4,6 +4,7 @@
 package com.wci.umls.server.mojo.processes;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.wci.umls.server.mojo.model.SctNeoplasmConcept;
+import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
 
 /**
@@ -84,16 +85,20 @@ public class SctNeoplasmDescriptionParser {
   /** The all descs. */
   private Map<String, Set<SctNeoplasmDescription>> neoplasmDescs = new HashMap<>();
 
+  /** The all descs. */
+  private Map<String, Set<SctNeoplasmDescription>> genericDescs = new HashMap<>();
+
   /** The desc to con map. */
   private Map<String, String> neoplasmDescsToConIdMap = new HashMap<>();
 
+  /** The desc to con map. */
+  private Map<String, String> genericDescsToConIdMap = new HashMap<>();
+
   /** The finding site input file path. */
-  private final String findingSiteInputFilePath =
-      "src\\main\\resources\\findingSiteDescs.txt";
-  
+  private final String findingSiteInputFilePath = "src\\main\\resources\\findingSiteDescs.txt";
+
   /** The finding site input file path. */
-  private final String eclInputFilePath =
-      "src\\main\\resources\\analyzer-Descriptions-250.txt";
+  private final String eclInputFilePath = "src\\main\\resources\\analyzer-Descriptions-250.txt";
 
   /** The finding site desc to con map. */
   private Map<String, String> findingSiteDescToConIdMap = new HashMap<>();
@@ -475,10 +480,8 @@ public class SctNeoplasmDescriptionParser {
   }
 
   public boolean readAllEclFromFile() {
-    return parseInputFile(eclInputFilePath, allEclDescs, eclDescToConIdMap,
-        false);
+    return parseInputFile(eclInputFilePath, allEclDescs, eclDescToConIdMap, false);
   }
-
 
   private boolean parseInputFile(String filePath, Map<String, Set<SctNeoplasmDescription>> descs,
     Map<String, String> descsToConMap, boolean isNeoplasm) {
@@ -495,7 +498,7 @@ public class SctNeoplasmDescriptionParser {
         String origLine = line;
         String id = null;
         SctNeoplasmDescription desc = new SctNeoplasmDescription();
-        
+
         if (isNeoplasm) {
           while (line.contains("\t")) {
             String subStr = line.substring(0, line.indexOf("\t"));
@@ -529,10 +532,10 @@ public class SctNeoplasmDescriptionParser {
               desc.setInSitu(!subStr.isEmpty());
             } else if (counter == 14) {
               desc.setNode(!subStr.isEmpty());
-            }          
-  
+            }
+
             line = line.substring(line.indexOf("\t") + "\t".length());
-            counter++;  
+            counter++;
           }
           desc.setLocalRecurrance(!origLine.substring(origLine.lastIndexOf("\t")).isEmpty());
         } else {
@@ -540,7 +543,7 @@ public class SctNeoplasmDescriptionParser {
           id = columns[0];
           desc.setDescription(columns[1]);
         }
-        
+
         if (!descs.containsKey(id)) {
           descs.put(id, new HashSet<SctNeoplasmDescription>());
         }
@@ -568,7 +571,7 @@ public class SctNeoplasmDescriptionParser {
    * @param con the con
    * @return the finding site descs
    */
-  public Set<SctNeoplasmDescription> getFindingSiteDescs(SctNeoplasmConcept con) {
+  public Set<SctNeoplasmDescription> getFindingSiteDescs(ICD11MatcherSctConcept con) {
     return allFindingSiteDescs.get(con.getConceptId());
   }
 
@@ -588,7 +591,7 @@ public class SctNeoplasmDescriptionParser {
    * @param con the con
    * @return the finding site descs
    */
-  public Set<SctNeoplasmDescription> getEclDescs(SctNeoplasmConcept con) {
+  public Set<SctNeoplasmDescription> getEclDescs(ICD11MatcherSctConcept con) {
     return allEclDescs.get(con.getConceptId());
   }
 
@@ -608,7 +611,7 @@ public class SctNeoplasmDescriptionParser {
    * @param con the con
    * @return the descs
    */
-  public Set<SctNeoplasmDescription> getNeoplasmDescs(SctNeoplasmConcept con) {
+  public Set<SctNeoplasmDescription> getNeoplasmDescs(ICD11MatcherSctConcept con) {
     return neoplasmDescs.get(con.getConceptId());
   }
 
@@ -622,7 +625,7 @@ public class SctNeoplasmDescriptionParser {
     return neoplasmDescsToConIdMap.get(desc);
   }
 
-  public Set<SctNeoplasmDescription> getDescriptions(SctNeoplasmConcept con) {
+  public Set<SctNeoplasmDescription> getDescriptions(ICD11MatcherSctConcept con) {
     Set<SctNeoplasmDescription> descs = getNeoplasmDescs(con);
 
     if (descs == null) {
@@ -633,7 +636,15 @@ public class SctNeoplasmDescriptionParser {
       descs = getEclDescs(con);
     }
 
+    if (descs == null) {
+      descs = getGenericDescs(con);
+    }
+
     return descs;
+  }
+
+  private Set<SctNeoplasmDescription> getGenericDescs(ICD11MatcherSctConcept con) {
+    return genericDescs.get(con.getConceptId());
   }
 
   public String getConIdFromDesc(String desc) {
@@ -647,10 +658,23 @@ public class SctNeoplasmDescriptionParser {
       conId = getEclConIdFromDesc(desc);
     }
 
+    if (conId == null) {
+      conId = getGenericConIdFromDesc(desc);
+    }
+
     return conId;
+  }
+
+  private String getGenericConIdFromDesc(String desc) {
+    return genericDescsToConIdMap.get(desc);
   }
 
   public Collection<String> getAllNeoplasmConceptIds() {
     return neoplasmDescsToConIdMap.values();
+  }
+
+  public boolean readDescsFromFile(String rulePath) {
+    return parseInputFile(rulePath + File.separator + "analyzer-Descriptions.txt", genericDescs,
+        genericDescsToConIdMap, false);
   }
 }

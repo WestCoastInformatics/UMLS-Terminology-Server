@@ -10,8 +10,8 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
-import com.wci.umls.server.mojo.analysis.matching.rules.AbstractNeoplasmICD11MatchingRule;
-import com.wci.umls.server.mojo.model.SctNeoplasmConcept;
+import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.AbstractNeoplasmICD11MatchingRule;
+import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
 import com.wci.umls.server.mojo.processes.FindingSiteUtility;
 
@@ -35,8 +35,8 @@ public class NeoplasmMatchRules {
     this.fsUtility = fsUtility;
   }
 
-  public String processAllMatchingRules(List<String> results, SctNeoplasmConcept sctCon,
-    Set<SctNeoplasmConcept> findingSites, Set<String> findingSiteNames) throws Exception {
+  public String processAllMatchingRules(List<String> results, ICD11MatcherSctConcept sctCon,
+    Set<ICD11MatcherSctConcept> findingSites, Set<String> findingSiteNames) throws Exception {
     String result = null;
 
     if (results.size() == 1) {
@@ -73,8 +73,8 @@ public class NeoplasmMatchRules {
     return null;
   }
 
-  private String processDisorderConceptWordInSingleResult(Set<SctNeoplasmConcept> fsConcepts,
-    SctNeoplasmConcept sctCon, Set<String> findingSiteNames, List<String> results)
+  private String processDisorderConceptWordInSingleResult(Set<ICD11MatcherSctConcept> fsConcepts,
+    ICD11MatcherSctConcept sctCon, Set<String> findingSiteNames, List<String> results)
     throws Exception {
     // If word in finding site exists in single result, return it
     // i.e. SctId: 92557009
@@ -134,7 +134,7 @@ public class NeoplasmMatchRules {
     return descsToProcess;
   }
 
-  private String singleMatchCapture(Map<String, Integer> singleMatches, SctNeoplasmConcept sctCon,
+  private String singleMatchCapture(Map<String, Integer> singleMatches, ICD11MatcherSctConcept sctCon,
     List<String> results) throws Exception {
     int mostMatchedResults = 0;
     String matchedResult = null;
@@ -216,8 +216,8 @@ public class NeoplasmMatchRules {
    * See: 92540005
    */
 
-  private String processTooNarrowResults(Set<SctNeoplasmConcept> fsConcepts,
-    SctNeoplasmConcept sctCon, Set<String> findingSiteNames, List<String> results)
+  private String processTooNarrowResults(Set<ICD11MatcherSctConcept> fsConcepts,
+    ICD11MatcherSctConcept sctCon, Set<String> findingSiteNames, List<String> results)
     throws Exception {
     Map<String, Set<String>> minimizedResults = new HashMap<>();
     boolean processingInitialList = true;
@@ -332,7 +332,7 @@ public class NeoplasmMatchRules {
     return leastResult;
   }
 
-  private String processDepthCriteria(SctNeoplasmConcept sctCon, Set<SctNeoplasmConcept> fsConcepts,
+  private String processDepthCriteria(ICD11MatcherSctConcept sctCon, Set<ICD11MatcherSctConcept> fsConcepts,
     Set<String> findingSiteNames, List<String> results) throws Exception {
     List<String> otherOrUnspecifiedResult = new ArrayList<>();
     List<String> otherSpecifiedResult = new ArrayList<>();
@@ -391,8 +391,8 @@ public class NeoplasmMatchRules {
     return null;
   }
 
-  private String processInitialUnspecifiedTypes(SctNeoplasmConcept sctCon,
-    Set<SctNeoplasmConcept> fsConcepts, Set<String> findingSiteNames, List<String> results)
+  private String processInitialUnspecifiedTypes(ICD11MatcherSctConcept sctCon,
+    Set<ICD11MatcherSctConcept> fsConcepts, Set<String> findingSiteNames, List<String> results)
     throws Exception {
     List<String> otherOrUnspecifiedResult = new ArrayList<>();
     List<String> otherSpecifiedResult = new ArrayList<>();
@@ -428,15 +428,15 @@ public class NeoplasmMatchRules {
     return null;
   }
 
-  private String processSingleResultInFindingSiteWord(Set<SctNeoplasmConcept> fsConcepts,
-    SctNeoplasmConcept sctCon, Set<String> findingSites, List<String> results) throws Exception {
+  private String processSingleResultInFindingSiteWord(Set<ICD11MatcherSctConcept> fsConcepts,
+    ICD11MatcherSctConcept sctCon, Set<String> findingSites, List<String> results) throws Exception {
     // Inverse... If word in single result exists in finding site , return it
     // i.e. SctId: 92637002
     String matchedResult = null;
     Map<String, Integer> singleMatches = new HashMap<>();
     Set<String> descsToProcess = new HashSet<>();
 
-    for (SctNeoplasmConcept con : fsConcepts) {
+    for (ICD11MatcherSctConcept con : fsConcepts) {
       for (SctNeoplasmDescription fullDesc : con.getDescs()) {
         descsToProcess.addAll(identifyDescs(fullDesc.getDescription()));
       }
@@ -471,15 +471,15 @@ public class NeoplasmMatchRules {
     return singleMatchCapture(singleMatches, sctCon, results);
   }
 
-  private String processFindingSiteWordInSingleResult(Set<SctNeoplasmConcept> fsConcepts,
-    SctNeoplasmConcept sctCon, Set<String> findingSites, List<String> results) throws Exception {
+  private String processFindingSiteWordInSingleResult(Set<ICD11MatcherSctConcept> fsConcepts,
+    ICD11MatcherSctConcept sctCon, Set<String> findingSites, List<String> results) throws Exception {
     // If word in finding site exists in single result, return it
     // i.e. SctId: 92557009
     String matchedResult = null;
     Map<String, Integer> singleMatches = new HashMap<>();
 
     if (fsConcepts != null && !fsConcepts.isEmpty()) {
-      for (SctNeoplasmConcept con : fsConcepts) {
+      for (ICD11MatcherSctConcept con : fsConcepts) {
         for (SctNeoplasmDescription fullDesc : con.getDescs()) {
           Set<String> descsToProcess = identifyDescs(fullDesc.getDescription());
 
@@ -514,16 +514,16 @@ public class NeoplasmMatchRules {
     return singleMatchCapture(singleMatches, sctCon, results);
   }
 
-  private String processSkinMatchingRule(SctNeoplasmConcept sctCon,
-    Set<SctNeoplasmConcept> fsConcepts, List<String> results) throws Exception {
+  private String processSkinMatchingRule(ICD11MatcherSctConcept sctCon,
+    Set<ICD11MatcherSctConcept> fsConcepts, List<String> results) throws Exception {
 
     // If findingSite contains "skin" likely 2E64.Y Other specified carcinoma in
     // situ of skin
     // Unless finding site exists in other result
     // i.e. SctId: 92717008
     boolean isSkin = false;
-    Set<SctNeoplasmConcept> fsCons = fsUtility.identifyPotentialFSConcepts(fsConcepts, null);
-    for (SctNeoplasmConcept fsCon : fsCons) {
+    Set<ICD11MatcherSctConcept> fsCons = fsUtility.identifyPotentialFSConcepts(fsConcepts, null);
+    for (ICD11MatcherSctConcept fsCon : fsCons) {
       for (SctNeoplasmDescription desc : fsCon.getDescs()) {
         if (desc.getDescription().toLowerCase().matches(".*\\bskin\\b.*")) {
           isSkin = true;
@@ -570,7 +570,7 @@ public class NeoplasmMatchRules {
         String prefix = r.substring(r.indexOf("\t")).trim();
         prefix = prefix.substring(0, prefix.indexOf("carcinoma"));
 
-        for (SctNeoplasmConcept fsCon : fsCons) {
+        for (ICD11MatcherSctConcept fsCon : fsCons) {
           for (SctNeoplasmDescription desc : fsCon.getDescs()) {
             if (desc.getDescription().toLowerCase().contains(prefix.trim().toLowerCase())) {
               retSet.add(r);
@@ -593,7 +593,7 @@ public class NeoplasmMatchRules {
     return null;
   }
 
-  private String processOneSpecifiedOneNot(SctNeoplasmConcept sctCon, List<String> results,
+  private String processOneSpecifiedOneNot(ICD11MatcherSctConcept sctCon, List<String> results,
     int returnSpecified) throws Exception {
     List<String> otherOrUnspecifiedResult = new ArrayList<>();
     List<String> otherSpecifiedResult = new ArrayList<>();

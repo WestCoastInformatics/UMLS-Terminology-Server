@@ -13,30 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wci.umls.server.mojo.analysis.matching.rules;
+package com.wci.umls.server.mojo.analysis.matching.rules.neoplasm;
 
 import java.util.Map;
 import java.util.Set;
 
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
-import com.wci.umls.server.mojo.model.SctNeoplasmConcept;
+import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.rest.client.ContentClientRest;
 
-public class ICD11MatchingRule6 extends AbstractNeoplasmICD11MatchingRule {
+public class ICD11NeoplasmMatchingRule8 extends AbstractNeoplasmICD11MatchingRule {
 
-  public ICD11MatchingRule6(ContentClientRest client, String st, String sv, String tt, String tv,
+  public ICD11NeoplasmMatchingRule8(ContentClientRest client, String st, String sv, String tt, String tv,
       String authToken) {
     super(client, st, sv, tt, tv, authToken);
   }
 
   @Override
+  
   public String getRuleName() {
-    return "rule6";
+    return "rule8";
   }
 
   @Override
-  protected String getDescription() {
+  public String getDescription() {
     return "Search: Occurrence = Congential, Pathological process = 'Pathological Development Process', and AssocMorp = Desc of 'Morphologically Abnormal"
         + " Structure'\n Limit Targets to ICD11 concepts with Chapter L or with word 'congentital'.\nDo not use finding sites";
   }
@@ -47,7 +48,7 @@ public class ICD11MatchingRule6 extends AbstractNeoplasmICD11MatchingRule {
   }
 
   @Override
-  public Map<String, SctNeoplasmConcept> getConceptMap() {
+  public Map<String, ICD11MatcherSctConcept> getConceptMap() {
     return null;
   }
 
@@ -58,7 +59,7 @@ public class ICD11MatchingRule6 extends AbstractNeoplasmICD11MatchingRule {
   }
 
   @Override
-  protected SctNeoplasmConcept getTopLevelConcept() {
+  protected ICD11MatcherSctConcept getTopLevelConcept() {
     // TODO
     return null;
   }
@@ -70,28 +71,27 @@ public class ICD11MatchingRule6 extends AbstractNeoplasmICD11MatchingRule {
    * @throws Exception the exception
    */
   @Override
-  public String executeRule(SctNeoplasmConcept sctCon, Set<SctNeoplasmConcept> findingSites, int counter)
+  public Object executeRule(ICD11MatcherSctConcept sctCon, int counter)
     throws Exception {
 
     StringBuffer str = new StringBuffer();
-    matchNextConcept(findingSites, sctCon, counter);
+    matchNextConcept(sctCon, counter);
 
-    matchApproachBaseSearch(sctCon, str);
-    matchApproachBaseMatch(sctCon, str);
-    /*
-     * matchApproach1(findingSites, str); matchApproach2(findingSites, str);
-     * 
-     * Set<SctNeoplasmConcept> fsConcepts =
-     * fsUtility.identifyPotentialFSConcepts(findingSites, devWriter); if
-     * (fsConcepts != null) { matchApproach3(fsConcepts, str);
-     * matchApproach4(fsConcepts, str); }
-     */
+    matchApproach1(str);
+    matchApproach2(str);
+
+    Set<ICD11MatcherSctConcept> fsConcepts =
+        fsUtility.identifyPotentialFSConcepts(findingSiteCons, devWriter);
+    if (fsConcepts != null) {
+      matchApproach3(fsConcepts, str);
+      matchApproach4(fsConcepts, str);
+    }
     return str.toString();
   }
 
   @Override
   public boolean usesFindingSites() {
-    return false;
+    return true;
   }
 
   /**

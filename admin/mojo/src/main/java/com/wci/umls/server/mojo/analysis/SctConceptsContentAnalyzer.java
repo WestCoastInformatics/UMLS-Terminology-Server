@@ -6,11 +6,8 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.TextStyle;
 import java.util.Collection;
-import java.util.Locale;
 
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
@@ -19,13 +16,13 @@ import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Relationship;
-import com.wci.umls.server.mojo.model.SctNeoplasmConcept;
+import com.wci.umls.server.mojo.model.ICD11MatcherRelationship;
+import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
-import com.wci.umls.server.mojo.model.SctRelationship;
 import com.wci.umls.server.mojo.processes.SctRelationshipParser;
 import com.wci.umls.server.rest.client.ContentClientRest;
 
-public class SctMatcherAnalyzer {
+public class SctConceptsContentAnalyzer {
   SctRelationshipParser relParser = new SctRelationshipParser();
 
   private int counter = 0;
@@ -39,18 +36,27 @@ public class SctMatcherAnalyzer {
 
   private PrintWriter outputRelFile;
 
+  private String matcherName;
 
-  public void analyze(Collection<SctNeoplasmConcept> sctConcepts, String targetTerminology,
+  private String matcherType;
+
+
+  public SctConceptsContentAnalyzer(String matcher, String rule) {
+    this.matcherName = matcher;
+    this.matcherType = rule;
+  }
+
+  public void analyze(Collection<ICD11MatcherSctConcept> sctConcepts, String targetTerminology,
     String targetVersion, ContentClientRest client, String authToken) throws FileNotFoundException, UnsupportedEncodingException {
     
     prepareAnalysis();
     
-    for (SctNeoplasmConcept con : sctConcepts) {
+    for (ICD11MatcherSctConcept con : sctConcepts) {
       for (SctNeoplasmDescription desc : con.getDescs()) {
         writeDesc(con.getConceptId(),desc.getDescription());
       }
       
-      for (SctRelationship rel : con.getRels()) {
+      for (ICD11MatcherRelationship rel : con.getRels()) {
         writeRel(con.getConceptId(), rel);
       }
 
@@ -85,7 +91,7 @@ public class SctMatcherAnalyzer {
           terminology, version, null, new PfsParameterJpa(), authToken);
 
       for (final Relationship<?, ?> relResult : relsList.getObjects()) {
-        SctRelationship rel = relParser.parse(con.getName(), relResult);
+        ICD11MatcherRelationship rel = relParser.parse(con.getName(), relResult);
         writeRel(con.getTerminologyId(), rel);
       }
 
@@ -95,7 +101,7 @@ public class SctMatcherAnalyzer {
     }
   }
 
-  private void writeRel(String conId, SctRelationship rel) {
+  private void writeRel(String conId, ICD11MatcherRelationship rel) {
     if (rel != null) {
       outputRelFile.print(conId);
       outputRelFile.print("\t");
@@ -137,16 +143,11 @@ public class SctMatcherAnalyzer {
   private PrintWriter prepareDescOutputFile()
     throws FileNotFoundException, UnsupportedEncodingException {
 
-    final LocalDateTime now = LocalDateTime.now();
-    final String timestamp = partialDf.format(now);
-    final String month = now.getMonth().getDisplayName(TextStyle.SHORT, Locale.getDefault());
-
-    File userFolder = new File("analyzer");
+    File userFolder = new File("results" + File.separator + matcherName + File.separator + matcherType);
     userFolder.mkdirs();
 
     // Setup Description File
-    File fd = new File(userFolder.getPath() + File.separator + "analyzer-Descriptions-" + month
-        + timestamp + ".txt");
+    File fd = new File(userFolder.getPath() + File.separator + "analyzer-Descriptions.txt");
     String outputDescFilePath = fd.getAbsolutePath();
     System.out.println("Creating file at: " + outputDescFilePath);
 
@@ -173,16 +174,12 @@ public class SctMatcherAnalyzer {
   private PrintWriter prepareRelOutputFile()
     throws FileNotFoundException, UnsupportedEncodingException {
 
-    final LocalDateTime now = LocalDateTime.now();
-    final String timestamp = partialDf.format(now);
-    final String month = now.getMonth().getDisplayName(TextStyle.SHORT, Locale.getDefault());
-
-    File userFolder = new File("analyzer");
+    File userFolder = new File("results" + File.separator + matcherName + File.separator + matcherType);
     userFolder.mkdirs();
 
-    // Setup Description File
-    File fd = new File(userFolder.getPath() + File.separator + "analyzer-Relationships-" + month
-        + timestamp + ".txt");
+    // Setup Relationship File
+    File fd = new File(userFolder.getPath() + File.separator + "analyzer-Relationships.txt");
+
     String outputRelFilePath = fd.getAbsolutePath();
     System.out.println("Creating file at: " + outputRelFilePath);
 

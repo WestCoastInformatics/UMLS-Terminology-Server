@@ -13,88 +13,78 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wci.umls.server.mojo.analysis.matching.rules;
+package com.wci.umls.server.mojo.analysis.matching.rules.neoplasm;
 
 import java.util.Map;
 import java.util.Set;
 
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
-import com.wci.umls.server.mojo.model.SctNeoplasmConcept;
+import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.rest.client.ContentClientRest;
 
-public class ICD11MatchingRule5 extends AbstractNeoplasmICD11MatchingRule {
+public class ICD11NeoplasmMatchingRule1 extends AbstractNeoplasmICD11MatchingRule {
 
-  public ICD11MatchingRule5(ContentClientRest client, String st, String sv,
-      String tt, String tv, String authToken) {
+  public ICD11NeoplasmMatchingRule1(ContentClientRest client, String st, String sv, String tt, String tv,
+      String authToken) {
     super(client, st, sv, tt, tv, authToken);
   }
-  
+
   @Override
   public String getRuleName() {
-    return "rule5";
+    return "rule1";
   }
-  
+
   @Override
-  protected String getDescription() {
-    return "Search: Occurrence = Congential, Pathological process = 'Pathological Development Process', and AssocMorp = Desc of 'Morphologically Abnormal"
-        + " Structure'\nNo filtering of ICD11 concepts.\nDo not use finding sites";
+  public String getDescription() {
+    return "ECL Based: All descendents of 'Neoplastic disease' where the assocMorph is 'Carcinoma in situ'";
   }
 
   @Override
   public String getEclExpression() {
-    return "<< 404684003  : ( 246454002 = 255399007 AND 370135005 = 308490002 AND 116676008 = << 49755003)";
+    return "<< 55342001 : 116676008 = 399919001";
   }
 
   @Override
-  public Map<String, SctNeoplasmConcept> getConceptMap() {
+  public Map<String, ICD11MatcherSctConcept> getConceptMap() {
     return null;
   }
 
   @Override
   public String getDefaultTarget() {
-    // TODO
-    return null;
-  }
-  
-  @Override
-  protected SctNeoplasmConcept getTopLevelConcept() {
-    // TODO
-    return null;
+    return "2E6Y\tCarcinoma in situ of other specified site";
   }
 
+  @Override
+  protected ICD11MatcherSctConcept getTopLevelConcept() {
+    return conceptSearcher.getSctConcept("55342001");
+  }
 
   /**
-   * Execute rule 5
+   * Execute rule 1.
    *
    * @param snomedConcepts the snomed concepts
    * @throws Exception the exception
    */
   @Override
-  public String executeRule(SctNeoplasmConcept sctCon, Set<SctNeoplasmConcept> findingSites,
-    int counter) throws Exception {
+  public Object executeRule(ICD11MatcherSctConcept sctCon, int counter)
+    throws Exception {
 
     StringBuffer str = new StringBuffer();
-    matchNextConcept(findingSites, sctCon, counter);
+    matchNextConcept(sctCon, counter);
 
-    matchApproachBaseSearch(sctCon, str);
-    matchApproachBaseMatch(sctCon, str);
-/*    matchApproach1(findingSites, str);
-    matchApproach2(findingSites, str);
+    matchApproach1(str);
+    matchApproach2(str);
 
-    Set<SctNeoplasmConcept> fsConcepts =
-        fsUtility.identifyPotentialFSConcepts(findingSites, devWriter);
-    if (fsConcepts != null) {
-      matchApproach3(fsConcepts, str);
-      matchApproach4(fsConcepts, str);
+    Set<ICD11MatcherSctConcept> ancestorFindingSites =
+        fsUtility.identifyPotentialFSConcepts(findingSiteCons, devWriter);
+    
+    if (ancestorFindingSites != null) {
+      matchApproach3(ancestorFindingSites, str);
+      matchApproach4(ancestorFindingSites, str);
     }
-*/
+
     return str.toString();
-  }
-  
-  @Override
-  public boolean usesFindingSites() {
-    return false;
   }
 
   /**
@@ -104,13 +94,11 @@ public class ICD11MatchingRule5 extends AbstractNeoplasmICD11MatchingRule {
    * @throws Exception the exception
    */
   public void identifyIcd11Targets() throws Exception {
-    final SearchResultList fullStringResults = client.findConcepts(
-        targetTerminology, targetVersion,
-        null,
-        pfsLimitless, authToken);
+    final SearchResultList fullStringResults = client.findConcepts(targetTerminology, targetVersion,
+        "(atoms.codeId: XH* OR atoms.codeId: 2*) AND \"Carcinoma\" AND \"in situ\"", pfsLimitless,
+        authToken);
 
-    System.out.println(
-        "Have returned : " + fullStringResults.getTotalCount() + " objects");
+    System.out.println("Have returned : " + fullStringResults.getTotalCount() + " objects");
     int matches = 0;
     for (SearchResult result : fullStringResults.getObjects()) {
       System.out.println(result.getCodeId() + "\t" + result.getValue());
@@ -118,7 +106,6 @@ public class ICD11MatchingRule5 extends AbstractNeoplasmICD11MatchingRule {
 
     System.out.println("\n\n\nNow Filtering");
     for (SearchResult result : fullStringResults.getObjects()) {
-        
       if (isRuleMatch(result)) {
         System.out.println(result.getCodeId() + "\t" + result.getValue());
         icd11Targets.getObjects().add(result);
@@ -136,7 +123,12 @@ public class ICD11MatchingRule5 extends AbstractNeoplasmICD11MatchingRule {
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
   protected boolean isRuleMatch(SearchResult result) {
-    if (result.isLeafNode()) {
+    if ((result.getCodeId().startsWith("XH") || result.getCodeId().startsWith("2"))
+        && result.getValue().toLowerCase().matches(".*\\bcarcinoma\\b.*")
+        && result.getValue().toLowerCase().matches(".*\\bin situ\\b.*")
+        && !result.getTerminologyId().equals("2E6Y")
+        && !result.getTerminologyId().equals("2E6Z")
+        && result.isLeafNode()) {
       return true;
     }
 
@@ -150,16 +142,11 @@ public class ICD11MatchingRule5 extends AbstractNeoplasmICD11MatchingRule {
    * @return the search result list
    * @throws Exception the exception
    */
-  protected SearchResultList testMatchingFindingSite(String queryPortion)
-    throws Exception {
-    queryPortion = queryPortion.replaceAll(" - ", " ");
-    queryPortion = queryPortion.replaceAll(",", "");
-    queryPortion = queryPortion.replaceAll("\\(", "");
-    queryPortion = queryPortion.replaceAll("\\)", "");
+  protected SearchResultList testMatchingFindingSite(String queryPortion) throws Exception {
     if (!findingSiteCache.containsKey(queryPortion)) {
-      final SearchResultList straightMatch = client.findConcepts(
-          targetTerminology, targetVersion,
-          "\"" + queryPortion + "\"",
+      final SearchResultList straightMatch = client.findConcepts(targetTerminology, targetVersion,
+          "(atoms.codeId: XH* OR atoms.codeId: 2*) AND \"Carcinoma\" AND \"in situ\" AND "
+              + queryPortion,
           pfsLimited, authToken);
 
       findingSiteCache.put(queryPortion, straightMatch);

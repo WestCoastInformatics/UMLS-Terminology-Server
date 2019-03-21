@@ -13,18 +13,18 @@ import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.mojo.analysis.matching.rules.AbstractNeoplasmICD11MatchingRule;
-import com.wci.umls.server.mojo.model.SctNeoplasmConcept;
+import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.AbstractNeoplasmICD11MatchingRule;
+import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
-import com.wci.umls.server.mojo.model.SctRelationship;
+import com.wci.umls.server.mojo.model.ICD11MatcherRelationship;
 import com.wci.umls.server.rest.client.ContentClientRest;
 
 public class FindingSiteUtility {
 
-  private NeoplasmConceptSearcher conceptSearcher;
+  private ICD11MatcherConceptSearcher conceptSearcher;
 
   /** The finding site potential terms map cache. */
-  protected Map<String, Map<SctNeoplasmConcept, Set<String>>> findingSitePotentialTermsMapCache =
+  protected Map<String, Map<ICD11MatcherSctConcept, Set<String>>> findingSitePotentialTermsMapCache =
       new HashMap<>();
 
   /** The non finding site strings. */
@@ -74,12 +74,12 @@ public class FindingSiteUtility {
    * @return the sets the
    * @throws Exception the exception
    */
-  public Set<SctNeoplasmConcept> identifyPotentialFSConcepts(Set<SctNeoplasmConcept> findingSites,
+  public Set<ICD11MatcherSctConcept> identifyPotentialFSConcepts(Set<ICD11MatcherSctConcept> findingSites,
     PrintWriter devWriter) throws Exception {
-    Set<SctNeoplasmConcept> retConcepts = new HashSet<>();
+    Set<ICD11MatcherSctConcept> retConcepts = new HashSet<>();
 
     if (findingSites != null) {
-      for (SctNeoplasmConcept fsConcept : findingSites) {
+      for (ICD11MatcherSctConcept fsConcept : findingSites) {
         // Get the finding site as a concept
         retConcepts.add(fsConcept);
 
@@ -87,12 +87,12 @@ public class FindingSiteUtility {
           retConcepts.add(fsConcept);
         } else {
 
-          Map<SctNeoplasmConcept, Set<String>> potentialFSConTerms = new HashMap<>();
+          Map<ICD11MatcherSctConcept, Set<String>> potentialFSConTerms = new HashMap<>();
           findingSitePotentialTermsMapCache.put(fsConcept.getConceptId(), potentialFSConTerms);
 
           if (topLevelBodyStructureIds.contains(fsConcept.getConceptId())) {
-            SctNeoplasmConcept mapCon = null;
-            if (NeoplasmConceptSearcher.canPopulateFromFiles) {
+            ICD11MatcherSctConcept mapCon = null;
+            if (ICD11MatcherConceptSearcher.canPopulateFromFiles) {
               mapCon = conceptSearcher.populateSctConcept(fsConcept.getConceptId(), null);
             } else {
               Concept c = client.getConcept(fsConcept.getConceptId(), sourceTerminology,
@@ -120,7 +120,7 @@ public class FindingSiteUtility {
                 }
 
                 if (jesse == 0) {
-                  SctNeoplasmConcept mapCon = null;
+                  ICD11MatcherSctConcept mapCon = null;
                   try {
                     mapCon = conceptSearcher.populateSctConcept(ancestor.getTerminologyId(), null);
                   } catch (Exception e) {
@@ -167,8 +167,8 @@ public class FindingSiteUtility {
 
                 for (SearchResult potentialFindingSite : descendentResults.getObjects()) {
                   if (ancestor.getTerminologyId().equals(potentialFindingSite.getTerminologyId())) {
-                    SctNeoplasmConcept mapCon = null;
-                    if (NeoplasmConceptSearcher.canPopulateFromFiles) {
+                    ICD11MatcherSctConcept mapCon = null;
+                    if (ICD11MatcherConceptSearcher.canPopulateFromFiles) {
                       mapCon =
                           conceptSearcher.populateSctConcept(ancestor.getTerminologyId(), null);
                     } else {
@@ -185,7 +185,7 @@ public class FindingSiteUtility {
             }
           }
 
-          for (SctNeoplasmConcept testCon : potentialFSConTerms.keySet()) {
+          for (ICD11MatcherSctConcept testCon : potentialFSConTerms.keySet()) {
             for (SctNeoplasmDescription desc : testCon.getDescs()) {
               String normalizedStr = desc.getDescription().toLowerCase();
 
@@ -201,7 +201,7 @@ public class FindingSiteUtility {
     return retConcepts;
   }
 
-  public void setConceptSearcher(NeoplasmConceptSearcher searcher) {
+  public void setConceptSearcher(ICD11MatcherConceptSearcher searcher) {
     conceptSearcher = searcher;
   }
 
@@ -209,7 +209,7 @@ public class FindingSiteUtility {
     return nonFindingSiteStrings;
   }
 
-  public Map<String, Map<SctNeoplasmConcept, Set<String>>> getFindingSitePotentialTermsMapCache() {
+  public Map<String, Map<ICD11MatcherSctConcept, Set<String>>> getFindingSitePotentialTermsMapCache() {
     return findingSitePotentialTermsMapCache;
   }
 
@@ -220,17 +220,17 @@ public class FindingSiteUtility {
    * @return the sets the
    * @throws Exception
    */
-  public Set<SctNeoplasmConcept> identifyAssociatedMorphologyBasedFindingSites(
-    SctNeoplasmConcept sctCon) throws Exception {
-    Set<SctNeoplasmConcept> targets = new HashSet<>();
+  public Set<ICD11MatcherSctConcept> identifyAssociatedMorphologyBasedFindingSites(
+    ICD11MatcherSctConcept sctCon) throws Exception {
+    Set<ICD11MatcherSctConcept> targets = new HashSet<>();
 
-    Set<SctRelationship> amRels = conceptSearcher.getDestRels(sctCon, "Associated morphology");
-    Set<SctRelationship> findingSites = conceptSearcher.getDestRels(sctCon, "Finding site");
+    Set<ICD11MatcherRelationship> amRels = conceptSearcher.getDestRels(sctCon, "Associated morphology");
+    Set<ICD11MatcherRelationship> findingSites = conceptSearcher.getDestRels(sctCon, "Finding site");
 
-    for (SctRelationship morphology : amRels) {
-      for (SctRelationship site : findingSites) {
+    for (ICD11MatcherRelationship morphology : amRels) {
+      for (ICD11MatcherRelationship site : findingSites) {
         if (site.getRoleGroup() == morphology.getRoleGroup()) {
-          SctNeoplasmConcept fsConcept =
+          ICD11MatcherSctConcept fsConcept =
               conceptSearcher.getSctConceptFromDesc(site.getRelationshipDestination());
           targets.add(fsConcept);
         }

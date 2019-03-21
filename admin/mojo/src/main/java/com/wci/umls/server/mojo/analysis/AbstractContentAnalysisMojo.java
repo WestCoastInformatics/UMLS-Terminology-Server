@@ -25,11 +25,11 @@ import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.mojo.analysis.matching.rules.AbstractNeoplasmICD11MatchingRule;
-import com.wci.umls.server.mojo.model.SctNeoplasmConcept;
+import com.wci.umls.server.mojo.analysis.matching.rules.AbstractICD11MatchingRule;
+import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
-import com.wci.umls.server.mojo.model.SctRelationship;
-import com.wci.umls.server.mojo.processes.NeoplasmConceptSearcher;
+import com.wci.umls.server.mojo.model.ICD11MatcherRelationship;
+import com.wci.umls.server.mojo.processes.ICD11MatcherConceptSearcher;
 import com.wci.umls.server.mojo.processes.SctNeoplasmDescriptionParser;
 import com.wci.umls.server.mojo.processes.SctRelationshipParser;
 import com.wci.umls.server.rest.client.ContentClientRest;
@@ -107,7 +107,7 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
   @Parameter
   protected String runConfig;
 
-  protected NeoplasmConceptSearcher conceptSearcher = new NeoplasmConceptSearcher();
+  protected ICD11MatcherConceptSearcher conceptSearcher = new ICD11MatcherConceptSearcher();
 
   /**
    * Base setup method.
@@ -283,7 +283,7 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
    * @param outputFile the output file
    * @throws Exception the exception
    */
-  protected void exportRels(SctRelationship rel, String conId, PrintWriter outputFile)
+  protected void exportRels(ICD11MatcherRelationship rel, String conId, PrintWriter outputFile)
     throws Exception {
     if (rel != null) {
       outputFile.print(conId);
@@ -301,16 +301,16 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
    * @return the map
    * @throws Exception the exception
    */
-  protected Map<String, SctNeoplasmConcept> processEclQuery(SearchResultList eclResults)
+  protected Map<String, ICD11MatcherSctConcept> processEclQuery(SearchResultList eclResults)
     throws Exception {
-    Map<String, SctNeoplasmConcept> concepts = new HashMap<>();
+    Map<String, ICD11MatcherSctConcept> concepts = new HashMap<>();
     setupDescParser();
 
     for (SearchResult result : eclResults.getObjects()) {
 
       // Get Desc
       Concept clientConcept = client.getConcept(result.getId(), null, authToken);
-      SctNeoplasmConcept con = new SctNeoplasmConcept(result.getTerminologyId(), result.getValue());
+      ICD11MatcherSctConcept con = new ICD11MatcherSctConcept(result.getTerminologyId(), result.getValue());
 
       for (Atom atom : clientConcept.getAtoms()) {
         if (conceptSearcher.isValidDescription(atom)) {
@@ -334,9 +334,9 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
    * @return the map
    * @throws Exception the exception
    */
-  protected Map<String, SctNeoplasmConcept> processEclQueryFromFiles(
-    AbstractNeoplasmICD11MatchingRule rule) throws Exception {
-    Map<String, SctNeoplasmConcept> concepts = new HashMap<>();
+  protected Map<String, ICD11MatcherSctConcept> processEclQueryFromFiles(AbstractICD11MatchingRule rule)
+    throws Exception {
+    Map<String, ICD11MatcherSctConcept> concepts = new HashMap<>();
 
     final SearchResultList eclResults =
         client.findConcepts(sourceTerminology, sourceVersion, null, pfsEcl, authToken);
@@ -344,22 +344,22 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
 
     for (SearchResult result : eclResults.getObjects()) {
       // Get Desc
-      SctNeoplasmConcept con = new SctNeoplasmConcept(result.getTerminologyId(), result.getValue());
+      ICD11MatcherSctConcept con = new ICD11MatcherSctConcept(result.getTerminologyId(), result.getValue());
 
       con.setDescs(descParser.getDescriptions(con));
       con.setRels(relParser.getRelationships(con));
-      
+
       concepts.put(result.getTerminologyId(), con);
     }
 
     return concepts;
   }
 
-  protected Map<String, SctNeoplasmConcept> populateTestConcept(List<String> conIdList) {
-    Map<String, SctNeoplasmConcept> concepts = new HashMap<>();
+  protected Map<String, ICD11MatcherSctConcept> populateTestConcept(List<String> conIdList) {
+    Map<String, ICD11MatcherSctConcept> concepts = new HashMap<>();
 
     for (String conId : conIdList) {
-      SctNeoplasmConcept con = new SctNeoplasmConcept(conId, null);
+      ICD11MatcherSctConcept con = new ICD11MatcherSctConcept(conId, null);
 
       con.setDescs(descParser.getNeoplasmDescs(con));
       con.setRels(relParser.getNeoplasmRels(con));

@@ -1,6 +1,7 @@
 package com.wci.umls.server.mojo.processes;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -10,8 +11,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.wci.umls.server.model.content.Relationship;
-import com.wci.umls.server.mojo.model.SctNeoplasmConcept;
-import com.wci.umls.server.mojo.model.SctRelationship;
+import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
+import com.wci.umls.server.mojo.model.ICD11MatcherRelationship;
 
 public class SctRelationshipParser {
 
@@ -29,24 +30,26 @@ public class SctRelationshipParser {
   private final String neoplasmInputFilePath =
       "src\\main\\resources\\neoplasmRels.txt";
 
-  private Map<String, Set<SctRelationship>> neoplasmRels = new HashMap<>();
+  private Map<String, Set<ICD11MatcherRelationship>> neoplasmRels = new HashMap<>();
 
   /** The output file path for relationships. */
   private final String findingSiteInputFilePath =
       "src\\main\\resources\\findingSiteRels.txt";
 
-  private Map<String, Set<SctRelationship>> findingSiteRels = new HashMap<>();
+  private Map<String, Set<ICD11MatcherRelationship>> findingSiteRels = new HashMap<>();
 
   private final String eclInputFilePath =
       "src\\main\\resources\\analyzer-Relationships-250.txt";
 
-  private Map<String, Set<SctRelationship>> eclRels = new HashMap<>();
+  private Map<String, Set<ICD11MatcherRelationship>> eclRels = new HashMap<>();
+
+  private Map<String, Set<ICD11MatcherRelationship>> genericRels = new HashMap<>();
 
   /** The output file path. */
-  public SctRelationship parse(String conName,
+  public ICD11MatcherRelationship parse(String conName,
     final Relationship<?, ?> relObject) {
 
-    SctRelationship rel = new SctRelationship();
+    ICD11MatcherRelationship rel = new ICD11MatcherRelationship();
 
     if (!relObject.isObsolete() && relObject.isInferred()
         && !relObject.isStated()) {
@@ -85,7 +88,7 @@ public class SctRelationshipParser {
   }
 
   private boolean parseInputFile(String filePath,
-    Map<String, Set<SctRelationship>> rels) {
+    Map<String, Set<ICD11MatcherRelationship>> rels) {
     String line = null;
 
     try {
@@ -98,10 +101,10 @@ public class SctRelationshipParser {
         String[] columns = line.split("\t");
 
         if (!rels.containsKey(columns[CONCEPT_ID_COLUMN])) {
-          rels.put(columns[CONCEPT_ID_COLUMN], new HashSet<SctRelationship>());
+          rels.put(columns[CONCEPT_ID_COLUMN], new HashSet<ICD11MatcherRelationship>());
         }
 
-        SctRelationship rel = new SctRelationship();
+        ICD11MatcherRelationship rel = new ICD11MatcherRelationship();
         rel.setDescription(columns[CONCEPT_NAME_COLUMN]);
         rel.setRelationshipType(columns[TYPE_COLUMN]);
         rel.setRelationshipDestination(columns[TARGET_COLUMN]);
@@ -125,20 +128,24 @@ public class SctRelationshipParser {
     return true;
   }
 
-  public Set<SctRelationship> getEclRels(SctNeoplasmConcept con) {
+  public Set<ICD11MatcherRelationship> getGenericRels(ICD11MatcherSctConcept con) {
+    return genericRels.get(con.getConceptId());
+  }
+
+  public Set<ICD11MatcherRelationship> getEclRels(ICD11MatcherSctConcept con) {
     return eclRels.get(con.getConceptId());
   }
 
-  public Set<SctRelationship> getNeoplasmRels(SctNeoplasmConcept con) {
+  public Set<ICD11MatcherRelationship> getNeoplasmRels(ICD11MatcherSctConcept con) {
     return neoplasmRels.get(con.getConceptId());
   }
 
-  public Set<SctRelationship> getFindingSiteRels(SctNeoplasmConcept con) {
+  public Set<ICD11MatcherRelationship> getFindingSiteRels(ICD11MatcherSctConcept con) {
     return findingSiteRels.get(con.getConceptId());
   }
 
-  public Set<SctRelationship> getRelationships(SctNeoplasmConcept con) {
-    Set<SctRelationship> rels = getNeoplasmRels(con);
+  public Set<ICD11MatcherRelationship> getRelationships(ICD11MatcherSctConcept con) {
+    Set<ICD11MatcherRelationship> rels = getNeoplasmRels(con);
 
     if (rels == null) {
       rels = getFindingSiteRels(con);
@@ -148,6 +155,14 @@ public class SctRelationshipParser {
       rels = getEclRels(con);
     }
 
+    if (rels == null) {
+      rels = getGenericRels(con);
+    }
+
     return rels;
+  }
+
+  public boolean readRelsFromFile(String rulePath) {
+    return parseInputFile(rulePath + File.separator + "analyzer-Relationships.txt", genericRels);
   }
 }

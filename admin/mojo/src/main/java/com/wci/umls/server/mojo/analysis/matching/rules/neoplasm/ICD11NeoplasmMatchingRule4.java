@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wci.umls.server.mojo.analysis.matching.rules;
+package com.wci.umls.server.mojo.analysis.matching.rules.neoplasm;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,13 +21,13 @@ import java.util.Set;
 
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
-import com.wci.umls.server.mojo.model.SctNeoplasmConcept;
+import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
 import com.wci.umls.server.rest.client.ContentClientRest;
 
-public class ICD11MatchingRule4 extends AbstractNeoplasmICD11MatchingRule {
+public class ICD11NeoplasmMatchingRule4 extends AbstractNeoplasmICD11MatchingRule {
 
-  public ICD11MatchingRule4(ContentClientRest client, String st, String sv,
+  public ICD11NeoplasmMatchingRule4(ContentClientRest client, String st, String sv,
       String tt, String tv, String authToken) {
     super(client, st, sv, tt, tv, authToken);
   }
@@ -38,7 +38,7 @@ public class ICD11MatchingRule4 extends AbstractNeoplasmICD11MatchingRule {
   }
   
   @Override
-  protected String getDescription() {
+  public String getDescription() {
     return "Description Based: All descendents of 'Neoplastic disease' that contains a 'neoplasm' synonym and has some sort of 'uncertain behavior'";
   }
 
@@ -48,10 +48,10 @@ public class ICD11MatchingRule4 extends AbstractNeoplasmICD11MatchingRule {
   }
 
   @Override
-  public Map<String, SctNeoplasmConcept> getConceptMap() {
-    Map<String, SctNeoplasmConcept> retMap = new HashMap<>();
+  public Map<String, ICD11MatcherSctConcept> getConceptMap() {
+    Map<String, ICD11MatcherSctConcept> retMap = new HashMap<>();
     
-    for (SctNeoplasmConcept con : conceptSearcher.getAllNeoplasmConcepts()) {
+    for (ICD11MatcherSctConcept con : conceptSearcher.getAllNeoplasmConcepts()) {
       for (SctNeoplasmDescription desc : con.getDescs()) {
           if (desc.getNeoplasmSynonym().toLowerCase().equals("neoplasm") && !desc.getUncertainty().isEmpty()) {
             retMap.put(con.getConceptId(), con);
@@ -69,7 +69,7 @@ public class ICD11MatchingRule4 extends AbstractNeoplasmICD11MatchingRule {
   }
 
   @Override
-  protected SctNeoplasmConcept getTopLevelConcept() {
+  protected ICD11MatcherSctConcept getTopLevelConcept() {
     return conceptSearcher.getSctConcept("55342001");
   }
 
@@ -80,17 +80,17 @@ public class ICD11MatchingRule4 extends AbstractNeoplasmICD11MatchingRule {
    * @throws Exception the exception
    */
   @Override
-  public String executeRule(SctNeoplasmConcept sctCon, Set<SctNeoplasmConcept> findingSites,
+  public Object executeRule(ICD11MatcherSctConcept sctCon,
     int counter) throws Exception {
 
     StringBuffer str = new StringBuffer();
-    matchNextConcept(findingSites, sctCon, counter);
+    matchNextConcept(sctCon, counter);
 
-    matchApproach1(findingSites, str);
-    matchApproach2(findingSites, str);
+    matchApproach1(str);
+    matchApproach2(str);
 
-    Set<SctNeoplasmConcept> fsConcepts =
-        fsUtility.identifyPotentialFSConcepts(findingSites, devWriter);
+    Set<ICD11MatcherSctConcept> fsConcepts =
+        fsUtility.identifyPotentialFSConcepts(findingSiteCons, devWriter);
     if (fsConcepts != null) {
       matchApproach3(fsConcepts, str);
       matchApproach4(fsConcepts, str);

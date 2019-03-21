@@ -15,92 +15,33 @@
  */
 package com.wci.umls.server.mojo.analysis.matching;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
 
-import com.wci.umls.server.helpers.SearchResult;
-import com.wci.umls.server.mojo.analysis.AbstractContentAnalysisMojo;
-import com.wci.umls.server.mojo.analysis.SctMatcherAnalyzer;
-import com.wci.umls.server.mojo.analysis.matching.rules.AbstractNeoplasmICD11MatchingRule;
-import com.wci.umls.server.mojo.analysis.matching.rules.ICD11MatchingRule1;
-import com.wci.umls.server.mojo.analysis.matching.rules.ICD11MatchingRule2;
-import com.wci.umls.server.mojo.analysis.matching.rules.ICD11MatchingRule4;
-import com.wci.umls.server.mojo.analysis.matching.rules.ICD11MatchingRule5;
-import com.wci.umls.server.mojo.analysis.matching.rules.ICD11MatchingRule6;
-import com.wci.umls.server.mojo.analysis.matching.rules.ICD11MatchingRule7;
-import com.wci.umls.server.mojo.analysis.matching.rules.ICD11MatchingRule8;
-import com.wci.umls.server.mojo.model.SctNeoplasmConcept;
-import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
-import com.wci.umls.server.mojo.model.SctRelationship;
+import com.wci.umls.server.mojo.analysis.matching.rules.AbstractICD11MatchingRule;
+import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.AbstractNeoplasmICD11MatchingRule;
+import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.ICD11NeoplasmMatchingRule1;
+import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.ICD11NeoplasmMatchingRule2;
+import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.ICD11NeoplasmMatchingRule4;
+import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.ICD11NeoplasmMatchingRule5;
+import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.ICD11NeoplasmMatchingRule6;
+import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.ICD11NeoplasmMatchingRule7;
+import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.ICD11NeoplasmMatchingRule8;
+import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.processes.FindingSiteUtility;
-import com.wci.umls.server.mojo.processes.NeoplasmConceptSearcher;
+import com.wci.umls.server.mojo.processes.ICD11MatcherConceptSearcher;
 
-@Mojo(name = "icd11-matcher", defaultPhase = LifecyclePhase.PACKAGE)
-public class ICD11NeoplasmMatchingMojo extends AbstractContentAnalysisMojo {
-
-  @Parameter
-  protected String ruleList;
-
-  /** The output file path. */
-  protected String outputFilePath;
-
-  /** The analysis. */
-  protected boolean analysis = false;
-
-  /** The testing. */
-  protected boolean testing = false;
-
-  /** The max count. */
-  protected int maxCount = 5;
-
-  /** The limited pfs count. */
-  protected Integer limitedPfsCount;
-
-  /** Name of terminology to be loaded. */
-  protected String st = "SNOMEDCT";
-
-  /** The version. */
-  protected String sv = "latest";
-
-  /** Name of terminology to be loaded. */
-  protected String tt = "ICD11";
-
-  /** The version. */
-  protected String tv = "201812";
-
-  /** The output developer writer. */
-  protected PrintWriter outputDeveloperWriter;
-
-  /** The output terminologist writer. */
-  protected PrintWriter outputTerminologistWriter;
-
-  protected Set<SearchResult> icd11Targets;
-
-  private final String NON_MATCH_HEADER = "\n\n\nCouldn't Match the following: ";
-
+@Mojo(name = "icd11-neoplasm-matcher", defaultPhase = LifecyclePhase.PACKAGE)
+public class ICD11NeoplasmMatchingMojo extends AbstractICD11MatchingMojo {
   private FindingSiteUtility fsUtility;
 
   private NeoplasmMatchRules matchingRules;
-
-  private final String neoplasmDescriptionsFile = "src\\main\\resources\\allNeoplasmDescs.txt";
-
-  private final String nonIsaNeoplasmRelsFile = "src\\main\\resources\\nonIsaNeoplasmRels.txt";
 
   /*
    * (non-Javadoc)
@@ -110,220 +51,82 @@ public class ICD11NeoplasmMatchingMojo extends AbstractContentAnalysisMojo {
   @Override
   public void execute() throws MojoFailureException {
     try {
+      match("icd11-neoplasm-matcher");
 
-      /*
-       * Setup
-       */
-      setup("icd11-matcher", st, sv, tt, tv);
-      getLog().info("  maxCount = " + maxCount);
-      getLog().info("  analysis = " + analysis);
-
-      /*
-       * Error Checking
-       */
-      if (sourceTerminology == null || sourceTerminology.isEmpty() || targetTerminology == null
-          || targetTerminology.isEmpty()) {
-        throw new Exception(
-            "Must define a source and target terminology to search against i.e. SNOMEDCT");
-      }
-      if (sourceVersion == null || sourceVersion.isEmpty() || targetVersion == null
-          || targetVersion.isEmpty()) {
-        throw new Exception(
-            "Must define a source and target version to search against i.e. latest");
-      }
-
-      Set<AbstractNeoplasmICD11MatchingRule> rulesToProcess = setupProcess();
-
-      for (AbstractNeoplasmICD11MatchingRule rule : rulesToProcess) {
-        getLog().info("ICD 11 " + rule.getRuleName() + " Matching Mojo");
-
-        /*
-         * Start Processing rule
-         */
-        rule.setDevWriter(
-            prepareResultsFile(rule.getRuleName(), "developerResults", "ICD11 Matching Results"));
-        rule.setTermWriter(
-            prepareResultsFile(rule.getRuleName(), "terminologistResults", "ICD11 Matching Results"));
-
-        // New rule processing preparation
-        int counter = 0;
-        Map<String, SctNeoplasmConcept> snomedConcepts = new HashMap<>();
-        List<String> noMatchList = new ArrayList<>();
-
-        if (!analysis) {
-          // setup parser
-          setupContentParsers();
-
-          // Get ECL Results
-          if (rule.getEclExpression() != null) {
-            pfsEcl.setExpression(rule.getEclExpression());
-            // concepts = processEclQuery(eclResults);
-
-            snomedConcepts = processEclQueryFromFiles(rule);
-            
-            if ((snomedConcepts.values().iterator().next().getDescs() == null) || (snomedConcepts.values().iterator().next().getRels() == null)) {
-              // Call server for content 
-              snomedConcepts = populateContent(snomedConcepts);
-              
-              // Generate outputFile for future calls
-              generateFiles(snomedConcepts);
-            }
-/*
-             snomedConcepts = populateTestConcept(Arrays.asList( 
-                 "722713005",
-                 "189231007",
-                 "92677005",
-                 "92654005",
-                 "92685001",
-                 "189280002",
-                 "92644006",
-                 "723164006",
-                 "92596003",
-                 "92714001",
-                 "240545008",
-                 "92800006",
-                 "92577002",
-                 "92584005",
-                 "92719006",
-                 "271525004",
-                 "92742004",
-                 "92547008",
-                 "92587003",
-                 "92791005"
-
-                 ));
-            */
-          } else {
-            snomedConcepts = rule.getConceptMap();
-          }
-
-          // Identify ICD11 Targets
-          rule.identifyIcd11Targets();
-          System.out.println("Have " + snomedConcepts.size() + " concepts to process");
-          System.out.println("Have " + snomedConcepts.size() + " concepts to process");
-
-          // Process Terms
-          for (SctNeoplasmConcept sctCon : snomedConcepts.values()) {
-            Set<SctNeoplasmConcept> findingSites = null;
-            
-            if (rule.usesFindingSites()) {
-                findingSites = fsUtility.identifyAssociatedMorphologyBasedFindingSites(sctCon);
-            }
-
-            String resultString = rule.executeRule(sctCon, findingSites, ++counter);
-
-            postTermProcessing(findingSites, rule, sctCon, resultString, noMatchList, counter,
-                snomedConcepts.size());
-          }
-        } else {
-          snomedConcepts = populateConceptsFromFiles();
-          printOutNonIsaRels(snomedConcepts);
-        }
-
-        postRuleProcessing(rule, noMatchList);
-      }
     } catch (Exception e) {
       e.printStackTrace();
       throw new MojoFailureException("Unexpected exception:", e);
     }
   }
 
-  private void generateFiles(Map<String, SctNeoplasmConcept> snomedConcepts) throws FileNotFoundException, UnsupportedEncodingException {
-    SctMatcherAnalyzer analyzer = new SctMatcherAnalyzer();
-    
-    analyzer.analyze(snomedConcepts.values(), targetTerminology, targetVersion, client, authToken);
-  }
-
-  private Map<String, SctNeoplasmConcept> populateContent(
-    Map<String, SctNeoplasmConcept> snomedConcepts) throws Exception {
-    NeoplasmConceptSearcher.canPopulateFromFiles = false;
-    Map<String, SctNeoplasmConcept> populatedCons = new HashMap<>();
-    
-    int counter = 0;
-    for (SctNeoplasmConcept con : snomedConcepts.values()) {
-      SctNeoplasmConcept popCon = conceptSearcher.populateSctConcept(con.getConceptId(), null);
-      
-      populatedCons.put(con.getConceptId(), popCon);
-      
-      if (counter++ % 50 == 0) {
-        getLog().info("Have processed " + counter + " out of " + snomedConcepts.values().size() + " concepts");
-      }
-      
-      if (counter >= 250) {
-        break;
-      }
-    }
-
-    NeoplasmConceptSearcher.canPopulateFromFiles = true;
-
-    return populatedCons;
-//      con.setDescs(conceptSearcher.lookupDescs(con));
-//      con.setRels(conceptSearcher.lookupRels(con));
-  }
-
-  private Set<AbstractNeoplasmICD11MatchingRule> setupProcess() {
+  protected Set<AbstractICD11MatchingRule> setupProcess() {
     conceptSearcher.setup(client, sourceTerminology, sourceVersion, targetTerminology,
         targetVersion, authToken);
+    AbstractNeoplasmICD11MatchingRule.setConceptSearcher(conceptSearcher);
+
     fsUtility = new FindingSiteUtility(client, sourceTerminology, sourceVersion, targetTerminology,
         targetVersion, authToken);
-    AbstractNeoplasmICD11MatchingRule.setConceptSearcher(conceptSearcher);
     fsUtility.setConceptSearcher(conceptSearcher);
+
     AbstractNeoplasmICD11MatchingRule.setFindingSiteUtility(fsUtility);
     matchingRules = new NeoplasmMatchRules(fsUtility);
 
-    Set<AbstractNeoplasmICD11MatchingRule> rulesToProcess = defineRulesToProcess();
+    Set<AbstractICD11MatchingRule> rulesToProcess = defineRulesToProcess();
 
     return rulesToProcess;
   }
 
-  private void setupContentParsers() throws IOException {
+  @Override
+  protected void setupContentParsers(AbstractICD11MatchingRule rule) throws IOException {
     setupDescParser();
 
     // Neoplasm
     boolean populatedFromFiles = descParser.readAllNeoplasmDescsFromFile();
     populatedFromFiles = populatedFromFiles && relParser.readAllNeoplasmRelsFromFile();
-    
+
     // Finding Sites
     populatedFromFiles = populatedFromFiles && descParser.readAllFindingSitesFromFile();
     populatedFromFiles = populatedFromFiles && relParser.readAllFindingSitesFromFile();
 
     // ECL
-//  populatedFromFiles = populatedFromFiles && descParser.readAllEclFromFile();
-//  populatedFromFiles = populatedFromFiles && relParser.readAllEclFromFile();
+    // populatedFromFiles = populatedFromFiles &&
+    // descParser.readAllEclFromFile();
+    // populatedFromFiles = populatedFromFiles &&
+    // relParser.readAllEclFromFile();
 
-    NeoplasmConceptSearcher.canPopulateFromFiles = populatedFromFiles;
-    NeoplasmConceptSearcher.setDescParser(descParser);
-    NeoplasmConceptSearcher.setRelParser(relParser);
+    ICD11MatcherConceptSearcher.canPopulateFromFiles = populatedFromFiles;
+    ICD11MatcherConceptSearcher.setDescParser(descParser);
+    ICD11MatcherConceptSearcher.setRelParser(relParser);
 
   }
 
-  private Set<AbstractNeoplasmICD11MatchingRule> defineRulesToProcess() {
-    Set<AbstractNeoplasmICD11MatchingRule> rulesToProcess = new HashSet<>();
+  private Set<AbstractICD11MatchingRule> defineRulesToProcess() {
+    Set<AbstractICD11MatchingRule> rulesToProcess = new HashSet<>();
 
     String[] rules = ruleList.split(",");
 
     for (int i = 0; i < rules.length; i++) {
       AbstractNeoplasmICD11MatchingRule rule = null;
       if (Integer.parseInt(rules[i]) == 1) {
-        rule = new ICD11MatchingRule1(client, sourceTerminology, sourceVersion, targetTerminology,
+        rule = new ICD11NeoplasmMatchingRule1(client, sourceTerminology, sourceVersion, targetTerminology,
             targetVersion, authToken);
       } else if (Integer.parseInt(rules[i]) == 2) {
-        rule = new ICD11MatchingRule2(client, sourceTerminology, sourceVersion, targetTerminology,
+        rule = new ICD11NeoplasmMatchingRule2(client, sourceTerminology, sourceVersion, targetTerminology,
             targetVersion, authToken);
       } else if (Integer.parseInt(rules[i]) == 4) {
-        rule = new ICD11MatchingRule4(client, sourceTerminology, sourceVersion, targetTerminology,
+        rule = new ICD11NeoplasmMatchingRule4(client, sourceTerminology, sourceVersion, targetTerminology,
             targetVersion, authToken);
-      } else if (Integer.parseInt(rules[i]) == 5) { 
-        rule = new ICD11MatchingRule5(client, sourceTerminology, sourceVersion, targetTerminology,
+      } else if (Integer.parseInt(rules[i]) == 5) {
+        rule = new ICD11NeoplasmMatchingRule5(client, sourceTerminology, sourceVersion, targetTerminology,
             targetVersion, authToken);
       } else if (Integer.parseInt(rules[i]) == 6) {
-        rule = new ICD11MatchingRule6(client, sourceTerminology, sourceVersion, targetTerminology,
+        rule = new ICD11NeoplasmMatchingRule6(client, sourceTerminology, sourceVersion, targetTerminology,
             targetVersion, authToken);
       } else if (Integer.parseInt(rules[i]) == 7) {
-        rule = new ICD11MatchingRule7(client, sourceTerminology, sourceVersion, targetTerminology,
+        rule = new ICD11NeoplasmMatchingRule7(client, sourceTerminology, sourceVersion, targetTerminology,
             targetVersion, authToken);
       } else if (Integer.parseInt(rules[i]) == 8) {
-        rule = new ICD11MatchingRule8(client, sourceTerminology, sourceVersion, targetTerminology,
+        rule = new ICD11NeoplasmMatchingRule8(client, sourceTerminology, sourceVersion, targetTerminology,
             targetVersion, authToken);
       }
 
@@ -335,189 +138,20 @@ public class ICD11NeoplasmMatchingMojo extends AbstractContentAnalysisMojo {
     return rulesToProcess;
   }
 
-  /**
-   * Construct con info str.
-   *
-   * @param findingSites the finding sites
-   * @param sctCon the sct con
-   * @param counter the counter
-   * @return the string buffer
-   */
-  protected StringBuffer createSnomedConceptSearchedLine(Set<String> findingSites,
-    SctNeoplasmConcept sctCon, int counter) {
 
-    StringBuffer newConInfoStr = new StringBuffer();
-    newConInfoStr.append("\n# " + counter + " Snomed Concept: " + sctCon.getName() + "\tSctId: "
-        + sctCon.getConceptId() + "\twith");
-    int fsCounter = findingSites.size();
-    for (String site : findingSites) {
-      newConInfoStr.append(" findingSite: " + site);
-      if (--fsCounter > 0) {
-        newConInfoStr.append("\tand");
-      }
-    }
-    return newConInfoStr;
-  }
-
-  /**
-   * Prints the out non isa rels.
-   *
-   * @param concepts the concepts
-   * @throws Exception the exception
-   */
-  protected void printOutNonIsaRels(Map<String, SctNeoplasmConcept> concepts) throws Exception {
-    // Setup File
-    PrintWriter writer = prepareRelOutputFile("nonIsaRels", "ECL Analysis");
-
-    int counter = 0;
-    for (SctNeoplasmConcept con : concepts.values()) {
-      for (SctRelationship rel : con.getRels()) {
-        if (!rel.getRelationshipType().equals("Is a")) {
-          exportRels(rel, con.getConceptId(), writer);
-        }
-      }
-
-      if (counter++ % 100 == 0) {
-        getLog().info("Processed " + counter + " out of " + concepts.size() + " concepts");
-        writer.flush();
-      }
-    }
-
-    writer.close();
-  }
-
-  /**
-   * Populate concepts from files.
-   *
-   * @return the map
-   * @throws IOException Signals that an I/O exception has occurred.
-   */
-  protected Map<String, SctNeoplasmConcept> populateConceptsFromFiles() throws IOException {
-    // Populate Relationships
-    BufferedReader reader = new BufferedReader(new FileReader(nonIsaNeoplasmRelsFile));
-    Map<String, SctNeoplasmConcept> concepts = new HashMap<>();
-
-    String line = reader.readLine(); // Don't want header
-    line = reader.readLine();
-    while (line != null) {
-      String[] columns = line.split("\t");
-      if (!concepts.containsKey(columns[0])) {
-        SctNeoplasmConcept con = new SctNeoplasmConcept(columns[0], columns[1]);
-        concepts.put(columns[0], con);
-      }
-
-      SctRelationship rel = new SctRelationship();
-      rel.setDescription(columns[1]);
-      rel.setRelationshipType(columns[2]);
-      rel.setRelationshipDestination(columns[3]);
-      rel.setRoleGroup(Integer.parseInt(columns[4]));
-
-      concepts.get(columns[0]).getRels().add(rel);
-      line = reader.readLine();
-    }
-
-    reader.close();
-
-    // Populate Descriptions
-    reader = new BufferedReader(new FileReader(neoplasmDescriptionsFile));
-
-    line = reader.readLine(); // Don't want header
-    line = reader.readLine();
-    while (line != null) {
-      String[] columns = line.split("\t");
-
-      // Only bring in those descriptions which are in the "desired list" as
-      // defined
-      // by the rels
-      if (concepts.containsKey(columns[0])) {
-        SctNeoplasmDescription desc = new SctNeoplasmDescription();
-        desc.setDescription(columns[1]);
-
-        concepts.get(columns[0]).getDescs().add(desc);
-      }
-
-      line = reader.readLine();
-    }
-
-    reader.close();
-
-    return concepts;
-  }
-
-  /**
-   * Clean results for terminologist.
-   * 
-   * Only return one line per code and make that line the one with the lowest
-   * depth
-   * 
-   * @param resultString the str
-   * @return the string buffer
-   */
-  private List<String> cleanResultsForTerminologist(String resultString) {
-    String[] lines = resultString.toString().split("\n");
-
-    Map<String, Set<String>> sortedIdsMap = new TreeMap<>();
-    // Sort lines by code
-    for (String line : lines) {
-      String[] columns = line.split("\t");
-
-      if (columns.length > 4) {
-        if (!sortedIdsMap.containsKey(columns[1])) {
-          sortedIdsMap.put(columns[1], new HashSet<String>());
-        }
-
-        sortedIdsMap.get(columns[1]).add(line);
-      }
-    }
-
-    List<String> linesToPrint = new ArrayList<>();
-    for (String conId : sortedIdsMap.keySet()) {
-      String lineToPrint = null;
-      int lowestDepth = 1000;
-      for (String line : sortedIdsMap.get(conId)) {
-        String[] columns = line.split("\t");
-
-        if (Integer.parseInt(columns[5]) < lowestDepth) {
-          lowestDepth = Integer.parseInt(columns[5]);
-          lineToPrint =
-              "\t" + columns[1] + "\t" + columns[2] + "\t" + columns[3] + "\t" + columns[5] + "\n";
-          ;
-        }
-      }
-
-      linesToPrint.add(lineToPrint.trim());
-    }
-
-    return linesToPrint;
-  }
-
-  private void postRuleProcessing(AbstractNeoplasmICD11MatchingRule rule,
-    List<String> noMatchList) {
-    rule.getDevWriter().println(NON_MATCH_HEADER);
-    rule.getTermWriter().println(NON_MATCH_HEADER);
-    for (String s : noMatchList) {
-      rule.getDevWriter().println(s);
-      rule.getTermWriter().println(s);
-    }
-
-    getLog().info("");
-    getLog().info("Finished processing rule(s)...");
-
-    rule.getDevWriter().close();
-    rule.getTermWriter().close();
-  }
-
-  private void postTermProcessing(Set<SctNeoplasmConcept> findingSites, AbstractNeoplasmICD11MatchingRule rule,
-    SctNeoplasmConcept sctCon, String resultString, List<String> noMatchList, int counter,
-    int totalConcepts) throws Exception {
+  protected void postTermProcessing(AbstractICD11MatchingRule rule, ICD11MatcherSctConcept sctCon,
+    Object resultObj, List<String> noMatchList, int counter, int totalConcepts)
+    throws Exception {
+    String resultString = (String)resultObj;
+    
     if (resultString != null && !resultString.isEmpty()) {
-//      System.out.println(resultString + "");
+      // System.out.println(resultString + "");
 
       rule.getDevWriter().println(resultString);
       rule.getDevWriter().println();
       rule.getDevWriter().println();
 
-      String singleResponse = identifyProperResponse(sctCon, findingSites, resultString);
+      String singleResponse = identifyProperResponse(sctCon, rule, resultString);
 
       if (singleResponse == null) {
         StringBuffer devBuf = new StringBuffer();
@@ -573,7 +207,7 @@ public class ICD11NeoplasmMatchingMojo extends AbstractContentAnalysisMojo {
 
   }
 
-  private String identifyProperResponse(SctNeoplasmConcept sctCon, Set<SctNeoplasmConcept> findingSites,
+  protected String identifyProperResponse(ICD11MatcherSctConcept sctCon, AbstractICD11MatchingRule rule,
     String resultString) throws Exception {
 
     List<String> results = cleanResultsForTerminologist(resultString);
@@ -582,8 +216,10 @@ public class ICD11NeoplasmMatchingMojo extends AbstractContentAnalysisMojo {
       System.out.println(r);
     }
 
+    Set<ICD11MatcherSctConcept> findingSites =
+        ((AbstractNeoplasmICD11MatchingRule) rule).getFindingSiteCons();
     Set<String> findingSiteNames = new HashSet<>();
-    for (SctNeoplasmConcept con : findingSites) {
+    for (ICD11MatcherSctConcept con : findingSites) {
       findingSiteNames.add(con.getName());
     }
 

@@ -13,15 +13,15 @@ import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Relationship;
-import com.wci.umls.server.mojo.model.SctNeoplasmConcept;
+import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
-import com.wci.umls.server.mojo.model.SctRelationship;
+import com.wci.umls.server.mojo.model.ICD11MatcherRelationship;
 import com.wci.umls.server.rest.client.ContentClientRest;
 
-public class NeoplasmConceptSearcher {
+public class ICD11MatcherConceptSearcher {
 
   /** The acronym expansion map. */
-  static private HashMap<String, SctNeoplasmConcept> conceptsFromDescsCache = new HashMap<>();
+  static private HashMap<String, ICD11MatcherSctConcept> conceptsFromDescsCache = new HashMap<>();
 
   static public boolean canPopulateFromFiles = false;
 
@@ -49,7 +49,7 @@ public class NeoplasmConceptSearcher {
 
   protected PfsParameterJpa pfsLimitless = new PfsParameterJpa();
 
-  static private Map<String, SctNeoplasmConcept> neoplasmConcepts = null;
+  static private Map<String, ICD11MatcherSctConcept> neoplasmConcepts = null;
 
   public void setup(ContentClientRest contentClient, String st, String sv, String tt, String tv,
     String token) {
@@ -73,7 +73,7 @@ public class NeoplasmConceptSearcher {
    * @return the sct concept from desc
    * @throws Exception the exception
    */
-  public SctNeoplasmConcept getSctConceptFromDesc(String desc) throws Exception {
+  public ICD11MatcherSctConcept getSctConceptFromDesc(String desc) throws Exception {
     if (canPopulateFromFiles) {
       String conId = descParser.getConIdFromDesc(desc);
       return populateSctConcept(conId, desc);
@@ -84,7 +84,7 @@ public class NeoplasmConceptSearcher {
 
         for (SearchResult result : possibleMatches.getObjects()) {
           if (!result.isObsolete()) {
-            SctNeoplasmConcept retConcept =
+            ICD11MatcherSctConcept retConcept =
                 populateSctConcept(result.getTerminologyId(), result.getValue());
             conceptsFromDescsCache.put(desc, retConcept);
           }
@@ -102,8 +102,8 @@ public class NeoplasmConceptSearcher {
    * @return the sct neoplasm concept
    * @throws Exception the exception
    */
-  public SctNeoplasmConcept populateSctConcept(String conId, String name) throws Exception {
-    SctNeoplasmConcept con = new SctNeoplasmConcept(conId, name);
+  public ICD11MatcherSctConcept populateSctConcept(String conId, String name) throws Exception {
+    ICD11MatcherSctConcept con = new ICD11MatcherSctConcept(conId, name);
 
     return populateSctConcept(con);
   }
@@ -115,7 +115,7 @@ public class NeoplasmConceptSearcher {
    * @return the sct neoplasm concept
    * @throws Exception the exception
    */
-  public SctNeoplasmConcept populateSctConcept(SctNeoplasmConcept con) throws Exception {
+  public ICD11MatcherSctConcept populateSctConcept(ICD11MatcherSctConcept con) throws Exception {
     populateDescriptions(con);
     String conName =  con.getDescs().iterator().next().getDescription();
     populateRelationships(con, conName);
@@ -134,11 +134,11 @@ public class NeoplasmConceptSearcher {
    * @param desc 
    * @throws Exception the exception
    */
-  public void populateRelationships(SctNeoplasmConcept con, String desc) throws Exception {
+  public void populateRelationships(ICD11MatcherSctConcept con, String desc) throws Exception {
       con.setRels(relParser.getRelationships(con));
       
       if (con.getRels() == null) {
-        con.setRels(new HashSet<SctRelationship>());
+        con.setRels(new HashSet<ICD11MatcherRelationship>());
       }
       
       if (con.getRels().isEmpty()) {
@@ -146,7 +146,7 @@ public class NeoplasmConceptSearcher {
           sourceTerminology, sourceVersion, null, pfsLimitless, authToken);
 
       for (final Relationship<?, ?> relResult : relsList.getObjects()) {
-        SctRelationship rel = relParser.parse(con.getName(), relResult);
+        ICD11MatcherRelationship rel = relParser.parse(con.getName(), relResult);
         if (rel != null) {
           rel.setDescription(desc);
           con.getRels().add(rel);
@@ -161,7 +161,7 @@ public class NeoplasmConceptSearcher {
    * @param con the con
    * @throws Exception the exception
    */
-  public void populateDescriptions(SctNeoplasmConcept con) throws Exception {
+  public void populateDescriptions(ICD11MatcherSctConcept con) throws Exception {
     con.setDescs(descParser.getDescriptions(con));
     
     if (con.getDescs() == null) {
@@ -201,7 +201,7 @@ public class NeoplasmConceptSearcher {
     relParser = rp;
   }
 
-  public Collection<SctNeoplasmConcept> getAllNeoplasmConcepts() {
+  public Collection<ICD11MatcherSctConcept> getAllNeoplasmConcepts() {
     try {
       if (neoplasmConcepts == null) {
         neoplasmConcepts = new HashMap<>();
@@ -227,10 +227,10 @@ public class NeoplasmConceptSearcher {
    * @param relType the rel type
    * @return the dest rels
    */
-  protected Set<SctRelationship> getDestRels(SctNeoplasmConcept con, String relType) {
-    Set<SctRelationship> targets = new HashSet<>();
+  protected Set<ICD11MatcherRelationship> getDestRels(ICD11MatcherSctConcept con, String relType) {
+    Set<ICD11MatcherRelationship> targets = new HashSet<>();
 
-    for (SctRelationship rel : con.getRels()) {
+    for (ICD11MatcherRelationship rel : con.getRels()) {
       if (rel.getRelationshipType().equals(relType)) {
         targets.add(rel);
       }
@@ -239,7 +239,7 @@ public class NeoplasmConceptSearcher {
     return targets;
   }
 
-  public SctNeoplasmConcept getSctConcept(String conId) {
+  public ICD11MatcherSctConcept getSctConcept(String conId) {
     if (neoplasmConcepts == null) {
       getAllNeoplasmConcepts();
     }
@@ -247,7 +247,7 @@ public class NeoplasmConceptSearcher {
     return neoplasmConcepts.get(conId);
   }
 
-  public Set<SctNeoplasmDescription> lookupDescs(SctNeoplasmConcept con) {
+  public Set<SctNeoplasmDescription> lookupDescs(ICD11MatcherSctConcept con) {
     // TODO Auto-generated method stub
     return null;
   }

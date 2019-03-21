@@ -6,7 +6,7 @@ package com.wci.umls.server.mojo.model;
  *
  * @author ${author}
  */
-public class SctRelationship extends AbstractSctComponent {
+public class ICD11MatcherRelationship extends AbstractSctComponent {
 	/** The description. */
 	private String description;
 
@@ -132,7 +132,7 @@ public class SctRelationship extends AbstractSctComponent {
 			return true;
 		if (getClass() != obj.getClass())
 			return false;
-		SctRelationship other = (SctRelationship) obj;
+		ICD11MatcherRelationship other = (ICD11MatcherRelationship) obj;
 		if (description == null) {
 			if (other.description != null)
 				return false;

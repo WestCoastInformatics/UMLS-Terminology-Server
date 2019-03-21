@@ -38,16 +38,13 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 
-import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
-import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Relationship;
+import com.wci.umls.server.mojo.model.ICD11MatcherRelationship;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
-import com.wci.umls.server.mojo.model.SctRelationship;
 import com.wci.umls.server.mojo.processes.SctNeoplasmDescriptionParser;
 import com.wci.umls.server.rest.client.ContentClientRest;
 import com.wci.umls.server.services.SecurityService;
@@ -129,6 +126,8 @@ public class HierarchyAnalysisMojo extends AbstractContentAnalysisMojo {
       "skin", "skin and subcutaneous tissue", "skin and/or subcutaneous tissue",
       "skin structure", "soft tissue", "soft tissues", "spinal cord", "uterus",
       "vermilion border", "bertebra", "vertevral column", "vestibule");
+  
+  protected final String MATCHER_NAME = "hierarchy-analyzer";
 
   @Override
   public void execute() throws MojoFailureException {
@@ -197,7 +196,7 @@ public class HierarchyAnalysisMojo extends AbstractContentAnalysisMojo {
             targetVersion, null, pfs, authToken);
         getLog().info("Have " + results.getTotalCount() + " ECL Results");
 
-        SctMatcherAnalyzer analyzer = new SctMatcherAnalyzer();
+        SctConceptsContentAnalyzer analyzer = new SctConceptsContentAnalyzer(MATCHER_NAME, hierarchyName);
         
         analyzer.analyze(results, targetTerminology, targetVersion, client, authToken);
       } else {
@@ -232,7 +231,7 @@ public class HierarchyAnalysisMojo extends AbstractContentAnalysisMojo {
                       targetVersion, null, new PfsParameterJpa(), authToken);
 
               for (final Relationship<?, ?> relResult : relsList.getObjects()) {
-                SctRelationship rel = relParser.parse(columns[2], relResult);
+                ICD11MatcherRelationship rel = relParser.parse(columns[2], relResult);
                 exportRels(rel, columns[2], outputRelFile);
               }
 
@@ -779,17 +778,11 @@ public class HierarchyAnalysisMojo extends AbstractContentAnalysisMojo {
   private PrintWriter prepareRelOutputFile()
     throws FileNotFoundException, UnsupportedEncodingException {
 
-    final LocalDateTime now = LocalDateTime.now();
-    final String timestamp = partialDf.format(now);
-    final String month =
-        now.getMonth().getDisplayName(TextStyle.SHORT, Locale.getDefault());
-
-    File userFolder = new File(hierarchyName);
+    File userFolder = new File("results" + File.separator + MATCHER_NAME + File.separator + hierarchyName);
     userFolder.mkdirs();
 
     // Setup Description File
-    File fd = new File(userFolder.getPath() + File.separator
-        + hierarchyName + "-Relationships-" + month + timestamp + ".txt");
+    File fd = new File(userFolder.getPath() + File.separator + "Relationships.txt");
     outputRelFilePath = fd.getAbsolutePath();
     getLog().info("Creating file at: " + outputRelFilePath);
 

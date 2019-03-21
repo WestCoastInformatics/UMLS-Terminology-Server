@@ -9,7 +9,7 @@ import java.util.Set;
  *
  * @author ${author}
  */
-public class SctNeoplasmConcept {
+public class ICD11MatcherSctConcept {
 
   /** The concept id. */
   private String conceptId;
@@ -21,9 +21,9 @@ public class SctNeoplasmConcept {
   private Set<SctNeoplasmDescription> descs = new HashSet<>();
 
   /** The rels. */
-  private Set<SctRelationship> rels = new HashSet<>();
+  private Set<ICD11MatcherRelationship> rels = new HashSet<>();
 
-  public SctNeoplasmConcept(String conId, String value) {
+  public ICD11MatcherSctConcept(String conId, String value) {
     this.conceptId = conId;
     this.name = value;
   }
@@ -87,7 +87,7 @@ public class SctNeoplasmConcept {
    *
    * @return the rels
    */
-  public Set<SctRelationship> getRels() {
+  public Set<ICD11MatcherRelationship> getRels() {
     return rels;
   }
 
@@ -96,7 +96,7 @@ public class SctNeoplasmConcept {
    *
    * @param rels the rels
    */
-  public void setRels(Set<SctRelationship> rels) {
+  public void setRels(Set<ICD11MatcherRelationship> rels) {
     this.rels = rels;
   }
 
@@ -119,7 +119,7 @@ public class SctNeoplasmConcept {
       return true;
     if (getClass() != obj.getClass())
       return false;
-    SctNeoplasmConcept other = (SctNeoplasmConcept) obj;
+    ICD11MatcherSctConcept other = (ICD11MatcherSctConcept) obj;
     if (conceptId == null) {
       if (other.conceptId != null)
         return false;
