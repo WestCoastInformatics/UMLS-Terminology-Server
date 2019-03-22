@@ -53,7 +53,7 @@ public class SctNeoplasmDescriptionParser {
 	private boolean testing = false;
 
 	/** The output file path for relationships. */
-	private final String previousExecutionInputFilePath = "C:\\Users\\yishai\\Desktop\\Neoplasm\\Neoplasm Descriptions v5.txt";
+	private final String previousExecutionInputFilePath = "C:\\Users\\rwood\\Desktop\\temp\\ICD11 Neoplasms\\Input Files\\Neoplasm Descriptions v6.txt";
 
 	public SctNeoplasmDescriptionParser() {
 		try {
