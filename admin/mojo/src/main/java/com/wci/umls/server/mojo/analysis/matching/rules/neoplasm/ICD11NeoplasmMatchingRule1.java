@@ -15,6 +15,7 @@
  */
 package com.wci.umls.server.mojo.analysis.matching.rules.neoplasm;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -73,19 +74,20 @@ public class ICD11NeoplasmMatchingRule1 extends AbstractNeoplasmICD11MatchingRul
     StringBuffer str = new StringBuffer();
     matchNextConcept(sctCon, counter);
 
-    matchApproach1(str);
-    matchApproach2(str);
+//    matchApproach1(str);
+//    matchApproach2(str);
 
     Set<ICD11MatcherSctConcept> ancestorFindingSites =
         fsUtility.identifyPotentialFSConcepts(findingSiteCons, devWriter);
     
     if (ancestorFindingSites != null) {
-      matchApproach3(ancestorFindingSites, str);
-      matchApproach4(ancestorFindingSites, str);
+      matchApproach3(findingSiteCons, ancestorFindingSites, str);
+//      matchApproach4(ancestorFindingSites, str);
     }
 
     return str.toString();
   }
+
 
   /**
    * Returns the rule 1 icd 11 concepts.

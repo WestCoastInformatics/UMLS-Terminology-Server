@@ -24,7 +24,11 @@ public abstract class AbstractNeoplasmICD11MatchingRule extends AbstractICD11Mat
 
   protected Set<ICD11MatcherSctConcept> findingSiteCons;
 
-  protected static FindingSiteUtility fsUtility;
+  private static final Integer PARENT_CONCEPTS = 1;
+
+  private static final Integer ANCESTOR_CONCEPTS = 2;
+
+  static protected FindingSiteUtility fsUtility;
 
   abstract public Object executeRule(ICD11MatcherSctConcept sctCon, int counter) throws Exception;
 
@@ -43,7 +47,8 @@ public abstract class AbstractNeoplasmICD11MatchingRule extends AbstractICD11Mat
    * @param counter the counter
    * @return the string buffer
    */
-  protected StringBuffer createSnomedConceptSearchedLine(ICD11MatcherSctConcept sctCon, int counter) {
+  protected StringBuffer createSnomedConceptSearchedLine(ICD11MatcherSctConcept sctCon,
+    int counter) {
 
     StringBuffer newConInfoStr = new StringBuffer();
     newConInfoStr.append("\n#" + counter + " Snomed Concept: " + sctCon.getName() + "\tSctId: "
@@ -306,15 +311,8 @@ public abstract class AbstractNeoplasmICD11MatchingRule extends AbstractICD11Mat
     return;
   }
 
-  /**
-   * Match approach 3.
-   *
-   * @param fsConcepts the fs concepts
-   * @param icd11Targets the icd 11 targets
-   * @param str the str
-   * @return true, if successful
-   */
-  protected void matchApproach3(Set<ICD11MatcherSctConcept> fsConcepts, StringBuffer str) {
+  protected void matchApproach3(Set<ICD11MatcherSctConcept> findingSiteCons,
+    Set<ICD11MatcherSctConcept> ancestorFindingSites, StringBuffer str) {
     // icdTarget to map of depth-to-output
     Map<String, Integer> lowestDepthMap = new HashMap<>();
     // icdTarget to map of depth-to-output
@@ -322,22 +320,38 @@ public abstract class AbstractNeoplasmICD11MatchingRule extends AbstractICD11Mat
 
     Map<String, Integer> matchDepthMap = new HashMap<>();
 
-    for (ICD11MatcherSctConcept fsCon : fsConcepts) {
-      String fsConId = fsCon.getConceptId();
+    Map<Integer, Set<ICD11MatcherSctConcept>> conceptsToProcess = new HashMap<>();
+    conceptsToProcess.put(PARENT_CONCEPTS, findingSiteCons);
+    conceptsToProcess.put(ANCESTOR_CONCEPTS, ancestorFindingSites);
 
-      // Testing on ancestors of findingSite fsConId
-      Map<String, Integer> depthMap = inverseTransClosureMap.get(fsConId);
-      Map<ICD11MatcherSctConcept, Set<String>> potentialFSConTerms =
-          fsUtility.getFindingSitePotentialTermsMapCache().get(fsConId);
+    for (Integer key : conceptsToProcess.keySet()) {
+      for (ICD11MatcherSctConcept fsCon : conceptsToProcess.get(key)) {
+        String fsConId = fsCon.getConceptId();
+        Map<ICD11MatcherSctConcept, Set<String>> potentialFSConTerms = new HashMap<>();
+        if (key == PARENT_CONCEPTS) {
+          potentialFSConTerms.put(fsCon, new HashSet<String>());
+          for (SctNeoplasmDescription desc : fsCon.getDescs()) {
+            potentialFSConTerms.get(fsCon).add(desc.getDescription());
+          }
+        } else {
+          // Testing on ancestors of findingSite fsConId
+          potentialFSConTerms = fsUtility.getFindingSitePotentialTermsMapCache().get(fsConId);
+        }
 
-      for (ICD11MatcherSctConcept testCon : potentialFSConTerms.keySet()) {
-        Set<String> normalizedStrs = potentialFSConTerms.get(testCon);
+        for (ICD11MatcherSctConcept testCon : potentialFSConTerms.keySet()) {
+          Set<String> normalizedStrs = potentialFSConTerms.get(testCon);
 
-        int depth = depthMap.get(testCon.getConceptId());
+          int depth = 0;
+          // Default to PARENT CONCEPTS
+          if (key == ANCESTOR_CONCEPTS) {
+            Map<String, Integer> depthMap = inverseTransClosureMap.get(fsConId);
+            depth = depthMap.get(testCon.getConceptId());
+          }
 
-        for (String normalizedStr : normalizedStrs) {
-          identifyMatchesByToken(normalizedStr, matchResultMap, matchDepthMap, lowestDepthMap,
-              depth);
+          for (String normalizedStr : normalizedStrs) {
+            identifyMatchesByToken(normalizedStr, matchResultMap, matchDepthMap, lowestDepthMap,
+                depth);
+          }
         }
       }
     }
@@ -346,6 +360,44 @@ public abstract class AbstractNeoplasmICD11MatchingRule extends AbstractICD11Mat
       identifyBestMatch(matchDepthMap, matchResultMap, 3333, str);
     }
   }
+
+  /*  *//**
+         * Match approach 3.
+         *
+         * @param fsConcepts the fs concepts
+         * @param icd11Targets the icd 11 targets
+         * @param str the str
+         * @return true, if successful
+         *//*
+            * protected void matchApproach3(Set<ICD11MatcherSctConcept>
+            * fsConcepts, StringBuffer str) { // icdTarget to map of
+            * depth-to-output Map<String, Integer> lowestDepthMap = new
+            * HashMap<>(); // icdTarget to map of depth-to-output Map<String,
+            * String> matchResultMap = new HashMap<>();
+            * 
+            * Map<String, Integer> matchDepthMap = new HashMap<>();
+            * 
+            * for (ICD11MatcherSctConcept fsCon : fsConcepts) { String fsConId =
+            * fsCon.getConceptId();
+            * 
+            * // Testing on ancestors of findingSite fsConId Map<String,
+            * Integer> depthMap = inverseTransClosureMap.get(fsConId);
+            * Map<ICD11MatcherSctConcept, Set<String>> potentialFSConTerms =
+            * fsUtility.getFindingSitePotentialTermsMapCache().get(fsConId);
+            * 
+            * for (ICD11MatcherSctConcept testCon :
+            * potentialFSConTerms.keySet()) { Set<String> normalizedStrs =
+            * potentialFSConTerms.get(testCon);
+            * 
+            * int depth = depthMap.get(testCon.getConceptId());
+            * 
+            * for (String normalizedStr : normalizedStrs) {
+            * identifyMatchesByToken(normalizedStr, matchResultMap,
+            * matchDepthMap, lowestDepthMap, depth); } } }
+            * 
+            * if (!matchResultMap.isEmpty()) { identifyBestMatch(matchDepthMap,
+            * matchResultMap, 3333, str); } }
+            */
 
   /**
    * Match approach 4.

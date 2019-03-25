@@ -86,14 +86,14 @@ public class ICD11NeoplasmMatchingRule4 extends AbstractNeoplasmICD11MatchingRul
     StringBuffer str = new StringBuffer();
     matchNextConcept(sctCon, counter);
 
-    matchApproach1(str);
-    matchApproach2(str);
+//    matchApproach1(str);
+//    matchApproach2(str);
 
     Set<ICD11MatcherSctConcept> fsConcepts =
         fsUtility.identifyPotentialFSConcepts(findingSiteCons, devWriter);
     if (fsConcepts != null) {
-      matchApproach3(fsConcepts, str);
-      matchApproach4(fsConcepts, str);
+      matchApproach3(findingSiteCons, fsConcepts, str);
+//      matchApproach4(fsConcepts, str);
     }
 
     return str.toString();

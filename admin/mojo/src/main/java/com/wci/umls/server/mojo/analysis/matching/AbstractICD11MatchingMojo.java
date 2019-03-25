@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -145,9 +146,11 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
         // Process Terms
         for (ICD11MatcherSctConcept sctCon : snomedConcepts.values()) {
           
-          if (counter >= 15) {
+/*          if (counter >= 15) {
             break;
           }
+*/          
+          
           rule.preTermProcessing(sctCon);
 
           Object results = rule.executeRule(sctCon, ++counter);
@@ -203,7 +206,8 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
     if (rule.getEclExpression() != null) {
       pfsEcl.setExpression(rule.getEclExpression());
       // concepts = processEclQuery(eclResults);
-
+      
+      
       snomedConcepts = processEclQueryFromFiles(rule);
 
       if ((snomedConcepts.values().iterator().next().getDescs() == null)
@@ -215,15 +219,16 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
         generateFiles(snomedConcepts, rule.getRuleName());
       }
       /*
-       * snomedConcepts = populateTestConcept(Arrays.asList( "722713005",
-       * "189231007", "92677005", "92654005", "92685001", "189280002",
-       * "92644006", "723164006", "92596003", "92714001", "240545008",
-       * "92800006", "92577002", "92584005", "92719006", "271525004",
-       * "92742004", "92547008", "92587003", "92791005"
-       * 
-       * ));
+
+      snomedConcepts = populateTestConcept(
+          Arrays.asList(
+            "92643000",
+             "92700001", 
+              "92752000"
+
+          ));
        */
-    } else {
+   } else {
       snomedConcepts = rule.getConceptMap();
     }
 
