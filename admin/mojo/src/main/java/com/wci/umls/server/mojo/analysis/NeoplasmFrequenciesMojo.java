@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -49,15 +50,19 @@ public class NeoplasmFrequenciesMojo extends AbstractMojo {
 
   /** The input file path for descriptions. */
   private String descInputFilePath =
-      "C:\\Users\\rwood\\Desktop\\temp\\ICD11 Neoplasms\\Neoplasm Descriptions v6.txt";
+      "C:\\Users\\rwood\\Desktop\\temp\\ICD11 Neoplasms\\Input Files\\Neoplasm Descriptions v6.txt";
 
   /** The input file path for relationships. */
   private String relInputFilePath =
-      "C:\\Users\\rwood\\Desktop\\temp\\ICD11 Neoplasms\\Neoplasm Relationships v3.txt";
+      "C:\\Users\\rwood\\Desktop\\temp\\ICD11 Neoplasms\\Input Files\\Neoplasm Relationships v3.txt";
+
+  /** The input file path for the white list. */
+  private String whiteListInputFilePath =
+      "C:\\Users\\rwood\\Desktop\\temp\\ICD11 Neoplasms\\Input Files\\whiteList.txt";
 
   /** The output file location. */
   private String outputFilePath =
-      "C:\\Users\\rwood\\Desktop\\temp\\ICD11 Neoplasms\\";
+      "C:\\Users\\rwood\\Desktop\\temp\\ICD11 Neoplasms\\Output Files\\";
 
   /** The minimum count required for printing and searching. */
   private int minCount = 100;
@@ -100,6 +105,21 @@ public class NeoplasmFrequenciesMojo extends AbstractMojo {
             "Specified output folder doesn't exist: " + outputFilePath);
       }
 
+      // Read the whiteList into a Set
+      Set<String> whiteListConcepts = new HashSet<>();
+
+      BufferedReader reader =
+          new BufferedReader(new FileReader(whiteListInputFilePath));
+
+      String line = reader.readLine();
+
+      // Save each concept Id to the set
+      while (line != null) {
+        whiteListConcepts.add(line.trim());
+        line = reader.readLine();
+      }
+      reader.close();
+
       /*
        * Read in Descriptions file The data will be saved as a list of lists.
        * Each sub-list representing one column E.x. Header1 Header2 Header3
@@ -108,12 +128,12 @@ public class NeoplasmFrequenciesMojo extends AbstractMojo {
        * List0 = {List1, List2, List3} List1 = {Header1, DataA, DataD, DataG}
        * List2 = {Header2, DataB, DataE, DataH} List3 = {Headet3, DataC, DataF,
        * DataI}
+       * 
        */
 
-      BufferedReader reader =
-          new BufferedReader(new FileReader(descInputFilePath));
+      reader = new BufferedReader(new FileReader(descInputFilePath));
 
-      String line = reader.readLine();
+      line = reader.readLine();
       String[] data = line.split("\\|", -1);
 
       // Initialize all of the sub-lists
@@ -125,12 +145,19 @@ public class NeoplasmFrequenciesMojo extends AbstractMojo {
       line = reader.readLine();
       while (line != null) {
         data = line.split("\\|", -1);
-        for (int i = 0; i < data.length; i++) {
-          descriptionData.get(i).add(data[i]);
+
+        // Only add this concepts' data if it's not on the whiteList
+        if (!whiteListConcepts.contains(data[0])) {
+          for (int i = 0; i < data.length; i++) {
+            descriptionData.get(i).add(data[i]);
+          }
         }
         line = reader.readLine();
       }
       reader.close();
+
+      // Determine which indexes in the lists should be skipped due to their
+      // concepts being on the white list
 
       /*
        * Read in Relationships file
@@ -202,21 +229,18 @@ public class NeoplasmFrequenciesMojo extends AbstractMojo {
               if (header.contains("/")) {
                 multiSb.append("--------------------\n");
                 multiSb.append(header + "\n\n");
-                              }
-              else{
+              } else {
                 singleSb.append("--------------------\n");
-                singleSb.append(header + "\n\n");               
+                singleSb.append(header + "\n\n");
               }
               headerPrinted = true;
             }
             if (header.contains("/")) {
               multiSb.append(value + " = " + count + "\n");
-              }
-            else{
+            } else {
               singleSb.append(value + " = " + count + "\n");
             }
 
-            
           }
         }
       }
@@ -226,10 +250,12 @@ public class NeoplasmFrequenciesMojo extends AbstractMojo {
 
       // Write the string builder to file
 
-      File file = new File(outputFilePath
-          + "NeoplasmFrequencies_SingleCriteria_MinCount" + minCount + ".txt");
-      File multifile = new File(outputFilePath
-          + "NeoplasmFrequencies_MultiCriteria_MinCount" + minCount + ".txt");
+      File file = new File(
+          outputFilePath + "NeoplasmFrequencies_SingleCriteria_MinCount"
+              + minCount + "_" + new Date().getTime() + ".txt");
+      File multifile =
+          new File(outputFilePath + "NeoplasmFrequencies_MultiCriteria_MinCount"
+              + minCount + "_" + new Date().getTime() + ".txt");
       BufferedWriter writer = null;
       try {
         writer = new BufferedWriter(new FileWriter(file));
@@ -238,7 +264,7 @@ public class NeoplasmFrequenciesMojo extends AbstractMojo {
         if (writer != null)
           writer.close();
       }
-      
+
       try {
         writer = new BufferedWriter(new FileWriter(multifile));
         writer.write(multiSb.toString());
