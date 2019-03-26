@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.wci.umls.server.mojo.analysis.matching.ICD11MatchingConstants;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
 
@@ -23,16 +24,6 @@ import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
  * The Class SctNeoplasmDescriptionParser.
  */
 public class SctNeoplasmDescriptionParser {
-
-  /** The neoplasm synonyms. */
-  private final List<String> NEOPLASM_SYNONYMS = Arrays.asList("neoplasm", "neoplasms",
-      "neoplastic", "tumor", "tumorous", "tumoru", "tumour", "tumoural", "tumours", "cancer",
-      "cancerous", "cancerphobia", "carcinoma", "carcinomas", "carcinomatosis", "carcinomatous",
-      "carcinoma-induced", "carcinomaphobia", "Adenocarcinoma", "adenoma", "Chondromatosis",
-      "Chromaffinoma", "Glioma", "neoplasia", "Pheochromocytoma", "Proliferating pilar cyst",
-      "Thymoma", "Melanoma", "Melanocytic", "Lipoma", "mesothelioma", "sarcoma", "fibroma",
-      "papilloma", "Lymphoma", "Chondroma", "squamous");
-
   /** The false positive body structures. */
   private final List<String> FALSE_POSITIVE_BODY_STRUCTURES =
       Arrays.asList("Borst-Jadassohn", "Brodie", "Brooke", "Buschke-Löwenstein",
@@ -185,7 +176,7 @@ public class SctNeoplasmDescriptionParser {
         desc.setDescription(descString.trim());
 
         // Pathology Representation
-        for (String syn : NEOPLASM_SYNONYMS) {
+        for (String syn : ICD11MatchingConstants.NEOPLASM_SYNONYMS) {
           if (descString.toLowerCase().contains(syn.toLowerCase())) {
             desc.setNeoplasmSynonym(syn.trim());
             break;

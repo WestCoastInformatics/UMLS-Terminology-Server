@@ -22,26 +22,26 @@ import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.rest.client.ContentClientRest;
 
-public class ICD11GenericMatchingRule4 extends AbstractGenericICD11MatchingRule {
+public class ICD11GenericMatchingRule1a extends AbstractGenericICD11MatchingRule {
 
-  public ICD11GenericMatchingRule4(ContentClientRest client, String st, String sv, String tt,
+  public ICD11GenericMatchingRule1a(ContentClientRest client, String st, String sv, String tt,
       String tv, String authToken) {
     super(client, st, sv, tt, tv, authToken);
   }
 
   @Override
   public String getRuleName() {
-    return "rule4";
+    return "rule1a";
   }
 
   @Override
   public String getDescription() {
-    return "ECL Based: All descendents of 'Viral infection of central nervous system' connecting them to the ICD11 'Viral infections of the central nervous system' i.e. any code starting with '1C8'";
+    return "ECL Based: All descendents of 'Human immunodeficiency virus infection' connecting them to the ICD11 'Human immunodeficiency virus disease' i.e. andything starting with '1C6*', contains 'HIV', or contains 'Human immunodeficiency virus'";
   }
 
   @Override
   public String getEclExpression() {
-    return "<< 302810003";
+    return "<< 86406008";
   }
 
   @Override
@@ -61,17 +61,30 @@ public class ICD11GenericMatchingRule4 extends AbstractGenericICD11MatchingRule 
 
   @Override
   protected String getRuleQueryString() {
-    return "(atoms.codeId: 1C8*)";
+    return "(atoms.codeId: 1C6*) OR (\"hiv\" OR \"human immunodeficiency virus\")";
   }
 
   @Override
   protected boolean printIcd11Targets() {
     return true;
   }
+  
+  @Override
+  public String getEclTopLevelDesc() {
+    return "Human immunodeficiency virus disease";
+  }
+
+  @Override
+  public String getDefaultSkinMatch() {
+    return null;
+  }
 
   @Override
   protected boolean isRuleMatch(SearchResult result) {
-    if (result.getCodeId().startsWith("1C8")
+    if ((result.getCodeId().startsWith("1C6")
+        || result.getValue().toLowerCase().matches(".*\\bhiv\\b.*")
+        || result.getValue().toLowerCase().matches(".*\\bhuman immunodeficiency virus\\b.*"))
+        && !result.getCodeId().startsWith("X")
         && result.isLeafNode()) {
       return true;
     }

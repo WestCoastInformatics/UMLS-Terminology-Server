@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wci.umls.server.mojo.analysis.matching.rules.neoplasm;
+package com.wci.umls.server.mojo.analysis.matching.rules.generic;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
-import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
 import com.wci.umls.server.rest.client.ContentClientRest;
 
-public class ICD11NeoplasmMatchingRule7 extends AbstractNeoplasmICD11MatchingRule {
+public class ICD11GenericMatchingRuleY extends AbstractGenericICD11MatchingRule {
 
-  public ICD11NeoplasmMatchingRule7(ContentClientRest client, String st, String sv,
+  public ICD11GenericMatchingRuleY(ContentClientRest client, String st, String sv,
       String tt, String tv, String authToken) {
     super(client, st, sv, tt, tv, authToken);
   }
@@ -36,33 +33,6 @@ public class ICD11NeoplasmMatchingRule7 extends AbstractNeoplasmICD11MatchingRul
   public String getDescription() {
     return "Search: Occurrence = Congential, Pathological process = 'Pathological Development Process', and AssocMorp = Desc of 'Morphologically Abnormal"
         + " Structure'\nNo filtering of ICD11 concepts.\nDo not use finding sites";
-  }
-
-
-  /**
-   * Execute rule 1.
-   *
-   * @param snomedConcepts the snomed concepts
-   * @throws Exception the exception
-   */
-  @Override
-  public Object executeRule(ICD11MatcherSctConcept sctCon,
-    int counter) throws Exception {
-
-    StringBuffer str = new StringBuffer();
-    matchNextConcept(sctCon, counter);
-
-    matchApproach1(str);
-    matchApproach2(str);
-
-    Set<ICD11MatcherSctConcept> fsConcepts =
-        fsUtility.identifyPotentialFSConcepts(findingSiteCons, devWriter);
-    if (fsConcepts != null) {
-      matchApproach3(findingSiteCons, fsConcepts, str);
-      matchApproach4(fsConcepts, str);
-    }
-
-    return str.toString();
   }
   
   @Override
@@ -102,12 +72,7 @@ public class ICD11NeoplasmMatchingRule7 extends AbstractNeoplasmICD11MatchingRul
     System.out.println("Have actually found : " + matches + " matches");
   }
 
-  /**
-   * Indicates whether or not neoplasm match is the case.
-   *
-   * @param result the result
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
+  @Override
   protected boolean isRuleMatch(SearchResult result) {
     if (result.isLeafNode()) {
       return true;
@@ -165,6 +130,11 @@ public class ICD11NeoplasmMatchingRule7 extends AbstractNeoplasmICD11MatchingRul
   @Override
   protected ICD11MatcherSctConcept getTopLevelConcept() {
     // TODO
+    return null;
+  }
+
+  @Override
+  protected String getRuleQueryString() {
     return null;
   }
 }

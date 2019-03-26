@@ -69,16 +69,10 @@ public class ICD11GenericMatchingRule2 extends AbstractGenericICD11MatchingRule 
     return true;
   }
 
-  /**
-   * Indicates whether or not generic match is the case.
-   *
-   * @param result the result
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
+  @Override
   protected boolean isRuleMatch(SearchResult result) {
     if (result.getValue().toLowerCase().matches(".*\\bmycobacterial\\b.*")
-        && !result.getCodeId().startsWith("X")
-        && result.isLeafNode()) {
+        && !result.getCodeId().startsWith("X") && result.isLeafNode()) {
       return true;
     }
 

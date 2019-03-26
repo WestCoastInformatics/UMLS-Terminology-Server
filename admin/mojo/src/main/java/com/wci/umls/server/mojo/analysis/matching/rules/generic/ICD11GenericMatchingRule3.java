@@ -69,12 +69,7 @@ public class ICD11GenericMatchingRule3 extends AbstractGenericICD11MatchingRule 
     return true;
   }
 
-  /**
-   * Indicates whether or not generic match is the case.
-   *
-   * @param result the result
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
+  @Override
   protected boolean isRuleMatch(SearchResult result) {
     if ((result.getCodeId().startsWith("1C6") || result.getCodeId().startsWith("1C7")
         || result.getCodeId().startsWith("1C8") || result.getCodeId().startsWith("1C9"))

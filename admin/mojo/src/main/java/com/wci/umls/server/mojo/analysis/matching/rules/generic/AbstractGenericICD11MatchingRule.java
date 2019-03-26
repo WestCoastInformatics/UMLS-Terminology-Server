@@ -7,6 +7,7 @@ import java.util.Set;
 
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.mojo.analysis.matching.ICD11MatchingConstants;
 import com.wci.umls.server.mojo.analysis.matching.rules.AbstractICD11MatchingRule;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
@@ -29,12 +30,16 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
   protected static FindingSiteUtility fsUtility;
 
   abstract protected SearchResultList testMatchingFindingSite(String queryPortion) throws Exception;
-  
-  abstract protected String getRuleQueryString();
-  
-  protected static final String FILTERED_RULE_TYPE = "filtered";
-  protected static final String ALL_LEAFS_RULE_TYPE = "all leaf nodes";
 
+  @Override
+  public String getEclTopLevelDesc() {
+    return null;
+  }
+
+  @Override
+  public String getDefaultSkinMatch() {
+    return null;
+  }
 
   public AbstractGenericICD11MatchingRule(ContentClientRest contentClient, String st, String sv,
       String tt, String tv, String token) {
@@ -112,9 +117,9 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
         SearchResultList matches = testMatchingFindingSite(desc);
         for (SearchResult match : matches.getObjects()) {
           
-          if (ruleType.equals(FILTERED_RULE_TYPE) && isRuleMatch(match)) {
+          if (ruleType.equals(ICD11MatchingConstants.FILTERED_RULE_TYPE) && isRuleMatch(match)) {
             processBaseSearch(match, desc, depth, matchResultMap, matchDepthMap, lowestDepthMap);
-          } else if (!ruleType.equals(FILTERED_RULE_TYPE)) {
+          } else if (!ruleType.equals(ICD11MatchingConstants.FILTERED_RULE_TYPE)) {
             processBaseSearch(match, desc, depth, matchResultMap, matchDepthMap, lowestDepthMap);
           }
         }
@@ -183,34 +188,6 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
     }
   }
 
-  public void identifyIcd11Targets() throws Exception {
-    final SearchResultList fullStringResults = client.findConcepts(targetTerminology, targetVersion,
-        getRuleQueryString(), pfsLimitless, authToken);
-    System.out.println("Have returned : " + fullStringResults.getTotalCount() + " objects");
-
-    if (printIcd11Targets()) {
-      for (SearchResult result : fullStringResults.getObjects()) {
-        System.out.println(result.getCodeId() + "\t" + result.getValue());
-      }
-    }
-    
-    int matches = 0;
-    System.out.println("\n\n\nNow Filtering");
-    
-    for (SearchResult result : fullStringResults.getObjects()) {
-      if (isRuleMatch(result)) {
-        if (printIcd11Targets()) {
-          System.out.println(result.getCodeId() + "\t" + result.getValue());
-        }
-        
-        icd11Targets.getObjects().add(result);
-        icd11Targets.setTotalCount(icd11Targets.getTotalCount() + 1);
-        matches++;
-      }
-    }
-    System.out.println("Have actually found : " + matches + " matches");
-  }
-
   public SearchResultList getAllIcd11Targets() throws Exception {
     if (icd11AllTargets == null) {
       icd11AllTargets = client.findConcepts(targetTerminology, targetVersion,
@@ -228,7 +205,7 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
       String desc = fullDesc.getDescription().toLowerCase();
       desc = fsUtility.cleanNonFindingSiteString(desc);
 
-      for (String key : nonMatchingStrings) {
+      for (String key : ICD11MatchingConstants.NON_MATCHING_TERMS) {
         if (desc.matches(".*\\b" + key + "es\\b.*")) {
           desc = desc.replaceAll(key + "es", "");
         }
@@ -276,10 +253,6 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
     return false;
   }
 
-  protected boolean printIcd11Targets() {
-    return false;
-  }
-
   /**
    * Execute generic rule.
    *
@@ -292,11 +265,11 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
     Set<String> results = new HashSet<>();
     matchNextConcept(sctCon, counter);
 
-    matchApproachBaseMatch(sctCon, results, icd11Targets, FILTERED_RULE_TYPE);
-    matchApproachBaseSearch(sctCon, results, icd11Targets, FILTERED_RULE_TYPE);
+    matchApproachBaseMatch(sctCon, results, icd11Targets, ICD11MatchingConstants.FILTERED_RULE_TYPE);
+    matchApproachBaseSearch(sctCon, results, icd11Targets, ICD11MatchingConstants.FILTERED_RULE_TYPE);
     
-    matchApproachBaseMatch(sctCon, results, getAllIcd11Targets(), ALL_LEAFS_RULE_TYPE);
-    matchApproachBaseSearch(sctCon, results, getAllIcd11Targets(), ALL_LEAFS_RULE_TYPE);
+    matchApproachBaseMatch(sctCon, results, getAllIcd11Targets(), ICD11MatchingConstants.ALL_LEAFS_RULE_TYPE);
+    matchApproachBaseSearch(sctCon, results, getAllIcd11Targets(), ICD11MatchingConstants.  ALL_LEAFS_RULE_TYPE);
 
     return results;
   }

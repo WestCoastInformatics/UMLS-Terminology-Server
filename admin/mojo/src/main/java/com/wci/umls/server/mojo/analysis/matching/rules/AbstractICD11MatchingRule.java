@@ -6,10 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,6 +16,7 @@ import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
+import com.wci.umls.server.mojo.analysis.matching.ICD11MatchingConstants;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.processes.FindingSiteUtility;
 import com.wci.umls.server.mojo.processes.ICD11MatcherConceptSearcher;
@@ -65,19 +64,7 @@ public abstract class AbstractICD11MatchingRule {
 
   public static Set<String> topLevelConcepts = new HashSet<>();
 
-  final static protected List<String> nonMatchingStrings = Arrays.asList("of", "part", "structure",
-      "system", "and/or", "and", "region", "area", "or", "the", "in", "cavity", "tract", "organ",
-      "duct", "canal", "genitalia", "genital", "adnexa", "due", "to", "disease", "by", "caused", "left", "right");// ,
-                                                                          // "male",
-                                                                          // "female");
-
-  public static final String SNOMED_ROOT_CONCEPT = "138875005";
-
   public static final Map<String, String> snomedToIcdSynonymMap = new HashMap<String, String>();
-
-  private static final int ICD_COLUMN = 0;
-
-  private static final int SNOMED_COLUMN = 1;
 
   static protected ICD11MatcherConceptSearcher conceptSearcher;
 
@@ -90,7 +77,7 @@ public abstract class AbstractICD11MatchingRule {
     pfsLimited.setMaxResults(10);
 
     BufferedReader reader;
-    topLevelConcepts.add(SNOMED_ROOT_CONCEPT);
+    topLevelConcepts.add(ICD11MatchingConstants.SNOMED_ROOT_CONCEPT);
     System.out.println("About to read in the Trans Closure file. This will take some time...");
 
     try {
@@ -107,7 +94,8 @@ public abstract class AbstractICD11MatchingRule {
         }
         transClosureMap.get(columns[0]).put(columns[1], Integer.parseInt(columns[2]));
 
-        if (columns[0].equals(SNOMED_ROOT_CONCEPT) && Integer.parseInt(columns[2]) == 1) {
+        if (columns[0].equals(ICD11MatchingConstants.SNOMED_ROOT_CONCEPT)
+            && Integer.parseInt(columns[2]) == 1) {
           topLevelConcepts.add(columns[1]);
         }
 
@@ -129,8 +117,8 @@ public abstract class AbstractICD11MatchingRule {
       while (line != null) {
         String[] columns = line.trim().split("\\|");
 
-        String icdStr = columns[ICD_COLUMN].trim();
-        String snomedStr = columns[SNOMED_COLUMN].trim();
+        String icdStr = columns[ICD11MatchingConstants.ICD_COLUMN].trim();
+        String snomedStr = columns[ICD11MatchingConstants.SNOMED_COLUMN].trim();
 
         if (icdStr.startsWith("#")) {
           icdStr = icdStr.substring(1);
@@ -172,8 +160,14 @@ public abstract class AbstractICD11MatchingRule {
 
   abstract public String getEclExpression();
 
-  abstract public void identifyIcd11Targets() throws Exception;
+  abstract public String getDefaultSkinMatch();
 
+  /**
+   * Indicates whether or not neoplasm match is the case.
+   *
+   * @param result the result
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
   abstract protected boolean isRuleMatch(SearchResult result);
 
   abstract public String getRuleName();
@@ -184,6 +178,12 @@ public abstract class AbstractICD11MatchingRule {
 
   abstract public void preTermProcessing(ICD11MatcherSctConcept sctCon) throws Exception;
 
+  abstract protected String getRuleQueryString();
+  
+  protected String getEclTopLevelDesc() {
+    return null;
+  }
+
   public AbstractICD11MatchingRule(ContentClientRest contentClient, String st, String sv, String tt,
       String tv, String token) {
     client = contentClient;
@@ -192,6 +192,57 @@ public abstract class AbstractICD11MatchingRule {
     targetTerminology = tt;
     targetVersion = tv;
     authToken = token;
+  }
+
+  public void identifyIcd11Targets() throws Exception {
+    if (getRuleQueryString() != null) {
+      final SearchResultList fullStringResults = client.findConcepts(targetTerminology, targetVersion,
+          getRuleQueryString(), pfsLimitless, authToken);
+      System.out.println("Have returned : " + fullStringResults.getTotalCount() + " objects");
+  
+      if (printIcd11Targets()) {
+        for (SearchResult result : fullStringResults.getObjects()) {
+          System.out.println(result.getCodeId() + "\t" + result.getValue());
+        }
+      }
+  
+      int matches = 0;
+      System.out.println("\n\n\nNow Filtering");
+  
+      for (SearchResult result : fullStringResults.getObjects()) {
+        if (isRuleMatch(result)) {
+          if (printIcd11Targets()) {
+            System.out.println(result.getCodeId() + "\t" + result.getValue());
+          }
+  
+          icd11Targets.getObjects().add(result);
+          icd11Targets.setTotalCount(icd11Targets.getTotalCount() + 1);
+          matches++;
+        }
+      }
+      System.out.println("Have actually found : " + matches + " matches");
+    } else {
+      SearchResult topLevelEclConcept = null;
+
+      final SearchResultList fullStringResults = client.findConcepts(targetTerminology, targetVersion, getEclTopLevelDesc(), pfsMinimal, authToken);
+      
+      for (SearchResult result : fullStringResults.getObjects()) {
+        if (result.isLeafNode() && !result.isObsolete() && result.getValue().equals(getEclTopLevelDesc())) {
+          topLevelEclConcept  = result;
+          break;
+        }
+      }
+      
+      if (topLevelEclConcept == null) {
+        throw new Exception("Couldn't match ECL Concept: " + getEclTopLevelDesc());
+      }
+      
+      
+    }
+  }
+
+  protected boolean printIcd11Targets() {
+    return false;
   }
 
   /**

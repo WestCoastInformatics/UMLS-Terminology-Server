@@ -42,8 +42,6 @@ import com.wci.umls.server.mojo.processes.ICD11MatcherConceptSearcher;
 public class ICD11GenericMatchingMojo extends AbstractICD11MatchingMojo {
   private FindingSiteUtility fsUtility;
 
-  private NeoplasmMatchRules matchingRules;
-
   protected final String MATCHER_NAME = "icd11-generic-matcher";
 
   /*
@@ -204,7 +202,7 @@ public class ICD11GenericMatchingMojo extends AbstractICD11MatchingMojo {
     return retStr.toString();
   }
 
-  protected String identifyProperResponse(ICD11MatcherSctConcept sctCon,
+  protected String identifySingleResult(ICD11MatcherSctConcept sctCon,
     AbstractICD11MatchingRule rule, String resultString) throws Exception {
 
     List<String> results = cleanResultsForTerminologist(resultString);

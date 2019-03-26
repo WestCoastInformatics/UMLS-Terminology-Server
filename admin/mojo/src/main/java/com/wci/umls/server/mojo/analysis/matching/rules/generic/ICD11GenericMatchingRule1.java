@@ -69,12 +69,7 @@ public class ICD11GenericMatchingRule1 extends AbstractGenericICD11MatchingRule 
     return true;
   }
 
-  /**
-   * Indicates whether or not generic match is the case.
-   *
-   * @param result the result
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
+  @Override
   protected boolean isRuleMatch(SearchResult result) {
     if ((result.getCodeId().startsWith("1C6")
         || result.getValue().toLowerCase().matches(".*\\bhiv\\b.*")

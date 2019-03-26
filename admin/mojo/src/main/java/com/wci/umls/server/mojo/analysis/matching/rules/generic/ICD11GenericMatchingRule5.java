@@ -69,12 +69,7 @@ public class ICD11GenericMatchingRule5 extends AbstractGenericICD11MatchingRule 
     return true;
   }
 
-  /**
-   * Indicates whether or not generic match is the case.
-   *
-   * @param result the result
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
+  @Override
   protected boolean isRuleMatch(SearchResult result) {
     if (result.getCodeId().startsWith("1D4")
         && result.isLeafNode()) {

@@ -1,7 +1,6 @@
 package com.wci.umls.server.mojo.analysis.matching;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -10,6 +9,7 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.mojo.analysis.matching.rules.AbstractICD11MatchingRule;
 import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.AbstractNeoplasmICD11MatchingRule;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
@@ -19,20 +19,37 @@ public class NeoplasmMatchRules {
 
   private FindingSiteUtility fsUtility;
 
-  /** The non finding site strings. */
-  final static protected List<String> nonSignificantMatchingStrings =
-      Arrays.asList("of", "part", "structure", "system", "and/or", "and", "region", "area", "or",
-          "the", "tract", "cavity", "organ", "genitalia", "genital", "duct", "canal", "adnexa",
-          "other", "specified", "unspecified");// ,
-  // "male",
-  // "female");
+  private Map<Integer, List<String>> resultTypeMap = new HashMap<>();
+
+  private AbstractICD11MatchingRule rule;
 
   private static final int RETURN_SPECIFIED = 0;
 
   private static final int RETURN_UNSPECIFIED = 1;
 
+  private static final Integer OTHER_OR_UNSPECIFIED = 0;
+
+  private static final Integer OTHER_SPECIFIED = 1;
+
+  private static final Integer UNSPECIFIED = 2;
+
+  private static final Integer NOT_UNSPECIFIED = 3;
+
+  private static HashSet<String> matchRulesSpecificNonMatchingTerms =
+      new HashSet<>(ICD11MatchingConstants.NON_MATCHING_TERMS);
+
+  static {
+    matchRulesSpecificNonMatchingTerms.add("other");
+    matchRulesSpecificNonMatchingTerms.add("specified");
+    matchRulesSpecificNonMatchingTerms.add("unspecified");
+  }
+
   public NeoplasmMatchRules(FindingSiteUtility fsUtility) {
     this.fsUtility = fsUtility;
+  }
+
+  public void setRule(AbstractICD11MatchingRule rule) {
+    this.rule = rule;
   }
 
   public String processAllMatchingRules(List<String> results, ICD11MatcherSctConcept sctCon,
@@ -42,6 +59,8 @@ public class NeoplasmMatchRules {
     if (results.size() == 1) {
       return results.iterator().next() + "\tSINGLE OPTION";
     }
+
+    identifyResultType(results);
 
     if ((result =
         processInitialUnspecifiedTypes(sctCon, findingSites, findingSiteNames, results)) != null) {
@@ -60,6 +79,9 @@ public class NeoplasmMatchRules {
     } else if ((result = processOneSpecifiedOneNot(sctCon, results, RETURN_UNSPECIFIED)) != null) {
       return result + "\tFFFF";
     } else if ((result =
+        processSpecifiedOneDepthLowerRest(sctCon, results, RETURN_UNSPECIFIED)) != null) {
+      return result + "\tJJJ";
+    } else if ((result =
         processTooNarrowResults(findingSites, sctCon, findingSiteNames, results)) != null) {
       return result + "\tGGGG";
       // } else if ((result =
@@ -70,6 +92,30 @@ public class NeoplasmMatchRules {
         processDepthCriteria(sctCon, findingSites, findingSiteNames, results)) != null) {
       return result + "\tHHHH";
     }
+    return null;
+  }
+
+  private String processSpecifiedOneDepthLowerRest(ICD11MatcherSctConcept sctCon,
+    List<String> results, int returnUnspecified) {
+    boolean singleDepthLower = true;
+
+    int lowestDepth = 100;
+    String singleResult = null;
+
+    for (String result : results) {
+      if (getDepth(result) < lowestDepth) {
+        singleDepthLower = true;
+        singleResult = result;
+        lowestDepth = getDepth(result);
+      } else if (getDepth(result) == lowestDepth) {
+        singleDepthLower = false;
+      }
+    }
+
+    if (singleDepthLower) {
+      return singleResult;
+    }
+
     return null;
   }
 
@@ -91,7 +137,7 @@ public class NeoplasmMatchRules {
         for (int i = 0; i < locationTokens.length; i++) {
           String token = locationTokens[i].trim().toLowerCase();
 
-          if (!token.isEmpty() && !nonSignificantMatchingStrings.contains(token)) {
+          if (!token.isEmpty() && !matchRulesSpecificNonMatchingTerms.contains(token)) {
             int matches = 0;
 
             for (String result : results) {
@@ -134,8 +180,8 @@ public class NeoplasmMatchRules {
     return descsToProcess;
   }
 
-  private String singleMatchCapture(Map<String, Integer> singleMatches, ICD11MatcherSctConcept sctCon,
-    List<String> results) throws Exception {
+  private String singleMatchCapture(Map<String, Integer> singleMatches,
+    ICD11MatcherSctConcept sctCon, List<String> results) throws Exception {
     int mostMatchedResults = 0;
     String matchedResult = null;
     boolean singleMatch = false;
@@ -230,9 +276,7 @@ public class NeoplasmMatchRules {
 
     for (String result : results) {
 
-      if (result.toLowerCase().contains("other or unspecified")
-          || result.toLowerCase().contains("other specified")
-          || result.toLowerCase().contains("unspecified")) {
+      if (!resultTypeMap.get(NOT_UNSPECIFIED).contains(result)) {
         String desc = result.split("\t")[1];
         nonSpecificSet.add(desc);
         originalResults.put(desc, result);
@@ -247,7 +291,7 @@ public class NeoplasmMatchRules {
             " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
 
         for (int i = 0; i < tokens.length; i++) {
-          if (!nonSignificantMatchingStrings.contains(tokens[i])) {
+          if (!tokens[i].isEmpty() && !matchRulesSpecificNonMatchingTerms.contains(tokens[i])) {
             if (processingInitialList) {
               intersectionSet.add(tokens[i]);
             }
@@ -283,7 +327,7 @@ public class NeoplasmMatchRules {
           FieldedStringTokenizer.split(key.toLowerCase(), " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
 
       for (int i = 0; i < tokens.length; i++) {
-        if (!nonSignificantMatchingStrings.contains(tokens[i])) {
+        if (!tokens[i].isEmpty() && !matchRulesSpecificNonMatchingTerms.contains(tokens[i])) {
           minimizedResults.get(key).add(tokens[i]);
         }
       }
@@ -332,32 +376,16 @@ public class NeoplasmMatchRules {
     return leastResult;
   }
 
-  private String processDepthCriteria(ICD11MatcherSctConcept sctCon, Set<ICD11MatcherSctConcept> fsConcepts,
-    Set<String> findingSiteNames, List<String> results) throws Exception {
-    List<String> otherOrUnspecifiedResult = new ArrayList<>();
-    List<String> otherSpecifiedResult = new ArrayList<>();
-    List<String> unspecifiedResult = new ArrayList<>();
-    List<String> notUnspecifiedResults = new ArrayList<>();
-
-    for (String result : results) {
-      if (result.toLowerCase().contains("other or unspecified")) {
-        otherOrUnspecifiedResult.add(result);
-      } else if (result.toLowerCase().contains("other specified")) {
-        otherSpecifiedResult.add(result);
-      } else if (result.toLowerCase().contains("unspecified")) {
-        unspecifiedResult.add(result);
-      } else {
-        notUnspecifiedResults.add(result);
-      }
-    }
-
+  private String processDepthCriteria(ICD11MatcherSctConcept sctCon,
+    Set<ICD11MatcherSctConcept> fsConcepts, Set<String> findingSiteNames, List<String> results)
+    throws Exception {
     /*
      * with stopping to concern b/w two different depths, just identify lowest
      * depth items // ProcessUnspecifiedHigherLevelThanSingleSpecific int
      * lowestUnspecifiedLevel = 100; int lowestSpecificLevel = 100; for (String
      * result : results) { int depth = Integer.parseInt(result.split("\t")[3]);
      * 
-     * if (notUnspecifiedResults.contains(result)) { if (depth <=
+     * if (resultTypeMap.get(NOT_UNSPECIFIED).contains(result)) { if (depth <=
      * lowestSpecificLevel) { lowestSpecificLevel = depth; } } else { if (depth
      * <= lowestUnspecifiedLevel) { lowestUnspecifiedLevel = depth; } } }
      */
@@ -368,7 +396,7 @@ public class NeoplasmMatchRules {
     int lowestDepth = 100;
     int lowestMatchCount = 0;
     for (String result : results) {
-      int depth = Integer.parseInt(result.split("\t")[3]);
+      int depth = getDepth(result);
 
       if (depth < lowestDepth) {
         lowestDepth = depth;
@@ -394,34 +422,17 @@ public class NeoplasmMatchRules {
   private String processInitialUnspecifiedTypes(ICD11MatcherSctConcept sctCon,
     Set<ICD11MatcherSctConcept> fsConcepts, Set<String> findingSiteNames, List<String> results)
     throws Exception {
-    List<String> otherOrUnspecifiedResult = new ArrayList<>();
-    List<String> otherSpecifiedResult = new ArrayList<>();
-    List<String> unspecifiedResult = new ArrayList<>();
-    List<String> notUnspecifiedResults = new ArrayList<>();
-
-    for (String result : results) {
-      if (result.toLowerCase().contains("other or unspecified")) {
-        otherOrUnspecifiedResult.add(result);
-      } else if (result.toLowerCase().contains("other specified")) {
-        otherSpecifiedResult.add(result);
-      } else if (result.toLowerCase().contains("unspecified")) {
-        unspecifiedResult.add(result);
-      } else {
-        notUnspecifiedResults.add(result);
-      }
-    }
-
     // All are notUnspecified
-    if (notUnspecifiedResults.size() == results.size()) {
+    if (resultTypeMap.get(NOT_UNSPECIFIED).size() == results.size()) {
       return null;
     }
 
     // ProcessOnlyUnspecified
-    if (notUnspecifiedResults.isEmpty()) {
-      if (otherOrUnspecifiedResult.size() == 1) {
-        return otherOrUnspecifiedResult.iterator().next();
-      } else if (otherSpecifiedResult.size() == 1) {
-        return otherSpecifiedResult.iterator().next();
+    if (resultTypeMap.get(NOT_UNSPECIFIED).isEmpty()) {
+      if (resultTypeMap.get(OTHER_OR_UNSPECIFIED).size() == 1) {
+        return resultTypeMap.get(OTHER_OR_UNSPECIFIED).iterator().next();
+      } else if (resultTypeMap.get(OTHER_SPECIFIED).size() == 1) {
+        return resultTypeMap.get(OTHER_SPECIFIED).iterator().next();
       }
     }
 
@@ -429,7 +440,8 @@ public class NeoplasmMatchRules {
   }
 
   private String processSingleResultInFindingSiteWord(Set<ICD11MatcherSctConcept> fsConcepts,
-    ICD11MatcherSctConcept sctCon, Set<String> findingSites, List<String> results) throws Exception {
+    ICD11MatcherSctConcept sctCon, Set<String> findingSites, List<String> results)
+    throws Exception {
     // Inverse... If word in single result exists in finding site , return it
     // i.e. SctId: 92637002
     String matchedResult = null;
@@ -452,7 +464,7 @@ public class NeoplasmMatchRules {
         for (int i = 0; i < locationTokens.length; i++) {
           String token = locationTokens[i].trim().toLowerCase();
 
-          if (!token.isEmpty() && !fsUtility.getNonFindingSiteStrings().contains(token)) {
+          if (!token.isEmpty() && !matchRulesSpecificNonMatchingTerms.contains(token)) {
             for (String desc : descsToProcess) {
               if (desc.contains(token)) {
                 if (matches++ > 0) {
@@ -472,7 +484,8 @@ public class NeoplasmMatchRules {
   }
 
   private String processFindingSiteWordInSingleResult(Set<ICD11MatcherSctConcept> fsConcepts,
-    ICD11MatcherSctConcept sctCon, Set<String> findingSites, List<String> results) throws Exception {
+    ICD11MatcherSctConcept sctCon, Set<String> findingSites, List<String> results)
+    throws Exception {
     // If word in finding site exists in single result, return it
     // i.e. SctId: 92557009
     String matchedResult = null;
@@ -490,7 +503,7 @@ public class NeoplasmMatchRules {
             for (int i = 0; i < locationTokens.length; i++) {
               String token = locationTokens[i].trim().toLowerCase();
 
-              if (!token.isEmpty() && !fsUtility.getNonFindingSiteStrings().contains(token)) {
+              if (!token.isEmpty() && !matchRulesSpecificNonMatchingTerms.contains(token)) {
                 int matches = 0;
 
                 for (String result : results) {
@@ -537,7 +550,7 @@ public class NeoplasmMatchRules {
     }
 
     List<String> bodyMatches = new ArrayList<>();
-    List<String> retSet = new ArrayList<>();
+    Set<String> retSet = new HashSet<>();
 
     // Identified Skin, return proper result
     if (isSkin) {
@@ -553,7 +566,7 @@ public class NeoplasmMatchRules {
               String token = locationTokens[i].trim().toLowerCase();
 
               if (!token.isEmpty() && !token.equals("skin")
-                  && !fsUtility.getNonFindingSiteStrings().contains(token)) {
+                  && !matchRulesSpecificNonMatchingTerms.contains(token)) {
                 for (String result : results) {
                   String icd11String = result.split("\t")[1];
                   if (icd11String.toLowerCase().contains(token) && result.contains("skin")) {
@@ -567,13 +580,19 @@ public class NeoplasmMatchRules {
       }
 
       for (String r : bodyMatches) {
-        String prefix = r.substring(r.indexOf("\t")).trim();
-        prefix = prefix.substring(0, prefix.indexOf("carcinoma"));
+        for (String synonym : ICD11MatchingConstants.NEOPLASM_SYNONYMS) {
+          if (r.toLowerCase().contains(synonym.toLowerCase())) {
+            String prefix = r.toLowerCase().substring(r.indexOf("\t")).trim();
+            prefix = prefix.substring(0, prefix.indexOf(synonym.toLowerCase()));
 
-        for (ICD11MatcherSctConcept fsCon : fsCons) {
-          for (SctNeoplasmDescription desc : fsCon.getDescs()) {
-            if (desc.getDescription().toLowerCase().contains(prefix.trim().toLowerCase())) {
-              retSet.add(r);
+            if (!prefix.trim().isEmpty()) {
+              for (ICD11MatcherSctConcept fsCon : fsCons) {
+                for (SctNeoplasmDescription desc : fsCon.getDescs()) {
+                  if (desc.getDescription().toLowerCase().contains(prefix.trim().toLowerCase())) {
+                    retSet.add(r);
+                  }
+                }
+              }
             }
           }
         }
@@ -584,40 +603,25 @@ public class NeoplasmMatchRules {
       }
 
       for (String result : results) {
-        if (result.contains("2E64.Y")) {
+        if (result.contains(rule.getDefaultSkinMatch())) {
           return result;
         }
       }
     }
 
     return null;
+
   }
 
   private String processOneSpecifiedOneNot(ICD11MatcherSctConcept sctCon, List<String> results,
     int returnSpecified) throws Exception {
-    List<String> otherOrUnspecifiedResult = new ArrayList<>();
-    List<String> otherSpecifiedResult = new ArrayList<>();
-    List<String> unspecifiedResult = new ArrayList<>();
-    List<String> notUnspecifiedResults = new ArrayList<>();
 
-    for (String result : results) {
-      if (result.toLowerCase().contains("other or unspecified")) {
-        otherOrUnspecifiedResult.add(result);
-      } else if (result.toLowerCase().contains("other specified")) {
-        otherSpecifiedResult.add(result);
-      } else if (result.toLowerCase().contains("unspecified")) {
-        unspecifiedResult.add(result);
-      } else {
-        notUnspecifiedResults.add(result);
-      }
-    }
-
-    if (returnSpecified == RETURN_SPECIFIED && notUnspecifiedResults.size() == 1) {
-      return notUnspecifiedResults.iterator().next();
+    if (returnSpecified == RETURN_SPECIFIED && resultTypeMap.get(NOT_UNSPECIFIED).size() == 1) {
+      return resultTypeMap.get(NOT_UNSPECIFIED).iterator().next();
     } else if (returnSpecified == RETURN_UNSPECIFIED
-        && (results.size() - notUnspecifiedResults.size() == 1)) {
+        && (results.size() - resultTypeMap.get(NOT_UNSPECIFIED).size() == 1)) {
       for (String result : results) {
-        if (!notUnspecifiedResults.contains(result)) {
+        if (!resultTypeMap.get(NOT_UNSPECIFIED).contains(result)) {
           return result;
         }
       }
@@ -626,4 +630,27 @@ public class NeoplasmMatchRules {
     return null;
   }
 
+  private void identifyResultType(List<String> results) {
+    resultTypeMap.put(OTHER_OR_UNSPECIFIED, new ArrayList<String>());
+    resultTypeMap.put(OTHER_SPECIFIED, new ArrayList<String>());
+    resultTypeMap.put(UNSPECIFIED, new ArrayList<String>());
+    resultTypeMap.put(NOT_UNSPECIFIED, new ArrayList<String>());
+
+    for (String result : results) {
+      if (result.toLowerCase().contains("other or unspecified")) {
+        resultTypeMap.get(OTHER_OR_UNSPECIFIED).add(result);
+      } else if (result.toLowerCase().contains("other specified")) {
+        resultTypeMap.get(OTHER_SPECIFIED).add(result);
+      } else if (result.toLowerCase().contains("unspecified")) {
+        resultTypeMap.get(UNSPECIFIED).add(result);
+      } else {
+        resultTypeMap.get(NOT_UNSPECIFIED).add(result);
+      }
+    }
+  }
+
+  private int getDepth(String result) {
+    // TODO Auto-generated method stub
+    return Integer.parseInt(result.split("\t")[3]);
+  }
 }

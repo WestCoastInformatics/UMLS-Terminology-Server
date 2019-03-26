@@ -31,8 +31,6 @@ import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.ICD11NeoplasmMa
 import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.ICD11NeoplasmMatchingRule4;
 import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.ICD11NeoplasmMatchingRule5;
 import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.ICD11NeoplasmMatchingRule6;
-import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.ICD11NeoplasmMatchingRule7;
-import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.ICD11NeoplasmMatchingRule8;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.processes.FindingSiteUtility;
 import com.wci.umls.server.mojo.processes.ICD11MatcherConceptSearcher;
@@ -40,8 +38,6 @@ import com.wci.umls.server.mojo.processes.ICD11MatcherConceptSearcher;
 @Mojo(name = "icd11-neoplasm-matcher", defaultPhase = LifecyclePhase.PACKAGE)
 public class ICD11NeoplasmMatchingMojo extends AbstractICD11MatchingMojo {
   private FindingSiteUtility fsUtility;
-
-  private NeoplasmMatchRules matchingRules;
 
   /*
    * (non-Javadoc)
@@ -122,12 +118,6 @@ public class ICD11NeoplasmMatchingMojo extends AbstractICD11MatchingMojo {
       } else if (Integer.parseInt(rules[i]) == 6) {
         rule = new ICD11NeoplasmMatchingRule6(client, sourceTerminology, sourceVersion, targetTerminology,
             targetVersion, authToken);
-      } else if (Integer.parseInt(rules[i]) == 7) {
-        rule = new ICD11NeoplasmMatchingRule7(client, sourceTerminology, sourceVersion, targetTerminology,
-            targetVersion, authToken);
-      } else if (Integer.parseInt(rules[i]) == 8) {
-        rule = new ICD11NeoplasmMatchingRule8(client, sourceTerminology, sourceVersion, targetTerminology,
-            targetVersion, authToken);
       }
 
       if (rule != null) {
@@ -147,16 +137,12 @@ public class ICD11NeoplasmMatchingMojo extends AbstractICD11MatchingMojo {
     if (resultString != null && !resultString.isEmpty()) {
       // System.out.println(resultString + "");
 
-      rule.getDevWriter().println(resultString);
-      rule.getDevWriter().println();
-      rule.getDevWriter().println();
-
-      String singleResponse = identifyProperResponse(sctCon, rule, resultString);
+      String singleResponse = identifySingleResult(sctCon, rule, resultString);
 
       if (singleResponse == null) {
         StringBuffer devBuf = new StringBuffer();
         StringBuffer termBuf = new StringBuffer();
-        devBuf.append("\tCouldn't discern between the following options\n");
+        devBuf.append("\tCouldn't discern between the following options");
         termBuf.append("\tCouldn't discern between the following options\n");
 
         List<String> termResults = cleanResultsForTerminologist(resultString);
@@ -177,13 +163,19 @@ public class ICD11NeoplasmMatchingMojo extends AbstractICD11MatchingMojo {
         rule.getDevWriter().println(devBuf.toString());
         rule.getTermWriter().println(termBuf.toString());
       } else {
-        if (!singleResponse.startsWith("\t")) {
-          singleResponse = "\t" + singleResponse;
+        if (singleResponse.startsWith("\t")) {
+          singleResponse = singleResponse.substring(1);
         }
-        System.out.println("\n\nFinal Response: " + singleResponse);
+        rule.getDevWriter().println(resultString);
+        rule.getDevWriter().println("\tSelected Response: " + singleResponse);
+        rule.getDevWriter().println();
+        rule.getDevWriter().println();
+
+        System.out.println("\n\nSelected Response: " + singleResponse);
         System.out.println();
         System.out.println();
-        rule.getTermWriter().println(singleResponse);
+        
+        rule.getTermWriter().println("\t" + singleResponse);
         rule.getTermWriter().println();
         rule.getTermWriter().println();
       }
@@ -207,7 +199,7 @@ public class ICD11NeoplasmMatchingMojo extends AbstractICD11MatchingMojo {
 
   }
 
-  protected String identifyProperResponse(ICD11MatcherSctConcept sctCon, AbstractICD11MatchingRule rule,
+  protected String identifySingleResult(ICD11MatcherSctConcept sctCon, AbstractICD11MatchingRule rule,
     String resultString) throws Exception {
 
     List<String> results = cleanResultsForTerminologist(resultString);

@@ -13,27 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wci.umls.server.mojo.analysis.matching.rules.neoplasm;
+package com.wci.umls.server.mojo.analysis.matching.rules.generic;
 
 import java.util.Map;
-import java.util.Set;
 
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.rest.client.ContentClientRest;
 
-public class ICD11NeoplasmMatchingRule8 extends AbstractNeoplasmICD11MatchingRule {
+public class ICD11GenericMatchingRuleZb extends AbstractGenericICD11MatchingRule {
 
-  public ICD11NeoplasmMatchingRule8(ContentClientRest client, String st, String sv, String tt, String tv,
+  public ICD11GenericMatchingRuleZb(ContentClientRest client, String st, String sv, String tt, String tv,
       String authToken) {
     super(client, st, sv, tt, tv, authToken);
   }
 
   @Override
-  
   public String getRuleName() {
-    return "rule8";
+    return "rule6";
   }
 
   @Override
@@ -64,34 +62,9 @@ public class ICD11NeoplasmMatchingRule8 extends AbstractNeoplasmICD11MatchingRul
     return null;
   }
 
-  /**
-   * Execute rule 1.
-   *
-   * @param snomedConcepts the snomed concepts
-   * @throws Exception the exception
-   */
-  @Override
-  public Object executeRule(ICD11MatcherSctConcept sctCon, int counter)
-    throws Exception {
-
-    StringBuffer str = new StringBuffer();
-    matchNextConcept(sctCon, counter);
-
-    matchApproach1(str);
-    matchApproach2(str);
-
-    Set<ICD11MatcherSctConcept> fsConcepts =
-        fsUtility.identifyPotentialFSConcepts(findingSiteCons, devWriter);
-    if (fsConcepts != null) {
-      matchApproach3(findingSiteCons, fsConcepts, str);
-      matchApproach4(fsConcepts, str);
-    }
-    return str.toString();
-  }
-
   @Override
   public boolean usesFindingSites() {
-    return true;
+    return false;
   }
 
   /**
@@ -123,12 +96,7 @@ public class ICD11NeoplasmMatchingRule8 extends AbstractNeoplasmICD11MatchingRul
     System.out.println("Have actually found : " + matches + " matches");
   }
 
-  /**
-   * Indicates whether or not neoplasm match is the case.
-   *
-   * @param result the result
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
+  @Override
   protected boolean isRuleMatch(SearchResult result) {
     if ((result.getCodeId().startsWith("L")
         || result.getValue().toLowerCase().matches(".*\\bcongenit\\b.*")) && result.isLeafNode()) {
@@ -154,5 +122,10 @@ public class ICD11NeoplasmMatchingRule8 extends AbstractNeoplasmICD11MatchingRul
     }
 
     return findingSiteCache.get(queryPortion);
+  }
+
+  @Override
+  protected String getRuleQueryString() {
+    return null;
   }
 }

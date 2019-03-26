@@ -43,6 +43,7 @@ import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.model.content.Relationship;
+import com.wci.umls.server.mojo.analysis.matching.ICD11MatchingConstants;
 import com.wci.umls.server.mojo.model.ICD11MatcherRelationship;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
 import com.wci.umls.server.mojo.processes.SctNeoplasmDescriptionParser;
@@ -77,16 +78,6 @@ public class HierarchyAnalysisMojo extends AbstractContentAnalysisMojo {
   final private String eclDesc = "< 123037004";
 
   final private String hierarchyName = "FindingSite";
-
-  private final List<String> NEOPLASM_SYNONYMS = Arrays.asList("neoplasm",
-      "neoplasms", "neoplastic", "tumor", "tumorous", "tumoru", "tumour",
-      "tumoural", "tumours", "cancer", "cancerous", "cancerphobia", "carcinoma",
-      "carcinomas", "carcinomatosis", "carcinomatous", "carcinoma-induced",
-      "carcinomaphobia", "Adenocarcinoma", "adenoma", "Chondromatosis",
-      "Chromaffinoma", "Glioma", "neoplasia", "Pheochromocytoma",
-      "Proliferating pilar cyst", "Thymoma", "Melanoma", "Melanocytic",
-      "Lipoma", "mesothelioma", "sarcoma", "fibroma", "papilloma", "Lymphoma",
-      "Chondroma", "squamous");
 
   private final List<String> FALSE_POSITIVE_BODY_STRUCTURES = Arrays.asList(
       "Borst-Jadassohn", "Brodie", "Brooke", "Buschke-Löwenstein",
@@ -395,7 +386,7 @@ public class HierarchyAnalysisMojo extends AbstractContentAnalysisMojo {
 
         // Pathology Representation
         outputDescFile.print("\t");
-        for (String syn : NEOPLASM_SYNONYMS) {
+        for (String syn : ICD11MatchingConstants.NEOPLASM_SYNONYMS) {
           if (desc.toLowerCase().contains(syn.toLowerCase())) {
             outputDescFile.print(syn.trim());
             break;

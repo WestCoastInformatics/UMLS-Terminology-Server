@@ -13,10 +13,11 @@ import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.mojo.analysis.matching.ICD11MatchingConstants;
 import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.AbstractNeoplasmICD11MatchingRule;
+import com.wci.umls.server.mojo.model.ICD11MatcherRelationship;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
-import com.wci.umls.server.mojo.model.ICD11MatcherRelationship;
 import com.wci.umls.server.rest.client.ContentClientRest;
 
 public class FindingSiteUtility {
@@ -26,13 +27,6 @@ public class FindingSiteUtility {
   /** The finding site potential terms map cache. */
   protected Map<String, Map<ICD11MatcherSctConcept, Set<String>>> findingSitePotentialTermsMapCache =
       new HashMap<>();
-
-  /** The non finding site strings. */
-  final static protected List<String> nonFindingSiteStrings =
-      Arrays.asList("of", "part", "structure", "system", "and/or", "and", "region", "area", "or",
-          "the", "in", "cavity", "organ", "genitalia", "canal", "genital", "adnexa", "duct", "tract");// ,
-                                                                                             // "male",
-                                                                                             // "female");
 
   /** The top level body structure ids. */
   final protected List<String> topLevelBodyStructureIds =
@@ -205,10 +199,6 @@ public class FindingSiteUtility {
     conceptSearcher = searcher;
   }
 
-  public List<String> getNonFindingSiteStrings() {
-    return nonFindingSiteStrings;
-  }
-
   public Map<String, Map<ICD11MatcherSctConcept, Set<String>>> getFindingSitePotentialTermsMapCache() {
     return findingSitePotentialTermsMapCache;
   }
@@ -242,17 +232,11 @@ public class FindingSiteUtility {
 
   public String cleanNonFindingSiteString(String origSiteString) {
     String site = origSiteString.toLowerCase();
-    for (String s : nonFindingSiteStrings) {
+    for (String s : ICD11MatchingConstants.NON_MATCHING_TERMS) {
       site = site.replaceAll("\\b" + s + "s" + "\\b", " ").trim();
       site = site.replaceAll("\\b" + s + "\\b", " ").trim();
     }
     site = site.replaceAll(" {2,}", " ").trim();
-
-    /*
-     * if (site.matches(".*\\bgenital\\w{0,}\\b.*") &&
-     * (site.matches(".*\\bmale\\b.*") || site.matches(".*\\bfemale\\b.*"))) {
-     * site = site.replaceAll("\\bgenital\\w{0,}\\b", ""); }
-     */
 
     return site;
   }
