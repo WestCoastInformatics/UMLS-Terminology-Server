@@ -15,10 +15,13 @@
  */
 package com.wci.umls.server.mojo.analysis.matching.rules.generic;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.mojo.analysis.matching.ICD11MatchingConstants;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.rest.client.ContentClientRest;
 
@@ -30,7 +33,7 @@ public class ICD11GenericMatchingRule1a extends AbstractGenericICD11MatchingRule
   }
 
   @Override
-  public String getRuleName() {
+  public String getRuleId() {
     return "rule1a";
   }
 
@@ -51,7 +54,7 @@ public class ICD11GenericMatchingRule1a extends AbstractGenericICD11MatchingRule
 
   @Override
   public String getDefaultTarget() {
-    return "2E6Y\tCarcinoma in situ of other specified site";
+    return "1C62.Z\tHuman immunodeficiency virus disease without mention of associated disease or condition, clinical stage unspecified";
   }
 
   @Override
@@ -61,7 +64,7 @@ public class ICD11GenericMatchingRule1a extends AbstractGenericICD11MatchingRule
 
   @Override
   protected String getRuleQueryString() {
-    return "(atoms.codeId: 1C6*) OR (\"hiv\" OR \"human immunodeficiency virus\")";
+    return "(atoms.codeId: 1C6*)";
   }
 
   @Override
@@ -71,7 +74,9 @@ public class ICD11GenericMatchingRule1a extends AbstractGenericICD11MatchingRule
   
   @Override
   public String getEclTopLevelDesc() {
-    return "Human immunodeficiency virus disease";
+    // TODO: Need to fix import of ICD11 to enable importing blocks and chapters if going to do this properly 
+    //return "Human immunodeficiency virus disease";
+    return null;
   }
 
   @Override
@@ -81,15 +86,23 @@ public class ICD11GenericMatchingRule1a extends AbstractGenericICD11MatchingRule
 
   @Override
   protected boolean isRuleMatch(SearchResult result) {
-    if ((result.getCodeId().startsWith("1C6")
-        || result.getValue().toLowerCase().matches(".*\\bhiv\\b.*")
-        || result.getValue().toLowerCase().matches(".*\\bhuman immunodeficiency virus\\b.*"))
-        && !result.getCodeId().startsWith("X")
+    if (result.getCodeId().startsWith("1C6")
         && result.isLeafNode()) {
       return true;
     }
 
     return false;
+  }
+
+  @Override
+  protected Set<String> getRuleBasedNonMatchTerms() {
+    Set<String> retSet = new HashSet<>();
+    
+    retSet.add("hiv");
+    retSet.add("human immunodeficiency virus");
+    retSet.add("infection");
+
+    return retSet;
   }
 
   /**
@@ -108,5 +121,21 @@ public class ICD11GenericMatchingRule1a extends AbstractGenericICD11MatchingRule
     }
 
     return findingSiteCache.get(queryPortion);
+  }
+  
+
+  @Override
+  public Set<String> executeRule(ICD11MatcherSctConcept sctCon, int counter) throws Exception {
+
+    Set<String> results = new HashSet<>();
+    matchNextConcept(sctCon, counter);
+
+    results = matchApproachBaseMatch(sctCon, results, icd11Targets, ICD11MatchingConstants.FILTERED_RULE_TYPE);
+    
+    if (results.isEmpty()) {
+      results = matchApproachBaseSearch(sctCon, results, icd11Targets, ICD11MatchingConstants.FILTERED_RULE_TYPE);
+    }
+    
+    return results;
   }
 }

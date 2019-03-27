@@ -229,15 +229,4 @@ public class FindingSiteUtility {
 
     return targets;
   }
-
-  public String cleanNonFindingSiteString(String origSiteString) {
-    String site = origSiteString.toLowerCase();
-    for (String s : ICD11MatchingConstants.NON_MATCHING_TERMS) {
-      site = site.replaceAll("\\b" + s + "s" + "\\b", " ").trim();
-      site = site.replaceAll("\\b" + s + "\\b", " ").trim();
-    }
-    site = site.replaceAll(" {2,}", " ").trim();
-
-    return site;
-  }
 }

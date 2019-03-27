@@ -13,35 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wci.umls.server.mojo.analysis.matching.rules.generic;
+package com.wci.umls.server.mojo.analysis.matching.rules.neoplasm;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.wci.umls.server.helpers.SearchResult;
-import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
+import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
 import com.wci.umls.server.rest.client.ContentClientRest;
 
-public class ICD11GenericMatchingRule2 extends AbstractGenericICD11MatchingRule {
+public class ICD11NeoplasmMatchingRule7 extends AbstractNeoplasmICD11MatchingRule {
 
-  public ICD11GenericMatchingRule2(ContentClientRest client, String st, String sv, String tt,
+  public ICD11NeoplasmMatchingRule7(ContentClientRest client, String st, String sv, String tt,
       String tv, String authToken) {
     super(client, st, sv, tt, tv, authToken);
   }
 
   @Override
   public String getRuleId() {
-    return "rule2";
+    return "rule7";
   }
 
   @Override
   public String getDescription() {
-    return "ECL Based: All descendents of 'Mycobacteriosis' connecting them to the ICD11 'Mycobacterial diseases' i.e. anything containing 'mycobacterial'";
+    return "Description Based: All descendents of 'cyst (disorder)'";
   }
 
   @Override
   public String getEclExpression() {
-    return "<< 88415009";
+    return "<< 441457006";
   }
 
   @Override
@@ -51,49 +52,32 @@ public class ICD11GenericMatchingRule2 extends AbstractGenericICD11MatchingRule 
 
   @Override
   public String getDefaultTarget() {
-    return "1B2Y\tOther specified mycobacterial diseases";
+    return "2F7Y";
   }
 
   @Override
   protected ICD11MatcherSctConcept getTopLevelConcept() {
-    return conceptSearcher.getSctConcept("86406008");
+    return conceptSearcher.getSctConcept("441457006");
   }
 
   @Override
   protected String getRuleQueryString() {
-    return "\"mycobacterial\"";
+    return "(\"cyst\")";
   }
 
   @Override
-  protected boolean printIcd11Targets() {
-    return true;
+  public String getDefaultSkinMatch() {
+    return "2F72.Y";
   }
 
   @Override
   protected boolean isRuleMatch(SearchResult result) {
-    if (result.getValue().toLowerCase().matches(".*\\bmycobacterial\\b.*")
-        && !result.getCodeId().startsWith("X") && result.isLeafNode()) {
+    if (!result.getCodeId().startsWith("X")
+        && result.getValue().toLowerCase().matches(".*\\bcyst.*")
+        && result.isLeafNode()) {
       return true;
     }
 
     return false;
-  }
-
-  /**
-   * Test rule 1 finding site.
-   *
-   * @param queryPortion the query portion
-   * @return the search result list
-   * @throws Exception the exception
-   */
-  protected SearchResultList testMatchingFindingSite(String queryPortion) throws Exception {
-    if (!findingSiteCache.containsKey(queryPortion)) {
-      final SearchResultList straightMatch = client.findConcepts(targetTerminology, targetVersion,
-          getRuleQueryString() + queryPortion, pfsLimited, authToken);
-
-      findingSiteCache.put(queryPortion, straightMatch);
-    }
-
-    return findingSiteCache.get(queryPortion);
   }
 }

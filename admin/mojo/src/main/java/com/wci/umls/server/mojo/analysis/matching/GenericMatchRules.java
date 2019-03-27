@@ -14,13 +14,10 @@ import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
 import com.wci.umls.server.mojo.processes.FindingSiteUtility;
 
-public class NeoplasmMatchRules extends AbstractMatchRules{
-  private int depthLocation;
+public class GenericMatchRules extends AbstractMatchRules {
 
-
-  public NeoplasmMatchRules(FindingSiteUtility fsUtility, int depthLocation) {
+  public GenericMatchRules(FindingSiteUtility fsUtility) {
     this.fsUtility = fsUtility;
-    this.depthLocation = depthLocation;
   }
 
   public String processAllMatchingRules(List<String> results, ICD11MatcherSctConcept sctCon,
@@ -50,45 +47,16 @@ public class NeoplasmMatchRules extends AbstractMatchRules{
     } else if ((result = processOneSpecifiedOneNot(sctCon, results, RETURN_UNSPECIFIED)) != null) {
       return result + "\tFFFF";
     } else if ((result =
-        processSpecifiedOneDepthLowerRest(sctCon, results, RETURN_UNSPECIFIED)) != null) {
-      return result + "\tJJJ";
-    } else if ((result =
         processTooNarrowResults(findingSites, sctCon, findingSiteNames, results)) != null) {
       return result + "\tGGGG";
       // } else if ((result =
       // processSingleDivergantPrefix(findingSites, sctCon, findingSiteNames,
       // results)) != null) {
       // return result;
-    } else if ((result =
-        processDepthCriteria(sctCon, findingSites, findingSiteNames, results)) != null) {
-      return result + "\tHHHH";
     }
     return null;
   }
 
-  private String processSpecifiedOneDepthLowerRest(ICD11MatcherSctConcept sctCon,
-    List<String> results, int returnUnspecified) {
-    boolean singleDepthLower = true;
-
-    int lowestDepth = 100;
-    String singleResult = null;
-
-    for (String result : results) {
-      if (getDepth(result) < lowestDepth) {
-        singleDepthLower = true;
-        singleResult = result;
-        lowestDepth = getDepth(result);
-      } else if (getDepth(result) == lowestDepth) {
-        singleDepthLower = false;
-      }
-    }
-
-    if (singleDepthLower) {
-      return singleResult;
-    }
-
-    return null;
-  }
 
   private String processDisorderConceptWordInSingleResult(Set<ICD11MatcherSctConcept> fsConcepts,
     ICD11MatcherSctConcept sctCon, Set<String> findingSiteNames, List<String> results)
@@ -347,49 +315,6 @@ public class NeoplasmMatchRules extends AbstractMatchRules{
     return leastResult;
   }
 
-  private String processDepthCriteria(ICD11MatcherSctConcept sctCon,
-    Set<ICD11MatcherSctConcept> fsConcepts, Set<String> findingSiteNames, List<String> results)
-    throws Exception {
-    /*
-     * with stopping to concern b/w two different depths, just identify lowest
-     * depth items // ProcessUnspecifiedHigherLevelThanSingleSpecific int
-     * lowestUnspecifiedLevel = 100; int lowestSpecificLevel = 100; for (String
-     * result : results) { int depth = Integer.parseInt(result.split("\t")[3]);
-     * 
-     * if (resultTypeMap.get(NOT_UNSPECIFIED).contains(result)) { if (depth <=
-     * lowestSpecificLevel) { lowestSpecificLevel = depth; } } else { if (depth
-     * <= lowestUnspecifiedLevel) { lowestUnspecifiedLevel = depth; } } }
-     */
-
-    // ProcessUnspecifiedHigherLevelThanSingleSpecific
-    List<String> lowestMatches = new ArrayList<>();
-
-    int lowestDepth = 100;
-    int lowestMatchCount = 0;
-    for (String result : results) {
-      int depth = getDepth(result);
-
-      if (depth < lowestDepth) {
-        lowestDepth = depth;
-        lowestMatches.clear();
-        lowestMatches.add(result);
-        lowestMatchCount = 1;
-      } else if (depth == lowestDepth) {
-        lowestMatches.add(result);
-        lowestMatchCount++;
-      }
-    }
-
-    // Commenting out b/c with new rules, this commented out check shouldn't be
-    // an issue
-    // if (lowestSpecificLevel < lowestUnspecifiedLevel) {
-    if (lowestMatchCount != results.size()) {
-      return processAllMatchingRules(lowestMatches, sctCon, fsConcepts, findingSiteNames);
-    }
-
-    return null;
-  }
-
   private String processInitialUnspecifiedTypes(ICD11MatcherSctConcept sctCon,
     Set<ICD11MatcherSctConcept> fsConcepts, Set<String> findingSiteNames, List<String> results)
     throws Exception {
@@ -618,10 +543,5 @@ public class NeoplasmMatchRules extends AbstractMatchRules{
         resultTypeMap.get(NOT_UNSPECIFIED).add(result);
       }
     }
-  }
-
-  private int getDepth(String result) {
-    System.out.println(result);
-    return Integer.parseInt(result.split("\t")[depthLocation - 1]);
   }
 }

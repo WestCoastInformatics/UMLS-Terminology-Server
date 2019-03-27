@@ -1,4 +1,4 @@
-package com.wci.umls.server.mojo.analysis.matching.rules;
+package com.wci.umls.server.mojo.analysis.matching;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,8 +16,8 @@ import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
-import com.wci.umls.server.mojo.analysis.matching.ICD11MatchingConstants;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
+import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
 import com.wci.umls.server.mojo.processes.FindingSiteUtility;
 import com.wci.umls.server.mojo.processes.ICD11MatcherConceptSearcher;
 import com.wci.umls.server.rest.client.ContentClientRest;
@@ -78,7 +78,7 @@ public abstract class AbstractICD11MatchingRule {
 
     BufferedReader reader;
     topLevelConcepts.add(ICD11MatchingConstants.SNOMED_ROOT_CONCEPT);
-    System.out.println("About to read in the Trans Closure file. This will take some time...");
+    System.out.println("About to read in the Trans Closure file. This will take about 30 seconds...");
 
     try {
       reader = new BufferedReader(new FileReader(tcInputFilePath));
@@ -94,7 +94,8 @@ public abstract class AbstractICD11MatchingRule {
         }
         transClosureMap.get(columns[0]).put(columns[1], Integer.parseInt(columns[2]));
 
-        if (columns[0].equals(ICD11MatchingConstants.SNOMED_ROOT_CONCEPT)
+        // Include top level concepts as well as children of body strcture to obtain better results
+        if ((columns[0].equals(ICD11MatchingConstants.SNOMED_ROOT_CONCEPT) || (columns[0].equals(ICD11MatchingConstants.BODY_STRUCTURE)))
             && Integer.parseInt(columns[2]) == 1) {
           topLevelConcepts.add(columns[1]);
         }
@@ -170,16 +171,18 @@ public abstract class AbstractICD11MatchingRule {
    */
   abstract protected boolean isRuleMatch(SearchResult result);
 
-  abstract public String getRuleName();
+  abstract public String getRuleId();
 
   abstract protected ICD11MatcherSctConcept getTopLevelConcept();
 
-  public abstract Object executeRule(ICD11MatcherSctConcept sctCon, int counter) throws Exception;
+  public abstract Set<String> executeRule(ICD11MatcherSctConcept sctCon, int counter) throws Exception;
 
   abstract public void preTermProcessing(ICD11MatcherSctConcept sctCon) throws Exception;
 
   abstract protected String getRuleQueryString();
-  
+
+  abstract protected Set<String> getRuleBasedNonMatchTerms();
+
   protected String getEclTopLevelDesc() {
     return null;
   }
@@ -237,7 +240,19 @@ public abstract class AbstractICD11MatchingRule {
         throw new Exception("Couldn't match ECL Concept: " + getEclTopLevelDesc());
       }
       
-      
+      PfsParameterJpa pfsEcl = new PfsParameterJpa();
+      // Make ECL Query
+      pfsEcl .setExpression("<< " + topLevelEclConcept.getTerminologyId());
+
+      final SearchResultList eclResults =
+          client.findConcepts(targetTerminology, targetVersion, null, pfsEcl, authToken);
+      System.out.println("With ICD11 ECL, have: " + eclResults.getObjects().size());
+
+      for (SearchResult result : eclResults.getObjects()) {
+        // Get Desc
+        icd11Targets.getObjects().add(result);
+        icd11Targets.setTotalCount(icd11Targets.getTotalCount() + 1);
+      }
     }
   }
 
@@ -259,10 +274,6 @@ public abstract class AbstractICD11MatchingRule {
     Set<String> tokensToAdd = new HashSet<>();
     for (int i = 0; i < splitString.length; i++) {
       if (!splitString[i].trim().isEmpty() && splitString[i].trim().length() != 1) {
-
-        if (snomedToIcdSynonymMap.keySet().contains(splitString[i].trim().toLowerCase())) {
-          tokensToAdd.add(snomedToIcdSynonymMap.get(splitString[i].trim().toLowerCase()));
-        }
         retStrings.add(splitString[i].trim());
       }
     }
@@ -304,6 +315,52 @@ public abstract class AbstractICD11MatchingRule {
   }
 
   public String getRulePath(String matcherName) {
-    return "results" + File.separator + matcherName + File.separator + getRuleName();
+    return "results" + File.separator + matcherName + File.separator + getRuleId();
+  }
+
+  protected String cleanDescription(String origString, Set<String> ruleBasedTerms) {
+    String desc = origString.toLowerCase();
+    Set<String> termsToRemove = new HashSet<String>(ICD11MatchingConstants.NON_MATCHING_TERMS);
+    termsToRemove.addAll(ruleBasedTerms);
+    
+    for (String key : termsToRemove) {
+      if (desc.matches(".*\\b" + key + "es\\b.*")) {
+        desc = desc.replaceAll(key + "es", "");
+      }
+      if (desc.matches(".*\\b" + key + "s\\b.*")) {
+        desc = desc.replaceAll(key + "s", "");
+      }
+      if (desc.matches(".*\\b" + key + "\\b.*")) {
+        desc = desc.replaceAll(key, "");
+      }
+      
+      desc = desc.replaceAll(" {2,}", " ");
+    }
+
+    return desc.trim();
+  }
+
+  protected Set<String> createICD11SearchStrings(ICD11MatcherSctConcept sctCon) {
+    Set<String> descsToProcess = new HashSet<>();
+
+    for (SctNeoplasmDescription fullDesc : sctCon.getDescs()) {
+      String desc = "";
+      String[] splitString =
+          FieldedStringTokenizer.split(fullDesc.getDescription().toLowerCase(), " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
+      for (int i = 0; i < splitString.length; i++) {
+        desc += splitString[i] + " ";
+      }
+      
+      desc = cleanDescription(desc.toLowerCase().trim(), getRuleBasedNonMatchTerms());
+      descsToProcess.add(desc);
+
+      for (String key : snomedToIcdSynonymMap.keySet()) {
+        if (desc.matches(".*\\b" + key + "\\b.*")) {
+          desc = desc.replaceAll("\\b" + key + "\\b", snomedToIcdSynonymMap.get(key));
+          descsToProcess.add(desc);
+        }
+      }
+    }
+    return descsToProcess;
   }
 }

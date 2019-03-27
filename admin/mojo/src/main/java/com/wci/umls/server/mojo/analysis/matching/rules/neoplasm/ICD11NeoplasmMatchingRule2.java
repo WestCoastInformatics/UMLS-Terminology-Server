@@ -29,7 +29,7 @@ public class ICD11NeoplasmMatchingRule2 extends AbstractNeoplasmICD11MatchingRul
   }
 
   @Override
-  public String getRuleName() {
+  public String getRuleId() {
     return "rule2";
   }
 

@@ -15,33 +15,36 @@
  */
 package com.wci.umls.server.mojo.analysis.matching.rules.generic;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.mojo.analysis.matching.ICD11MatchingConstants;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.rest.client.ContentClientRest;
 
-public class ICD11GenericMatchingRule2 extends AbstractGenericICD11MatchingRule {
+public class ICD11GenericMatchingRule4a extends AbstractGenericICD11MatchingRule {
 
-  public ICD11GenericMatchingRule2(ContentClientRest client, String st, String sv, String tt,
+  public ICD11GenericMatchingRule4a(ContentClientRest client, String st, String sv, String tt,
       String tv, String authToken) {
     super(client, st, sv, tt, tv, authToken);
   }
 
   @Override
   public String getRuleId() {
-    return "rule2";
+    return "rule4a";
   }
 
   @Override
   public String getDescription() {
-    return "ECL Based: All descendents of 'Mycobacteriosis' connecting them to the ICD11 'Mycobacterial diseases' i.e. anything containing 'mycobacterial'";
+    return "ECL Based: All descendents of 'Viral infection of central nervous system' connecting them to the ICD11 'Viral infections of the central nervous system' i.e. any code starting with '1C8'";
   }
 
   @Override
   public String getEclExpression() {
-    return "<< 88415009";
+    return "<< 302810003";
   }
 
   @Override
@@ -51,7 +54,7 @@ public class ICD11GenericMatchingRule2 extends AbstractGenericICD11MatchingRule 
 
   @Override
   public String getDefaultTarget() {
-    return "1B2Y\tOther specified mycobacterial diseases";
+    return "2E6Y\tCarcinoma in situ of other specified site";
   }
 
   @Override
@@ -61,7 +64,7 @@ public class ICD11GenericMatchingRule2 extends AbstractGenericICD11MatchingRule 
 
   @Override
   protected String getRuleQueryString() {
-    return "\"mycobacterial\"";
+    return "(atoms.codeId: 1C8*)";
   }
 
   @Override
@@ -71,8 +74,8 @@ public class ICD11GenericMatchingRule2 extends AbstractGenericICD11MatchingRule 
 
   @Override
   protected boolean isRuleMatch(SearchResult result) {
-    if (result.getValue().toLowerCase().matches(".*\\bmycobacterial\\b.*")
-        && !result.getCodeId().startsWith("X") && result.isLeafNode()) {
+    if (result.getCodeId().startsWith("1C8")
+        && result.isLeafNode()) {
       return true;
     }
 
@@ -95,5 +98,21 @@ public class ICD11GenericMatchingRule2 extends AbstractGenericICD11MatchingRule 
     }
 
     return findingSiteCache.get(queryPortion);
+  }
+  
+
+  @Override
+  public Set<String> executeRule(ICD11MatcherSctConcept sctCon, int counter) throws Exception {
+
+    Set<String> results = new HashSet<>();
+    matchNextConcept(sctCon, counter);
+
+    results = matchApproachBaseMatch(sctCon, results, icd11Targets, ICD11MatchingConstants.FILTERED_RULE_TYPE);
+    
+    if (results.isEmpty()) {
+      results = matchApproachBaseSearch(sctCon, results, icd11Targets, ICD11MatchingConstants.FILTERED_RULE_TYPE);
+    }
+   
+    return results;
   }
 }

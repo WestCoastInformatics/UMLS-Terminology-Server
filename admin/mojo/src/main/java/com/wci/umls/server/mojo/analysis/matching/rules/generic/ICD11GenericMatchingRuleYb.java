@@ -31,7 +31,7 @@ public class ICD11GenericMatchingRuleYb extends AbstractGenericICD11MatchingRule
 
   @Override
   
-  public String getRuleName() {
+  public String getRuleId() {
     return "rule8";
   }
 

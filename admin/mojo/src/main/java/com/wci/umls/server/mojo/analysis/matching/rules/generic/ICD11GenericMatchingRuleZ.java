@@ -30,7 +30,7 @@ public class ICD11GenericMatchingRuleZ extends AbstractGenericICD11MatchingRule 
   }
   
   @Override
-  public String getRuleName() {
+  public String getRuleId() {
     return "rule5";
   }
   

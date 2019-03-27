@@ -16,21 +16,24 @@
 package com.wci.umls.server.mojo.analysis.matching;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 
-import com.wci.umls.server.mojo.analysis.matching.rules.AbstractICD11MatchingRule;
 import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.AbstractNeoplasmICD11MatchingRule;
 import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.ICD11NeoplasmMatchingRule1;
 import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.ICD11NeoplasmMatchingRule2;
 import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.ICD11NeoplasmMatchingRule4;
 import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.ICD11NeoplasmMatchingRule5;
 import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.ICD11NeoplasmMatchingRule6;
+import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.ICD11NeoplasmMatchingRule7;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.processes.FindingSiteUtility;
 import com.wci.umls.server.mojo.processes.ICD11MatcherConceptSearcher;
@@ -65,7 +68,7 @@ public class ICD11NeoplasmMatchingMojo extends AbstractICD11MatchingMojo {
     fsUtility.setConceptSearcher(conceptSearcher);
 
     AbstractNeoplasmICD11MatchingRule.setFindingSiteUtility(fsUtility);
-    matchingRules = new NeoplasmMatchRules(fsUtility);
+    matchingRules = new NeoplasmMatchRules(fsUtility, getDepthLocation());
 
     Set<AbstractICD11MatchingRule> rulesToProcess = defineRulesToProcess();
 
@@ -118,6 +121,9 @@ public class ICD11NeoplasmMatchingMojo extends AbstractICD11MatchingMojo {
       } else if (Integer.parseInt(rules[i]) == 6) {
         rule = new ICD11NeoplasmMatchingRule6(client, sourceTerminology, sourceVersion, targetTerminology,
             targetVersion, authToken);
+      } else if (Integer.parseInt(rules[i]) == 7) {
+        rule = new ICD11NeoplasmMatchingRule7(client, sourceTerminology, sourceVersion, targetTerminology,
+            targetVersion, authToken);
       }
 
       if (rule != null) {
@@ -128,83 +134,64 @@ public class ICD11NeoplasmMatchingMojo extends AbstractICD11MatchingMojo {
     return rulesToProcess;
   }
 
+  /**
+   * Clean results for terminologist.
+   * 
+   * Only return one line per code and make that line the one with the lowest
+   * depth
+   * 
+   * @param results the str
+   * @return the string buffer
+   */
+  protected List<String> cleanResultsForTerminologist(Set<String> results) {
+    Map<String, Set<String>> sortedIdsMap = new TreeMap<>();
+    // Sort lines by code
+    for (String line : results) {
+      String[] columns = line.split("\t");
 
-  protected void postTermProcessing(AbstractICD11MatchingRule rule, ICD11MatcherSctConcept sctCon,
-    Object resultObj, List<String> noMatchList, int counter, int totalConcepts)
-    throws Exception {
-    String resultString = (String)resultObj;
-    
-    if (resultString != null && !resultString.isEmpty()) {
-      // System.out.println(resultString + "");
-
-      String singleResponse = identifySingleResult(sctCon, rule, resultString);
-
-      if (singleResponse == null) {
-        StringBuffer devBuf = new StringBuffer();
-        StringBuffer termBuf = new StringBuffer();
-        devBuf.append("\tCouldn't discern between the following options");
-        termBuf.append("\tCouldn't discern between the following options\n");
-
-        List<String> termResults = cleanResultsForTerminologist(resultString);
-
-        String[] results = resultString.split("\n");
-        for (int i = 0; i < results.length; i++) {
-          devBuf.append("\t" + results[i] + "\n");
+      if (columns.length > 4) {
+        if (!sortedIdsMap.containsKey(columns[1])) {
+          sortedIdsMap.put(columns[1], new HashSet<String>());
         }
 
-        for (String r : termResults) {
-          termBuf.append("\t" + r + "\n");
-        }
-
-        devBuf.append("\n");
-        termBuf.append("\n");
-
-        System.out.println(devBuf.toString());
-        rule.getDevWriter().println(devBuf.toString());
-        rule.getTermWriter().println(termBuf.toString());
-      } else {
-        if (singleResponse.startsWith("\t")) {
-          singleResponse = singleResponse.substring(1);
-        }
-        rule.getDevWriter().println(resultString);
-        rule.getDevWriter().println("\tSelected Response: " + singleResponse);
-        rule.getDevWriter().println();
-        rule.getDevWriter().println();
-
-        System.out.println("\n\nSelected Response: " + singleResponse);
-        System.out.println();
-        System.out.println();
-        
-        rule.getTermWriter().println("\t" + singleResponse);
-        rule.getTermWriter().println();
-        rule.getTermWriter().println();
+        sortedIdsMap.get(columns[1]).add(line);
       }
-    } else {
-      // No matches
-      String outputString =
-          "\t" + rule.getDefaultTarget() + "\tNo direct match. Using default target\n\n";
-      rule.getDevWriter().println(outputString);
-      rule.getTermWriter().println(outputString);
-
-      noMatchList.add(sctCon.getConceptId() + "\t" + sctCon.getName());
     }
 
-    if (counter % 10 == 0) {
-      rule.getDevWriter().flush();
-      rule.getTermWriter().flush();
-    }
-    if (counter % 25 == 0) {
-      System.out.println("Have completed " + counter + " out of " + totalConcepts);
+    List<String> linesToPrint = new ArrayList<>();
+    for (String conId : sortedIdsMap.keySet()) {
+      String lineToPrint = null;
+      int lowestDepth = 1000;
+      for (String line : sortedIdsMap.get(conId)) {
+        String[] columns = line.split("\t");
+
+        if (Integer.parseInt(columns[getDepthLocation()]) < lowestDepth) {
+          lowestDepth = Integer.parseInt(columns[getDepthLocation()]);
+          
+          lineToPrint =
+              "\t" + columns[1] + "\t" + columns[2] + "\t" + columns[3] + "\t" + columns[4];
+          
+          if (getDepthLocation() == 5) {
+            lineToPrint = lineToPrint + "\t" + columns[5];
+          }
+          
+          lineToPrint = lineToPrint + "\n";
+        }
+      }
+
+      linesToPrint.add(lineToPrint.trim());
     }
 
+    return linesToPrint;
   }
 
+  @Override
   protected String identifySingleResult(ICD11MatcherSctConcept sctCon, AbstractICD11MatchingRule rule,
-    String resultString) throws Exception {
+    Set<String> results) throws Exception {
 
-    List<String> results = cleanResultsForTerminologist(resultString);
+    List<String> cleanedResults = cleanResultsForTerminologist(results);
     System.out.println("\nMatches: ");
-    for (String r : results) {
+    for (String r : cleanedResults) {
       System.out.println(r);
     }
 
@@ -215,7 +202,12 @@ public class ICD11NeoplasmMatchingMojo extends AbstractICD11MatchingMojo {
       findingSiteNames.add(con.getName());
     }
 
-    /* Multiple results, select one */
-    return matchingRules.processAllMatchingRules(results, sctCon, findingSites, findingSiteNames);
+    /* Multiple cleanedResults, select one */
+    return matchingRules.processAllMatchingRules(cleanedResults, sctCon, findingSites, findingSiteNames);
+  }
+
+  @Override
+  public int getDepthLocation() {
+    return  ICD11MatchingConstants.DEPTH_LOCATION_NEOPLASM;
   }
 }

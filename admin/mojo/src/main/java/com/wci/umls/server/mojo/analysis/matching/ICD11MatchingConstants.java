@@ -8,6 +8,8 @@ public class ICD11MatchingConstants {
 
   public static final String SNOMED_ROOT_CONCEPT = "138875005";
 
+  public static final Object BODY_STRUCTURE = "123037004";
+
   public static final String FILTERED_RULE_TYPE = "filtered";
 
   public static final String ALL_LEAFS_RULE_TYPE = "all leaf nodes";
@@ -19,12 +21,16 @@ public class ICD11MatchingConstants {
   public static final int ICD_COLUMN = 0;
 
   public static final int SNOMED_COLUMN = 1;
+  
+  public static final int DEPTH_LOCATION_NEOPLASM = 4;
+
+  public static final int DEPTH_LOCATION_GENERIC = 5;
 
   final public static List<String> NON_MATCHING_TERMS =
       Arrays.asList("of", "part", "structure", "system", "and/or", "and", "region", "area", "or",
           "the", "in", "cavity", "tract", "organ", "duct", "canal", "genitalia", "genital",
           "adnexa", "due", "to", "disease", "by", "caused", "left", "right", "upper", "lower", 
-          "tissue","body", "gland", "cell", "site");// ,
+          "tissue","body", "gland", "cell", "site", "with", "co-occurrent", "acquired", "in");// ,
   // "male",
   // "female");
 

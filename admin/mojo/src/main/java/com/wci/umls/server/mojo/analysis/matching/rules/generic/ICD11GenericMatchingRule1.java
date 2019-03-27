@@ -30,7 +30,7 @@ public class ICD11GenericMatchingRule1 extends AbstractGenericICD11MatchingRule 
   }
 
   @Override
-  public String getRuleName() {
+  public String getRuleId() {
     return "rule1";
   }
 
@@ -51,7 +51,7 @@ public class ICD11GenericMatchingRule1 extends AbstractGenericICD11MatchingRule 
 
   @Override
   public String getDefaultTarget() {
-    return "2E6Y\tCarcinoma in situ of other specified site";
+    return "1C62.Z\tHuman immunodeficiency virus disease without mention of associated disease or condition, clinical stage unspecified";
   }
 
   @Override

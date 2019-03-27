@@ -1,16 +1,17 @@
 package com.wci.umls.server.mojo.analysis.matching.rules.generic;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.mojo.analysis.matching.AbstractICD11MatchingRule;
 import com.wci.umls.server.mojo.analysis.matching.ICD11MatchingConstants;
-import com.wci.umls.server.mojo.analysis.matching.rules.AbstractICD11MatchingRule;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
-import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
 import com.wci.umls.server.mojo.processes.FindingSiteUtility;
 import com.wci.umls.server.rest.client.ContentClientRest;
 
@@ -23,7 +24,7 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
 
   protected Map<String, HashMap<String, String>> alreadyQueriedServerResultsCache = new HashMap<>();
 
-  protected Set<ICD11MatcherSctConcept> findingSiteCons;
+  protected Set<ICD11MatcherSctConcept> findingSiteCons = new HashSet<>();
 
   private static SearchResultList icd11AllTargets = null;
 
@@ -54,7 +55,8 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
    * @param counter the counter
    * @return the string buffer
    */
-  protected StringBuffer createSnomedConceptSearchedLine(ICD11MatcherSctConcept sctCon, int counter) {
+  protected StringBuffer createSnomedConceptSearchedLine(ICD11MatcherSctConcept sctCon,
+    int counter) {
 
     StringBuffer newConInfoStr = new StringBuffer();
     newConInfoStr.append("\n#" + counter + " Snomed Concept: " + sctCon.getName() + "\tSctId: "
@@ -82,68 +84,95 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
    * @param matchResultMap the match map
    * @param ruleNumber
    * @param results the str
+   * @return
    */
-  private void identifyBestMatch(Map<String, Integer> matchDepthMap,
-    Map<String, String> matchResultMap, String ruleType, Set<String> results) {
+  private Set<String> identifyBestMatch(Map<String, Integer> matchDepthMap,
+    Map<String, String> matchResultMap, String ruleType) {
     int lowestDepth = 10000;
     Set<String> lowestDepthStrings = new HashSet<>();
 
     for (String icdConId : matchDepthMap.keySet()) {
       if (matchDepthMap.get(icdConId) < lowestDepth) {
-        lowestDepthStrings.add(
-            "\n" + ruleType + matchResultMap.get(icdConId) + "\t" + matchDepthMap.get(icdConId));
+        /*
+         * Right now, all are of rule-type "filtered" so no need to print out
+         * 
+         * lowestDepthStrings.add( "\n" + ruleType +
+         * matchResultMap.get(icdConId) + "\t" + matchDepthMap.get(icdConId));
+         * 
+         */
+        lowestDepthStrings
+            .add(matchResultMap.get(icdConId));
       }
     }
 
+    Set<String> results = new HashSet<>();
     for (String s : lowestDepthStrings) {
       results.add(s);
     }
+
+    return results;
   }
 
-  protected void matchApproachBaseSearch(ICD11MatcherSctConcept sctCon, Set<String> results, SearchResultList targets, String ruleType)
-    throws Exception {
+  protected Set<String> matchApproachBaseSearch(ICD11MatcherSctConcept sctCon, Set<String> alreadyProcessedResults,
+    SearchResultList targets, String ruleType) throws Exception {
     Map<String, String> matchResultMap = new HashMap<>();
     Map<String, Integer> matchDepthMap = new HashMap<>();
     Map<String, Integer> lowestDepthMap = new HashMap<>();
 
     int depth = 0;
 
-    Set<String> descsToProcess = identifyDescs(sctCon);
+    Set<String> descsToProcess = createICD11SearchStrings(sctCon);
 
     for (String desc : descsToProcess) {
-      if (!alreadyQueriedServerResultsCache.keySet().contains(desc)) {
+      if (!alreadyQueriedServerResultsCache.keySet().contains(desc + "")) {
         alreadyQueriedServerResultsCache.put(desc, new HashMap<String, String>());
 
         SearchResultList matches = testMatchingFindingSite(desc);
         for (SearchResult match : matches.getObjects()) {
-          
-          if (ruleType.equals(ICD11MatchingConstants.FILTERED_RULE_TYPE) && isRuleMatch(match)) {
-            processBaseSearch(match, desc, depth, matchResultMap, matchDepthMap, lowestDepthMap);
-          } else if (!ruleType.equals(ICD11MatchingConstants.FILTERED_RULE_TYPE)) {
-            processBaseSearch(match, desc, depth, matchResultMap, matchDepthMap, lowestDepthMap);
+          if (!alreadyMatched(match.getCodeId(), alreadyProcessedResults)) {
+            if (ruleType.equals(ICD11MatchingConstants.FILTERED_RULE_TYPE) && isRuleMatch(match)) {
+              processBaseSearch(match, desc, depth, matchResultMap, matchDepthMap, lowestDepthMap);
+            } else if (!ruleType.equals(ICD11MatchingConstants.FILTERED_RULE_TYPE)) {
+              processBaseSearch(match, desc, depth, matchResultMap, matchDepthMap, lowestDepthMap);
+            }
           }
         }
       } else {
         for (String icd11ConId : alreadyQueriedServerResultsCache.get(desc).keySet()) {
-          if (!lowestDepthMap.keySet().contains(icd11ConId)
-              || depth < lowestDepthMap.get(icd11ConId)) {
-            lowestDepthMap.put(icd11ConId, depth);
-            matchResultMap.put(icd11ConId,
-                alreadyQueriedServerResultsCache.get(desc).get(icd11ConId));
-            matchDepthMap.put(icd11ConId, depth);
+          if (!alreadyMatched(icd11ConId, alreadyProcessedResults)) {
+            if (!lowestDepthMap.keySet().contains(icd11ConId)
+                || depth < lowestDepthMap.get(icd11ConId)) {
+              lowestDepthMap.put(icd11ConId, depth);
+              matchResultMap.put(icd11ConId,
+                  alreadyQueriedServerResultsCache.get(desc).get(icd11ConId));
+              matchDepthMap.put(icd11ConId, depth);
+            }
           }
         }
       }
     }
 
     if (!matchResultMap.isEmpty()) {
-      identifyBestMatch(matchDepthMap, matchResultMap, ruleType, results);
+      return identifyBestMatch(matchDepthMap, matchResultMap, ruleType);
     }
+    
+    return new HashSet<String>();
   }
 
-  private String processBaseSearch(SearchResult result, String desc, int depth, Map<String, String> matchResultMap, Map<String, Integer> matchDepthMap, Map<String, Integer> lowestDepthMap) {
-    String resultString = "\t" + result.getCodeId() + "\t" + result.getValue() + "\t" + desc
-        + "\t" + result.getScore();
+  private boolean alreadyMatched(String icd11ConId, Set<String> results) {
+    for (String result : results) {
+      if (result.toLowerCase().contains(icd11ConId.toLowerCase())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private String processBaseSearch(SearchResult result, String desc, int depth,
+    Map<String, String> matchResultMap, Map<String, Integer> matchDepthMap,
+    Map<String, Integer> lowestDepthMap) {
+    String resultString = "\t" + result.getCodeId() + "\t" + result.getValue() + "\t" + desc + "\t"
+        + result.getScore();
 
     if (!lowestDepthMap.keySet().contains(result.getCodeId())
         || depth < lowestDepthMap.get(result.getCodeId())) {
@@ -151,82 +180,55 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
       matchResultMap.put(result.getCodeId(), resultString);
       matchDepthMap.put(result.getCodeId(), depth);
     }
-    
+
     alreadyQueriedServerResultsCache.get(desc).put(result.getCodeId(), resultString);
 
     return resultString;
   }
 
-  protected void matchApproachBaseMatch(ICD11MatcherSctConcept sctCon, Set<String> results, SearchResultList targets, String ruleType) {
+  protected Set<String> matchApproachBaseMatch(ICD11MatcherSctConcept sctCon,
+    Set<String> alreadyProcessedResults, SearchResultList targets, String ruleType) {
     Map<String, String> matchResultMap = new HashMap<>();
-    Map<String, Integer> matchDepthMap = new HashMap<>();
-    Map<String, Integer> lowestDepthMap = new HashMap<>();
-    int depth = 0;
+    Map<String, Integer> matchTokensMap = new HashMap<>();
 
-    Set<String> descsToProcess = identifyDescs(sctCon);
-
-    for (String desc : descsToProcess) {
+    for (String desc : createICD11SearchStrings(sctCon)) {
+      Set<String> tokens = splitTokens(desc);
       for (SearchResult icd11Con : targets.getObjects()) {
-        if (icd11Con.getValue().toLowerCase().matches(".*\\b" + desc + "\\b.*")) {
+        if (!alreadyMatched(icd11Con.getCodeId(), alreadyProcessedResults)) {
+          int matches = 0;
 
-          String resultString = "\t" + icd11Con.getCodeId() + "\t" + icd11Con.getValue() + "\t"
-              + desc + "\t" + "N/A";
+          for (String token : tokens) {
+            if (icd11Con.getValue().toLowerCase().matches(".*\\b" + token + "\\b.*")) {
+              matches++;
+            }
+          }
 
-          // System.out.println(outputString);
-          if (!lowestDepthMap.keySet().contains(icd11Con.getCodeId())
-              || depth < lowestDepthMap.get(icd11Con.getCodeId())) {
-            lowestDepthMap.put(icd11Con.getCodeId(), depth);
-            matchResultMap.put(icd11Con.getCodeId(), resultString);
-            matchDepthMap.put(icd11Con.getCodeId(), depth);
+          // Only add it to the return results if all tokens found in
+          // icd11Concept
+          if (matches >= ((tokens.size() / 2) + (tokens.size() % 2)) ) {
+            String resultString = "\t" + icd11Con.getCodeId() + "\t" + icd11Con.getValue() + "\t"
+                + desc + "\t" + "N/A";
+
+            if (!matchTokensMap.keySet().contains(icd11Con.getCodeId()) || matchTokensMap.get(icd11Con.getCodeId()) < matches) {
+              matchResultMap.put(icd11Con.getCodeId(), resultString);
+              matchTokensMap.put(icd11Con.getCodeId(), matches);
+            }
           }
         }
       }
     }
 
-    if (!matchResultMap.isEmpty()) {
-      identifyBestMatch(matchDepthMap, matchResultMap, ruleType, results);
-    }
+    return new HashSet<String>(matchResultMap.values());
   }
 
   public SearchResultList getAllIcd11Targets() throws Exception {
     if (icd11AllTargets == null) {
-      icd11AllTargets = client.findConcepts(targetTerminology, targetVersion,
-          "", pfsLimitless, authToken);
+      icd11AllTargets =
+          client.findConcepts(targetTerminology, targetVersion, "", pfsLimitless, authToken);
       System.out.println("Have returned : " + icd11AllTargets.getTotalCount() + " objects");
     }
-    
-    return icd11AllTargets;  
-  }
 
-  private Set<String> identifyDescs(ICD11MatcherSctConcept sctCon) {
-    Set<String> descsToProcess = new HashSet<>();
-
-    for (SctNeoplasmDescription fullDesc : sctCon.getDescs()) {
-      String desc = fullDesc.getDescription().toLowerCase();
-      desc = fsUtility.cleanNonFindingSiteString(desc);
-
-      for (String key : ICD11MatchingConstants.NON_MATCHING_TERMS) {
-        if (desc.matches(".*\\b" + key + "es\\b.*")) {
-          desc = desc.replaceAll(key + "es", "");
-        }
-        if (desc.matches(".*\\b" + key + "s\\b.*")) {
-          desc = desc.replaceAll(key + "s", "");
-        }
-        if (desc.matches(".*\\b" + key + "\\b.*")) {
-          desc = desc.replaceAll(key, "");
-        }
-      }
-      desc = desc.replaceAll("\\s{2,}", " ");
-      descsToProcess.add(desc.trim());
-
-      for (String key : snomedToIcdSynonymMap.keySet()) {
-        if (desc.matches(".*\\b" + key + "\\b.*")) {
-          desc = desc.replaceAll(".*\\b\\w{0,}" + key + "\\w{0,}\\b.*", snomedToIcdSynonymMap.get(key));
-          descsToProcess.add(desc.trim());
-        }
-      }
-    }
-    return descsToProcess;
+    return icd11AllTargets;
   }
 
   public void preTermProcessing(ICD11MatcherSctConcept sctCon) throws Exception {
@@ -253,6 +255,11 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
     return false;
   }
 
+  @Override
+  protected Set<String> getRuleBasedNonMatchTerms() {
+    return new HashSet<>();
+  }
+
   /**
    * Execute generic rule.
    *
@@ -260,16 +267,20 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
    * @throws Exception the exception
    */
   @Override
-  public Object executeRule(ICD11MatcherSctConcept sctCon, int counter) throws Exception {
+  public Set<String> executeRule(ICD11MatcherSctConcept sctCon, int counter) throws Exception {
 
     Set<String> results = new HashSet<>();
     matchNextConcept(sctCon, counter);
 
-    matchApproachBaseMatch(sctCon, results, icd11Targets, ICD11MatchingConstants.FILTERED_RULE_TYPE);
-    matchApproachBaseSearch(sctCon, results, icd11Targets, ICD11MatchingConstants.FILTERED_RULE_TYPE);
-    
-    matchApproachBaseMatch(sctCon, results, getAllIcd11Targets(), ICD11MatchingConstants.ALL_LEAFS_RULE_TYPE);
-    matchApproachBaseSearch(sctCon, results, getAllIcd11Targets(), ICD11MatchingConstants.  ALL_LEAFS_RULE_TYPE);
+    matchApproachBaseMatch(sctCon, results, icd11Targets,
+        ICD11MatchingConstants.FILTERED_RULE_TYPE);
+    matchApproachBaseSearch(sctCon, results, icd11Targets,
+        ICD11MatchingConstants.FILTERED_RULE_TYPE);
+
+    matchApproachBaseMatch(sctCon, results, getAllIcd11Targets(),
+        ICD11MatchingConstants.ALL_LEAFS_RULE_TYPE);
+    matchApproachBaseSearch(sctCon, results, getAllIcd11Targets(),
+        ICD11MatchingConstants.ALL_LEAFS_RULE_TYPE);
 
     return results;
   }

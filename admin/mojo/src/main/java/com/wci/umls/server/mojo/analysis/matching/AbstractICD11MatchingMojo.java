@@ -24,11 +24,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -38,7 +36,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.mojo.analysis.AbstractContentAnalysisMojo;
 import com.wci.umls.server.mojo.analysis.SctConceptsContentAnalyzer;
-import com.wci.umls.server.mojo.analysis.matching.rules.AbstractICD11MatchingRule;
 import com.wci.umls.server.mojo.model.ICD11MatcherRelationship;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
@@ -46,6 +43,9 @@ import com.wci.umls.server.mojo.processes.ICD11MatcherConceptSearcher;
 
 @Mojo(name = "icd11-matcher", defaultPhase = LifecyclePhase.PACKAGE)
 public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisMojo {
+  private static final String UNABLE_TO_MATCH_HEADER =
+      "\tCouldn't discern between the following options\n";
+
   private final String neoplasmDescriptionsFile = "src\\main\\resources\\allNeoplasmDescs.txt";
 
   private final String nonIsaNeoplasmRelsFile = "src\\main\\resources\\nonIsaNeoplasmRels.txt";
@@ -55,12 +55,6 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
 
   /** The output file path. */
   protected String outputFilePath;
-
-  /** The analysis. */
-  protected boolean analysis = false;
-
-  /** The testing. */
-  protected boolean testing = false;
 
   /** The max count. */
   protected int maxCount = 5;
@@ -88,7 +82,7 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
 
   protected Set<SearchResult> icd11Targets;
 
-  protected NeoplasmMatchRules matchingRules;
+  protected AbstractMatchRules matchingRules;
 
   protected String matcher;
 
@@ -97,11 +91,11 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
   abstract protected void setupContentParsers(AbstractICD11MatchingRule rule) throws IOException;
 
   abstract protected String identifySingleResult(ICD11MatcherSctConcept sctCon,
-    AbstractICD11MatchingRule rule, String resultString) throws Exception;
+    AbstractICD11MatchingRule rule, Set<String> results) throws Exception;
 
-  abstract protected void postTermProcessing(AbstractICD11MatchingRule rule,
-    ICD11MatcherSctConcept sctCon, Object results, List<String> noMatchList, int counter,
-    int totalConcepts) throws Exception;
+  abstract protected int getDepthLocation();
+
+  abstract protected List<String> cleanResultsForTerminologist(Set<String> results);
 
   /*
    * (non-Javadoc)
@@ -117,7 +111,6 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
       this.matcher = matcher;
       setup(matcher, st, sv, tt, tv);
       getLog().info("  maxCount = " + maxCount);
-      getLog().info("  analysis = " + analysis);
 
       /*
        * Error Checking
@@ -139,24 +132,20 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
         Map<String, ICD11MatcherSctConcept> snomedConcepts = preRuleProcessing(rule);
         List<String> noMatchList = new ArrayList<>();
 
-        // if (!analysis) {
         int counter = 0;
 
         // Process Terms
         for (ICD11MatcherSctConcept sctCon : snomedConcepts.values()) {
 
-          // if (counter >= 6) { break; }
+          // if (counter >= 15) { break; }
 
           rule.preTermProcessing(sctCon);
 
-          Object results = rule.executeRule(sctCon, ++counter);
+          Set<String> results = rule.executeRule(sctCon, ++counter);
 
           postTermProcessing(rule, sctCon, results, noMatchList, counter, snomedConcepts.size());
         }
-        /*
-         * } else { snomedConcepts = populateConceptsFromFiles();
-         * printOutNonIsaRels(snomedConcepts); }
-         */
+
         postRuleProcessing(rule, noMatchList);
       }
     } catch (Exception e) {
@@ -167,19 +156,16 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
 
   private Map<String, ICD11MatcherSctConcept> preRuleProcessing(AbstractICD11MatchingRule rule)
     throws Exception {
-    getLog().info("\n\n\n**************************\nNow Processing\n" + rule.getRuleName()
+    getLog().info("\n\n\n**************************\nNow Processing\n" + rule.getRuleId()
         + " Matching Mojo\n" + rule.getDescription() + "\n**************************\n");
 
     /*
      * Start Processing rule
      */
     rule.setDevWriter(
-        prepareResultsFile(rule.getRuleName(), "developerResults", "ICD11 Matching Results"));
+        prepareResultsFile(rule.getRuleId(), "developerResults", "ICD11 Matching Results"));
     rule.setTermWriter(
-        prepareResultsFile(rule.getRuleName(), "terminologistResults", "ICD11 Matching Results"));
-
-    // New rule processing preparation
-    // if (!analysis) {
+        prepareResultsFile(rule.getRuleId(), "terminologistResults", "ICD11 Matching Results"));
 
     // setup parser
     setupContentParsers(rule);
@@ -188,8 +174,7 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
 
     // Identify ICD11 Targets
     rule.identifyIcd11Targets();
-    System.out.println("Have " + rule.getTargetSize() + " concepts to process");
-    System.out.println("Have " + snomedConcepts.size() + " concepts to process");
+    System.out.println("Have " + snomedConcepts.size() + " SNOMED concepts to process");
 
     matchingRules.setRule(rule);
 
@@ -215,8 +200,13 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
       populatedCons.put(con.getConceptId(), popCon);
 
       if (counter % 50 == 0) {
-        getLog().info("Have processed " + counter + " out of " + snomedConcepts.values().size()
-            + " concepts");
+        if (counter == 0) {
+          getLog().info("Calling terminology server to populate the "
+              + snomedConcepts.values().size() + " SCT concepts.");
+        } else {
+          getLog().info("Have processed " + counter + " out of " + snomedConcepts.values().size()
+              + " concepts");
+        }
       }
 
       counter++;
@@ -336,51 +326,94 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
     return concepts;
   }
 
-  /**
-   * Clean results for terminologist.
-   * 
-   * Only return one line per code and make that line the one with the lowest
-   * depth
-   * 
-   * @param resultString the str
-   * @return the string buffer
-   */
-  protected List<String> cleanResultsForTerminologist(String resultString) {
-    String[] lines = resultString.toString().split("\n");
+  protected void postTermProcessing(AbstractICD11MatchingRule rule, ICD11MatcherSctConcept sctCon,
+    Set<String> results, List<String> noMatchList, int counter, int totalConcepts)
+    throws Exception {
+    if (results != null && !results.isEmpty()) {
+      String singleResponse = identifySingleResult(sctCon, rule, results);
 
-    Map<String, Set<String>> sortedIdsMap = new TreeMap<>();
-    // Sort lines by code
-    for (String line : lines) {
-      String[] columns = line.split("\t");
-
-      if (columns.length > 4) {
-        if (!sortedIdsMap.containsKey(columns[1])) {
-          sortedIdsMap.put(columns[1], new HashSet<String>());
-        }
-
-        sortedIdsMap.get(columns[1]).add(line);
+      if (singleResponse == null) {
+        printWithNoSingleResponse(results, rule);
+      } else {
+        printWithSingleResponse(singleResponse, results, rule);
       }
+    } else {
+      printWithNoMatches(noMatchList, rule, sctCon);
     }
 
-    List<String> linesToPrint = new ArrayList<>();
-    for (String conId : sortedIdsMap.keySet()) {
-      String lineToPrint = null;
-      int lowestDepth = 1000;
-      for (String line : sortedIdsMap.get(conId)) {
-        String[] columns = line.split("\t");
-
-        if (Integer.parseInt(columns[4]) < lowestDepth) {
-          lowestDepth = Integer.parseInt(columns[4]);
-          lineToPrint =
-              "\t" + columns[1] + "\t" + columns[2] + "\t" + columns[3] + "\t" + columns[4] + "\n";
-          ;
-        }
-      }
-
-      linesToPrint.add(lineToPrint.trim());
+    if (counter % 5 == 0) {
+      rule.getDevWriter().flush();
+      rule.getTermWriter().flush();
+    }
+    if (counter % 25 == 0) {
+      System.out.println("Have completed " + counter + " out of " + totalConcepts);
     }
 
-    return linesToPrint;
+  }
+
+  private void printWithNoMatches(List<String> noMatchList, AbstractICD11MatchingRule rule,
+    ICD11MatcherSctConcept sctCon) {
+    // No matches
+    String outputString =
+        "\t" + rule.getDefaultTarget() + "\tNo direct match. Using default target\n\n";
+    rule.getDevWriter().println(outputString);
+    rule.getTermWriter().println(outputString);
+
+    noMatchList.add(sctCon.getConceptId() + "\t" + sctCon.getName());
+  }
+
+  private void printWithNoSingleResponse(Set<String> results, AbstractICD11MatchingRule rule) {
+    StringBuffer devBuf = new StringBuffer();
+    StringBuffer termBuf = new StringBuffer();
+    devBuf.append(UNABLE_TO_MATCH_HEADER);
+    termBuf.append(UNABLE_TO_MATCH_HEADER);
+
+    List<String> termResults = cleanResultsForTerminologist(results);
+
+    for (String result : results) {
+      devBuf.append(result + "\n");
+    }
+
+    for (String result : termResults) {
+      termBuf.append(result + "\n");
+    }
+
+    devBuf.append("\n");
+    termBuf.append("\n");
+
+    System.out.println(devBuf.toString());
+    rule.getDevWriter().println(devBuf.toString());
+    rule.getTermWriter().println(termBuf.toString());
+  }
+
+  private void printWithSingleResponse(String singleResponse, Set<String> results,
+    AbstractICD11MatchingRule rule) {
+    if (singleResponse.startsWith("\t")) {
+      singleResponse = singleResponse.substring(1);
+    }
+    if (singleResponse.startsWith("\n")) {
+      singleResponse = singleResponse.substring(1);
+    }
+    System.out.println("\n\nSelected Response: " + singleResponse);
+    System.out.println();
+    System.out.println();
+
+    for (String result : results) {
+      if (result.startsWith("\t")) {
+        result = result.substring(1);
+      }
+      if (result.startsWith("\n")) {
+        result = result.substring(1);
+      }
+      rule.getDevWriter().print("\n" + result);
+    }
+    rule.getDevWriter().println("\n\tSelected Response: " + singleResponse);
+    rule.getDevWriter().println();
+    rule.getDevWriter().println();
+
+    rule.getTermWriter().println("\t" + singleResponse);
+    rule.getTermWriter().println();
+    rule.getTermWriter().println();
   }
 
   private void postRuleProcessing(AbstractICD11MatchingRule rule, List<String> noMatchList) {
@@ -402,13 +435,11 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
     AbstractICD11MatchingRule rule) throws Exception {
     Map<String, ICD11MatcherSctConcept> snomedConcepts = new HashMap<>();
 
-/*  
-    snomedConcepts = populateTestConcept(Arrays.asList(
+    snomedConcepts = populateTestConcept(Arrays.asList( 
         // "92666004",
-        // "723164006",
-        "723164006"));
-*/
-    
+         "203282002", 
+        "186200004"));
+
     if (snomedConcepts.isEmpty()) {
       // Get ECL Results
       if (rule.getEclExpression() != null) {
@@ -421,7 +452,7 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
           snomedConcepts = populateContent(snomedConcepts);
 
           // Generate outputFile for future calls
-          generateFiles(snomedConcepts, rule.getRuleName());
+          generateFiles(snomedConcepts, rule.getRuleId());
         }
 
       } else {

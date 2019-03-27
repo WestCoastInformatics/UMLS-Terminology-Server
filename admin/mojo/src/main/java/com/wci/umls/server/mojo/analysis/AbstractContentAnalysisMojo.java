@@ -25,9 +25,9 @@ import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.mojo.analysis.matching.rules.AbstractICD11MatchingRule;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
+import com.wci.umls.server.mojo.analysis.matching.AbstractICD11MatchingRule;
 import com.wci.umls.server.mojo.model.ICD11MatcherRelationship;
 import com.wci.umls.server.mojo.processes.ICD11MatcherConceptSearcher;
 import com.wci.umls.server.mojo.processes.SctNeoplasmDescriptionParser;
@@ -340,7 +340,7 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
 
     final SearchResultList eclResults =
         client.findConcepts(sourceTerminology, sourceVersion, null, pfsEcl, authToken);
-    getLog().info("With ECL, have: " + eclResults.getObjects().size());
+    getLog().info("With SCT ECL, have: " + eclResults.getObjects().size());
 
     for (SearchResult result : eclResults.getObjects()) {
       // Get Desc
@@ -361,10 +361,12 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
     for (String conId : conIdList) {
       ICD11MatcherSctConcept con = new ICD11MatcherSctConcept(conId, null);
 
-      con.setDescs(descParser.getNeoplasmDescs(con));
-      con.setRels(relParser.getNeoplasmRels(con));
+      con.setDescs(descParser.getDescriptions(con));
+      con.setRels(relParser.getRelationships(con));
 
-      con.setName(con.getDescs().iterator().next().getDescription());
+      if (con.getDescs() != null) {
+        con.setName(con.getDescs().iterator().next().getDescription());
+      }
 
       concepts.put(conId, con);
     }

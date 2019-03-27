@@ -16,6 +16,7 @@
 package com.wci.umls.server.mojo.analysis.matching;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -27,13 +28,12 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 
-import com.wci.umls.server.mojo.analysis.matching.rules.AbstractICD11MatchingRule;
 import com.wci.umls.server.mojo.analysis.matching.rules.generic.AbstractGenericICD11MatchingRule;
-import com.wci.umls.server.mojo.analysis.matching.rules.generic.ICD11GenericMatchingRule1;
-import com.wci.umls.server.mojo.analysis.matching.rules.generic.ICD11GenericMatchingRule2;
-import com.wci.umls.server.mojo.analysis.matching.rules.generic.ICD11GenericMatchingRule3;
-import com.wci.umls.server.mojo.analysis.matching.rules.generic.ICD11GenericMatchingRule4;
-import com.wci.umls.server.mojo.analysis.matching.rules.generic.ICD11GenericMatchingRule5;
+import com.wci.umls.server.mojo.analysis.matching.rules.generic.ICD11GenericMatchingRule1a;
+import com.wci.umls.server.mojo.analysis.matching.rules.generic.ICD11GenericMatchingRule2a;
+import com.wci.umls.server.mojo.analysis.matching.rules.generic.ICD11GenericMatchingRule3a;
+import com.wci.umls.server.mojo.analysis.matching.rules.generic.ICD11GenericMatchingRule4a;
+import com.wci.umls.server.mojo.analysis.matching.rules.generic.ICD11GenericMatchingRule5a;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.processes.FindingSiteUtility;
 import com.wci.umls.server.mojo.processes.ICD11MatcherConceptSearcher;
@@ -44,6 +44,8 @@ public class ICD11GenericMatchingMojo extends AbstractICD11MatchingMojo {
 
   protected final String MATCHER_NAME = "icd11-generic-matcher";
 
+  private final int SCORE_COLUMN = 4; 
+  
   /*
    * (non-Javadoc)
    * 
@@ -70,7 +72,7 @@ public class ICD11GenericMatchingMojo extends AbstractICD11MatchingMojo {
     fsUtility.setConceptSearcher(conceptSearcher);
 
     AbstractGenericICD11MatchingRule.setFindingSiteUtility(fsUtility);
-    matchingRules = new NeoplasmMatchRules(fsUtility);
+    matchingRules = new GenericMatchRules(fsUtility);
 
     Set<AbstractICD11MatchingRule> rulesToProcess = defineRulesToProcess();
 
@@ -105,19 +107,19 @@ public class ICD11GenericMatchingMojo extends AbstractICD11MatchingMojo {
     for (int i = 0; i < rules.length; i++) {
       AbstractGenericICD11MatchingRule rule = null;
       if (Integer.parseInt(rules[i]) == 1) {
-        rule = new ICD11GenericMatchingRule1(client, sourceTerminology, sourceVersion,
+        rule = new ICD11GenericMatchingRule1a(client, sourceTerminology, sourceVersion,
             targetTerminology, targetVersion, authToken);
       } else if (Integer.parseInt(rules[i]) == 2) {
-        rule = new ICD11GenericMatchingRule2(client, sourceTerminology, sourceVersion,
+        rule = new ICD11GenericMatchingRule2a(client, sourceTerminology, sourceVersion,
             targetTerminology, targetVersion, authToken);
       } else if (Integer.parseInt(rules[i]) == 3) {
-        rule = new ICD11GenericMatchingRule3(client, sourceTerminology, sourceVersion,
+        rule = new ICD11GenericMatchingRule3a(client, sourceTerminology, sourceVersion,
             targetTerminology, targetVersion, authToken);
       } else if (Integer.parseInt(rules[i]) == 4) {
-        rule = new ICD11GenericMatchingRule4(client, sourceTerminology, sourceVersion,
+        rule = new ICD11GenericMatchingRule4a(client, sourceTerminology, sourceVersion,
             targetTerminology, targetVersion, authToken);
       } else if (Integer.parseInt(rules[i]) == 5) {
-        rule = new ICD11GenericMatchingRule5(client, sourceTerminology, sourceVersion,
+        rule = new ICD11GenericMatchingRule5a(client, sourceTerminology, sourceVersion,
             targetTerminology, targetVersion, authToken);
       }
 
@@ -127,37 +129,6 @@ public class ICD11GenericMatchingMojo extends AbstractICD11MatchingMojo {
     }
 
     return rulesToProcess;
-  }
-
-  @SuppressWarnings("unchecked")
-  protected void postTermProcessing(AbstractICD11MatchingRule rule, ICD11MatcherSctConcept sctCon,
-    Object resultObj, List<String> noMatchList, int counter, int totalConcepts)
-    throws Exception {
-    Set<String> results = (Set<String>)resultObj;
-    
-    if (results != null && !results.isEmpty()) {
-
-      String resultString = sortByScore(results);
-
-      rule.getDevWriter().println(resultString);
-      rule.getDevWriter().println();
-      rule.getDevWriter().println();
-    } else {
-      // No matches
-      String outputString =
-          "\t" + rule.getDefaultTarget() + "\tNo direct match. Using default target\n\n";
-      rule.getDevWriter().println(outputString);
-
-      noMatchList.add(sctCon.getConceptId() + "\t" + sctCon.getName());
-    }
-
-    if (counter % 10 == 0) {
-      rule.getDevWriter().flush();
-    }
-    if (counter % 25 == 0) {
-      System.out.println("Have completed " + counter + " out of " + totalConcepts);
-    }
-
   }
 
   private String sortByScore(Set<String> results) {
@@ -203,11 +174,11 @@ public class ICD11GenericMatchingMojo extends AbstractICD11MatchingMojo {
   }
 
   protected String identifySingleResult(ICD11MatcherSctConcept sctCon,
-    AbstractICD11MatchingRule rule, String resultString) throws Exception {
+    AbstractICD11MatchingRule rule, Set<String> results) throws Exception {
 
-    List<String> results = cleanResultsForTerminologist(resultString);
+    List<String> cleanedResults = cleanResultsForTerminologist(results);
     System.out.println("\nMatches: ");
-    for (String r : results) {
+    for (String r : cleanedResults) {
       System.out.println(r);
     }
 
@@ -218,7 +189,54 @@ public class ICD11GenericMatchingMojo extends AbstractICD11MatchingMojo {
       findingSiteNames.add(con.getName());
     }
 
-    /* Multiple results, select one */
-    return matchingRules.processAllMatchingRules(results, sctCon, findingSites, findingSiteNames);
+    /* Multiple cleanedResults, select one */
+    return matchingRules.processAllMatchingRules(cleanedResults, sctCon, findingSites, findingSiteNames);
+  }
+
+  @Override
+  protected int getDepthLocation() {
+    return  ICD11MatchingConstants.DEPTH_LOCATION_GENERIC;
+  }
+
+  @Override
+  protected List<String> cleanResultsForTerminologist(Set<String> results) {
+    Map<Float, Set<String>> scoreMap = new TreeMap<>(Collections.reverseOrder());
+
+    // Sort lines by score
+    for (String line : results) {
+      String[] columns = line.split("\t");
+
+      if (columns.length > SCORE_COLUMN - 1) {
+        float score;
+        
+        if (columns[SCORE_COLUMN].equals("N/A")) {
+          score = 99;
+        } else {
+          score = Float.valueOf(columns[SCORE_COLUMN]);
+        }
+        if (!scoreMap.keySet().contains(score)) {
+          scoreMap.put(score,  new HashSet<String>());
+        }
+        scoreMap.get(score).add(line);
+      }
+    }
+    List<String> retList = new ArrayList<>();
+    Set<String> observedMatches = new HashSet<>();
+    for (Float score : scoreMap.keySet()) {
+      for (String l : scoreMap.get(score)) {
+        String icd11Code = l.split("\t")[1];
+        
+        if (score == 99) {
+          retList.add(l);
+        } else {
+          if (!observedMatches.contains(icd11Code)) {
+            observedMatches.add(icd11Code);
+            retList.add(l);
+          }
+        }
+      }
+    }
+    
+    return retList;
   }
 }

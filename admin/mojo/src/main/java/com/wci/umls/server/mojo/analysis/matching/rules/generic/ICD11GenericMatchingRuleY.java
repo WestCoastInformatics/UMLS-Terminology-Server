@@ -53,7 +53,7 @@ public class ICD11GenericMatchingRuleY extends AbstractGenericICD11MatchingRule 
         pfsLimitless, authToken);
 
     System.out.println(
-        "Have returned : " + fullStringResults.getTotalCount() + " objects");
+        "Have returned: " + fullStringResults.getTotalCount() + " total ICD11 objects");
     int matches = 0;
     for (SearchResult result : fullStringResults.getObjects()) {
       System.out.println(result.getCodeId() + "\t" + result.getValue());
@@ -69,7 +69,7 @@ public class ICD11GenericMatchingRuleY extends AbstractGenericICD11MatchingRule 
         matches++;
       }
     }
-    System.out.println("Have actually found : " + matches + " matches");
+    System.out.println("Have filtered: " + matches + " ICD11 matches");
   }
 
   @Override
@@ -117,7 +117,7 @@ public class ICD11GenericMatchingRuleY extends AbstractGenericICD11MatchingRule 
   }
   
   @Override
-  public String getRuleName() {
+  public String getRuleId() {
     return "rule7";
   }
 
