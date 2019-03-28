@@ -15,15 +15,10 @@
  */
 package com.wci.umls.server.mojo.analysis.matching.rules.reverse;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -33,19 +28,12 @@ import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.mojo.analysis.matching.AbstractICD11MatchingMojo;
 import com.wci.umls.server.mojo.analysis.matching.AbstractICD11MatchingRule;
-import com.wci.umls.server.mojo.analysis.matching.ICD11MatcherConstants;
-import com.wci.umls.server.mojo.analysis.matching.rules.generic.AbstractGenericICD11MatchingRule;
-import com.wci.umls.server.mojo.analysis.matching.rules.generic.ICD11GenericMatchingRule2a;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
-import com.wci.umls.server.mojo.processes.FindingSiteUtility;
-import com.wci.umls.server.mojo.processes.ICD11MatcherConceptSearcher;
 import com.wci.umls.server.mojo.processes.SctRelationshipParser;
 
 @Mojo(name = "icd11-reverse-descendant-matcher", defaultPhase = LifecyclePhase.PACKAGE)
-public abstract class ICD11ReverseDescendantMatchingMojo extends AbstractICD11MatchingMojo {
+public class ICD11ReverseDescendantMatchingMojo extends AbstractICD11MatchingMojo {
   protected final String MATCHER_NAME = "icd11-reverse-descendant-matcher";
-
-  private final int SCORE_COLUMN = 4;
 
   final static protected SctRelationshipParser relParser = new SctRelationshipParser();
 
@@ -204,17 +192,18 @@ public abstract class ICD11ReverseDescendantMatchingMojo extends AbstractICD11Ma
   }
 
   @Override
+  protected String identifySingleResult(ICD11MatcherSctConcept sctCon,
+    AbstractICD11MatchingRule rule, Set<String> results) throws Exception {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   protected int getDepthLocation() {
     throw new UnsupportedOperationException();
   }
 
   @Override
   protected List<String> cleanResultsForTerminologist(Set<String> results) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  protected void setupContentParsers(AbstractICD11MatchingRule rule) throws IOException {
     throw new UnsupportedOperationException();
   }
 }

@@ -19,6 +19,8 @@ import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
 import com.wci.umls.server.mojo.processes.FindingSiteUtility;
 import com.wci.umls.server.mojo.processes.ICD11MatcherConceptSearcher;
+import com.wci.umls.server.mojo.processes.SctNeoplasmDescriptionParser;
+import com.wci.umls.server.mojo.processes.SctRelationshipParser;
 import com.wci.umls.server.rest.client.ContentClientRest;
 
 public abstract class AbstractICD11MatchingRule {
@@ -76,6 +78,8 @@ public abstract class AbstractICD11MatchingRule {
     int counter);
 
   abstract protected SctICD11SynonymProvider getSynonymProvider();
+
+  abstract public boolean executeContentParsers(String mATCHER_NAME, SctNeoplasmDescriptionParser descParser, SctRelationshipParser relParser) throws IOException;
 
   public static void initializeTcTable() throws IOException {
     BufferedReader reader;
@@ -329,4 +333,5 @@ public abstract class AbstractICD11MatchingRule {
   public SearchResultList getIcd11Concepts() {
     return icd11Targets;
   }
+
 }

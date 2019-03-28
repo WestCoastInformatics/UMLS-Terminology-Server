@@ -31,10 +31,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import com.wci.umls.server.mojo.analysis.matching.AbstractICD11MatchingMojo;
 import com.wci.umls.server.mojo.analysis.matching.AbstractICD11MatchingRule;
 import com.wci.umls.server.mojo.analysis.matching.ICD11MatcherConstants;
-import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.AbstractNeoplasmICD11MatchingRule;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.processes.FindingSiteUtility;
-import com.wci.umls.server.mojo.processes.ICD11MatcherConceptSearcher;
 
 @Mojo(name = "icd11-generic-matcher", defaultPhase = LifecyclePhase.PACKAGE)
 public class ICD11GenericMatchingMojo extends AbstractICD11MatchingMojo {
@@ -76,26 +74,6 @@ public class ICD11GenericMatchingMojo extends AbstractICD11MatchingMojo {
     Set<AbstractICD11MatchingRule> rulesToProcess = defineRulesToProcess();
 
     return rulesToProcess;
-  }
-
-  protected void setupContentParsers(AbstractICD11MatchingRule rule) throws IOException {
-    setupDescParser();
-
-    // Generic
-    boolean populatedFromFiles = false;
-
-    try {
-      populatedFromFiles = descParser.readDescsFromFile(rule.getRulePath(MATCHER_NAME));
-      populatedFromFiles =
-          populatedFromFiles && relParser.readRelsFromFile(rule.getRulePath(MATCHER_NAME));
-    } catch (Exception e) {
-
-    }
-
-    ICD11MatcherConceptSearcher.canPopulateFromFiles = populatedFromFiles;
-    ICD11MatcherConceptSearcher.setDescParser(descParser);
-    ICD11MatcherConceptSearcher.setRelParser(relParser);
-
   }
 
   private Set<AbstractICD11MatchingRule> defineRulesToProcess() {

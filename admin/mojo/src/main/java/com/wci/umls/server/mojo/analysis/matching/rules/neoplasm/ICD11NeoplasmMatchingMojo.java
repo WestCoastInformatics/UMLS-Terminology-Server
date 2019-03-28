@@ -32,10 +32,10 @@ import com.wci.umls.server.mojo.analysis.matching.AbstractICD11MatchingRule;
 import com.wci.umls.server.mojo.analysis.matching.ICD11MatcherConstants;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.processes.FindingSiteUtility;
-import com.wci.umls.server.mojo.processes.ICD11MatcherConceptSearcher;
 
 @Mojo(name = "icd11-neoplasm-matcher", defaultPhase = LifecyclePhase.PACKAGE)
 public class ICD11NeoplasmMatchingMojo extends AbstractICD11MatchingMojo {
+  private static final String MATCHER_NAME = "icd11-neoplasm-matcher";
   private FindingSiteUtility fsUtility;
 
   /*
@@ -46,7 +46,7 @@ public class ICD11NeoplasmMatchingMojo extends AbstractICD11MatchingMojo {
   @Override
   public void execute() throws MojoFailureException {
     try {
-      match("icd11-neoplasm-matcher");
+      match(MATCHER_NAME);
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -70,30 +70,6 @@ public class ICD11NeoplasmMatchingMojo extends AbstractICD11MatchingMojo {
     Set<AbstractICD11MatchingRule> rulesToProcess = defineRulesToProcess();
 
     return rulesToProcess;
-  }
-
-  @Override
-  protected void setupContentParsers(AbstractICD11MatchingRule rule) throws IOException {
-    setupDescParser();
-
-    // Neoplasm
-    boolean populatedFromFiles = descParser.readAllNeoplasmDescsFromFile();
-    populatedFromFiles = populatedFromFiles && relParser.readAllNeoplasmRelsFromFile();
-
-    // Finding Sites
-    populatedFromFiles = populatedFromFiles && descParser.readAllFindingSitesFromFile();
-    populatedFromFiles = populatedFromFiles && relParser.readAllFindingSitesFromFile();
-
-    // ECL
-    // populatedFromFiles = populatedFromFiles &&
-    // descParser.readAllEclFromFile();
-    // populatedFromFiles = populatedFromFiles &&
-    // relParser.readAllEclFromFile();
-
-    ICD11MatcherConceptSearcher.canPopulateFromFiles = populatedFromFiles;
-    ICD11MatcherConceptSearcher.setDescParser(descParser);
-    ICD11MatcherConceptSearcher.setRelParser(relParser);
-
   }
 
   private Set<AbstractICD11MatchingRule> defineRulesToProcess() {

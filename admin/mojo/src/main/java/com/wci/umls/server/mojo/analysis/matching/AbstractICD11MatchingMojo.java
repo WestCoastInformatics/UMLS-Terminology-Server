@@ -15,14 +15,11 @@
  */
 package com.wci.umls.server.mojo.analysis.matching;
 
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,19 +33,13 @@ import org.apache.maven.plugins.annotations.Parameter;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.mojo.analysis.AbstractContentAnalysisMojo;
 import com.wci.umls.server.mojo.analysis.SctConceptsContentAnalyzer;
-import com.wci.umls.server.mojo.model.ICD11MatcherRelationship;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
-import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
 import com.wci.umls.server.mojo.processes.ICD11MatcherConceptSearcher;
 
 @Mojo(name = "icd11-matcher", defaultPhase = LifecyclePhase.PACKAGE)
 public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisMojo {
   private static final String UNABLE_TO_MATCH_HEADER =
       "\tCouldn't discern between the following options\n";
-
-  private final String neoplasmDescriptionsFile = "src\\main\\resources\\allNeoplasmDescs.txt";
-
-  private final String nonIsaNeoplasmRelsFile = "src\\main\\resources\\nonIsaNeoplasmRels.txt";
 
   @Parameter
   protected String ruleList;
@@ -84,11 +75,9 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
 
   protected AbstractMatchRules matchingRules;
 
-  protected String matcher;
+  protected String matcherName;
 
   abstract protected Set<AbstractICD11MatchingRule> setupProcess() throws IOException;
-
-  abstract protected void setupContentParsers(AbstractICD11MatchingRule rule) throws IOException;
 
   abstract protected String identifySingleResult(ICD11MatcherSctConcept sctCon,
     AbstractICD11MatchingRule rule, Set<String> results) throws Exception;
@@ -108,7 +97,7 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
       /*
        * Setup
        */
-      this.matcher = matcher;
+      this.matcherName = matcher;
       setup(matcher, st, sv, tt, tv);
       getLog().info("  maxCount = " + maxCount);
 
@@ -153,6 +142,17 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
       throw new MojoFailureException("Unexpected exception:", e);
     }
   }
+  
+  protected void setupContentParsers(AbstractICD11MatchingRule rule) throws IOException {
+    setupDescParser();
+
+    // Generic
+    ICD11MatcherConceptSearcher.canPopulateFromFiles = rule.executeContentParsers(matcherName, descParser, relParser);
+
+    ICD11MatcherConceptSearcher.setDescParser(descParser);
+    ICD11MatcherConceptSearcher.setRelParser(relParser);
+
+  }
 
   protected Map<String, ICD11MatcherSctConcept> preRuleProcessing(AbstractICD11MatchingRule rule)
     throws Exception {
@@ -183,7 +183,7 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
 
   private void generateFiles(Map<String, ICD11MatcherSctConcept> snomedConcepts, String rule)
     throws FileNotFoundException, UnsupportedEncodingException {
-    SctConceptsContentAnalyzer analyzer = new SctConceptsContentAnalyzer(matcher, rule);
+    SctConceptsContentAnalyzer analyzer = new SctConceptsContentAnalyzer(matcherName, rule);
 
     analyzer.analyze(snomedConcepts.values(), targetTerminology, targetVersion, client, authToken);
   }

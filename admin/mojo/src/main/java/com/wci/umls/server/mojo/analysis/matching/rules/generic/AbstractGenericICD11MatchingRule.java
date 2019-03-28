@@ -12,6 +12,8 @@ import com.wci.umls.server.mojo.analysis.matching.ICD11MatcherConstants;
 import com.wci.umls.server.mojo.analysis.matching.SctICD11SynonymProvider;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.processes.FindingSiteUtility;
+import com.wci.umls.server.mojo.processes.SctNeoplasmDescriptionParser;
+import com.wci.umls.server.mojo.processes.SctRelationshipParser;
 import com.wci.umls.server.rest.client.ContentClientRest;
 
 public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11MatchingRule {
@@ -243,6 +245,24 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
     }
 
   }
+  
+
+  @Override
+  public boolean executeContentParsers(String matcherName, SctNeoplasmDescriptionParser descParser, SctRelationshipParser relParser) {
+    // Generic
+    boolean populatedFromFiles = false;
+
+    try {
+      populatedFromFiles = descParser.readDescsFromFile(getRulePath(matcherName));
+      populatedFromFiles =
+          populatedFromFiles && relParser.readRelsFromFile(getRulePath(matcherName));
+    } catch (Exception e) {
+
+    }
+    
+    return populatedFromFiles;
+  }
+
 
   protected void setFindingSites(Set<ICD11MatcherSctConcept> findingSites) {
     findingSiteCons = findingSites;

@@ -15,12 +15,13 @@
  */
 package com.wci.umls.server.mojo.analysis.matching.rules.neoplasm;
 
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.Map;
 
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
-import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
+import com.wci.umls.server.mojo.processes.SctNeoplasmDescriptionParser;
+import com.wci.umls.server.mojo.processes.SctRelationshipParser;
 import com.wci.umls.server.rest.client.ContentClientRest;
 
 public class ICD11NeoplasmMatchingRule7 extends AbstractNeoplasmICD11MatchingRule {
@@ -79,5 +80,23 @@ public class ICD11NeoplasmMatchingRule7 extends AbstractNeoplasmICD11MatchingRul
     }
 
     return false;
+  }
+  
+  @Override
+  public boolean executeContentParsers(String matcherName, SctNeoplasmDescriptionParser descParser, SctRelationshipParser relParser) throws IOException {
+
+    // Finding Sites
+    boolean populatedFromFiles = descParser.readAllFindingSitesFromFile();
+    populatedFromFiles = populatedFromFiles && relParser.readAllFindingSitesFromFile();
+
+    try {
+      populatedFromFiles = descParser.readDescsFromFile(getRulePath(matcherName));
+      populatedFromFiles =
+          populatedFromFiles && relParser.readRelsFromFile(getRulePath(matcherName));
+    } catch (Exception e) {
+
+    }
+    
+    return populatedFromFiles;
   }
 }

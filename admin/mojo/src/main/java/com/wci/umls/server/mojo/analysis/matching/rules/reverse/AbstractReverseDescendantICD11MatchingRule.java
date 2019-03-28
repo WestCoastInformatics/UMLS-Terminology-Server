@@ -1,5 +1,6 @@
 package com.wci.umls.server.mojo.analysis.matching.rules.reverse;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,6 +13,8 @@ import com.wci.umls.server.mojo.analysis.matching.AbstractICD11MatchingRule;
 import com.wci.umls.server.mojo.analysis.matching.ICD11MatcherConstants;
 import com.wci.umls.server.mojo.analysis.matching.SctICD11SynonymProvider;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
+import com.wci.umls.server.mojo.processes.SctNeoplasmDescriptionParser;
+import com.wci.umls.server.mojo.processes.SctRelationshipParser;
 import com.wci.umls.server.rest.client.ContentClientRest;
 
 public abstract class AbstractReverseDescendantICD11MatchingRule extends AbstractICD11MatchingRule {
@@ -140,5 +143,10 @@ public abstract class AbstractReverseDescendantICD11MatchingRule extends Abstrac
   @Override
   protected Set<String> getRuleBasedNonMatchTerms() {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean executeContentParsers(String matcherName, SctNeoplasmDescriptionParser descParser, SctRelationshipParser relParser) throws IOException {
+    return false;
   }
 }
