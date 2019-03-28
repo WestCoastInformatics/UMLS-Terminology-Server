@@ -13,7 +13,7 @@ import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.mojo.analysis.matching.ICD11MatchingConstants;
+import com.wci.umls.server.mojo.analysis.matching.ICD11MatcherConstants;
 import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.AbstractNeoplasmICD11MatchingRule;
 import com.wci.umls.server.mojo.model.ICD11MatcherRelationship;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;

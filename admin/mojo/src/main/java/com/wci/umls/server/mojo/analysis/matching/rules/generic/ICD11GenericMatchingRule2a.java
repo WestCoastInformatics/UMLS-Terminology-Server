@@ -21,7 +21,7 @@ import java.util.Set;
 
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
-import com.wci.umls.server.mojo.analysis.matching.ICD11MatchingConstants;
+import com.wci.umls.server.mojo.analysis.matching.ICD11MatcherConstants;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.rest.client.ContentClientRest;
 
@@ -106,10 +106,10 @@ public class ICD11GenericMatchingRule2a extends AbstractGenericICD11MatchingRule
     Set<String> results = new HashSet<>();
     matchNextConcept(sctCon, counter);
 
-    results = matchApproachBaseMatch(sctCon, results, icd11Targets, ICD11MatchingConstants.FILTERED_RULE_TYPE);
+    results = matchApproachBaseMatch(sctCon, results, icd11Targets, ICD11MatcherConstants.FILTERED_RULE_TYPE);
     
     if (results.isEmpty()) {
-      results = matchApproachBaseSearch(sctCon, results, icd11Targets, ICD11MatchingConstants.FILTERED_RULE_TYPE);
+      results = matchApproachBaseSearch(sctCon, results, icd11Targets, ICD11MatcherConstants.FILTERED_RULE_TYPE);
     }
     
     return results;

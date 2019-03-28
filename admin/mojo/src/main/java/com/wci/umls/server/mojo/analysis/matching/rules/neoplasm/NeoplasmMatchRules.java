@@ -1,4 +1,4 @@
-package com.wci.umls.server.mojo.analysis.matching;
+package com.wci.umls.server.mojo.analysis.matching.rules.neoplasm;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,15 +9,20 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
-import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.AbstractNeoplasmICD11MatchingRule;
+import com.wci.umls.server.mojo.analysis.matching.AbstractMatchRules;
+import com.wci.umls.server.mojo.analysis.matching.ICD11MatcherConstants;
+import com.wci.umls.server.mojo.analysis.matching.SctICD11SynonymProvider;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
 import com.wci.umls.server.mojo.processes.FindingSiteUtility;
 
-public class GenericMatchRules extends AbstractMatchRules {
+public class NeoplasmMatchRules extends AbstractMatchRules{
+  protected static SctICD11SynonymProvider synonymProvider = new SctICD11SynonymProvider(ICD11MatcherConstants.SNOMED_TO_ICD11);
+  private int depthLocation;
 
-  public GenericMatchRules(FindingSiteUtility fsUtility) {
+  public NeoplasmMatchRules(FindingSiteUtility fsUtility, int depthLocation) {
     this.fsUtility = fsUtility;
+    this.depthLocation = depthLocation;
   }
 
   public String processAllMatchingRules(List<String> results, ICD11MatcherSctConcept sctCon,
@@ -47,16 +52,45 @@ public class GenericMatchRules extends AbstractMatchRules {
     } else if ((result = processOneSpecifiedOneNot(sctCon, results, RETURN_UNSPECIFIED)) != null) {
       return result + "\tFFFF";
     } else if ((result =
+        processSpecifiedOneDepthLowerRest(sctCon, results, RETURN_UNSPECIFIED)) != null) {
+      return result + "\tJJJ";
+    } else if ((result =
         processTooNarrowResults(findingSites, sctCon, findingSiteNames, results)) != null) {
       return result + "\tGGGG";
       // } else if ((result =
       // processSingleDivergantPrefix(findingSites, sctCon, findingSiteNames,
       // results)) != null) {
       // return result;
+    } else if ((result =
+        processDepthCriteria(sctCon, findingSites, findingSiteNames, results)) != null) {
+      return result + "\tHHHH";
     }
     return null;
   }
 
+  private String processSpecifiedOneDepthLowerRest(ICD11MatcherSctConcept sctCon,
+    List<String> results, int returnUnspecified) {
+    boolean singleDepthLower = true;
+
+    int lowestDepth = 100;
+    String singleResult = null;
+
+    for (String result : results) {
+      if (getDepth(result) < lowestDepth) {
+        singleDepthLower = true;
+        singleResult = result;
+        lowestDepth = getDepth(result);
+      } else if (getDepth(result) == lowestDepth) {
+        singleDepthLower = false;
+      }
+    }
+
+    if (singleDepthLower) {
+      return singleResult;
+    }
+
+    return null;
+  }
 
   private String processDisorderConceptWordInSingleResult(Set<ICD11MatcherSctConcept> fsConcepts,
     ICD11MatcherSctConcept sctCon, Set<String> findingSiteNames, List<String> results)
@@ -99,24 +133,7 @@ public class GenericMatchRules extends AbstractMatchRules {
   }
 
   private Set<String> identifyDescs(String description) {
-    Set<String> descsToProcess = new HashSet<>();
-    String originalDesc = description.trim().toLowerCase().trim();
-    boolean matchFound = false;
-
-    for (String key : AbstractNeoplasmICD11MatchingRule.snomedToIcdSynonymMap.keySet()) {
-      if (originalDesc.matches(".*\\b" + key + "\\b.*")) {
-        originalDesc = originalDesc.replaceAll(".*\\b" + key + "\\b.*",
-            AbstractNeoplasmICD11MatchingRule.snomedToIcdSynonymMap.get(key));
-        descsToProcess.add(originalDesc);
-        matchFound = true;
-      }
-    }
-
-    if (!matchFound) {
-      descsToProcess.add(originalDesc);
-    }
-
-    return descsToProcess;
+    return synonymProvider.identifyEquivalencies(description);
   }
 
   private String singleMatchCapture(Map<String, Integer> singleMatches,
@@ -315,6 +332,49 @@ public class GenericMatchRules extends AbstractMatchRules {
     return leastResult;
   }
 
+  private String processDepthCriteria(ICD11MatcherSctConcept sctCon,
+    Set<ICD11MatcherSctConcept> fsConcepts, Set<String> findingSiteNames, List<String> results)
+    throws Exception {
+    /*
+     * with stopping to concern b/w two different depths, just identify lowest
+     * depth items // ProcessUnspecifiedHigherLevelThanSingleSpecific int
+     * lowestUnspecifiedLevel = 100; int lowestSpecificLevel = 100; for (String
+     * result : results) { int depth = Integer.parseInt(result.split("\t")[3]);
+     * 
+     * if (resultTypeMap.get(NOT_UNSPECIFIED).contains(result)) { if (depth <=
+     * lowestSpecificLevel) { lowestSpecificLevel = depth; } } else { if (depth
+     * <= lowestUnspecifiedLevel) { lowestUnspecifiedLevel = depth; } } }
+     */
+
+    // ProcessUnspecifiedHigherLevelThanSingleSpecific
+    List<String> lowestMatches = new ArrayList<>();
+
+    int lowestDepth = 100;
+    int lowestMatchCount = 0;
+    for (String result : results) {
+      int depth = getDepth(result);
+
+      if (depth < lowestDepth) {
+        lowestDepth = depth;
+        lowestMatches.clear();
+        lowestMatches.add(result);
+        lowestMatchCount = 1;
+      } else if (depth == lowestDepth) {
+        lowestMatches.add(result);
+        lowestMatchCount++;
+      }
+    }
+
+    // Commenting out b/c with new rules, this commented out check shouldn't be
+    // an issue
+    // if (lowestSpecificLevel < lowestUnspecifiedLevel) {
+    if (lowestMatchCount != results.size()) {
+      return processAllMatchingRules(lowestMatches, sctCon, fsConcepts, findingSiteNames);
+    }
+
+    return null;
+  }
+
   private String processInitialUnspecifiedTypes(ICD11MatcherSctConcept sctCon,
     Set<ICD11MatcherSctConcept> fsConcepts, Set<String> findingSiteNames, List<String> results)
     throws Exception {
@@ -476,7 +536,7 @@ public class GenericMatchRules extends AbstractMatchRules {
       }
 
       for (String r : bodyMatches) {
-        for (String synonym : ICD11MatchingConstants.NEOPLASM_SYNONYMS) {
+        for (String synonym : ICD11MatcherConstants.NEOPLASM_SYNONYMS) {
           if (r.toLowerCase().contains(synonym.toLowerCase())) {
             String prefix = r.toLowerCase().substring(r.indexOf("\t")).trim();
             prefix = prefix.substring(0, prefix.indexOf(synonym.toLowerCase()));
@@ -543,5 +603,10 @@ public class GenericMatchRules extends AbstractMatchRules {
         resultTypeMap.get(NOT_UNSPECIFIED).add(result);
       }
     }
+  }
+
+  private int getDepth(String result) {
+    System.out.println(result);
+    return Integer.parseInt(result.split("\t")[depthLocation - 1]);
   }
 }

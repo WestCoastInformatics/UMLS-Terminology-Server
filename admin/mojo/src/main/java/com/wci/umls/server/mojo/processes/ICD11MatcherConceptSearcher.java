@@ -3,6 +3,7 @@ package com.wci.umls.server.mojo.processes;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,9 +14,9 @@ import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Relationship;
+import com.wci.umls.server.mojo.model.ICD11MatcherRelationship;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
-import com.wci.umls.server.mojo.model.ICD11MatcherRelationship;
 import com.wci.umls.server.rest.client.ContentClientRest;
 
 public class ICD11MatcherConceptSearcher {
@@ -117,7 +118,7 @@ public class ICD11MatcherConceptSearcher {
    */
   public ICD11MatcherSctConcept populateSctConcept(ICD11MatcherSctConcept con) throws Exception {
     populateDescriptions(con);
-    String conName =  con.getDescs().iterator().next().getDescription();
+    String conName = con.getDescs().iterator().next().getDescription();
     populateRelationships(con, conName);
 
     if (con.getName() == null) {
@@ -127,21 +128,50 @@ public class ICD11MatcherConceptSearcher {
     return con;
   }
 
+  public ICD11MatcherSctConcept populateSctConcept(String sctId, List<Atom> atoms,
+    RelationshipList rels) throws Exception {
+    ICD11MatcherSctConcept con = new ICD11MatcherSctConcept(sctId, null);
+    con.setDescs(new HashSet<SctNeoplasmDescription>());
+
+    for (final Atom atom : atoms) {
+      if (isValidDescription(atom)) {
+        SctNeoplasmDescription desc = new SctNeoplasmDescription();
+        desc.setDescription(atom.getName());
+        con.getDescs().add(desc);
+      }
+    }
+
+    String conName = con.getDescs().iterator().next().getDescription();
+
+    if (rels != null) {
+      for (final Relationship<?, ?> relResult : rels.getObjects()) {
+        ICD11MatcherRelationship rel = relParser.parse(conName, relResult);
+        if (rel != null) {
+          rel.setDescription(conName);
+          con.getRels().add(rel);
+        }
+      }
+    }
+    con.setName(conName);
+
+    return con;
+  }
+
   /**
    * Populate neoplasm relationships.
    *
    * @param con the con
-   * @param desc 
+   * @param desc
    * @throws Exception the exception
    */
   public void populateRelationships(ICD11MatcherSctConcept con, String desc) throws Exception {
-      con.setRels(relParser.getRelationships(con));
-      
-      if (con.getRels() == null) {
-        con.setRels(new HashSet<ICD11MatcherRelationship>());
-      }
-      
-      if (con.getRels().isEmpty()) {
+    con.setRels(relParser.getRelationships(con));
+
+    if (con.getRels() == null) {
+      con.setRels(new HashSet<ICD11MatcherRelationship>());
+    }
+
+    if (con.getRels().isEmpty()) {
       RelationshipList relsList = client.findConceptRelationships(con.getConceptId(),
           sourceTerminology, sourceVersion, null, pfsLimitless, authToken);
 
@@ -163,11 +193,11 @@ public class ICD11MatcherConceptSearcher {
    */
   public void populateDescriptions(ICD11MatcherSctConcept con) throws Exception {
     con.setDescs(descParser.getDescriptions(con));
-    
+
     if (con.getDescs() == null) {
       con.setDescs(new HashSet<SctNeoplasmDescription>());
     }
-    
+
     if (con.getDescs().isEmpty()) {
       Concept fullCon =
           client.getConcept(con.getConceptId(), sourceTerminology, sourceVersion, null, authToken);
@@ -218,7 +248,6 @@ public class ICD11MatcherConceptSearcher {
     return neoplasmConcepts.values();
   }
 
-
   /**
    * Returns the neoplasm concept's relationship targets based on the provided
    * relationship type.
@@ -243,7 +272,7 @@ public class ICD11MatcherConceptSearcher {
     if (neoplasmConcepts == null) {
       getAllNeoplasmConcepts();
     }
-    
+
     return neoplasmConcepts.get(conId);
   }
 

@@ -8,7 +8,8 @@ import java.util.Set;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.mojo.analysis.matching.AbstractICD11MatchingRule;
-import com.wci.umls.server.mojo.analysis.matching.ICD11MatchingConstants;
+import com.wci.umls.server.mojo.analysis.matching.ICD11MatcherConstants;
+import com.wci.umls.server.mojo.analysis.matching.SctICD11SynonymProvider;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.processes.FindingSiteUtility;
 import com.wci.umls.server.rest.client.ContentClientRest;
@@ -25,10 +26,16 @@ public abstract class AbstractNeoplasmICD11MatchingRule extends AbstractICD11Mat
   protected Set<ICD11MatcherSctConcept> findingSiteCons;
 
   static protected FindingSiteUtility fsUtility;
+  
+  protected static SctICD11SynonymProvider synonymProvider = new SctICD11SynonymProvider(ICD11MatcherConstants.SNOMED_TO_ICD11);
 
   public AbstractNeoplasmICD11MatchingRule(ContentClientRest contentClient, String st, String sv,
       String tt, String tv, String token) {
     super(contentClient, st, sv, tt, tv, token);
+  }
+
+  protected SctICD11SynonymProvider getSynonymProvider() {
+    return synonymProvider;
   }
 
   /**
@@ -82,17 +89,17 @@ public abstract class AbstractNeoplasmICD11MatchingRule extends AbstractICD11Mat
   }
 
   private void identifyMatchesByToken(String desc, Map<String, String> matchMap,
-    Map<String, Integer> matchDepthMap, Map<String, Integer> lowestDepthMap, int depth) {
+    Map<String, Integer> matchDepthMap, Map<String, Integer> lowestDepthMap, int depth) throws Exception {
 
     String normalizedSiteString = cleanDescription(desc.toLowerCase(), getRuleBasedNonMatchTerms());
 
     Set<String> tokens = splitTokens(normalizedSiteString);
-    if (snomedToIcdSynonymMap.keySet().contains(normalizedSiteString.trim().toLowerCase())) {
-      tokens.add(snomedToIcdSynonymMap.get(normalizedSiteString.trim().toLowerCase()));
+    if (synonymProvider.getMap().keySet().contains(normalizedSiteString.trim().toLowerCase())) {
+      tokens.addAll(synonymProvider.getMap().get(normalizedSiteString.trim().toLowerCase()));
     }
 
     for (String token : tokens) {
-      if (!ICD11MatchingConstants.NON_MATCHING_TERMS.contains(token)) {
+      if (!ICD11MatcherConstants.NON_MATCHING_TERMS.contains(token)) {
 
         if (!alreadyQueriedRegexesResultsCache.keySet().contains(token)) {
           alreadyQueriedRegexesResultsCache.put(token, new HashMap<String, String>());
@@ -130,22 +137,22 @@ public abstract class AbstractNeoplasmICD11MatchingRule extends AbstractICD11Mat
   }
 
   protected Set<String> matchAgainstTargets(Set<ICD11MatcherSctConcept> findingSiteCons,
-    Set<ICD11MatcherSctConcept> ancestorFindingSites) {
+    Set<ICD11MatcherSctConcept> ancestorFindingSites) throws Exception {
     Map<String, Integer> lowestDepthMap = new HashMap<>();
     Map<String, String> matchResultMap = new HashMap<>();
     Map<String, Integer> matchDepthMap = new HashMap<>();
 
     Map<Integer, Set<ICD11MatcherSctConcept>> conceptsToProcess = new HashMap<>();
-    conceptsToProcess.put(ICD11MatchingConstants.PARENT_CONCEPTS, findingSiteCons);
+    conceptsToProcess.put(ICD11MatcherConstants.PARENT_CONCEPTS, findingSiteCons);
     if (ancestorFindingSites != null) {
-      conceptsToProcess.put(ICD11MatchingConstants.ANCESTOR_CONCEPTS, ancestorFindingSites);
+      conceptsToProcess.put(ICD11MatcherConstants.ANCESTOR_CONCEPTS, ancestorFindingSites);
     }
 
     for (Integer key : conceptsToProcess.keySet()) {
       for (ICD11MatcherSctConcept fsCon : conceptsToProcess.get(key)) {
         String fsConId = fsCon.getConceptId();
         Map<ICD11MatcherSctConcept, Set<String>> potentialFSConTerms = new HashMap<>();
-        if (key == ICD11MatchingConstants.PARENT_CONCEPTS) {
+        if (key == ICD11MatcherConstants.PARENT_CONCEPTS) {
           potentialFSConTerms.put(fsCon, new HashSet<String>(createICD11SearchStrings(fsCon)));
         } else {
           // Testing on ancestors of findingSite fsConId
@@ -157,7 +164,7 @@ public abstract class AbstractNeoplasmICD11MatchingRule extends AbstractICD11Mat
 
           int depth = 0;
           // Default to PARENT CONCEPTS
-          if (key == ICD11MatchingConstants.ANCESTOR_CONCEPTS) {
+          if (key == ICD11MatcherConstants.ANCESTOR_CONCEPTS) {
             Map<String, Integer> depthMap = inverseTransClosureMap.get(fsConId);
             depth = depthMap.get(testCon.getConceptId());
           }

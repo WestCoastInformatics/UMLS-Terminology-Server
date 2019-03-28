@@ -30,7 +30,7 @@ public abstract class AbstractMatchRules {
   protected static final Integer NOT_UNSPECIFIED = 3;
 
   protected static HashSet<String> matchRulesSpecificNonMatchingTerms =
-      new HashSet<>(ICD11MatchingConstants.NON_MATCHING_TERMS);
+      new HashSet<>(ICD11MatcherConstants.NON_MATCHING_TERMS);
 
   public abstract String processAllMatchingRules(List<String> results, ICD11MatcherSctConcept sctCon,
     Set<ICD11MatcherSctConcept> findingSites, Set<String> findingSiteNames) throws Exception;

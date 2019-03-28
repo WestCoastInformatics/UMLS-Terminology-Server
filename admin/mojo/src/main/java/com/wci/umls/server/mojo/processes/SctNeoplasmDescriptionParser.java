@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.wci.umls.server.mojo.analysis.matching.ICD11MatchingConstants;
+import com.wci.umls.server.mojo.analysis.matching.ICD11MatcherConstants;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
 
@@ -176,7 +176,7 @@ public class SctNeoplasmDescriptionParser {
         desc.setDescription(descString.trim());
 
         // Pathology Representation
-        for (String syn : ICD11MatchingConstants.NEOPLASM_SYNONYMS) {
+        for (String syn : ICD11MatcherConstants.NEOPLASM_SYNONYMS) {
           if (descString.toLowerCase().contains(syn.toLowerCase())) {
             desc.setNeoplasmSynonym(syn.trim());
             break;

@@ -43,7 +43,7 @@ import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.model.content.Relationship;
-import com.wci.umls.server.mojo.analysis.matching.ICD11MatchingConstants;
+import com.wci.umls.server.mojo.analysis.matching.ICD11MatcherConstants;
 import com.wci.umls.server.mojo.model.ICD11MatcherRelationship;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
 import com.wci.umls.server.mojo.processes.SctNeoplasmDescriptionParser;
@@ -386,7 +386,7 @@ public class HierarchyAnalysisMojo extends AbstractContentAnalysisMojo {
 
         // Pathology Representation
         outputDescFile.print("\t");
-        for (String syn : ICD11MatchingConstants.NEOPLASM_SYNONYMS) {
+        for (String syn : ICD11MatcherConstants.NEOPLASM_SYNONYMS) {
           if (desc.toLowerCase().contains(syn.toLowerCase())) {
             outputDescFile.print(syn.trim());
             break;

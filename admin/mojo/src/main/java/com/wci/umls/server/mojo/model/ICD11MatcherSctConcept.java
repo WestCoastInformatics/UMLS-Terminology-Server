@@ -1,7 +1,10 @@
 package com.wci.umls.server.mojo.model;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
+import com.wci.umls.server.model.content.Atom;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -149,4 +152,5 @@ public class ICD11MatcherSctConcept {
     return "SctSourceConcept [conceptId=" + conceptId + ", name=" + name
         + ", descs=" + descs + ", rels=" + rels + "]";
   }
+
 }

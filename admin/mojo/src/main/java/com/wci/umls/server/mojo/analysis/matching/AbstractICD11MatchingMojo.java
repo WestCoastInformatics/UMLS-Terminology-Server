@@ -86,7 +86,7 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
 
   protected String matcher;
 
-  abstract protected Set<AbstractICD11MatchingRule> setupProcess();
+  abstract protected Set<AbstractICD11MatchingRule> setupProcess() throws IOException;
 
   abstract protected void setupContentParsers(AbstractICD11MatchingRule rule) throws IOException;
 
@@ -154,7 +154,7 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
     }
   }
 
-  private Map<String, ICD11MatcherSctConcept> preRuleProcessing(AbstractICD11MatchingRule rule)
+  protected Map<String, ICD11MatcherSctConcept> preRuleProcessing(AbstractICD11MatchingRule rule)
     throws Exception {
     getLog().info("\n\n\n**************************\nNow Processing\n" + rule.getRuleId()
         + " Matching Mojo\n" + rule.getDescription() + "\n**************************\n");
@@ -225,105 +225,13 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
    * @param counter the counter
    * @return the string buffer
    */
-  protected StringBuffer createSnomedConceptSearchedLine(Set<String> findingSites,
-    ICD11MatcherSctConcept sctCon, int counter) {
+  protected StringBuffer createSnomedConceptSearchedLine(ICD11MatcherSctConcept sctCon, int counter) {
 
     StringBuffer newConInfoStr = new StringBuffer();
     newConInfoStr.append("\n# " + counter + " Snomed Concept: " + sctCon.getName() + "\tSctId: "
         + sctCon.getConceptId() + "\twith");
-    int fsCounter = findingSites.size();
-    for (String site : findingSites) {
-      newConInfoStr.append(" findingSite: " + site);
-      if (--fsCounter > 0) {
-        newConInfoStr.append("\tand");
-      }
-    }
+
     return newConInfoStr;
-  }
-
-  /**
-   * Prints the out non isa rels.
-   *
-   * @param concepts the concepts
-   * @throws Exception the exception
-   */
-  private void printOutNonIsaRels(Map<String, ICD11MatcherSctConcept> concepts) throws Exception {
-    // Setup File
-    PrintWriter writer = prepareRelOutputFile("nonIsaRels", "ECL Analysis");
-
-    int counter = 0;
-    for (ICD11MatcherSctConcept con : concepts.values()) {
-      for (ICD11MatcherRelationship rel : con.getRels()) {
-        if (!rel.getRelationshipType().equals("Is a")) {
-          exportRels(rel, con.getConceptId(), writer);
-        }
-      }
-
-      if (counter++ % 100 == 0) {
-        getLog().info("Processed " + counter + " out of " + concepts.size() + " concepts");
-        writer.flush();
-      }
-    }
-
-    writer.close();
-  }
-
-  /**
-   * Populate concepts from files.
-   *
-   * @return the map
-   * @throws IOException Signals that an I/O exception has occurred.
-   */
-  private Map<String, ICD11MatcherSctConcept> populateConceptsFromFiles() throws IOException {
-    // Populate Relationships
-    BufferedReader reader = new BufferedReader(new FileReader(nonIsaNeoplasmRelsFile));
-    Map<String, ICD11MatcherSctConcept> concepts = new HashMap<>();
-
-    String line = reader.readLine(); // Don't want header
-    line = reader.readLine();
-    while (line != null) {
-      String[] columns = line.split("\t");
-      if (!concepts.containsKey(columns[0])) {
-        ICD11MatcherSctConcept con = new ICD11MatcherSctConcept(columns[0], columns[1]);
-        concepts.put(columns[0], con);
-      }
-
-      ICD11MatcherRelationship rel = new ICD11MatcherRelationship();
-      rel.setDescription(columns[1]);
-      rel.setRelationshipType(columns[2]);
-      rel.setRelationshipDestination(columns[3]);
-      rel.setRoleGroup(Integer.parseInt(columns[4]));
-
-      concepts.get(columns[0]).getRels().add(rel);
-      line = reader.readLine();
-    }
-
-    reader.close();
-
-    // Populate Descriptions
-    reader = new BufferedReader(new FileReader(neoplasmDescriptionsFile));
-
-    line = reader.readLine(); // Don't want header
-    line = reader.readLine();
-    while (line != null) {
-      String[] columns = line.split("\t");
-
-      // Only bring in those descriptions which are in the "desired list" as
-      // defined
-      // by the rels
-      if (concepts.containsKey(columns[0])) {
-        SctNeoplasmDescription desc = new SctNeoplasmDescription();
-        desc.setDescription(columns[1]);
-
-        concepts.get(columns[0]).getDescs().add(desc);
-      }
-
-      line = reader.readLine();
-    }
-
-    reader.close();
-
-    return concepts;
   }
 
   protected void postTermProcessing(AbstractICD11MatchingRule rule, ICD11MatcherSctConcept sctCon,
@@ -386,7 +294,7 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
     rule.getTermWriter().println(termBuf.toString());
   }
 
-  private void printWithSingleResponse(String singleResponse, Set<String> results,
+  protected void printWithSingleResponse(String singleResponse, Set<String> results,
     AbstractICD11MatchingRule rule) {
     if (singleResponse.startsWith("\t")) {
       singleResponse = singleResponse.substring(1);
@@ -416,9 +324,9 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
     rule.getTermWriter().println();
   }
 
-  private void postRuleProcessing(AbstractICD11MatchingRule rule, List<String> noMatchList) {
-    rule.getDevWriter().println(ICD11MatchingConstants.NON_MATCH_HEADER);
-    rule.getTermWriter().println(ICD11MatchingConstants.NON_MATCH_HEADER);
+  protected void postRuleProcessing(AbstractICD11MatchingRule rule, List<String> noMatchList) {
+    rule.getDevWriter().println(ICD11MatcherConstants.NON_MATCH_HEADER);
+    rule.getTermWriter().println(ICD11MatcherConstants.NON_MATCH_HEADER);
     for (String s : noMatchList) {
       rule.getDevWriter().println(s);
       rule.getTermWriter().println(s);
@@ -435,11 +343,13 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
     AbstractICD11MatchingRule rule) throws Exception {
     Map<String, ICD11MatcherSctConcept> snomedConcepts = new HashMap<>();
 
+    /*
     snomedConcepts = populateTestConcept(Arrays.asList( 
         // "92666004",
          "203282002", 
         "186200004"));
-
+*/
+    
     if (snomedConcepts.isEmpty()) {
       // Get ECL Results
       if (rule.getEclExpression() != null) {

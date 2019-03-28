@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wci.umls.server.mojo.analysis.matching;
+package com.wci.umls.server.mojo.analysis.matching.rules.generic;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,12 +28,10 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 
-import com.wci.umls.server.mojo.analysis.matching.rules.generic.AbstractGenericICD11MatchingRule;
-import com.wci.umls.server.mojo.analysis.matching.rules.generic.ICD11GenericMatchingRule1a;
-import com.wci.umls.server.mojo.analysis.matching.rules.generic.ICD11GenericMatchingRule2a;
-import com.wci.umls.server.mojo.analysis.matching.rules.generic.ICD11GenericMatchingRule3a;
-import com.wci.umls.server.mojo.analysis.matching.rules.generic.ICD11GenericMatchingRule4a;
-import com.wci.umls.server.mojo.analysis.matching.rules.generic.ICD11GenericMatchingRule5a;
+import com.wci.umls.server.mojo.analysis.matching.AbstractICD11MatchingMojo;
+import com.wci.umls.server.mojo.analysis.matching.AbstractICD11MatchingRule;
+import com.wci.umls.server.mojo.analysis.matching.ICD11MatcherConstants;
+import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.AbstractNeoplasmICD11MatchingRule;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.processes.FindingSiteUtility;
 import com.wci.umls.server.mojo.processes.ICD11MatcherConceptSearcher;
@@ -62,10 +60,11 @@ public class ICD11GenericMatchingMojo extends AbstractICD11MatchingMojo {
     }
   }
 
-  protected Set<AbstractICD11MatchingRule> setupProcess() {
+  protected Set<AbstractICD11MatchingRule> setupProcess() throws IOException {
     conceptSearcher.setup(client, sourceTerminology, sourceVersion, targetTerminology,
         targetVersion, authToken);
     AbstractGenericICD11MatchingRule.setConceptSearcher(conceptSearcher);
+//    AbstractNeoplasmICD11MatchingRule.initializeTcTable();
 
     fsUtility = new FindingSiteUtility(client, sourceTerminology, sourceVersion, targetTerminology,
         targetVersion, authToken);
@@ -195,7 +194,7 @@ public class ICD11GenericMatchingMojo extends AbstractICD11MatchingMojo {
 
   @Override
   protected int getDepthLocation() {
-    return  ICD11MatchingConstants.DEPTH_LOCATION_GENERIC;
+    return  ICD11MatcherConstants.DEPTH_LOCATION_GENERIC;
   }
 
   @Override

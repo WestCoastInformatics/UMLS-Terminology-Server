@@ -2,7 +2,6 @@ package com.wci.umls.server.mojo.analysis.matching;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -60,11 +59,7 @@ public abstract class AbstractICD11MatchingRule {
   static final protected String tcInputFilePath =
       "src//main//resources//01312019 core transative closures.txt";
 
-  static final protected String synonymsInputFilePath = "src//main//resources//synonyms.txt";
-
   public static Set<String> topLevelConcepts = new HashSet<>();
-
-  public static final Map<String, String> snomedToIcdSynonymMap = new HashMap<String, String>();
 
   static protected ICD11MatcherConceptSearcher conceptSearcher;
 
@@ -75,83 +70,52 @@ public abstract class AbstractICD11MatchingRule {
     pfsMinimal.setMaxResults(5);
     pfsLimited.setStartIndex(0);
     pfsLimited.setMaxResults(10);
-
-    BufferedReader reader;
-    topLevelConcepts.add(ICD11MatchingConstants.SNOMED_ROOT_CONCEPT);
-    System.out.println("About to read in the Trans Closure file. This will take about 30 seconds...");
-
-    try {
-      reader = new BufferedReader(new FileReader(tcInputFilePath));
-      String line = reader.readLine(); // Don't want header
-      line = reader.readLine();
-      while (line != null) {
-        String[] columns = line.split("\t");
-
-        // Process Line
-        if (!transClosureMap.containsKey(columns[0])) {
-          HashMap<String, Integer> subMap = new HashMap<>();
-          transClosureMap.put(columns[0], subMap);
-        }
-        transClosureMap.get(columns[0]).put(columns[1], Integer.parseInt(columns[2]));
-
-        // Include top level concepts as well as children of body strcture to obtain better results
-        if ((columns[0].equals(ICD11MatchingConstants.SNOMED_ROOT_CONCEPT) || (columns[0].equals(ICD11MatchingConstants.BODY_STRUCTURE)))
-            && Integer.parseInt(columns[2]) == 1) {
-          topLevelConcepts.add(columns[1]);
-        }
-
-        if (!inverseTransClosureMap.containsKey(columns[1])) {
-          HashMap<String, Integer> subMap = new HashMap<>();
-          inverseTransClosureMap.put(columns[1], subMap);
-        }
-        inverseTransClosureMap.get(columns[1]).put(columns[0], Integer.parseInt(columns[2]));
-
-        line = reader.readLine();
-      }
-
-      reader.close();
-      System.out.println("Completed reading the Trans Closure file.");
-
-      reader = new BufferedReader(new FileReader(synonymsInputFilePath));
-      line = reader.readLine(); // Don't want header
-      line = reader.readLine();
-      while (line != null) {
-        String[] columns = line.trim().split("\\|");
-
-        String icdStr = columns[ICD11MatchingConstants.ICD_COLUMN].trim();
-        String snomedStr = columns[ICD11MatchingConstants.SNOMED_COLUMN].trim();
-
-        if (icdStr.startsWith("#")) {
-          icdStr = icdStr.substring(1);
-        }
-        snomedToIcdSynonymMap.put(snomedStr, icdStr);
-
-        line = reader.readLine();
-      }
-
-      snomedToIcdSynonymMap.put("female mammary", "mammary");
-      snomedToIcdSynonymMap.put("female breast", "breast");
-      snomedToIcdSynonymMap.put("male mammary", "mammary");
-      snomedToIcdSynonymMap.put("male breast", "breast");
-      snomedToIcdSynonymMap.put("tongue", "oral");
-      snomedToIcdSynonymMap.put("nose", "respiratory");
-      snomedToIcdSynonymMap.put("nasal", "respiratory");
-      snomedToIcdSynonymMap.put("urinary", "bladder");
-      snomedToIcdSynonymMap.put("lacrimal", "eye");
-
-      reader.close();
-
-    } catch (FileNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
   }
-
+  
   abstract protected StringBuffer createSnomedConceptSearchedLine(ICD11MatcherSctConcept sctCon,
     int counter);
+
+  abstract protected SctICD11SynonymProvider getSynonymProvider();
+
+  public static void initializeTcTable() throws IOException {
+    BufferedReader reader;
+    topLevelConcepts.add(ICD11MatcherConstants.SNOMED_ROOT_CONCEPT);
+    System.out
+        .println("About to read in the Trans Closure file. This will take about 30 seconds...");
+
+    reader = new BufferedReader(new FileReader(tcInputFilePath));
+    String line = reader.readLine(); // Don't want header
+    line = reader.readLine();
+    while (line != null) {
+      String[] columns = line.split("\t");
+
+      // Process Line
+      if (!transClosureMap.containsKey(columns[0])) {
+        HashMap<String, Integer> subMap = new HashMap<>();
+        transClosureMap.put(columns[0], subMap);
+      }
+      transClosureMap.get(columns[0]).put(columns[1], Integer.parseInt(columns[2]));
+
+      // Include top level concepts as well as children of body strcture to
+      // obtain better results
+      if ((columns[0].equals(ICD11MatcherConstants.SNOMED_ROOT_CONCEPT)
+          || (columns[0].equals(ICD11MatcherConstants.BODY_STRUCTURE)))
+          && Integer.parseInt(columns[2]) == 1) {
+        topLevelConcepts.add(columns[1]);
+      }
+
+      if (!inverseTransClosureMap.containsKey(columns[1])) {
+        HashMap<String, Integer> subMap = new HashMap<>();
+        inverseTransClosureMap.put(columns[1], subMap);
+      }
+      inverseTransClosureMap.get(columns[1]).put(columns[0], Integer.parseInt(columns[2]));
+
+      line = reader.readLine();
+    }
+
+    reader.close();
+    System.out.println("Completed reading the Trans Closure file.");
+  }
 
   abstract public String getDefaultTarget();
 
@@ -175,7 +139,8 @@ public abstract class AbstractICD11MatchingRule {
 
   abstract protected ICD11MatcherSctConcept getTopLevelConcept();
 
-  public abstract Set<String> executeRule(ICD11MatcherSctConcept sctCon, int counter) throws Exception;
+  public abstract Set<String> executeRule(ICD11MatcherSctConcept sctCon, int counter)
+    throws Exception;
 
   abstract public void preTermProcessing(ICD11MatcherSctConcept sctCon) throws Exception;
 
@@ -199,25 +164,25 @@ public abstract class AbstractICD11MatchingRule {
 
   public void identifyIcd11Targets() throws Exception {
     if (getRuleQueryString() != null) {
-      final SearchResultList fullStringResults = client.findConcepts(targetTerminology, targetVersion,
-          getRuleQueryString(), pfsLimitless, authToken);
+      final SearchResultList fullStringResults = client.findConcepts(targetTerminology,
+          targetVersion, getRuleQueryString(), pfsLimitless, authToken);
       System.out.println("Have returned : " + fullStringResults.getTotalCount() + " objects");
-  
+
       if (printIcd11Targets()) {
         for (SearchResult result : fullStringResults.getObjects()) {
           System.out.println(result.getCodeId() + "\t" + result.getValue());
         }
       }
-  
+
       int matches = 0;
       System.out.println("\n\n\nNow Filtering");
-  
+
       for (SearchResult result : fullStringResults.getObjects()) {
         if (isRuleMatch(result)) {
           if (printIcd11Targets()) {
             System.out.println(result.getCodeId() + "\t" + result.getValue());
           }
-  
+
           icd11Targets.getObjects().add(result);
           icd11Targets.setTotalCount(icd11Targets.getTotalCount() + 1);
           matches++;
@@ -227,22 +192,24 @@ public abstract class AbstractICD11MatchingRule {
     } else {
       SearchResult topLevelEclConcept = null;
 
-      final SearchResultList fullStringResults = client.findConcepts(targetTerminology, targetVersion, getEclTopLevelDesc(), pfsMinimal, authToken);
-      
+      final SearchResultList fullStringResults = client.findConcepts(targetTerminology,
+          targetVersion, getEclTopLevelDesc(), pfsMinimal, authToken);
+
       for (SearchResult result : fullStringResults.getObjects()) {
-        if (result.isLeafNode() && !result.isObsolete() && result.getValue().equals(getEclTopLevelDesc())) {
-          topLevelEclConcept  = result;
+        if (result.isLeafNode() && !result.isObsolete()
+            && result.getValue().equals(getEclTopLevelDesc())) {
+          topLevelEclConcept = result;
           break;
         }
       }
-      
+
       if (topLevelEclConcept == null) {
         throw new Exception("Couldn't match ECL Concept: " + getEclTopLevelDesc());
       }
-      
+
       PfsParameterJpa pfsEcl = new PfsParameterJpa();
       // Make ECL Query
-      pfsEcl .setExpression("<< " + topLevelEclConcept.getTerminologyId());
+      pfsEcl.setExpression("<< " + topLevelEclConcept.getTerminologyId());
 
       final SearchResultList eclResults =
           client.findConcepts(targetTerminology, targetVersion, null, pfsEcl, authToken);
@@ -320,9 +287,9 @@ public abstract class AbstractICD11MatchingRule {
 
   protected String cleanDescription(String origString, Set<String> ruleBasedTerms) {
     String desc = origString.toLowerCase();
-    Set<String> termsToRemove = new HashSet<String>(ICD11MatchingConstants.NON_MATCHING_TERMS);
+    Set<String> termsToRemove = new HashSet<String>(ICD11MatcherConstants.NON_MATCHING_TERMS);
     termsToRemove.addAll(ruleBasedTerms);
-    
+
     for (String key : termsToRemove) {
       if (desc.matches(".*\\b" + key + "es\\b.*")) {
         desc = desc.replaceAll(key + "es", "");
@@ -333,7 +300,7 @@ public abstract class AbstractICD11MatchingRule {
       if (desc.matches(".*\\b" + key + "\\b.*")) {
         desc = desc.replaceAll(key, "");
       }
-      
+
       desc = desc.replaceAll(" {2,}", " ");
     }
 
@@ -345,22 +312,21 @@ public abstract class AbstractICD11MatchingRule {
 
     for (SctNeoplasmDescription fullDesc : sctCon.getDescs()) {
       String desc = "";
-      String[] splitString =
-          FieldedStringTokenizer.split(fullDesc.getDescription().toLowerCase(), " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
+      String[] splitString = FieldedStringTokenizer.split(fullDesc.getDescription().toLowerCase(),
+          " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
       for (int i = 0; i < splitString.length; i++) {
         desc += splitString[i] + " ";
       }
-      
-      desc = cleanDescription(desc.toLowerCase().trim(), getRuleBasedNonMatchTerms());
-      descsToProcess.add(desc);
 
-      for (String key : snomedToIcdSynonymMap.keySet()) {
-        if (desc.matches(".*\\b" + key + "\\b.*")) {
-          desc = desc.replaceAll("\\b" + key + "\\b", snomedToIcdSynonymMap.get(key));
-          descsToProcess.add(desc);
-        }
-      }
+      desc = cleanDescription(desc.toLowerCase().trim(), getRuleBasedNonMatchTerms());
+      
+      descsToProcess.addAll(getSynonymProvider().identifyEquivalencies(desc));
     }
+
     return descsToProcess;
+  }
+
+  public SearchResultList getIcd11Concepts() {
+    return icd11Targets;
   }
 }

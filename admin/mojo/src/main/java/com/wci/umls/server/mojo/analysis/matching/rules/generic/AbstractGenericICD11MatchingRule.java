@@ -1,16 +1,15 @@
 package com.wci.umls.server.mojo.analysis.matching.rules.generic;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.mojo.analysis.matching.AbstractICD11MatchingRule;
-import com.wci.umls.server.mojo.analysis.matching.ICD11MatchingConstants;
+import com.wci.umls.server.mojo.analysis.matching.ICD11MatcherConstants;
+import com.wci.umls.server.mojo.analysis.matching.SctICD11SynonymProvider;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.processes.FindingSiteUtility;
 import com.wci.umls.server.rest.client.ContentClientRest;
@@ -32,6 +31,8 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
 
   abstract protected SearchResultList testMatchingFindingSite(String queryPortion) throws Exception;
 
+  protected static SctICD11SynonymProvider synonymProvider = new SctICD11SynonymProvider(ICD11MatcherConstants.SNOMED_TO_ICD11);
+
   @Override
   public String getEclTopLevelDesc() {
     return null;
@@ -40,6 +41,10 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
   @Override
   public String getDefaultSkinMatch() {
     return null;
+  }
+
+  protected SctICD11SynonymProvider getSynonymProvider() {
+    return synonymProvider;
   }
 
   public AbstractGenericICD11MatchingRule(ContentClientRest contentClient, String st, String sv,
@@ -130,9 +135,9 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
         SearchResultList matches = testMatchingFindingSite(desc);
         for (SearchResult match : matches.getObjects()) {
           if (!alreadyMatched(match.getCodeId(), alreadyProcessedResults)) {
-            if (ruleType.equals(ICD11MatchingConstants.FILTERED_RULE_TYPE) && isRuleMatch(match)) {
+            if (ruleType.equals(ICD11MatcherConstants.FILTERED_RULE_TYPE) && isRuleMatch(match)) {
               processBaseSearch(match, desc, depth, matchResultMap, matchDepthMap, lowestDepthMap);
-            } else if (!ruleType.equals(ICD11MatchingConstants.FILTERED_RULE_TYPE)) {
+            } else if (!ruleType.equals(ICD11MatcherConstants.FILTERED_RULE_TYPE)) {
               processBaseSearch(match, desc, depth, matchResultMap, matchDepthMap, lowestDepthMap);
             }
           }
@@ -273,14 +278,14 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
     matchNextConcept(sctCon, counter);
 
     matchApproachBaseMatch(sctCon, results, icd11Targets,
-        ICD11MatchingConstants.FILTERED_RULE_TYPE);
+        ICD11MatcherConstants.FILTERED_RULE_TYPE);
     matchApproachBaseSearch(sctCon, results, icd11Targets,
-        ICD11MatchingConstants.FILTERED_RULE_TYPE);
+        ICD11MatcherConstants.FILTERED_RULE_TYPE);
 
     matchApproachBaseMatch(sctCon, results, getAllIcd11Targets(),
-        ICD11MatchingConstants.ALL_LEAFS_RULE_TYPE);
+        ICD11MatcherConstants.ALL_LEAFS_RULE_TYPE);
     matchApproachBaseSearch(sctCon, results, getAllIcd11Targets(),
-        ICD11MatchingConstants.ALL_LEAFS_RULE_TYPE);
+        ICD11MatcherConstants.ALL_LEAFS_RULE_TYPE);
 
     return results;
   }
