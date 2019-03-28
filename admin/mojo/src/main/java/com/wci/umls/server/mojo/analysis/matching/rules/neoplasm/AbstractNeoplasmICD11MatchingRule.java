@@ -79,14 +79,6 @@ public abstract class AbstractNeoplasmICD11MatchingRule extends AbstractICD11Mat
     populatedFromFiles = populatedFromFiles && descParser.readAllFindingSitesFromFile();
     populatedFromFiles = populatedFromFiles && relParser.readAllFindingSitesFromFile();
 
-    try {
-      populatedFromFiles = descParser.readDescsFromFile(getRulePath(matcherName));
-      populatedFromFiles =
-          populatedFromFiles && relParser.readRelsFromFile(getRulePath(matcherName));
-    } catch (Exception e) {
-
-    }
-    
     return populatedFromFiles;
   }
 
