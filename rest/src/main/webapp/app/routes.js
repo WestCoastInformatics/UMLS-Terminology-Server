@@ -165,6 +165,13 @@ tsApp.run([
                 controller : 'SemanticTypesCtrl',
                 reloadOnSearch : false
               });
+              
+              console.debug('Route enabled: /edit/codeConcepts');
+              $routeProviderReference.when('/edit/codeConcepts', {
+                templateUrl : 'app/page/edit/codeConcepts/codeConcepts.html',
+                controller : 'CodeConceptsCtrl',
+                reloadOnSearch : false
+              });
 
               console.debug('Route enabled: /edit/atoms');
               $routeProviderReference.when('/edit/atoms', {

@@ -56,7 +56,10 @@
         &nbsp; {{atom.name}}
       </td>
       <td ng-click="toggleSelection(atom)">{{atom.terminology}}/{{atom.termType}}</td>
-      <td ng-click="toggleSelection(atom)">{{atom.codeId}}</td>
+      <td ng-click="toggleSelection(atom)">
+      <a class="pointer" ng-show="atom.codeId != 'NOCODE'"
+      ng-click="openCodeConceptsWindow(atom, null, null)">{{atom.codeId}}</a>
+      </td>
       <td ng-click="toggleSelection(atom)">{{atom.conceptId}}</td>
       <td ng-click="toggleSelection(atom)">{{atom.descriptorId}}</td>
       <td ng-click="toggleSelection(atom)">{{atom.lastModifiedBy}}</td>

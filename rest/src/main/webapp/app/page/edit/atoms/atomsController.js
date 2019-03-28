@@ -36,7 +36,7 @@ tsApp
         $scope.lists = $scope.parentWindowScope.lists;
         $scope.user = $scope.parentWindowScope.user;
         $scope.selected.atoms = {};
-
+        
         // Paging variables
         $scope.pageSizes = utilService.getPageSizes();
         $scope.paging = {};
@@ -510,11 +510,7 @@ tsApp
           modalInstance.result.then(
           // Success
           function(data) {
-            /*
-             * $scope.parentWindowScope.getRecords(false);
-             * $scope.parentWindowScope.getConcepts($scope.selected.record,
-             * true);
-             */
+ 
           });
         };
 
@@ -551,13 +547,36 @@ tsApp
           modalInstance.result.then(
           // Success
           function(data) {
-            /*
-             * $scope.parentWindowScope.getRecords(false);
-             * $scope.parentWindowScope.getConcepts($scope.selected.record,
-             * true);
-             */
+ 
           });
 
+        };
+
+        $scope.openCodeConceptsWindow = function(atom, width, height) {
+
+          var newUrl = utilService.composeUrl('/edit/codeConcepts');
+          $scope.selected.linkedAtom = atom;
+          window.$windowScope = $scope;
+
+          if (width == null && height == null
+            && $scope.user.userPreferences.properties['codeConceptsWidth']) {
+            width = $scope.user.userPreferences.properties['codeConceptsWidth'];
+            height = $scope.user.userPreferences.properties['codeConceptsHeight'];
+          } else if (!$scope.user.userPreferences.properties['codeConceptsWidth']) {
+            width = 600;
+            height = 600;
+          }
+          $scope.windows['codeConcepts'] = $window.open(newUrl, 'codeConceptsWindow', 'width=' + width
+            + ', height=' + height + ', scrollbars=yes');
+          $scope.windows['codeConcepts'].document.title = 'Code Concepts Reference';
+          $scope.windows['codeConcepts'].focus();
+          if ($scope.user.userPreferences.properties.hasOwnProperty('codeConceptsX')) {
+            $scope.windows['codeConcepts'].moveTo(
+              $scope.user.userPreferences.properties['codeConceptsX'],
+              $scope.user.userPreferences.properties['codeConceptsY']);
+          }
+
+          securityService.saveProperty($scope.user.userPreferences, 'codeConcepts', true);
         };
 
         //

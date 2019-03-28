@@ -1,0 +1,35 @@
+<form>
+  <div class="modal-header">
+    <h4 style="display: inline">Concepts with Code {{selected.linkedAtom.codeId}}</h4>
+  </div>
+
+  <div class="modal-body">
+    <div>
+      <table class="slim table">
+        <thead>
+          <th>Id</th>
+          <th>Concept Id</th>
+          <th>Name</th>
+        </thead>
+        <tbody>
+          <tr ng-repeat="concept in concepts">
+            <td>{{concept.id}}</td>
+            <td>{{concept.terminologyId}}</td>
+            <td>{{concept.name}}</td>
+            <td>
+              <span style="float: right">
+                <i title="Add to Concept List"
+                  ng-click="addComponent(concept);"
+                  class="noul glyphicon glyphicon-plus"></i>
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Errors -->
+    <div errors="errors"></div>
+
+  </div>
+</form>

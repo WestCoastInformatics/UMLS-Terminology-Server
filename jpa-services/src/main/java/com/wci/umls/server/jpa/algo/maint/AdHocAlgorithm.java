@@ -218,12 +218,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixComponentHistoryVersion();
     } else if (actionName.equals("Fix AdditionalRelType Inverses 2")) {
       fixAdditionalRelTypeInverses2();
-    } else if (actionName.equals("Add Bequeathals")) {
-      addBequeathals();
-    } else if (actionName.equals("Add RORB Bequeathals")) {
-      addRORBBequeathals();
-    } else if (actionName.equals("Add Concept RORB Bequeathals")) {
-      addRORBConceptBequeathals();
+    } else if (actionName.equals("Remove Demotions")) {
+      removeDemotions();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -2703,163 +2699,42 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   }
   
   
-  private void addBequeathals() throws Exception {
-    // 2/21/2019 In effort to reduce deleted_cuis, create bequeathals to the live parent 
-    // or grandparent concept.
+  private void removeDemotions() throws Exception {
+    // 3/22/2019 Clean up demotions that should have been removed during concept approval.
 
-    logInfo(" Add Bequeathals");
+    logInfo(" Remove Demotions");
   
     try {
 
-      Set<Concept> deletedCuis = new HashSet<>();
-      File srcDir = getSrcDirFile();
-      logInfo("bequeathal srcDir:" + srcDir);
-      BufferedWriter out = new BufferedWriter(new FileWriter(new File(srcDir, "bequeathal.relationships.src")));
       
-      Query query = getEntityManager().createNativeQuery(
-          "SELECT   DISTINCT c.id conceptId FROM   concepts c,   "
-          + "concepts_atoms ca,   atoms a WHERE   c.terminology = 'NCIMTH'   "
-          + "AND c.id != c.terminologyId   AND c.id = ca.concepts_id   AND "
-          + "ca.atoms_id = a.id   "
-          + "AND a.publishable = FALSE   AND NOT c.id IN ("
-          +   "SELECT       DISTINCT c.id conceptId     " 
-          +   " FROM       concepts c,       concepts_atoms ca,       atoms a     "
-          +   " WHERE       c.terminology = 'NCIMTH'       AND c.id = ca.concepts_id   "
-          +   " AND ca.atoms_id = a.id       AND a.publishable = TRUE   )   " 
-          +   " AND NOT c.id IN (     "
-          +   "   SELECT       DISTINCT c.id conceptId     "
-          +   "    FROM       concepts c,       concept_relationships cr     "
-          +   "    WHERE       c.terminology = 'NCIMTH'       AND c.id = cr.from_id       "
-          +   "    AND cr.relationshipType like 'B%'   )   AND NOT c.id IN (     "
-          +   "      SELECT       c.id conceptId     " 
-          +   "        FROM       concepts c,       concepts_atoms ca     "
-          +   "        WHERE       c.terminology = 'NCIMTH'       "
-          +   "        AND c.id = ca.concepts_id       AND ca.concepts_id IN (         "
-          +   "      SELECT           ca.concepts_id         FROM           concepts_atoms ca,           atoms a         " 
-          +   "        WHERE           ca.atoms_id = a.id           "
-          +   "        AND a.terminology IN ('MTH', 'NCIMTH')           " 
-          +   "        AND a.termType = 'PN'       )     GROUP BY       ca.concepts_id     "
-          +   "        HAVING       COUNT(DISTINCT ca.atoms_id) = 1   )"
-          +   " AND NOT c.id IN (   "
-          +   "   SELECT  " 
-          +   "     ca.concepts_id conceptId  "
-          +   "   FROM  "
-          +   "     mrcui mr,  "
-          +  "      atomjpa_conceptterminologyids ac,  "
-          +  "      concepts_atoms ca,  "
-          +  "      concepts cpt  "
-          + "     WHERE  "
-          +  "      mr.cui1 = ac.conceptTerminologyIds  "
-          +  "      AND ca.atoms_id = ac.AtomJpa_id  "
-          +  "      AND cpt.id = ca.concepts_id  "
-          +  "      AND cpt.terminology = 'NCIMTH'  "
-          +  "      AND ac.conceptTerminologyIds_KEY = 'NCIMTH'  "
-          +  "      AND mr.rel = 'DEL'  )"
-        
-          
-          );
+      Query query = getEntityManager().createNativeQuery("select "
+          + "ar.id relId, " + "cr.to_id c1Id, " + "cr.from_id c2Id " + "from "
+          + "atom_relationships ar, " + "concept_relationships cr, "
+          + "concepts_atoms ca1, " + "concepts_atoms ca2 " + "where "
+          + "ar.terminology = 'NCIMTH' " + "and cr.terminology = 'NCIMTH' "
+          + "and ar.from_id = ca1.atoms_id " + "and ar.to_id = ca2.atoms_id "
+          + "and cr.from_id = ca1.concepts_id "
+          + "and cr.to_id = ca2.concepts_id "
+          + "and ar.workflowStatus = 'DEMOTION' "
+          + "and cr.workflowStatus in ('READY_FOR_PUBLICATION', 'PUBLISHED') "
+
+      );
       
 
-      List<Object> list = query.getResultList();
-      setSteps(list.size());
-      /*List<Object> list = new ArrayList<>();
-      list.add(2228275L);
-      list.add(2752574L);
-      list.add(1048702L);*/
-      int index = 1;
-      for (final Object entry : list) {
-        final Long id = Long.valueOf(entry.toString());
-        Concept c = getConcept(id);
-        deletedCuis.add(c);
-        c.getAtoms().size();
-        c.getRelationships().size();
-      }
-      for (Concept c : deletedCuis) {
-        index++;
-        List<String> potentialParentBequeathals = new ArrayList<>();
-        List<String> potentialGrandparentBequeathals = new ArrayList<>();
-        for (Atom atom : c.getAtoms()) {
-          Atom a = getAtom(atom.getId());
-          for (AtomRelationship ar : a.getInverseRelationships()) {
-            if (ar.getRelationshipType().equals("PAR")) {
-              Atom parentAtom = ar.getFrom();
-              // Find the NCIMTH concept for the parent atom
-              SearchResultList srl = findConceptSearchResults(
-                  getProject().getTerminology(), getProject().getVersion(),
-                  Branch.ROOT, "atoms.id:" + parentAtom.getId(), null);
-              if (srl.size()!= 1) {
-                continue;
-              }
-              Long ncimthConceptId = srl.getObjects().get(0).getId();
-              Concept ncimthParentConcept = getConcept(ncimthConceptId);
-              
-              if (noXRRel(c, ncimthParentConcept) && ncimthParentConcept.isPublishable()) {
-                /*logInfo("[AddBequeathals parent] " + c.getId()  
-                + " " + ncimthParentConcept.getId() + " " + ar.getFrom().getId() + " "
-                + ar.getRelationshipType() + " " + ar.getTo().getId());*/
-                StringBuffer sb = new StringBuffer();
-                sb.append("").append("|");
-                sb.append("C").append("|");
-                sb.append(c.getTerminologyId()).append("|");
-                sb.append("BBT").append("|").append("|");
-                sb.append(ncimthParentConcept.getTerminologyId()).append("|");
-                sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI|NCIMTH|SOURCE_CUI|NCIMTH|||").append("\n");
-                potentialParentBequeathals.add(sb.toString());
-              } else {
-                // consider publishable grandparent
-                for (AtomRelationship ar2 : parentAtom.getInverseRelationships()) {
-                  if (ar2.getRelationshipType().equals("PAR")) {
-                    Atom grandparentAtom = ar2.getFrom();
-                    // Find the NCIMTH concept for the grandparent atom
-                    SearchResultList srl2 = findConceptSearchResults(
-                        getProject().getTerminology(), getProject().getVersion(),
-                        Branch.ROOT, "atoms.id:" + grandparentAtom.getId(), null);
-                    if (srl2.size()!= 1) {
-                      continue;
-                    }
-                    Long ncimthConceptId2 = srl2.getObjects().get(0).getId();
-                    Concept ncimthParentConcept2 = getConcept(ncimthConceptId2);
-                   
-                    if (noXRRel(c, ncimthParentConcept2) && ncimthParentConcept2.isPublishable()) {
-                      /*out.write("[AddBequeathals- grandparent] " + c.getId()  + " " + ncimthParentConcept.getId()
-                      + " " + ncimthParentConcept2.getId() + " " +  ar.getFrom().getId() + " "
-                      + ar.getRelationshipType() + " " + ar.getTo().getId() + " " + ar2.getFrom().getId() + " "
-                      + ar2.getRelationshipType() + " " + ar2.getTo().getId());
-                      out.write("\n");*/
-                      StringBuffer sb = new StringBuffer();
-                      sb.append("").append("|");
-                      sb.append("C").append("|");
-                      sb.append(c.getTerminologyId()).append("|");
-                      sb.append("BBT").append("|").append("|");
-                      sb.append(ncimthParentConcept2.getTerminologyId()).append("|");
-                      sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI|NCIMTH|SOURCE_CUI|NCIMTH|||").append("\n");
-                      potentialGrandparentBequeathals.add(sb.toString());
-                    } 
-                  }
-                }
-              }
-            }
-          }
-        }
-        // write out a max of two bequeathals, parent bequeathals get precedence over grandparent ones
-        if (potentialParentBequeathals.size() >= 2) {
-          out.write(potentialParentBequeathals.get(0));
-          out.write(potentialParentBequeathals.get(1));
-        } else if (potentialParentBequeathals.size() == 1) {
-          out.write(potentialParentBequeathals.get(0));
-          if (potentialGrandparentBequeathals.size() >= 1) {
-            out.write(potentialGrandparentBequeathals.get(0));
-          }
-        } else if (potentialGrandparentBequeathals.size() >= 1) {
-          out.write(potentialGrandparentBequeathals.get(0));
+      final List<Object[]> ids = query.getResultList();
+
+      setSteps(ids.size());
+      for (final Object[] result : ids) {;
+        final Relationship<?, ?> rel = (AtomRelationship) getRelationship(Long.valueOf(result[0].toString()), AtomRelationshipJpa.class);
+        final Concept c1 = getConcept(Long.valueOf(result[1].toString()));
+        final Concept c2 = getConcept(Long.valueOf(result[2].toString()));
+      
+        logInfo("Remove demotion: " + rel.getId() + " between " + c1.getId() + " and " + c2.getId());
+        if (rel != null) {
+          removeRelationship(rel.getId(), AtomRelationshipJpa.class);
         }
         updateProgress();
-        if (index % 100 == 0) {
-          out.flush();
-        }
       }
-      
-      out.close();
       
     } catch (Exception e) {
       e.printStackTrace();
@@ -2867,7 +2742,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     } finally {
       // n/a
     }
-
+    
+    logInfo("Finished " + getName());
   }
   
   private boolean noXRRel(Concept a, Concept b) {
@@ -2880,436 +2756,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     return true;
   }
   
-  private void addRORBConceptBequeathals() throws Exception {
-    // 2/21/2019 In effort to reduce deleted_cuis, create bequeathals based on RO/RB concept rels
-    // when there are no PAR rels.  addBequeathals() AdHoc should be run before this algorithm.
 
-    logInfo("Add Concept RORB Bequeathals");
-
-    AddRelationshipMolecularAction action = new AddRelationshipMolecularAction();
-    AbstractMolecularAction approveAction = new ApproveMolecularAction();
-    
-    try {
-
-      Set<Concept> deletedCuis = new HashSet<>();
-      Query query = getEntityManager().createNativeQuery(
-          "SELECT   DISTINCT c.id conceptId FROM   concepts c,   "
-          + "concepts_atoms ca,   atoms a WHERE   c.terminology = 'NCIMTH'   "
-          + "AND c.id != c.terminologyId   AND c.id = ca.concepts_id   AND "
-          + "ca.atoms_id = a.id   "
-          + "AND a.publishable = FALSE   AND NOT c.id IN ("
-          +   "SELECT       DISTINCT c.id conceptId     " 
-          +   " FROM       concepts c,       concepts_atoms ca,       atoms a     "
-          +   " WHERE       c.terminology = 'NCIMTH'       AND c.id = ca.concepts_id   "
-          +   " AND ca.atoms_id = a.id       AND a.publishable = TRUE   )   " 
-          +   " AND NOT c.id IN (     "
-          +   "   SELECT       DISTINCT c.id conceptId     "
-          +   "    FROM       concepts c,       concept_relationships cr     "
-          +   "    WHERE       c.terminology = 'NCIMTH'       AND c.id = cr.from_id       "
-          +   "    AND cr.relationshipType like 'B%'   )   AND NOT c.id IN (     "
-          +   "      SELECT       c.id conceptId     " 
-          +   "        FROM       concepts c,       concepts_atoms ca     "
-          +   "        WHERE       c.terminology = 'NCIMTH'       "
-          +   "        AND c.id = ca.concepts_id       AND ca.concepts_id IN (         "
-          +   "      SELECT           ca.concepts_id         FROM           concepts_atoms ca,           atoms a         " 
-          +   "        WHERE           ca.atoms_id = a.id           "
-          +   "        AND a.terminology IN ('MTH', 'NCIMTH')           " 
-          +   "        AND a.termType = 'PN'       )     GROUP BY       ca.concepts_id     "
-          +   "        HAVING       COUNT(DISTINCT ca.atoms_id) = 1   )"
-          +   " AND NOT c.id IN (   "
-          +   "   SELECT  " 
-          +   "     ca.concepts_id conceptId  "
-          +   "   FROM  "
-          +   "     mrcui mr,  "
-          +  "      atomjpa_conceptterminologyids ac,  "
-          +  "      concepts_atoms ca,  "
-          +  "      concepts cpt  "
-          + "     WHERE  "
-          +  "      mr.cui1 = ac.conceptTerminologyIds  "
-          +  "      AND ca.atoms_id = ac.AtomJpa_id  "
-          +  "      AND cpt.id = ca.concepts_id  "
-          +  "      AND cpt.terminology = 'NCIMTH'  "
-          +  "      AND ac.conceptTerminologyIds_KEY = 'NCIMTH'  "
-          +  "      AND mr.rel = 'DEL'  )"
-        
-          
-          );
-      
-
-      List<Object> list = query.getResultList();
-      setSteps(list.size());
-      List<Long> conceptsToBeApproved = new ArrayList<>();
-      
-     /* List<Object> list = new ArrayList<>();
-      list.add(401456L);
-      list.add(155706L);
-      list.add(401471L);
-      setSteps(3);*/
-      // get the deleted cui concepts that will be evaluated
-      for (final Object entry : list) {
-        final Long id = Long.valueOf(entry.toString());
-        Concept c = getConcept(id);
-        deletedCuis.add(c);
-        c.getAtoms().size();
-        c.getRelationships().size();
-        c.getInverseRelationships().size();
-      }
-      
-      // for each deleted cui concept, find potential bequeathal rels
-      for (Concept c : deletedCuis) {
-        Map<Concept, Concept> potentialROBequeathals = new HashMap<>();
-        Map<Concept, Concept> potentialRBBequeathals = new HashMap<>();
-        for (ConceptRelationship cr : c.getInverseRelationships()) {
-          if (cr.getRelationshipType().equals("RB")) {
-            Concept otherConcept = cr.getFrom();
-            Concept ncimthOtherConcept = getConcept(otherConcept.getId());
-            if (noXRRel(c, ncimthOtherConcept)
-                && ncimthOtherConcept.isPublishable()) {
-              potentialRBBequeathals.put(c, ncimthOtherConcept);
-            }
-          } else if (cr.getRelationshipType().equals("RO")) {
-            Concept otherConcept = cr.getFrom();
-            Concept ncimthOtherConcept = getConcept(otherConcept.getId());
-            if (noXRRel(c, ncimthOtherConcept)
-                && ncimthOtherConcept.isPublishable()) {
-              potentialROBequeathals.put(c, ncimthOtherConcept);
-            }
-          }
-        }
-
-        // choose which one bequeathal to add
-        ConceptRelationship relationship = new ConceptRelationshipJpa();
-
-        if (potentialRBBequeathals.size() >= 1) {
-          relationship.setFrom(potentialRBBequeathals.entrySet().stream()
-              .findFirst().get().getKey());
-          relationship.setTo(potentialRBBequeathals.entrySet().stream()
-              .findFirst().get().getValue());
-          relationship.setRelationshipType("BRN");
-          logInfo("[AddConceptBequeathals RB] " + relationship.getFrom().getId() + " "
-              + relationship.getFrom().getTerminologyId() + " RB " +
-              relationship.getTo().getId() + " " + relationship.getTo().getTerminologyId());
-        } else if (potentialROBequeathals.size() >= 1) {
-          relationship.setFrom(potentialROBequeathals.entrySet().stream()
-              .findFirst().get().getKey());
-          relationship.setTo(potentialROBequeathals.entrySet().stream()
-              .findFirst().get().getValue());
-          relationship.setRelationshipType("BRO");
-          logInfo("[AddConceptBequeathals RO] " + relationship.getFrom().getId() + " "
-              + relationship.getFrom().getTerminologyId() + " RO " +
-              relationship.getTo().getId() + " " + relationship.getTo().getTerminologyId());
-        } else {
-          continue;
-        }
-
-        // save prev workflow state, bc AddRelationshipMolecularAction will
-        // change all states to NEEDS_REVIEW, but editors won't want to review
-        // all of these, so we'll need to approve all of those that were
-        // READY_FOR_PUBLICATION or PUBLISHED
-        WorkflowStatus fromConceptPrevWorkflow =
-            relationship.getFrom().getWorkflowStatus();
-        WorkflowStatus toConceptPrevWorkflow =
-            relationship.getTo().getWorkflowStatus();
-
-        // Instantiate services
-        action =
-            new AddRelationshipMolecularAction();
-
-        // All new content is unpublished and publishable
-        relationship.setPublished(false);
-        relationship.setPublishable(true);
-
-        relationship.setTerminology("NCIMTH");
-        relationship.setVersion("latest");
-        relationship.setAdditionalRelationshipType("");
-        relationship.setTerminologyId("");
-
-        // Set defaults for a concept level relationship
-        relationship.setStated(true);
-        relationship.setInferred(true);
-        relationship.setSuppressible(false);
-        relationship.setObsolete(false);
-
-        // If RelGroup is null, set to blank
-        if (relationship.getGroup() == null) {
-          relationship.setGroup("");
-        }
-
-        // Configure the action
-        action.setProject(getProject());
-        action.setActivityId("AddRORBConceptBequeathals");
-        // The relationship is FROM conceptId -> conceptId2, and REL
-        // is represented in that direction
-        action.setConceptId(relationship.getFrom().getId());
-        action.setConceptId2(relationship.getTo().getId());
-        action.setLastModifiedBy("loader");
-        action.setLastModified(
-            relationship.getFrom().getLastModified().getTime());
-        action.setOverrideWarnings(true);
-        action.setTransactionPerOperation(false);
-        action.setMolecularActionFlag(true);
-        action.setChangeStatusFlag(true);
-
-        action.setRelationship(relationship);
-
-        // Perform the action
-        final ValidationResult validationResult =
-            action.performMolecularAction(action, "loader", true, false);
-
-        // If the action failed, bail out now.
-        if (!validationResult.isValid()) {
-          logError("Unexpected problem - " + validationResult);
-        }
-        
-        action.close();
-
-        // add to list if concepts were already reviewed and require ApprovalMolecularAction
-        if (fromConceptPrevWorkflow == WorkflowStatus.READY_FOR_PUBLICATION
-            || fromConceptPrevWorkflow == WorkflowStatus.PUBLISHED) {
-          conceptsToBeApproved.add(relationship.getFrom().getId());
-        }
-
-        if (toConceptPrevWorkflow == WorkflowStatus.READY_FOR_PUBLICATION
-            || toConceptPrevWorkflow == WorkflowStatus.PUBLISHED) {
-          conceptsToBeApproved.add(relationship.getTo().getId());
-        }
-
-        //commitClearBegin();
-        updateProgress();
-
-      }
-      // confirm that all concepts have been committed
-      commitClearBegin();
-      
-      // approve those concepts that were previously PUBLISHED or READY_FOR_PUBLICATION
-      for (Long conceptId : conceptsToBeApproved) {
-        Concept refreshedConcept = getConcept(conceptId);
-        approveAction = new ApproveMolecularAction();
-        approveAction.setProject(getProject());
-        approveAction.setActivityId(getActivityId());
-        approveAction.setConceptId(refreshedConcept.getId());
-        approveAction.setConceptId2(null);
-        approveAction.setLastModifiedBy(getLastModifiedBy());
-        approveAction
-            .setLastModified(refreshedConcept.getLastModified().getTime());
-        approveAction.setOverrideWarnings(true);
-        approveAction.setTransactionPerOperation(false);
-        approveAction.setMolecularActionFlag(true);
-        approveAction.setChangeStatusFlag(true);
-
-        // Perform the approveAction
-        ValidationResult approveValidationResult =
-            approveAction.performMolecularAction(approveAction,
-                getLastModifiedBy(), true, false);
-        approveAction.close();
-
-        // If the approveAction failed, bail out now.
-        if (!approveValidationResult.isValid()) {
-          logError("  unable to approve " + refreshedConcept.getId());
-          for (final String error : approveValidationResult.getErrors()) {
-            logError("    error = " + error);
-          }
-        }
-      }
-
-    } catch (Exception e) {
-      e.printStackTrace();
-      fail("Unexpected exception thrown - please review stack trace.");
-    } finally {
-      action.close();
-      approveAction.close();
-    }
-
-  }
-  
-  private void addRORBBequeathals() throws Exception {
-    // 2/21/2019 In effort to reduce deleted_cuis, create bequeathals based on RO/RB rels
-    // when there are no PAR rels.  addBequeathals() AdHoc should be run before this algorithm.
-
-    logInfo(" Add RO/RB Bequeathals");
-  
-    try {
-
-      Set<Concept> deletedCuis = new HashSet<>();
-      File srcDir = getSrcDirFile();
-      logInfo("bequeathal srcDir:" + srcDir);
-      BufferedWriter out = new BufferedWriter(new FileWriter(new File(srcDir, "bequeathal.relationships.src")));
-      
-      Query query = getEntityManager().createNativeQuery(
-          "SELECT   DISTINCT c.id conceptId FROM   concepts c,   "
-          + "concepts_atoms ca,   atoms a WHERE   c.terminology = 'NCIMTH'   "
-          + "AND c.id != c.terminologyId   AND c.id = ca.concepts_id   AND "
-          + "ca.atoms_id = a.id   "
-          + "AND a.publishable = FALSE   AND NOT c.id IN ("
-          +   "SELECT       DISTINCT c.id conceptId     " 
-          +   " FROM       concepts c,       concepts_atoms ca,       atoms a     "
-          +   " WHERE       c.terminology = 'NCIMTH'       AND c.id = ca.concepts_id   "
-          +   " AND ca.atoms_id = a.id       AND a.publishable = TRUE   )   " 
-          +   " AND NOT c.id IN (     "
-          +   "   SELECT       DISTINCT c.id conceptId     "
-          +   "    FROM       concepts c,       concept_relationships cr     "
-          +   "    WHERE       c.terminology = 'NCIMTH'       AND c.id = cr.from_id       "
-          +   "    AND cr.relationshipType like 'B%'   )   AND NOT c.id IN (     "
-          +   "      SELECT       c.id conceptId     " 
-          +   "        FROM       concepts c,       concepts_atoms ca     "
-          +   "        WHERE       c.terminology = 'NCIMTH'       "
-          +   "        AND c.id = ca.concepts_id       AND ca.concepts_id IN (         "
-          +   "      SELECT           ca.concepts_id         FROM           concepts_atoms ca,           atoms a         " 
-          +   "        WHERE           ca.atoms_id = a.id           "
-          +   "        AND a.terminology IN ('MTH', 'NCIMTH')           " 
-          +   "        AND a.termType = 'PN'       )     GROUP BY       ca.concepts_id     "
-          +   "        HAVING       COUNT(DISTINCT ca.atoms_id) = 1   )"
-          +   " AND NOT c.id IN (   "
-          +   "   SELECT  " 
-          +   "     ca.concepts_id conceptId  "
-          +   "   FROM  "
-          +   "     mrcui mr,  "
-          +  "      atomjpa_conceptterminologyids ac,  "
-          +  "      concepts_atoms ca,  "
-          +  "      concepts cpt  "
-          + "     WHERE  "
-          +  "      mr.cui1 = ac.conceptTerminologyIds  "
-          +  "      AND ca.atoms_id = ac.AtomJpa_id  "
-          +  "      AND cpt.id = ca.concepts_id  "
-          +  "      AND cpt.terminology = 'NCIMTH'  "
-          +  "      AND ac.conceptTerminologyIds_KEY = 'NCIMTH'  "
-          +  "      AND mr.rel = 'DEL'  )"
-        
-          
-          );
-      
-
-      List<Object> list = query.getResultList();
-      setSteps(list.size());
-      /*List<Object> list = new ArrayList<>();
-      list.add(401413L);
-      list.add(401408L);
-      list.add(155653L);
-      setSteps(3);*/
-      int index = 1;
-      for (final Object entry : list) {
-        final Long id = Long.valueOf(entry.toString());
-        Concept c = getConcept(id);
-        deletedCuis.add(c);
-        c.getAtoms().size();
-        c.getRelationships().size();
-        c.getInverseRelationships().size();
-      }
-      for (Concept c : deletedCuis) {
-        index++;
-        List<String> potentialROBequeathals = new ArrayList<>();
-        List<String> potentialRBBequeathals = new ArrayList<>();
-        for (ConceptRelationship cr : c.getInverseRelationships()) {
-          if (cr.getRelationshipType().equals("RB")) {
-            Concept otherConcept = cr.getFrom();
-            Concept ncimthOtherConcept = getConcept(otherConcept.getId());
-            if (noXRRel(c, ncimthOtherConcept) && ncimthOtherConcept.isPublishable()) {
-              StringBuffer sb = new StringBuffer();
-              sb.append("").append("|");
-              sb.append("C").append("|");
-              sb.append(c.getTerminologyId()).append("|");
-              sb.append("BBT").append("|").append("|");
-              sb.append(ncimthOtherConcept.getTerminologyId()).append("|");
-              sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI|NCIMTH|SOURCE_CUI|NCIMTH|||").append("\n");
-              potentialRBBequeathals.add(sb.toString());
-          
-            }
-          } else if (cr.getRelationshipType().equals("RO")) {
-            Concept otherConcept = cr.getFrom();
-            Concept ncimthOtherConcept = getConcept(otherConcept.getId());
-            if (noXRRel(c, ncimthOtherConcept) && ncimthOtherConcept.isPublishable()) {
-              StringBuffer sb = new StringBuffer();
-              sb.append("").append("|");
-              sb.append("C").append("|");
-              sb.append(c.getTerminologyId()).append("|");
-              sb.append("BRT").append("|").append("|");
-              sb.append(ncimthOtherConcept.getTerminologyId()).append("|");
-              sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI|NCIMTH|SOURCE_CUI|NCIMTH|||").append("\n");
-              potentialROBequeathals.add(sb.toString());         
-            }
-          }
-        }
-        for (Atom atom : c.getAtoms()) {
-          Atom a = getAtom(atom.getId());
-          for (AtomRelationship ar : a.getRelationships()) {
-            if (ar.getRelationshipType().equals("RO")) {
-              Atom otherAtom = ar.getFrom();
-              // Find the NCIMTH concept for the parent atom
-              SearchResultList srl = findConceptSearchResults(
-                  getProject().getTerminology(), getProject().getVersion(),
-                  Branch.ROOT, "atoms.id:" + otherAtom.getId(), null);
-              if (srl.size()!= 1) {
-                continue;
-              }
-              Long ncimthConceptId = srl.getObjects().get(0).getId();
-              Concept ncimthOtherConcept = getConcept(ncimthConceptId);
-              
-              if (noXRRel(c, ncimthOtherConcept) && ncimthOtherConcept.isPublishable()) {
-                logInfo("[AddBequeathals RO] " + c.getId()  
-                + " " + ncimthOtherConcept.getId() + " " + ar.getFrom().getId() + " "
-                + ar.getRelationshipType() + " " + ar.getTo().getId());
-                StringBuffer sb = new StringBuffer();
-                sb.append("").append("|");
-                sb.append("C").append("|");
-                sb.append(c.getTerminologyId()).append("|");
-                // will get converted to 'BRO'
-                sb.append("BRT").append("|").append("|");
-                sb.append(ncimthOtherConcept.getTerminologyId()).append("|");
-                sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI|NCIMTH|SOURCE_CUI|NCIMTH|||").append("\n");
-                potentialROBequeathals.add(sb.toString());
-            
-              }
-            } else if (ar.getRelationshipType().equals("RB")) {
-              Atom otherAtom = ar.getFrom();
-              // Find the NCIMTH concept for the parent atom
-              SearchResultList srl = findConceptSearchResults(
-                  getProject().getTerminology(), getProject().getVersion(),
-                  Branch.ROOT, "atoms.id:" + otherAtom.getId(), null);
-              if (srl.size()!= 1) {
-                continue;
-              }
-              Long ncimthConceptId = srl.getObjects().get(0).getId();
-              Concept ncimthOtherConcept = getConcept(ncimthConceptId);
-              
-              if (noXRRel(c, ncimthOtherConcept) && ncimthOtherConcept.isPublishable()) {
-                logInfo("[AddBequeathals RB] " + c.getId()  
-                + " " + ncimthOtherConcept.getId() + " " + ar.getFrom().getId() + " "
-                + ar.getRelationshipType() + " " + ar.getTo().getId());
-                StringBuffer sb = new StringBuffer();
-                sb.append("").append("|");
-                sb.append("C").append("|");
-                sb.append(c.getTerminologyId()).append("|");
-                sb.append("BBT").append("|").append("|");
-                sb.append(ncimthOtherConcept.getTerminologyId()).append("|");
-                sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI|NCIMTH|SOURCE_CUI|NCIMTH|||").append("\n");
-                potentialRBBequeathals.add(sb.toString());
-            
-              }
-            }
-          }
-        }
-        // write out a max of two bequeathals, parent bequeathals get precedence over grandparent ones
-        if (potentialRBBequeathals.size() >= 1) {
-          out.write(potentialRBBequeathals.get(0));
-        } else if (potentialROBequeathals.size() >= 1) {
-          out.write(potentialROBequeathals.get(0));
-        } 
-        updateProgress();
-        if (index % 100 == 0) {
-          out.flush();
-        }
-      }
-      
-      out.close();
-      
-    } catch (Exception e) {
-      e.printStackTrace();
-      fail("Unexpected exception thrown - please review stack trace.");
-    } finally {
-      // n/a
-    }
-
-  }
 
   /* see superclass */
   @Override
@@ -3364,8 +2811,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Fix MDR Descriptors", "Clear Worklists and Checklists",
             "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts", "Fix Null RUIs", 
             "Remove old relationships", "Assign Missing STY ATUIs", "Fix Component History Version",
-            "Fix AdditionalRelType Inverses 2", "Add Bequeathals", "Add RORB Bequeathals",
-            "Add Concept RORB Bequeathals"));
+            "Fix AdditionalRelType Inverses 2", "Remove Demotions"));
     params.add(param);
 
     return params;

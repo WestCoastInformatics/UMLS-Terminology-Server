@@ -10,8 +10,8 @@ tsApp.directive('reportPanel', [
         callbacks : '='
       },
       templateUrl : 'app/component/report/reportPanel.html',
-      controller : [ '$scope', '$window', 'reportService', 'utilService', 'securityService',
-        function($scope, $window, reportService, utilService, securityService) {
+      controller : [ '$scope', '$window', 'reportService', 'utilService', 'securityService','metadataService','contentService',
+        function($scope, $window, reportService, utilService, securityService, metadataService, contentService) {
 
           // Scope vars
           $scope.report = null;
@@ -39,7 +39,7 @@ tsApp.directive('reportPanel', [
             $scope.mode = mode;
             securityService.saveProperty($scope.user.userPreferences, 'reportModeTab', $scope.mode);
           }
-
+         
         } ]
 
     };
