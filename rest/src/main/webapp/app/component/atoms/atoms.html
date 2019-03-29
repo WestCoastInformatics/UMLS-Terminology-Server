@@ -80,6 +80,9 @@
               <a class="pointer" ng-show="item.codeId != 'NOCODE'"
                 ng-class="{'nolink' : !callbacks.getComponent}"
                 ng-click="callbacks.getComponent({terminologyId: item.codeId, terminology: item.terminology, version: item.version, type: 'CODE'})">{{item.codeId}}</a>
+              <i ng-show="selected.component && item.codeId != 'NOCODE'" ng-click="openCodeConceptsWindow(item, null, null);"
+                title="List concepts with code"
+                class="noul glyphicon glyphicon-share"></i>
               <span ng-show="item.codeId==='NOCODE'">NOCODE</span>
             </span>
             <!-- For concept id, do not show if identical to component id -->

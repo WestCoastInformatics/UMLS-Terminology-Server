@@ -7,6 +7,7 @@ tsApp.directive('reportPanel', [
       restrict : 'A',
       scope : {
         selected : '=',
+        lists : '=',
         callbacks : '='
       },
       templateUrl : 'app/component/report/reportPanel.html',

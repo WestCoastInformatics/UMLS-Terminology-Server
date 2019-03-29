@@ -11,11 +11,10 @@
   <li ng-class="{active : mode == 'Action'}"><a
       ng-click="setReportMode('Action')">Actions</a></li>
 </ul>
-
 <div ng-show="mode == 'Static'" report-pre selected="selected"
   callbacks="callbacks"></div>
 <div ng-show="mode == 'Interactive'" report selected="selected"
-  callbacks="callbacks"></div>
+  lists="lists" callbacks="callbacks"></div>
 <div ng-show="mode == 'Action'" report-action selected="selected"
   callbacks="callbacks"></div>
   

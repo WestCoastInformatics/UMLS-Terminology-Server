@@ -11,12 +11,13 @@ tsApp.directive('atoms', [ function() {
     templateUrl : 'app/component/atoms/atoms.html',
     controller : [
       '$scope',
+      '$window',
       '$uibModal',
       'utilService',
       'contentService',
       'editService',
       'appConfig',
-      function($scope, $uibModal, utilService, contentService, editService, appConfig) {
+      function($scope, $window, $uibModal, utilService, contentService, editService, appConfig) {
 
         $scope.appConfig = appConfig;
         $scope.expanded = {};
@@ -173,6 +174,19 @@ tsApp.directive('atoms', [ function() {
           function(user) {
             $scope.callbacks.getComponent($scope.selected.component);
           });
+        };
+        
+        
+        $scope.openCodeConceptsWindow = function(atom, width, height) {
+
+          var newUrl = utilService.composeUrl('/edit/codeConcepts');
+          $scope.selected.linkedAtom = atom;
+          window.$windowScope = $scope;
+
+          $scope.windows['codeConcepts'] = $window.open(newUrl, 'codeConceptsWindow', 'width=600, height=600, scrollbars=yes');
+          $scope.windows['codeConcepts'].document.title = 'Code Concepts Reference';
+          $scope.windows['codeConcepts'].focus();
+         
         };
 
         // end controller
