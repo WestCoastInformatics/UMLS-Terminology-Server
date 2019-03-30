@@ -17,9 +17,9 @@ package com.wci.umls.server.mojo.analysis.matching;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,12 +64,6 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
 
   /** The version. */
   protected String tv = "201812";
-
-  /** The output developer writer. */
-  protected PrintWriter outputDeveloperWriter;
-
-  /** The output terminologist writer. */
-  protected PrintWriter outputTerminologistWriter;
 
   protected Set<SearchResult> icd11Targets;
 
@@ -342,14 +336,19 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
   private Map<String, ICD11MatcherSctConcept> identifyContentToProcess(
     AbstractICD11MatchingRule rule) throws Exception {
     Map<String, ICD11MatcherSctConcept> snomedConcepts = new HashMap<>();
-
     /*
     snomedConcepts = populateTestConcept(Arrays.asList( 
-        // "92666004",
-         "203282002", 
-        "186200004"));
-*/
-    
+         "92537005",
+         "92629005",
+         "92584005", 
+         "92596003", 
+         "92568009", 
+        "255140001",
+        "92633003".
+        "92664001",
+        "92777004" 
+));*/
+
     if (snomedConcepts.isEmpty()) {
       // Get ECL Results
       if (rule.getEclExpression() != null) {

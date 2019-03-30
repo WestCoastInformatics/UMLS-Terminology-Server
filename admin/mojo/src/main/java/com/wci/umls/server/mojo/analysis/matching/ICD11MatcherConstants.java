@@ -7,8 +7,10 @@ public class ICD11MatcherConstants {
   public static final String NON_MATCH_HEADER = "\n\n\nCouldn't Match the following: ";
 
   public static final String SNOMED_ROOT_CONCEPT = "138875005";
+  
+  public static final String  SEX_STRUCTURE_CONCEPT = "57312000";
 
-  public static final Object BODY_STRUCTURE = "123037004";
+  public static final String BODY_STRUCTURE = "123037004";
 
   public static final String FILTERED_RULE_TYPE = "filtered";
 

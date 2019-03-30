@@ -8,12 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.wci.umls.server.helpers.SearchResult;
-import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.mojo.analysis.matching.ICD11MatcherConstants;
 import com.wci.umls.server.mojo.analysis.matching.rules.neoplasm.AbstractNeoplasmICD11MatchingRule;
 import com.wci.umls.server.mojo.model.ICD11MatcherRelationship;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
@@ -48,8 +45,6 @@ public class FindingSiteUtility {
 
   protected PfsParameterJpa pfsLimitless = new PfsParameterJpa();
 
-  private int jesse = 0;
-
   public FindingSiteUtility(ContentClientRest contentClient, String st, String sv, String tt,
       String tv, String token) {
     client = contentClient;
@@ -68,8 +63,8 @@ public class FindingSiteUtility {
    * @return the sets the
    * @throws Exception the exception
    */
-  public Set<ICD11MatcherSctConcept> identifyPotentialFSConcepts(Set<ICD11MatcherSctConcept> findingSites,
-    PrintWriter devWriter) throws Exception {
+  public Set<ICD11MatcherSctConcept> identifyFindingSiteAncestors(
+    Set<ICD11MatcherSctConcept> findingSites, PrintWriter devWriter) throws Exception {
     Set<ICD11MatcherSctConcept> retConcepts = new HashSet<>();
 
     if (findingSites != null) {
@@ -98,7 +93,6 @@ public class FindingSiteUtility {
             potentialFSConTerms.put(mapCon, bucket);
           } else {
             // Get all fsCon's ancestors
-            String topLevelSctId = null;
             final ConceptList ancestorResults =
                 client.findAncestorConcepts(fsConcept.getConceptId(), sourceTerminology,
                     sourceVersion, false, pfsLimitless, authToken);
@@ -113,70 +107,18 @@ public class FindingSiteUtility {
                   continue;
                 }
 
-                if (jesse == 0) {
-                  ICD11MatcherSctConcept mapCon = null;
-                  try {
-                    mapCon = conceptSearcher.populateSctConcept(ancestor.getTerminologyId(), null);
-                  } catch (Exception e) {
-                    Concept c = client.getConcept(ancestor.getTerminologyId(), sourceTerminology,
-                        sourceVersion, null, authToken);
-                    mapCon = conceptSearcher.populateSctConcept(c.getTerminologyId(), null);
-                  }
-                  potentialFSConTerms.put(mapCon, new HashSet<>());
-                } else {
-                  if (topLevelBodyStructureIds.contains(ancestor.getTerminologyId())) {
-                    topLevelSctId = ancestor.getTerminologyId();
-                    break;
-                  }
+                ICD11MatcherSctConcept mapCon = null;
+                try {
+                  mapCon = conceptSearcher.populateSctConcept(ancestor.getTerminologyId(), null);
+                } catch (Exception e) {
+                  Concept c = client.getConcept(ancestor.getTerminologyId(), sourceTerminology,
+                      sourceVersion, null, authToken);
+                  mapCon = conceptSearcher.populateSctConcept(c.getTerminologyId(), null);
                 }
+                potentialFSConTerms.put(mapCon, new HashSet<>());
               }
             }
 
-            if (jesse != 0) {
-              // Have list of possibleFindingSites. Test them for matches
-              if (topLevelSctId == null) {
-                String errorString =
-                    "ERROR ERROR ERROR: Found a finding site without an identified top level BS ancestor: "
-                        + fsConcept.getConceptId() + "---" + fsConcept.getName();
-                System.out.println(errorString);
-                if (devWriter != null) {
-                  devWriter.println(errorString + "\n\n");
-                }
-
-                return null;
-              }
-
-              // TODO: Because can't do ancestors via ECL, need this work around
-              // Identify all descendants of top level bodyStructure concept
-              pfsLimitless.setExpression("<< " + topLevelSctId);
-              final SearchResultList descendentResults = client.findConcepts(sourceTerminology,
-                  sourceVersion, null, pfsLimitless, authToken);
-              pfsLimitless.setExpression(null);
-
-              // Create a list of concepts that are both ancestors of fsConcept
-              // and
-              // descendents of topLevelBodyStructure Concept
-              // TODO: This could be a Rest Call in of itself
-              for (Concept ancestor : ancestorResults.getObjects()) {
-
-                for (SearchResult potentialFindingSite : descendentResults.getObjects()) {
-                  if (ancestor.getTerminologyId().equals(potentialFindingSite.getTerminologyId())) {
-                    ICD11MatcherSctConcept mapCon = null;
-                    if (ICD11MatcherConceptSearcher.canPopulateFromFiles) {
-                      mapCon =
-                          conceptSearcher.populateSctConcept(ancestor.getTerminologyId(), null);
-                    } else {
-                      Concept c = client.getConcept(ancestor.getTerminologyId(), sourceTerminology,
-                          sourceVersion, null, authToken);
-                      mapCon = conceptSearcher.populateSctConcept(c.getTerminologyId(), null);
-                    }
-
-                    potentialFSConTerms.put(mapCon, new HashSet<>());
-                    break;
-                  }
-                }
-              }
-            }
           }
 
           for (ICD11MatcherSctConcept testCon : potentialFSConTerms.keySet()) {
@@ -214,8 +156,10 @@ public class FindingSiteUtility {
     ICD11MatcherSctConcept sctCon) throws Exception {
     Set<ICD11MatcherSctConcept> targets = new HashSet<>();
 
-    Set<ICD11MatcherRelationship> amRels = conceptSearcher.getDestRels(sctCon, "Associated morphology");
-    Set<ICD11MatcherRelationship> findingSites = conceptSearcher.getDestRels(sctCon, "Finding site");
+    Set<ICD11MatcherRelationship> amRels =
+        conceptSearcher.getDestRels(sctCon, "Associated morphology");
+    Set<ICD11MatcherRelationship> findingSites =
+        conceptSearcher.getDestRels(sctCon, "Finding site");
 
     for (ICD11MatcherRelationship morphology : amRels) {
       for (ICD11MatcherRelationship site : findingSites) {

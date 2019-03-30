@@ -290,11 +290,6 @@ public class HierarchyAnalysisMojo extends AbstractContentAnalysisMojo {
          */
       }
 
-      if (descString.startsWith("Chondroma of periosteum")
-          || descString.startsWith("Benign chondroblastoma of bone")) {
-        int a = 2;
-      }
-
       outputDescFile.write(conId);
       outputDescFile.write("\t");
       SctNeoplasmDescription desc = descParser.parse(descString, true);
@@ -373,11 +368,6 @@ public class HierarchyAnalysisMojo extends AbstractContentAnalysisMojo {
            * if (testing && (desc.equals("Melanocytic nevus of lip") ||
            * startPause)) { startPause = true; }
            */
-        }
-
-        if (desc.startsWith("Chondroma of periosteum")
-            || desc.startsWith("Benign chondroblastoma of bone")) {
-          int a = 2;
         }
 
         outputDescFile.write(conId);

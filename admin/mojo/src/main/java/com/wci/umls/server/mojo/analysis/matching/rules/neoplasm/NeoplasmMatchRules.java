@@ -110,7 +110,7 @@ public class NeoplasmMatchRules extends AbstractMatchRules{
         for (int i = 0; i < locationTokens.length; i++) {
           String token = locationTokens[i].trim().toLowerCase();
 
-          if (!token.isEmpty() && !matchRulesSpecificNonMatchingTerms.contains(token)) {
+          if (!token.isEmpty() && !matchRulesSpecificNonMatchingTerms.contains(token) && !token.matches("\\bmale\\b") && !token.matches("\\bfemale\\b")) {
             int matches = 0;
 
             for (String result : results) {
@@ -247,7 +247,7 @@ public class NeoplasmMatchRules extends AbstractMatchRules{
             " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
 
         for (int i = 0; i < tokens.length; i++) {
-          if (!tokens[i].isEmpty() && !matchRulesSpecificNonMatchingTerms.contains(tokens[i])) {
+          if (!tokens[i].isEmpty() && !matchRulesSpecificNonMatchingTerms.contains(tokens[i]) && !tokens[i].matches("\\bmale\\b") && !tokens[i].matches("\\bfemale\\b")) {
             if (processingInitialList) {
               intersectionSet.add(tokens[i]);
             }
@@ -375,54 +375,106 @@ public class NeoplasmMatchRules extends AbstractMatchRules{
     return null;
   }
 
-  private String processInitialUnspecifiedTypes(ICD11MatcherSctConcept sctCon,
-    Set<ICD11MatcherSctConcept> fsConcepts, Set<String> findingSiteNames, List<String> results)
+  private String processSingleResultInFindingSiteWord(Set<ICD11MatcherSctConcept> fsConcepts,
+    ICD11MatcherSctConcept sctCon, Set<String> findingSiteNames, List<String> results)
     throws Exception {
-    // All are notUnspecified
-    if (resultTypeMap.get(NOT_UNSPECIFIED).size() == results.size()) {
-      return null;
-    }
+    // Inverse... If word in single result exists in finding site , return it
+    // i.e. SctId: 92637002
 
-    // ProcessOnlyUnspecified
-    if (resultTypeMap.get(NOT_UNSPECIFIED).isEmpty()) {
-      if (resultTypeMap.get(OTHER_OR_UNSPECIFIED).size() == 1) {
-        return resultTypeMap.get(OTHER_OR_UNSPECIFIED).iterator().next();
-      } else if (resultTypeMap.get(OTHER_SPECIFIED).size() == 1) {
-        return resultTypeMap.get(OTHER_SPECIFIED).iterator().next();
+    // Identify tokens in Results that occur in single result
+    Map<String, String> observeredTokenToResultMap = new HashMap<>();
+    Set<String> observeredTokensMultipleTimes = new HashSet<>();
+    
+    for (String result : results) {
+      String icd11String = result.split("\t")[1];
+      String[] icd11Tokens = FieldedStringTokenizer.split(icd11String.toLowerCase(),
+          " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
+      
+      for (int i = 0; i < icd11Tokens.length; i++) {
+        String icd11Token = icd11Tokens[i].trim().toLowerCase();
+
+        if (!icd11Token.isEmpty() && !matchRulesSpecificNonMatchingTerms.contains(icd11Token) && !icd11Token.matches("\\bmale\\b") && !icd11Token.matches("\\bfemale\\b")) {
+          if (observeredTokenToResultMap.keySet().contains(icd11Token)) {
+            observeredTokensMultipleTimes.add(icd11Token);
+          } else {
+            observeredTokenToResultMap.put(icd11Token, result);
+          }
+        }
+      }
+    }
+    
+    Set<String> singleOccuranceTokens = new HashSet<>();
+    for (String token : observeredTokenToResultMap.keySet()) {
+      if (!observeredTokensMultipleTimes.contains(token)) {
+        singleOccuranceTokens.add(token);
       }
     }
 
-    return null;
-  }
+    // Identify all the SCT Finding Site Descs
+    Set<String> sctFingSiteDescsToProcess = new HashSet<>();
+    for (ICD11MatcherSctConcept con : fsConcepts) {
+      for (SctNeoplasmDescription fullDesc : con.getDescs()) {
+        sctFingSiteDescsToProcess.addAll(identifyDescs(fullDesc.getDescription().toLowerCase()));
+      }
+    }
+    
+    // See which single occurrence tokens exist in a SCT Finding site desc 
+    List<String> matchedResult = new ArrayList<>();
+    Map<String, Integer> singleMatches = new HashMap<>();
+    String capturedResult = null;
+    for (String icd11Token : singleOccuranceTokens) {
+      int matches = 0;
+      for (String sctFindingSite : sctFingSiteDescsToProcess) {
+        if (sctFindingSite.contains(icd11Token)) {
+          if (matches++ > 0) {
+            break;
+          }
+//          matchedResult.add(observeredTokenToResultMap.get(icd11Token));
+          capturedResult = observeredTokenToResultMap.get(icd11Token);
+          break;
+        }
+      }
+      
+      captureMatches(singleMatches, matches, capturedResult);
 
-  private String processSingleResultInFindingSiteWord(Set<ICD11MatcherSctConcept> fsConcepts,
+    }
+    
+//    if (matchedResult.size() == 1) {
+//      return matchedResult.iterator().next();
+//    } else {
+      // Be Aggressive????
+//      return processAllMatchingRules(matchedResult, sctCon, fsConcepts, findingSiteNames);
+      return singleMatchCapture(singleMatches, sctCon, results);
+//    }
+  }
+  private String processSingleResultInFindingSiteWord2(Set<ICD11MatcherSctConcept> fsConcepts,
     ICD11MatcherSctConcept sctCon, Set<String> findingSites, List<String> results)
     throws Exception {
     // Inverse... If word in single result exists in finding site , return it
     // i.e. SctId: 92637002
     String matchedResult = null;
     Map<String, Integer> singleMatches = new HashMap<>();
-    Set<String> descsToProcess = new HashSet<>();
+    Set<String> sctFingSiteDescsToProcess = new HashSet<>();
 
     for (ICD11MatcherSctConcept con : fsConcepts) {
       for (SctNeoplasmDescription fullDesc : con.getDescs()) {
-        descsToProcess.addAll(identifyDescs(fullDesc.getDescription()));
+        sctFingSiteDescsToProcess.addAll(identifyDescs(fullDesc.getDescription()));
       }
     }
-
+    
     if (fsConcepts != null) {
       for (String result : results) {
         int matches = 0;
         String icd11String = result.split("\t")[1];
-        String[] locationTokens = FieldedStringTokenizer.split(icd11String.toLowerCase(),
+        String[] icd11Tokens = FieldedStringTokenizer.split(icd11String.toLowerCase(),
             " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
 
-        for (int i = 0; i < locationTokens.length; i++) {
-          String token = locationTokens[i].trim().toLowerCase();
+        for (int i = 0; i < icd11Tokens.length; i++) {
+          String icd11Token = icd11Tokens[i].trim().toLowerCase();
 
-          if (!token.isEmpty() && !matchRulesSpecificNonMatchingTerms.contains(token)) {
-            for (String desc : descsToProcess) {
-              if (desc.contains(token)) {
+          if (!icd11Token.isEmpty() && !matchRulesSpecificNonMatchingTerms.contains(icd11Token)) {
+            for (String sctFindingSite : sctFingSiteDescsToProcess) {
+              if (sctFindingSite.contains(icd11Token)) {
                 if (matches++ > 0) {
                   break;
                 }
@@ -459,7 +511,7 @@ public class NeoplasmMatchRules extends AbstractMatchRules{
             for (int i = 0; i < locationTokens.length; i++) {
               String token = locationTokens[i].trim().toLowerCase();
 
-              if (!token.isEmpty() && !matchRulesSpecificNonMatchingTerms.contains(token)) {
+              if (!token.isEmpty() && !matchRulesSpecificNonMatchingTerms.contains(token) && !token.matches("\\bmale\\b") && !token.matches("\\bfemale\\b")) {
                 int matches = 0;
 
                 for (String result : results) {
@@ -491,7 +543,7 @@ public class NeoplasmMatchRules extends AbstractMatchRules{
     // Unless finding site exists in other result
     // i.e. SctId: 92717008
     boolean isSkin = false;
-    Set<ICD11MatcherSctConcept> fsCons = fsUtility.identifyPotentialFSConcepts(fsConcepts, null);
+    Set<ICD11MatcherSctConcept> fsCons = fsUtility.identifyFindingSiteAncestors(fsConcepts, null);
     for (ICD11MatcherSctConcept fsCon : fsCons) {
       for (SctNeoplasmDescription desc : fsCon.getDescs()) {
         if (desc.getDescription().toLowerCase().matches(".*\\bskin\\b.*")) {
@@ -608,5 +660,25 @@ public class NeoplasmMatchRules extends AbstractMatchRules{
   private int getDepth(String result) {
     System.out.println(result);
     return Integer.parseInt(result.split("\t")[depthLocation - 1]);
+  }
+
+  private String processInitialUnspecifiedTypes(ICD11MatcherSctConcept sctCon,
+    Set<ICD11MatcherSctConcept> fsConcepts, Set<String> findingSiteNames, List<String> results)
+    throws Exception {
+    // All are notUnspecified
+    if (resultTypeMap.get(NOT_UNSPECIFIED).size() == results.size()) {
+      return null;
+    }
+
+    // ProcessOnlyUnspecified
+    if (resultTypeMap.get(NOT_UNSPECIFIED).isEmpty()) {
+      if (resultTypeMap.get(OTHER_OR_UNSPECIFIED).size() == 1) {
+        return resultTypeMap.get(OTHER_OR_UNSPECIFIED).iterator().next();
+      } else if (resultTypeMap.get(OTHER_SPECIFIED).size() == 1) {
+        return resultTypeMap.get(OTHER_SPECIFIED).iterator().next();
+      }
+    }
+
+    return null;
   }
 }

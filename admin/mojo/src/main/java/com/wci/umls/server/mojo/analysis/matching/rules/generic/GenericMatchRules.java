@@ -416,7 +416,7 @@ public class GenericMatchRules extends AbstractMatchRules {
     // Unless finding site exists in other result
     // i.e. SctId: 92717008
     boolean isSkin = false;
-    Set<ICD11MatcherSctConcept> fsCons = fsUtility.identifyPotentialFSConcepts(fsConcepts, null);
+    Set<ICD11MatcherSctConcept> fsCons = fsUtility.identifyFindingSiteAncestors(fsConcepts, null);
     for (ICD11MatcherSctConcept fsCon : fsCons) {
       for (SctNeoplasmDescription desc : fsCon.getDescs()) {
         if (desc.getDescription().toLowerCase().matches(".*\\bskin\\b.*")) {

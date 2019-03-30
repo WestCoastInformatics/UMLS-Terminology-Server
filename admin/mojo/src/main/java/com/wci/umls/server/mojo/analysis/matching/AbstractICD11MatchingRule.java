@@ -103,7 +103,8 @@ public abstract class AbstractICD11MatchingRule {
       // Include top level concepts as well as children of body strcture to
       // obtain better results
       if ((columns[0].equals(ICD11MatcherConstants.SNOMED_ROOT_CONCEPT)
-          || (columns[0].equals(ICD11MatcherConstants.BODY_STRUCTURE)))
+          || (columns[0].equals(ICD11MatcherConstants.BODY_STRUCTURE))
+          || (columns[0].equals(ICD11MatcherConstants.SEX_STRUCTURE_CONCEPT)))
           && Integer.parseInt(columns[2]) == 1) {
         topLevelConcepts.add(columns[1]);
       }
@@ -324,7 +325,7 @@ public abstract class AbstractICD11MatchingRule {
 
       desc = cleanDescription(desc.toLowerCase().trim(), getRuleBasedNonMatchTerms());
       
-      descsToProcess.addAll(getSynonymProvider().identifyEquivalencies(desc));
+      descsToProcess.addAll(getSynonymProvider().identifyReplacements(desc));
     }
 
     return descsToProcess;

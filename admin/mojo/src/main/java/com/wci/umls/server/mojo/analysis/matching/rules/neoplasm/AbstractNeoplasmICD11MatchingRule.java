@@ -109,13 +109,14 @@ public abstract class AbstractNeoplasmICD11MatchingRule extends AbstractICD11Mat
     Map<String, Integer> matchDepthMap, Map<String, Integer> lowestDepthMap, int depth) throws Exception {
 
     String normalizedSiteString = cleanDescription(desc.toLowerCase(), getRuleBasedNonMatchTerms());
+    Set<String> descsToProcess = getSynonymProvider().identifyEquivalencies(normalizedSiteString);
 
-    Set<String> tokens = splitTokens(normalizedSiteString);
-    if (synonymProvider.getMap().keySet().contains(normalizedSiteString.trim().toLowerCase())) {
-      tokens.addAll(synonymProvider.getMap().get(normalizedSiteString.trim().toLowerCase()));
+    Set<String> tokensToProcess = new HashSet<>();
+    for (String descToProcess : descsToProcess) {
+        tokensToProcess.addAll(splitTokens(descToProcess.toLowerCase()));
     }
-
-    for (String token : tokens) {
+    
+    for (String token : tokensToProcess) {
       if (!ICD11MatcherConstants.NON_MATCHING_TERMS.contains(token)) {
 
         if (!alreadyQueriedRegexesResultsCache.keySet().contains(token)) {
@@ -149,8 +150,6 @@ public abstract class AbstractNeoplasmICD11MatchingRule extends AbstractICD11Mat
         }
       }
     }
-
-    return;
   }
 
   protected Set<String> matchAgainstTargets(Set<ICD11MatcherSctConcept> findingSiteCons,
@@ -214,11 +213,11 @@ public abstract class AbstractNeoplasmICD11MatchingRule extends AbstractICD11Mat
 
     matchNextConcept(sctCon, counter);
 
-    Set<ICD11MatcherSctConcept> fsConcepts =
-        fsUtility.identifyPotentialFSConcepts(findingSiteCons, devWriter);
+    Set<ICD11MatcherSctConcept> findingSiteAncestors =
+        fsUtility.identifyFindingSiteAncestors(findingSiteCons, devWriter);
 
-    if (fsConcepts != null) {
-      return matchAgainstTargets(findingSiteCons, fsConcepts);
+    if (findingSiteAncestors != null) {
+      return matchAgainstTargets(findingSiteCons, findingSiteAncestors);
     }
 
     return new HashSet<>();

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -50,6 +51,8 @@ public class SctICD11SynonymProvider {
       }
 
       reader.close();
+      
+      addUnidirectionTranslations();
 
     } catch (FileNotFoundException e) {
       e.printStackTrace();
@@ -66,6 +69,18 @@ public class SctICD11SynonymProvider {
     }
   }
 
+  private static void addUnidirectionTranslations() {
+    snomedToIcdSynonymMap.put("female mammary", new HashSet<>(Arrays.asList("mammary")));
+    snomedToIcdSynonymMap.put("female breast", new HashSet<>(Arrays.asList("breast")));
+    snomedToIcdSynonymMap.put("male mammary", new HashSet<>(Arrays.asList("mammary")));
+    snomedToIcdSynonymMap.put("male breast", new HashSet<>(Arrays.asList("breast")));
+    snomedToIcdSynonymMap.put("tongue", new HashSet<>(Arrays.asList("oral")));
+    snomedToIcdSynonymMap.put("nose", new HashSet<>(Arrays.asList("respiratory")));
+    snomedToIcdSynonymMap.put("nasal", new HashSet<>(Arrays.asList("respiratory")));
+    snomedToIcdSynonymMap.put("urinary", new HashSet<>(Arrays.asList("bladder")));
+    snomedToIcdSynonymMap.put("lacrimal", new HashSet<>(Arrays.asList("eye")));    
+  }
+
   public Map<String, Set<String>> getMap() throws Exception {
     if (mapToUse == null) {
       throw new Exception("Must define map to use prior to accessing it");
@@ -80,6 +95,45 @@ public class SctICD11SynonymProvider {
         " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
 
     return identifySynonyms(icd11Tokens, 0, synonymMap, new HashSet<String>());
+  }
+
+  public Set<String> identifyReplacements(String desc) {
+    Set<String> tmpSet = new HashSet<>();
+    
+    for (String key : mapToUse.keySet()) {
+      if (desc.toLowerCase().matches(".*\\b" + key + "ies\\b.*")) {
+        for (String val : mapToUse.get(key)) {
+          tmpSet.add(desc.toLowerCase().replaceAll("\\b" + key + "ies\\b", val));
+        }
+      }
+      if (desc.toLowerCase().matches(".*\\b" + key + "es\\b.*")) {
+        for (String val : mapToUse.get(key)) {
+          tmpSet.add(desc.toLowerCase().replaceAll("\\b" + key + "es\\b", val));
+        }
+      }
+      if (desc.toLowerCase().matches(".*\\b" + key + "s\\b.*")) {
+        for (String val : mapToUse.get(key)) {
+          tmpSet.add(desc.toLowerCase().replaceAll("\\b" + key + "s\\b", val));
+        }
+      }
+      if (desc.toLowerCase().matches(".*\\b" + key + "\\b.*")) {
+        for (String val : mapToUse.get(key)) {
+          tmpSet.add(desc.toLowerCase().replaceAll("\\b" + key + "\\b", val));
+        }
+      }
+    }
+
+    HashSet<String> retSet = new HashSet<>();
+    
+    if (tmpSet.isEmpty()) { 
+      retSet.add(desc);
+    } else {
+      for (String s : tmpSet) {
+        retSet.add(s.replaceAll(" {2,}", " ").trim());
+      }
+    }
+    
+    return retSet;
   }
 
   private Set<String> identifySynonyms(String[] icd11Tokens, int idx,
@@ -134,5 +188,14 @@ public class SctICD11SynonymProvider {
     }
 
     return synonymMap;
+  }
+
+  public Set<String> identifyReplacement(String desc) {
+    Map<String, Set<String>> synonymMap = identifySynonymMap(desc);
+
+    String[] icd11Tokens = FieldedStringTokenizer.split(desc.trim().toLowerCase(),
+        " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
+
+    return identifySynonyms(icd11Tokens, 0, synonymMap, new HashSet<String>());
   }
 }
