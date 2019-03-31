@@ -74,7 +74,7 @@ public class ICD11NeoplasmMatchingRule7 extends AbstractNeoplasmICD11MatchingRul
   @Override
   protected boolean isRuleMatch(SearchResult result) {
     if (!result.getCodeId().startsWith("X")
-        && result.getValue().toLowerCase().matches(".*\\bcyst.*")
+        && result.getValue().toLowerCase().matches(".*\\bcyst\\b.*")
         && result.isLeafNode()) {
       return true;
     }
