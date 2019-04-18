@@ -604,6 +604,12 @@ public class WriteRrfContentFilesAlgorithm
       }
       // otherwise save fact that atom is preferred id of its concept.
       else {
+        // Verify there is a preferred atom
+        if (!atomContentsMap.containsKey(atom.getId())) {
+          throw new Exception(
+              "Atom without an AUI, or possibly an publishable concept with unpublishable atom = "
+                  + atom.getId() + ", " + concept.getId());
+        }
         atomContentsMap.get(atom.getId()).setConceptId(concept.getId());
       }
       // Verify there is a preferred atom
