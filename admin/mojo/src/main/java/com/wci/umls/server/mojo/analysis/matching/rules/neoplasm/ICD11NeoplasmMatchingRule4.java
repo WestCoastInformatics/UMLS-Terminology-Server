@@ -64,7 +64,7 @@ public class ICD11NeoplasmMatchingRule4 extends AbstractNeoplasmICD11MatchingRul
 
   @Override
   public String getDefaultTarget() {
-    return "2F7Y";
+    return "2F7Y\tNeoplasms of uncertain behaviour of other specified site";
   }
 
   @Override

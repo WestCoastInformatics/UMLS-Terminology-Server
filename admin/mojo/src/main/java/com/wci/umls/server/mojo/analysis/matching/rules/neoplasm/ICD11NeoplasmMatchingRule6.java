@@ -50,7 +50,7 @@ public class ICD11NeoplasmMatchingRule6 extends AbstractNeoplasmICD11MatchingRul
 
   @Override
   public String getDefaultTarget() {
-    return "2D4Z";
+    return "2D4Z\tUnspecified malignant neoplasms of ill-defined or unspecified sites";
   }
 
   @Override

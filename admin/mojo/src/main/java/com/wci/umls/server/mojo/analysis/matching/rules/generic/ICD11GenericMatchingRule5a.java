@@ -54,7 +54,7 @@ public class ICD11GenericMatchingRule5a extends AbstractGenericICD11MatchingRule
 
   @Override
   public String getDefaultTarget() {
-    return "2E6Y\tCarcinoma in situ of other specified site";
+    return "1D4Y\tOther specified arthropod-borne viral fevers";
   }
 
   @Override

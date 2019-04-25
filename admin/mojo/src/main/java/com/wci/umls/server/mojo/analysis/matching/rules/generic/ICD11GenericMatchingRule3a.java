@@ -54,7 +54,7 @@ public class ICD11GenericMatchingRule3a extends AbstractGenericICD11MatchingRule
 
   @Override
   public String getDefaultTarget() {
-    return "2E6Y\tCarcinoma in situ of other specified site";
+    return "1A9Y\tOther specified predominantly sexually transmitted infections";
   }
 
   @Override

@@ -54,7 +54,7 @@ public class ICD11GenericMatchingRule4a extends AbstractGenericICD11MatchingRule
 
   @Override
   public String getDefaultTarget() {
-    return "2E6Y\tCarcinoma in situ of other specified site";
+    return "1C8Y\tOther specified viral infections of the central nervous system";
   }
 
   @Override
