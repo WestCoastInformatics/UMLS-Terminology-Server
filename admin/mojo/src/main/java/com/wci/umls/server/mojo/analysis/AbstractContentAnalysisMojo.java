@@ -243,7 +243,7 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
     if (printWriterType == ICD11MatcherConstants.PRINT_WRITER_DEV_TYPE) {
       printWriterString = "allResults";
     } else {
-      printWriterString = "singelResult";
+      printWriterString = "singleResult";
     }
 
     File fd;
