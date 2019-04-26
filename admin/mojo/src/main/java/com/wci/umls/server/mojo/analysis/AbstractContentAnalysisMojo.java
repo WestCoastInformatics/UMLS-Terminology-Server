@@ -25,10 +25,11 @@ import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.mojo.analysis.matching.AbstractICD11MatchingRule;
+import com.wci.umls.server.mojo.analysis.matching.ICD11MatcherConstants;
+import com.wci.umls.server.mojo.model.ICD11MatcherRelationship;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
-import com.wci.umls.server.mojo.analysis.matching.AbstractICD11MatchingRule;
-import com.wci.umls.server.mojo.model.ICD11MatcherRelationship;
 import com.wci.umls.server.mojo.processes.ICD11MatcherConceptSearcher;
 import com.wci.umls.server.mojo.processes.SctNeoplasmDescriptionParser;
 import com.wci.umls.server.mojo.processes.SctRelationshipParser;
@@ -75,6 +76,10 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
   /** The user password. */
   @Parameter
   protected String userPassword;
+
+  /** The user name. */
+  @Parameter
+  protected boolean productionExecutionType;
 
   /** The partial df. */
   protected final DateTimeFormatter partialDf = DateTimeFormatter.ofPattern("_dd_HH-mm");
@@ -223,21 +228,35 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
   /**
    * Create an output file.
    *
-   * @param filePrefix the file prefix
+   * @param printWriterType the file prefix
    * @param outputDescription the output description
    * @return the prints the writer
    * @throws FileNotFoundException the file not found exception
    * @throws UnsupportedEncodingException the unsupported encoding exception
    */
-  protected PrintWriter prepareResultsFile(String rule, String filePrefix, String outputDescription)
-    throws FileNotFoundException, UnsupportedEncodingException {
-    File dir = new File(userFolder.getPath() + File.separator + rule);
+  protected PrintWriter prepareResultsFile(AbstractICD11MatchingRule rule, int printWriterType,
+    String outputDescription) throws FileNotFoundException, UnsupportedEncodingException {
+    File dir = new File(userFolder.getPath() + File.separator + rule.getRuleId());
     dir.mkdirs();
 
-    File fd = new File(
-        dir.getAbsolutePath() + File.separator + filePrefix + "-" + month + timestamp + ".xls");
-    getLog().info(
-        "Creating " + outputDescription + " file (" + filePrefix + ") at: " + fd.getAbsolutePath());
+    String printWriterString;
+    if (printWriterType == ICD11MatcherConstants.PRINT_WRITER_DEV_TYPE) {
+      printWriterString = "allResults";
+    } else {
+      printWriterString = "singelResult";
+    }
+
+    File fd;
+    if (!productionExecutionType) {
+      fd = new File(dir.getAbsolutePath() + File.separator + rule.getRuleName() + "-"
+          + printWriterString + "-" + month + timestamp + ".xls");
+    } else {
+      fd = new File(dir.getAbsolutePath() + File.separator + rule.getRuleName() + "-"
+          + printWriterString + ".xls");
+    }
+
+    getLog().info("Creating " + outputDescription + " file (" + rule.getRuleName() + "-"
+        + printWriterString + ") at: " + fd.getAbsolutePath());
 
     final FileOutputStream fos = new FileOutputStream(fd);
     final OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
@@ -310,7 +329,8 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
 
       // Get Desc
       Concept clientConcept = client.getConcept(result.getId(), null, authToken);
-      ICD11MatcherSctConcept con = new ICD11MatcherSctConcept(result.getTerminologyId(), result.getValue());
+      ICD11MatcherSctConcept con =
+          new ICD11MatcherSctConcept(result.getTerminologyId(), result.getValue());
 
       for (Atom atom : clientConcept.getAtoms()) {
         if (conceptSearcher.isValidDescription(atom)) {
@@ -334,8 +354,8 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
    * @return the map
    * @throws Exception the exception
    */
-  protected Map<String, ICD11MatcherSctConcept> processEclQueryFromFiles(AbstractICD11MatchingRule rule)
-    throws Exception {
+  protected Map<String, ICD11MatcherSctConcept> processEclQueryFromFiles(
+    AbstractICD11MatchingRule rule) throws Exception {
     Map<String, ICD11MatcherSctConcept> concepts = new HashMap<>();
 
     final SearchResultList eclResults =
@@ -344,7 +364,8 @@ abstract public class AbstractContentAnalysisMojo extends AbstractMojo {
 
     for (SearchResult result : eclResults.getObjects()) {
       // Get Desc
-      ICD11MatcherSctConcept con = new ICD11MatcherSctConcept(result.getTerminologyId(), result.getValue());
+      ICD11MatcherSctConcept con =
+          new ICD11MatcherSctConcept(result.getTerminologyId(), result.getValue());
 
       con.setDescs(descParser.getDescriptions(con));
       con.setRels(relParser.getRelationships(con));

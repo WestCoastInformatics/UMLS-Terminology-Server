@@ -7,8 +7,8 @@ public class ICD11MatcherConstants {
   public static final String NON_MATCH_HEADER = "\n\n\nCouldn't Match the following: ";
 
   public static final String SNOMED_ROOT_CONCEPT = "138875005";
-  
-  public static final String  SEX_STRUCTURE_CONCEPT = "57312000";
+
+  public static final String SEX_STRUCTURE_CONCEPT = "57312000";
 
   public static final String BODY_STRUCTURE = "123037004";
 
@@ -27,6 +27,10 @@ public class ICD11MatcherConstants {
   public static final int DEPTH_LOCATION_NEOPLASM = 4;
 
   public static final int DEPTH_LOCATION_GENERIC = 5;
+
+  public static final int PRINT_WRITER_DEV_TYPE = 0;
+
+  public static final int PRINT_WRITER_TERM_TYPE = 1;
 
   final public static List<String> NON_MATCHING_TERMS =
       Arrays.asList("of", "part", "structure", "system", "and/or", "and", "region", "area", "or",

@@ -38,6 +38,11 @@ public class ICD11GenericMatchingRule1a extends AbstractGenericICD11MatchingRule
   }
 
   @Override
+  public String getRuleName() {
+    return "HIV Infection";
+  }
+
+  @Override
   public String getDescription() {
     return "ECL Based: All descendents of 'Human immunodeficiency virus infection' connecting them to the ICD11 'Human immunodeficiency virus disease' i.e. andything starting with '1C6*', contains 'HIV', or contains 'Human immunodeficiency virus'";
   }
@@ -71,11 +76,12 @@ public class ICD11GenericMatchingRule1a extends AbstractGenericICD11MatchingRule
   protected boolean printIcd11Targets() {
     return true;
   }
-  
+
   @Override
   public String getEclTopLevelDesc() {
-    // TODO: Need to fix import of ICD11 to enable importing blocks and chapters if going to do this properly 
-    //return "Human immunodeficiency virus disease";
+    // TODO: Need to fix import of ICD11 to enable importing blocks and chapters
+    // if going to do this properly
+    // return "Human immunodeficiency virus disease";
     return null;
   }
 
@@ -86,8 +92,7 @@ public class ICD11GenericMatchingRule1a extends AbstractGenericICD11MatchingRule
 
   @Override
   protected boolean isRuleMatch(SearchResult result) {
-    if (result.getCodeId().startsWith("1C6")
-        && result.isLeafNode()) {
+    if (result.getCodeId().startsWith("1C6") && result.isLeafNode()) {
       return true;
     }
 
@@ -97,7 +102,7 @@ public class ICD11GenericMatchingRule1a extends AbstractGenericICD11MatchingRule
   @Override
   protected Set<String> getRuleBasedNonMatchTerms() {
     Set<String> retSet = new HashSet<>();
-    
+
     retSet.add("hiv");
     retSet.add("human immunodeficiency virus");
     retSet.add("infection");
@@ -122,7 +127,6 @@ public class ICD11GenericMatchingRule1a extends AbstractGenericICD11MatchingRule
 
     return findingSiteCache.get(queryPortion);
   }
-  
 
   @Override
   public Set<String> executeRule(ICD11MatcherSctConcept sctCon, int counter) throws Exception {
@@ -130,12 +134,14 @@ public class ICD11GenericMatchingRule1a extends AbstractGenericICD11MatchingRule
     Set<String> results = new HashSet<>();
     matchNextConcept(sctCon, counter);
 
-    results = matchApproachBaseMatch(sctCon, results, icd11Targets, ICD11MatcherConstants.FILTERED_RULE_TYPE);
-    
+    results = matchApproachBaseMatch(sctCon, results, icd11Targets,
+        ICD11MatcherConstants.FILTERED_RULE_TYPE);
+
     if (results.isEmpty()) {
-      results = matchApproachBaseSearch(sctCon, results, icd11Targets, ICD11MatcherConstants.FILTERED_RULE_TYPE);
+      results = matchApproachBaseSearch(sctCon, results, icd11Targets,
+          ICD11MatcherConstants.FILTERED_RULE_TYPE);
     }
-    
+
     return results;
   }
 }

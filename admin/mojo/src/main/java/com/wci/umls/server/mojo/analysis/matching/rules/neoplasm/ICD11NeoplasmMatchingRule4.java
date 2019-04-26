@@ -36,6 +36,11 @@ public class ICD11NeoplasmMatchingRule4 extends AbstractNeoplasmICD11MatchingRul
   }
 
   @Override
+  public String getRuleName() {
+    return "Neoplasm Uncertain Behavior";
+  }
+
+  @Override
   public String getDescription() {
     return "Description Based: All descendents of 'Neoplastic disease' that contains a 'neoplasm' synonym and has some sort of 'uncertain behavior'";
   }

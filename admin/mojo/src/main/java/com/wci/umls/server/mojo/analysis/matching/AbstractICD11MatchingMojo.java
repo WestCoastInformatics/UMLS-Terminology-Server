@@ -19,7 +19,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -121,7 +120,7 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
         for (ICD11MatcherSctConcept sctCon : snomedConcepts.values()) {
 
           // if (counter >= 15) { break; }
-          
+
           rule.preTermProcessing(sctCon);
 
           Set<String> results = rule.executeRule(sctCon, ++counter);
@@ -136,12 +135,13 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
       throw new MojoFailureException("Unexpected exception:", e);
     }
   }
-  
+
   protected void setupContentParsers(AbstractICD11MatchingRule rule) throws IOException {
     setupDescParser();
 
     // Generic
-    ICD11MatcherConceptSearcher.canPopulateFromFiles = rule.executeContentParsers(matcherName, descParser, relParser);
+    ICD11MatcherConceptSearcher.canPopulateFromFiles =
+        rule.executeContentParsers(matcherName, descParser, relParser);
 
     ICD11MatcherConceptSearcher.setDescParser(descParser);
     ICD11MatcherConceptSearcher.setRelParser(relParser);
@@ -154,13 +154,13 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
         + " Matching Mojo\n" + rule.getDescription() + "\n**************************\n");
 
     // Start Processing rule
-    rule.setDevWriter(
-        prepareResultsFile(rule.getRuleId(), "developerResults", "ICD11 Matching Results"));
-    rule.setTermWriter(
-        prepareResultsFile(rule.getRuleId(), "terminologistResults", "ICD11 Matching Results"));
+    rule.setDevWriter(prepareResultsFile(rule, ICD11MatcherConstants.PRINT_WRITER_DEV_TYPE,
+        "ICD11 Matching Results"));
+    rule.setTermWriter(prepareResultsFile(rule, ICD11MatcherConstants.PRINT_WRITER_TERM_TYPE,
+        "ICD11 Matching Results"));
     rule.getDevWriter().println(rule.getDescription());
     rule.getTermWriter().println(rule.getDescription());
-    
+
     // setup parser
     setupContentParsers(rule);
     Map<String, ICD11MatcherSctConcept> snomedConcepts = identifyContentToProcess(rule);
@@ -218,7 +218,8 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
    * @param counter the counter
    * @return the string buffer
    */
-  protected StringBuffer createSnomedConceptSearchedLine(ICD11MatcherSctConcept sctCon, int counter) {
+  protected StringBuffer createSnomedConceptSearchedLine(ICD11MatcherSctConcept sctCon,
+    int counter) {
 
     StringBuffer newConInfoStr = new StringBuffer();
     newConInfoStr.append("\n# " + counter + " Snomed Concept: " + sctCon.getName() + "\tSctId: "
@@ -276,9 +277,6 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
         result = "\t" + result;
       }
       devBuf.append(result + "\n");
-    }
-
-    for (String result : termResults) {
       termBuf.append(result + "\n");
     }
 
@@ -302,6 +300,7 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
     System.out.println();
     System.out.println();
 
+    boolean initialLoop = true;
     for (String result : results) {
       if (result.startsWith("\t")) {
         result = result.substring(1);
@@ -309,7 +308,12 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
       if (result.startsWith("\n")) {
         result = result.substring(1);
       }
-      rule.getDevWriter().print("\n" + result);
+      if (initialLoop) {
+        initialLoop = false;
+        rule.getDevWriter().print(result);
+      } else {
+        rule.getDevWriter().print("\n" + result);
+      }
     }
     rule.getDevWriter().println("\n\tSelected Response: " + singleResponse);
     rule.getDevWriter().println();
@@ -338,6 +342,7 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
   private Map<String, ICD11MatcherSctConcept> identifyContentToProcess(
     AbstractICD11MatchingRule rule) throws Exception {
     Map<String, ICD11MatcherSctConcept> snomedConcepts = new HashMap<>();
+
     /*
     snomedConcepts = populateTestConcept(Arrays.asList( 
          "92537005",

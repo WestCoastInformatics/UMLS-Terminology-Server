@@ -34,6 +34,11 @@ public class ICD11NeoplasmMatchingRule5 extends AbstractNeoplasmICD11MatchingRul
   }
 
   @Override
+  public String getRuleName() {
+    return "Benign Neoplasm";
+  }
+
+  @Override
   public String getDescription() {
     return "Description Based: All descendents of 'Benign neoplastic disease'";
   }
@@ -57,7 +62,7 @@ public class ICD11NeoplasmMatchingRule5 extends AbstractNeoplasmICD11MatchingRul
   protected ICD11MatcherSctConcept getTopLevelConcept() {
     return conceptSearcher.getSctConcept("20376005");
   }
-  
+
   @Override
   protected String getRuleQueryString() {
     return "(atoms.codeId: 2* OR (\"benign\" AND \"neopla\"))";
@@ -78,8 +83,7 @@ public class ICD11NeoplasmMatchingRule5 extends AbstractNeoplasmICD11MatchingRul
     if (!result.getCodeId().startsWith("X")
         && result.getValue().toLowerCase().matches(".*\\bneopl.*")
         && result.getValue().toLowerCase().matches(".*\\bbenign\\b.*")
-        && !result.getTerminologyId().equals("2F38") 
-        && result.isLeafNode()) {
+        && !result.getTerminologyId().equals("2F38") && result.isLeafNode()) {
       return true;
     }
 

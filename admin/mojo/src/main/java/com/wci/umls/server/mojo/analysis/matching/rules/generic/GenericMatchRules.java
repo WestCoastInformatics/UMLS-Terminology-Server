@@ -17,7 +17,9 @@ import com.wci.umls.server.mojo.model.SctNeoplasmDescription;
 import com.wci.umls.server.mojo.processes.FindingSiteUtility;
 
 public class GenericMatchRules extends AbstractMatchRules {
-  protected static SctICD11SynonymProvider synonymProvider = new SctICD11SynonymProvider(ICD11MatcherConstants.SNOMED_TO_ICD11);
+  protected static SctICD11SynonymProvider synonymProvider =
+      new SctICD11SynonymProvider(ICD11MatcherConstants.SNOMED_TO_ICD11);
+
   public GenericMatchRules(FindingSiteUtility fsUtility) {
     this.fsUtility = fsUtility;
   }
@@ -58,7 +60,6 @@ public class GenericMatchRules extends AbstractMatchRules {
     }
     return null;
   }
-
 
   private String processDisorderConceptWordInSingleResult(Set<ICD11MatcherSctConcept> fsConcepts,
     ICD11MatcherSctConcept sctCon, Set<String> findingSiteNames, List<String> results)

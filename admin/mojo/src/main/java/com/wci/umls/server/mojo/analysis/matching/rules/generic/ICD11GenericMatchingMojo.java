@@ -40,8 +40,8 @@ public class ICD11GenericMatchingMojo extends AbstractICD11MatchingMojo {
 
   protected final String MATCHER_NAME = "icd11-generic-matcher";
 
-  private final int SCORE_COLUMN = 4; 
-  
+  private final int SCORE_COLUMN = 4;
+
   /*
    * (non-Javadoc)
    * 
@@ -62,7 +62,7 @@ public class ICD11GenericMatchingMojo extends AbstractICD11MatchingMojo {
     conceptSearcher.setup(client, sourceTerminology, sourceVersion, targetTerminology,
         targetVersion, authToken);
     AbstractGenericICD11MatchingRule.setConceptSearcher(conceptSearcher);
-//    AbstractNeoplasmICD11MatchingRule.initializeTcTable();
+    // AbstractNeoplasmICD11MatchingRule.initializeTcTable();
 
     fsUtility = new FindingSiteUtility(client, sourceTerminology, sourceVersion, targetTerminology,
         targetVersion, authToken);
@@ -118,14 +118,14 @@ public class ICD11GenericMatchingMojo extends AbstractICD11MatchingMojo {
 
       if (columns.length > 3) {
         float score;
-        
+
         if (columns[4].equals("N/A")) {
           score = 99;
         } else {
           score = Float.valueOf(columns[4]);
         }
         if (!scoreMap.keySet().contains(score)) {
-          scoreMap.put(score,  new HashSet<String>());
+          scoreMap.put(score, new HashSet<String>());
         }
         scoreMap.get(score).add(line);
       }
@@ -135,7 +135,7 @@ public class ICD11GenericMatchingMojo extends AbstractICD11MatchingMojo {
     for (Float score : scoreMap.keySet()) {
       for (String l : scoreMap.get(score)) {
         String icd11Code = l.split("\t")[1];
-        
+
         if (score == 99) {
           retStr.append(l);
         } else {
@@ -146,7 +146,7 @@ public class ICD11GenericMatchingMojo extends AbstractICD11MatchingMojo {
         }
       }
     }
-    
+
     return retStr.toString();
   }
 
@@ -167,12 +167,13 @@ public class ICD11GenericMatchingMojo extends AbstractICD11MatchingMojo {
     }
 
     /* Multiple cleanedResults, select one */
-    return matchingRules.processAllMatchingRules(cleanedResults, sctCon, findingSites, findingSiteNames);
+    return matchingRules.processAllMatchingRules(cleanedResults, sctCon, findingSites,
+        findingSiteNames);
   }
 
   @Override
   protected int getDepthLocation() {
-    return  ICD11MatcherConstants.DEPTH_LOCATION_GENERIC;
+    return ICD11MatcherConstants.DEPTH_LOCATION_GENERIC;
   }
 
   @Override
@@ -185,14 +186,14 @@ public class ICD11GenericMatchingMojo extends AbstractICD11MatchingMojo {
 
       if (columns.length > SCORE_COLUMN - 1) {
         float score;
-        
+
         if (columns[SCORE_COLUMN].equals("N/A")) {
           score = 99;
         } else {
           score = Float.valueOf(columns[SCORE_COLUMN]);
         }
         if (!scoreMap.keySet().contains(score)) {
-          scoreMap.put(score,  new HashSet<String>());
+          scoreMap.put(score, new HashSet<String>());
         }
         scoreMap.get(score).add(line);
       }
@@ -202,7 +203,7 @@ public class ICD11GenericMatchingMojo extends AbstractICD11MatchingMojo {
     for (Float score : scoreMap.keySet()) {
       for (String l : scoreMap.get(score)) {
         String icd11Code = l.split("\t")[1];
-        
+
         if (score == 99) {
           retList.add(l);
         } else {
@@ -213,7 +214,7 @@ public class ICD11GenericMatchingMojo extends AbstractICD11MatchingMojo {
         }
       }
     }
-    
+
     return retList;
   }
 }

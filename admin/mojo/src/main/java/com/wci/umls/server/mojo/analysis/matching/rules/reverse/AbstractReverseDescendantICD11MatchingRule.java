@@ -61,7 +61,8 @@ public abstract class AbstractReverseDescendantICD11MatchingRule extends Abstrac
               sourceVersion, null, authToken);
 
           for (Atom atom : fullSctCon.getAtoms()) {
-            if (conceptSearcher.isValidDescription(atom) && isEquivalent(atom.getName(), icd11Syn)) {
+            if (conceptSearcher.isValidDescription(atom)
+                && isEquivalent(atom.getName(), icd11Syn)) {
               return conceptSearcher.populateSctConcept(sctResult.getTerminologyId(),
                   fullSctCon.getAtoms(), null);
             }
@@ -106,6 +107,11 @@ public abstract class AbstractReverseDescendantICD11MatchingRule extends Abstrac
   }
 
   @Override
+  public String getRuleName() {
+    return getRuleId();
+  }
+
+  @Override
   public String getDefaultTarget() {
     throw new UnsupportedOperationException();
   }
@@ -146,7 +152,8 @@ public abstract class AbstractReverseDescendantICD11MatchingRule extends Abstrac
   }
 
   @Override
-  public boolean executeContentParsers(String matcherName, SctNeoplasmDescriptionParser descParser, SctRelationshipParser relParser) throws IOException {
+  public boolean executeContentParsers(String matcherName, SctNeoplasmDescriptionParser descParser,
+    SctRelationshipParser relParser) throws IOException {
     return false;
   }
 }

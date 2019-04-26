@@ -33,7 +33,8 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
 
   abstract protected SearchResultList testMatchingFindingSite(String queryPortion) throws Exception;
 
-  protected static SctICD11SynonymProvider synonymProvider = new SctICD11SynonymProvider(ICD11MatcherConstants.SNOMED_TO_ICD11);
+  protected static SctICD11SynonymProvider synonymProvider =
+      new SctICD11SynonymProvider(ICD11MatcherConstants.SNOMED_TO_ICD11);
 
   @Override
   public String getEclTopLevelDesc() {
@@ -43,6 +44,11 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
   @Override
   public String getDefaultSkinMatch() {
     return null;
+  }
+
+  @Override
+  public String getRuleName() {
+    return getRuleId();
   }
 
   protected SctICD11SynonymProvider getSynonymProvider() {
@@ -107,8 +113,7 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
          * matchResultMap.get(icdConId) + "\t" + matchDepthMap.get(icdConId));
          * 
          */
-        lowestDepthStrings
-            .add(matchResultMap.get(icdConId));
+        lowestDepthStrings.add(matchResultMap.get(icdConId));
       }
     }
 
@@ -120,8 +125,9 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
     return results;
   }
 
-  protected Set<String> matchApproachBaseSearch(ICD11MatcherSctConcept sctCon, Set<String> alreadyProcessedResults,
-    SearchResultList targets, String ruleType) throws Exception {
+  protected Set<String> matchApproachBaseSearch(ICD11MatcherSctConcept sctCon,
+    Set<String> alreadyProcessedResults, SearchResultList targets, String ruleType)
+    throws Exception {
     Map<String, String> matchResultMap = new HashMap<>();
     Map<String, Integer> matchDepthMap = new HashMap<>();
     Map<String, Integer> lowestDepthMap = new HashMap<>();
@@ -162,7 +168,7 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
     if (!matchResultMap.isEmpty()) {
       return identifyBestMatch(matchDepthMap, matchResultMap, ruleType);
     }
-    
+
     return new HashSet<String>();
   }
 
@@ -212,11 +218,12 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
 
           // Only add it to the return results if all tokens found in
           // icd11Concept
-          if (matches >= ((tokens.size() / 2) + (tokens.size() % 2)) ) {
+          if (matches >= ((tokens.size() / 2) + (tokens.size() % 2))) {
             String resultString = "\t" + icd11Con.getCodeId() + "\t" + icd11Con.getValue() + "\t"
                 + desc + "\t" + "N/A";
 
-            if (!matchTokensMap.keySet().contains(icd11Con.getCodeId()) || matchTokensMap.get(icd11Con.getCodeId()) < matches) {
+            if (!matchTokensMap.keySet().contains(icd11Con.getCodeId())
+                || matchTokensMap.get(icd11Con.getCodeId()) < matches) {
               matchResultMap.put(icd11Con.getCodeId(), resultString);
               matchTokensMap.put(icd11Con.getCodeId(), matches);
             }
@@ -245,10 +252,10 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
     }
 
   }
-  
 
   @Override
-  public boolean executeContentParsers(String matcherName, SctNeoplasmDescriptionParser descParser, SctRelationshipParser relParser) {
+  public boolean executeContentParsers(String matcherName, SctNeoplasmDescriptionParser descParser,
+    SctRelationshipParser relParser) {
     // Generic
     boolean populatedFromFiles = false;
 
@@ -259,10 +266,9 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
     } catch (Exception e) {
 
     }
-    
+
     return populatedFromFiles;
   }
-
 
   protected void setFindingSites(Set<ICD11MatcherSctConcept> findingSites) {
     findingSiteCons = findingSites;
@@ -297,8 +303,7 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
     Set<String> results = new HashSet<>();
     matchNextConcept(sctCon, counter);
 
-    matchApproachBaseMatch(sctCon, results, icd11Targets,
-        ICD11MatcherConstants.FILTERED_RULE_TYPE);
+    matchApproachBaseMatch(sctCon, results, icd11Targets, ICD11MatcherConstants.FILTERED_RULE_TYPE);
     matchApproachBaseSearch(sctCon, results, icd11Targets,
         ICD11MatcherConstants.FILTERED_RULE_TYPE);
 

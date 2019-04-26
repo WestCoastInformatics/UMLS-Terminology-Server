@@ -38,6 +38,11 @@ public class ICD11GenericMatchingRule3a extends AbstractGenericICD11MatchingRule
   }
 
   @Override
+  public String getRuleName() {
+    return "STD Diseases";
+  }
+
+  @Override
   public String getDescription() {
     return "ECL Based: All descendents of 'Sexually transmitted infectious disease' connecting them to the ICD11 'Predominantly sexually transmitted infections' i.e. any code starting with 1A6-1A9";
   }
@@ -107,12 +112,14 @@ public class ICD11GenericMatchingRule3a extends AbstractGenericICD11MatchingRule
     Set<String> results = new HashSet<>();
     matchNextConcept(sctCon, counter);
 
-    results = matchApproachBaseMatch(sctCon, results, icd11Targets, ICD11MatcherConstants.FILTERED_RULE_TYPE);
-    
+    results = matchApproachBaseMatch(sctCon, results, icd11Targets,
+        ICD11MatcherConstants.FILTERED_RULE_TYPE);
+
     if (results.isEmpty()) {
-      results = matchApproachBaseSearch(sctCon, results, icd11Targets, ICD11MatcherConstants.FILTERED_RULE_TYPE);
+      results = matchApproachBaseSearch(sctCon, results, icd11Targets,
+          ICD11MatcherConstants.FILTERED_RULE_TYPE);
     }
-   
+
     return results;
   }
 }

@@ -34,6 +34,11 @@ public class ICD11NeoplasmMatchingRule2 extends AbstractNeoplasmICD11MatchingRul
   }
 
   @Override
+  public String getRuleName() {
+    return "Melanoma In Situ";
+  }
+
+  @Override
   public String getDescription() {
     return "ECL Based: All descendents of 'Neoplastic disease' where the assocMorph is 'Melanoma in situ'";
   }

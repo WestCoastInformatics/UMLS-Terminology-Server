@@ -30,6 +30,7 @@ import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.mojo.analysis.matching.AbstractICD11MatchingMojo;
 import com.wci.umls.server.mojo.analysis.matching.AbstractICD11MatchingRule;
+import com.wci.umls.server.mojo.analysis.matching.ICD11MatcherConstants;
 import com.wci.umls.server.mojo.model.ICD11MatcherSctConcept;
 import com.wci.umls.server.mojo.processes.SctRelationshipParser;
 
@@ -98,7 +99,7 @@ public class ICD11ReverseDescendantMatchingMojo extends AbstractICD11MatchingMoj
           } else {
             noMatchList.add(icd11Con.getValue());
           }
-          
+
           if (++icd11Counter == 1 || icd11Counter % 25 == 0) {
             getLog().info("Processed ICD11 Concept #" + icd11Counter + " out of a total of "
                 + icd11Concepts.getTotalCount());
@@ -178,10 +179,10 @@ public class ICD11ReverseDescendantMatchingMojo extends AbstractICD11MatchingMoj
     /*
      * Start Processing rule
      */
-    rule.setDevWriter(
-        prepareResultsFile(rule.getRuleId(), "developerResults", "ICD11 Matching Results"));
-    rule.setTermWriter(
-        prepareResultsFile(rule.getRuleId(), "terminologistResults", "ICD11 Matching Results"));
+    rule.setDevWriter(prepareResultsFile(rule, ICD11MatcherConstants.PRINT_WRITER_DEV_TYPE,
+        "ICD11 Matching Results"));
+    rule.setTermWriter(prepareResultsFile(rule, ICD11MatcherConstants.PRINT_WRITER_TERM_TYPE,
+        "ICD11 Matching Results"));
     rule.identifyIcd11Targets();
 
     return rule.getIcd11Concepts();

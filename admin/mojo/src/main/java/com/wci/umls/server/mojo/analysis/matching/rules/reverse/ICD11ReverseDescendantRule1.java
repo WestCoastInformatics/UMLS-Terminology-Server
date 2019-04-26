@@ -29,8 +29,7 @@ public class ICD11ReverseDescendantRule1 extends AbstractReverseDescendantICD11M
 
   @Override
   protected boolean isRuleMatch(SearchResult result) {
-    if (result.getCodeId().startsWith("1C6")
-        && result.isLeafNode()) {
+    if (result.getCodeId().startsWith("1C6") && result.isLeafNode()) {
       return true;
     }
 
@@ -40,7 +39,7 @@ public class ICD11ReverseDescendantRule1 extends AbstractReverseDescendantICD11M
   @Override
   protected Set<String> getRuleBasedNonMatchTerms() {
     Set<String> retSet = new HashSet<>();
-    
+
     retSet.add("hiv");
     retSet.add("human immunodeficiency virus");
     retSet.add("infection");

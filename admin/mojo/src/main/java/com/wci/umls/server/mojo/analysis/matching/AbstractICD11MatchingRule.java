@@ -129,6 +129,8 @@ public abstract class AbstractICD11MatchingRule {
 
   public abstract String getDescription();
 
+  abstract public String getRuleName();
+
   abstract public String getEclExpression();
 
   abstract public String getDefaultSkinMatch();
@@ -335,5 +337,4 @@ public abstract class AbstractICD11MatchingRule {
   public SearchResultList getIcd11Concepts() {
     return icd11Targets;
   }
-
 }

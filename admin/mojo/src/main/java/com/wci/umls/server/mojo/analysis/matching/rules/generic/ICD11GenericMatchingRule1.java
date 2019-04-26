@@ -74,8 +74,7 @@ public class ICD11GenericMatchingRule1 extends AbstractGenericICD11MatchingRule 
     if ((result.getCodeId().startsWith("1C6")
         || result.getValue().toLowerCase().matches(".*\\bhiv\\b.*")
         || result.getValue().toLowerCase().matches(".*\\bhuman immunodeficiency virus\\b.*"))
-        && !result.getCodeId().startsWith("X")
-        && result.isLeafNode()) {
+        && !result.getCodeId().startsWith("X") && result.isLeafNode()) {
       return true;
     }
 

@@ -34,6 +34,11 @@ public class ICD11NeoplasmMatchingRule6 extends AbstractNeoplasmICD11MatchingRul
   }
 
   @Override
+  public String getRuleName() {
+    return "Malignant Neoplasm";
+  }
+
+  @Override
   public String getDescription() {
     return "Description Based: All descendents of 'Malignant neoplastic disease'";
   }
@@ -57,7 +62,7 @@ public class ICD11NeoplasmMatchingRule6 extends AbstractNeoplasmICD11MatchingRul
   protected ICD11MatcherSctConcept getTopLevelConcept() {
     return conceptSearcher.getSctConcept("363346000");
   }
-  
+
   @Override
   protected String getRuleQueryString() {
     return "(atoms.codeId: 2* OR (\"malignant\" AND \"neopla\"))";
@@ -72,14 +77,13 @@ public class ICD11NeoplasmMatchingRule6 extends AbstractNeoplasmICD11MatchingRul
   public String getDefaultSkinMatch() {
     return "2C3Y";
   }
-  
+
   @Override
   protected boolean isRuleMatch(SearchResult result) {
     if (!result.getCodeId().startsWith("X")
         && result.getValue().toLowerCase().matches(".*\\bneopl.*")
         && result.getValue().toLowerCase().matches(".*\\bmalignant\\b.*")
-        && !result.getTerminologyId().equals("2D4Z") 
-        && result.isLeafNode()) {
+        && !result.getTerminologyId().equals("2D4Z") && result.isLeafNode()) {
       return true;
     }
 

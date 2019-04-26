@@ -34,6 +34,11 @@ public class ICD11NeoplasmMatchingRule1 extends AbstractNeoplasmICD11MatchingRul
   }
 
   @Override
+  public String getRuleName() {
+    return "Carcinoma In Situ";
+  }
+
+  @Override
   public String getDescription() {
     return "ECL Based: All descendents of 'Neoplastic disease' where the assocMorph is 'Carcinoma in situ'";
   }

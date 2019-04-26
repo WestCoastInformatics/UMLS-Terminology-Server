@@ -38,6 +38,11 @@ public class ICD11GenericMatchingRule2a extends AbstractGenericICD11MatchingRule
   }
 
   @Override
+  public String getRuleName() {
+    return "Mycobacteriosis";
+  }
+
+  @Override
   public String getDescription() {
     return "ECL Based: All descendents of 'Mycobacteriosis' connecting them to the ICD11 'Mycobacterial diseases' i.e. anything under 1B1 or 1B2";
   }
@@ -106,11 +111,14 @@ public class ICD11GenericMatchingRule2a extends AbstractGenericICD11MatchingRule
     Set<String> results = new HashSet<>();
     matchNextConcept(sctCon, counter);
 
-    results = matchApproachBaseMatch(sctCon, results, icd11Targets, ICD11MatcherConstants.FILTERED_RULE_TYPE);
-    
+    results = matchApproachBaseMatch(sctCon, results, icd11Targets,
+        ICD11MatcherConstants.FILTERED_RULE_TYPE);
+
     if (results.isEmpty()) {
-      results = matchApproachBaseSearch(sctCon, results, icd11Targets, ICD11MatcherConstants.FILTERED_RULE_TYPE);
+      results = matchApproachBaseSearch(sctCon, results, icd11Targets,
+          ICD11MatcherConstants.FILTERED_RULE_TYPE);
     }
-    
+
     return results;
-  }}
+  }
+}

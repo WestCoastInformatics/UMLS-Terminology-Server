@@ -38,6 +38,11 @@ public class ICD11GenericMatchingRule5a extends AbstractGenericICD11MatchingRule
   }
 
   @Override
+  public String getRuleName() {
+    return "Arbovirus Infections";
+  }
+
+  @Override
   public String getDescription() {
     return "ECL Based: All descendents of 'Arbovirus infection' connecting them to the ICD11 'Certain arthropod-borne viral fevers' i.e. any code starting with '1D4'";
   }
@@ -74,8 +79,7 @@ public class ICD11GenericMatchingRule5a extends AbstractGenericICD11MatchingRule
 
   @Override
   protected boolean isRuleMatch(SearchResult result) {
-    if (result.getCodeId().startsWith("1D4")
-        && result.isLeafNode()) {
+    if (result.getCodeId().startsWith("1D4") && result.isLeafNode()) {
       return true;
     }
 
@@ -99,7 +103,6 @@ public class ICD11GenericMatchingRule5a extends AbstractGenericICD11MatchingRule
 
     return findingSiteCache.get(queryPortion);
   }
-  
 
   @Override
   public Set<String> executeRule(ICD11MatcherSctConcept sctCon, int counter) throws Exception {
@@ -107,12 +110,14 @@ public class ICD11GenericMatchingRule5a extends AbstractGenericICD11MatchingRule
     Set<String> results = new HashSet<>();
     matchNextConcept(sctCon, counter);
 
-    results = matchApproachBaseMatch(sctCon, results, icd11Targets, ICD11MatcherConstants.FILTERED_RULE_TYPE);
-    
+    results = matchApproachBaseMatch(sctCon, results, icd11Targets,
+        ICD11MatcherConstants.FILTERED_RULE_TYPE);
+
     if (results.isEmpty()) {
-      results = matchApproachBaseSearch(sctCon, results, icd11Targets, ICD11MatcherConstants.FILTERED_RULE_TYPE);
+      results = matchApproachBaseSearch(sctCon, results, icd11Targets,
+          ICD11MatcherConstants.FILTERED_RULE_TYPE);
     }
-   
+
     return results;
   }
 }

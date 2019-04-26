@@ -15,6 +15,11 @@ public class ICD11ReverseDescendantRuleAll extends AbstractReverseDescendantICD1
   }
 
   @Override
+  public String getRuleName() {
+    return "Reverse Descendant Matching";
+  }
+
+  @Override
   public String getDescription() {
     return "Reverse Rule for All ICD11 Concepts";
   }

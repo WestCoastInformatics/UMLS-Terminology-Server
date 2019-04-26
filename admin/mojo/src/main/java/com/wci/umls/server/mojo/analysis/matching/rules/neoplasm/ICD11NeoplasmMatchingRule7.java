@@ -37,6 +37,11 @@ public class ICD11NeoplasmMatchingRule7 extends AbstractNeoplasmICD11MatchingRul
   }
 
   @Override
+  public String getRuleName() {
+    return "Cyst Finding By Site";
+  }
+
+  @Override
   public String getDescription() {
     return "Description Based: All descendents of 'cyst (disorder)'";
   }
@@ -74,16 +79,16 @@ public class ICD11NeoplasmMatchingRule7 extends AbstractNeoplasmICD11MatchingRul
   @Override
   protected boolean isRuleMatch(SearchResult result) {
     if (!result.getCodeId().startsWith("X")
-        && result.getValue().toLowerCase().matches(".*\\bcyst\\b.*")
-        && result.isLeafNode()) {
+        && result.getValue().toLowerCase().matches(".*\\bcyst\\b.*") && result.isLeafNode()) {
       return true;
     }
 
     return false;
   }
-  
+
   @Override
-  public boolean executeContentParsers(String matcherName, SctNeoplasmDescriptionParser descParser, SctRelationshipParser relParser) throws IOException {
+  public boolean executeContentParsers(String matcherName, SctNeoplasmDescriptionParser descParser,
+    SctRelationshipParser relParser) throws IOException {
 
     // Finding Sites
     boolean populatedFromFiles = descParser.readAllFindingSitesFromFile();
@@ -96,7 +101,7 @@ public class ICD11NeoplasmMatchingRule7 extends AbstractNeoplasmICD11MatchingRul
     } catch (Exception e) {
 
     }
-    
+
     return populatedFromFiles;
   }
 }
