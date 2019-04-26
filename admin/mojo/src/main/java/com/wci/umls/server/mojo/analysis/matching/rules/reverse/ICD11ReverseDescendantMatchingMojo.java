@@ -16,8 +16,10 @@
 package com.wci.umls.server.mojo.analysis.matching.rules.reverse;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.plugin.MojoFailureException;
@@ -64,19 +66,18 @@ public class ICD11ReverseDescendantMatchingMojo extends AbstractICD11MatchingMoj
         SearchResultList icd11Concepts = preReverseRuleProcessing(rule);
         List<String> noMatchList = new ArrayList<>();
 
-        int sctCounter = 0;
         int icd11Counter = 0;
+        Map<ReverseMatchMapKey, Set<ReverseMatchMapTarget>> matchMaps = new HashMap<>();
 
         // Process Terms
         for (SearchResult icd11Con : icd11Concepts.getObjects()) {
 
           // if (counter >= 15) { break; }
+
           ICD11MatcherSctConcept ancestorSctCon =
               ((AbstractReverseDescendantICD11MatchingRule) rule)
                   .identifyEquivalentSctCon(icd11Con);
 
-          getLog().info("Processing ICD11 Concept #" + ++icd11Counter + " out of a total of " + icd11Concepts.getTotalCount());
-          
           if (ancestorSctCon != null) {
             // Return SctDesc via ECL
             pfsEcl.setExpression("<< " + ancestorSctCon.getConceptId());
@@ -84,11 +85,27 @@ public class ICD11ReverseDescendantMatchingMojo extends AbstractICD11MatchingMoj
                 client.findConcepts(sourceTerminology, sourceVersion, "", pfsEcl, authToken);
             pfsEcl.setExpression(null);
 
-            sctCounter = postReverseTermProcessing(rule, icd11Con, ancestorSctCon, descendents, noMatchList, sctCounter);
+            for (SearchResult sctCon : descendents.getObjects()) {
+              ReverseMatchMapKey mapKey = new ReverseMatchMapKey(sctCon);
+
+              if (!matchMaps.containsKey(mapKey)) {
+                matchMaps.put(mapKey, new HashSet<ReverseMatchMapTarget>());
+              }
+
+              matchMaps.get(mapKey).add(new ReverseMatchMapTarget(ancestorSctCon, icd11Con));
+            }
+
           } else {
             noMatchList.add(icd11Con.getValue());
           }
+          
+          if (++icd11Counter == 1 || icd11Counter % 25 == 0) {
+            getLog().info("Processed ICD11 Concept #" + icd11Counter + " out of a total of "
+                + icd11Concepts.getTotalCount());
+          }
         }
+
+        printOutResults(rule, matchMaps);
 
         postRuleProcessing(rule, noMatchList);
       }
@@ -99,28 +116,52 @@ public class ICD11ReverseDescendantMatchingMojo extends AbstractICD11MatchingMoj
     }
   }
 
-  private int postReverseTermProcessing(AbstractICD11MatchingRule rule, SearchResult icd11Con,
-    ICD11MatcherSctConcept ancestorSctCon, SearchResultList descendants, List<String> noMatchList, int counter) {
-    for (SearchResult sctCon : descendants.getObjects()) {
+  private void printOutResults(AbstractICD11MatchingRule rule,
+    Map<ReverseMatchMapKey, Set<ReverseMatchMapTarget>> matchMaps) {
+    int sctCounter = 0;
 
-      matchNextConcept(rule, ancestorSctCon, sctCon, ++counter);
+    for (ReverseMatchMapKey sctCon : matchMaps.keySet()) {
+      printResultHeader(rule, sctCon, matchMaps.get(sctCon), ++sctCounter);
+      printResultMaps(rule, matchMaps.get(sctCon));
 
-      String singleResponse = "\t" + icd11Con.getCodeId() + "\t" + icd11Con.getValue() + "\tSct Ancestor: " + ancestorSctCon.getName();
-      HashSet<String> responses = new HashSet<>();
-      responses.add(singleResponse);
-      
-      printWithSingleResponse(singleResponse, responses, rule);
-      
+      rule.getDevWriter().println();
+      rule.getDevWriter().println();
+      rule.getTermWriter().println();
+      rule.getTermWriter().println();
+
       rule.getDevWriter().flush();
       rule.getTermWriter().flush();
     }
-
-    return counter;
   }
 
-  private void matchNextConcept(AbstractICD11MatchingRule rule, ICD11MatcherSctConcept ancestorSctCon, SearchResult sctCon, int counter) {
-    String newConInfo = "\n# " + counter + " Snomed Concept: " + sctCon.getValue() + "\tSctId: "
-        + sctCon.getTerminologyId() + "\tbased on ancestor: " + ancestorSctCon.getConceptId();
+  private void printResultMaps(AbstractICD11MatchingRule rule,
+    Set<ReverseMatchMapTarget> matchData) {
+    HashSet<String> responses = new HashSet<>();
+    for (ReverseMatchMapTarget match : matchData) {
+      String response =
+          "\t" + match.getIcd11Target().getCodeId() + "\t" + match.getIcd11Target().getValue()
+              + "\tSct Ancestor: " + match.getAncestorSctCon().getName() + "\tAncestor SctId: "
+              + match.getAncestorSctCon().getConceptId();
+
+      responses.add(response);
+    }
+
+    for (String response : responses) {
+      rule.getDevWriter().println(response);
+      rule.getTermWriter().println(response);
+    }
+  }
+
+  private void printResultHeader(AbstractICD11MatchingRule rule, ReverseMatchMapKey sctCon,
+    Set<ReverseMatchMapTarget> matchData, int counter) {
+    String newConInfo = "\n# " + counter + " Snomed Concept: " + sctCon.getSnomedDesc()
+        + "\tSctId: " + sctCon.getSnomedId() + "\t";
+
+    if (matchData.size() == 1) {
+      newConInfo = newConInfo + "Single Result";
+    } else {
+      newConInfo = newConInfo + "Couldn't discern between the following options";
+    }
 
     System.out.println(newConInfo);
     rule.getDevWriter().println(newConInfo);
@@ -131,7 +172,7 @@ public class ICD11ReverseDescendantMatchingMojo extends AbstractICD11MatchingMoj
     throws Exception {
     getLog().info("\n\n\n**************************\nNow Processing\n" + rule.getRuleId()
         + " Matching Mojo\n" + rule.getDescription() + "\n**************************\n");
-  
+
     setupContentParsers(rule);
 
     /*
@@ -205,5 +246,75 @@ public class ICD11ReverseDescendantMatchingMojo extends AbstractICD11MatchingMoj
   @Override
   protected List<String> cleanResultsForTerminologist(Set<String> results) {
     throw new UnsupportedOperationException();
+  }
+
+  private class ReverseMatchMapTarget {
+    private ICD11MatcherSctConcept ancestorSctCon;
+
+    private SearchResult icd11Target;
+
+    private ReverseMatchMapTarget(ICD11MatcherSctConcept sctCon, SearchResult icd11Con) {
+      ancestorSctCon = sctCon;
+      icd11Target = icd11Con;
+    }
+
+    public ICD11MatcherSctConcept getAncestorSctCon() {
+      return ancestorSctCon;
+    }
+
+    public SearchResult getIcd11Target() {
+      return icd11Target;
+    }
+  }
+
+  private class ReverseMatchMapKey {
+    private String sctId;
+
+    private String desc;
+
+    private ReverseMatchMapKey(SearchResult result) {
+      sctId = result.getTerminologyId();
+      desc = result.getValue();
+    }
+
+    public String getSnomedId() {
+      return sctId;
+    }
+
+    public String getSnomedDesc() {
+      return desc;
+    }
+
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ((sctId == null) ? 0 : sctId.hashCode());
+      result = prime * result + ((desc == null) ? 0 : desc.hashCode());
+      return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      ReverseMatchMapKey other = (ReverseMatchMapKey) obj;
+      if (sctId == null) {
+        if (other.sctId != null)
+          return false;
+      } else if (!sctId.equals(other.sctId))
+        return false;
+      if (desc == null) {
+        if (other.desc != null)
+          return false;
+      } else if (!desc.equals(other.desc))
+        return false;
+
+      return true;
+    }
   }
 }

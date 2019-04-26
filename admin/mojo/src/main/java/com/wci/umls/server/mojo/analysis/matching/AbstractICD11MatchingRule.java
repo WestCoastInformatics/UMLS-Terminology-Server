@@ -73,13 +73,14 @@ public abstract class AbstractICD11MatchingRule {
     pfsLimited.setStartIndex(0);
     pfsLimited.setMaxResults(10);
   }
-  
+
   abstract protected StringBuffer createSnomedConceptSearchedLine(ICD11MatcherSctConcept sctCon,
     int counter);
 
   abstract protected SctICD11SynonymProvider getSynonymProvider();
 
-  abstract public boolean executeContentParsers(String mATCHER_NAME, SctNeoplasmDescriptionParser descParser, SctRelationshipParser relParser) throws IOException;
+  abstract public boolean executeContentParsers(String MATCHER_NAME,
+    SctNeoplasmDescriptionParser descParser, SctRelationshipParser relParser) throws IOException;
 
   public static void initializeTcTable() throws IOException {
     BufferedReader reader;
@@ -324,7 +325,7 @@ public abstract class AbstractICD11MatchingRule {
       }
 
       desc = cleanDescription(desc.toLowerCase().trim(), getRuleBasedNonMatchTerms());
-      
+
       descsToProcess.addAll(getSynonymProvider().identifyReplacements(desc));
     }
 

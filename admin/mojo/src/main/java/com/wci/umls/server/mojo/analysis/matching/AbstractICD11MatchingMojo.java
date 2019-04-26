@@ -121,7 +121,7 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
         for (ICD11MatcherSctConcept sctCon : snomedConcepts.values()) {
 
           // if (counter >= 15) { break; }
-
+          
           rule.preTermProcessing(sctCon);
 
           Set<String> results = rule.executeRule(sctCon, ++counter);
@@ -153,17 +153,16 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
     getLog().info("\n\n\n**************************\nNow Processing\n" + rule.getRuleId()
         + " Matching Mojo\n" + rule.getDescription() + "\n**************************\n");
 
-    /*
-     * Start Processing rule
-     */
+    // Start Processing rule
     rule.setDevWriter(
         prepareResultsFile(rule.getRuleId(), "developerResults", "ICD11 Matching Results"));
     rule.setTermWriter(
         prepareResultsFile(rule.getRuleId(), "terminologistResults", "ICD11 Matching Results"));
-
+    rule.getDevWriter().println(rule.getDescription());
+    rule.getTermWriter().println(rule.getDescription());
+    
     // setup parser
     setupContentParsers(rule);
-
     Map<String, ICD11MatcherSctConcept> snomedConcepts = identifyContentToProcess(rule);
 
     // Identify ICD11 Targets
@@ -264,7 +263,7 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
     noMatchList.add(sctCon.getConceptId() + "\t" + sctCon.getName());
   }
 
-  private void printWithNoSingleResponse(Set<String> results, AbstractICD11MatchingRule rule) {
+  protected void printWithNoSingleResponse(Set<String> results, AbstractICD11MatchingRule rule) {
     StringBuffer devBuf = new StringBuffer();
     StringBuffer termBuf = new StringBuffer();
     devBuf.append(UNABLE_TO_MATCH_HEADER);
@@ -272,7 +271,10 @@ public abstract class AbstractICD11MatchingMojo extends AbstractContentAnalysisM
 
     List<String> termResults = cleanResultsForTerminologist(results);
 
-    for (String result : results) {
+    for (String result : termResults) {
+      if (!result.startsWith("\t")) {
+        result = "\t" + result;
+      }
       devBuf.append(result + "\n");
     }
 
