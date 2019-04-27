@@ -122,7 +122,7 @@ public class ICD11NeoplasmMatchingMojo extends AbstractICD11MatchingMojo {
     for (String line : results) {
       String[] columns = line.split("\t");
 
-      if (columns.length > 4) {
+      if (columns.length > getDepthLocation()) {
         if (!sortedIdsMap.containsKey(columns[1])) {
           sortedIdsMap.put(columns[1], new HashSet<String>());
         }
@@ -142,10 +142,10 @@ public class ICD11NeoplasmMatchingMojo extends AbstractICD11MatchingMojo {
           lowestDepth = Integer.parseInt(columns[getDepthLocation()]);
           
           lineToPrint =
-              "\t" + columns[1] + "\t" + columns[2] + "\t" + columns[3] + "\t" + columns[4];
+              "\t" + columns[1] + "\t" + columns[2] + "\t" + columns[3] + "\t" + columns[4] + "\t" + columns[5];
           
-          if (getDepthLocation() == 5) {
-            lineToPrint = lineToPrint + "\t" + columns[5];
+          if (getDepthLocation() == 6) {
+            lineToPrint = lineToPrint + "\t" + columns[6];
           }
           
           lineToPrint = lineToPrint + "\n";

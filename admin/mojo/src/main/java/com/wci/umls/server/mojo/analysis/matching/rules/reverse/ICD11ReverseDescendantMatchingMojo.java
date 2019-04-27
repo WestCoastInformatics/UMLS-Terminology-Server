@@ -139,10 +139,10 @@ public class ICD11ReverseDescendantMatchingMojo extends AbstractICD11MatchingMoj
     Set<ReverseMatchMapTarget> matchData) {
     HashSet<String> responses = new HashSet<>();
     for (ReverseMatchMapTarget match : matchData) {
-      String response =
-          "\t" + match.getIcd11Target().getCodeId() + "\t" + match.getIcd11Target().getValue()
-              + "\tSct Ancestor: " + match.getAncestorSctCon().getName() + "\tAncestor SctId: "
-              + match.getAncestorSctCon().getConceptId();
+      String response = "\t" + match.getIcd11Target().getCodeId() + "\t"
+          + match.getIcd11Target().getValue() + match.getIcd11Target().getTerminologyId() + "\t"
+          + "\tSct Ancestor: " + match.getAncestorSctCon().getName() + "\tAncestor SctId: "
+          + match.getAncestorSctCon().getConceptId();
 
       responses.add(response);
     }

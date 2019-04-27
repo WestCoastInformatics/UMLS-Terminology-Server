@@ -29,8 +29,9 @@ public abstract class AbstractNeoplasmICD11MatchingRule extends AbstractICD11Mat
   protected Set<ICD11MatcherSctConcept> findingSiteCons;
 
   static protected FindingSiteUtility fsUtility;
-  
-  protected static SctICD11SynonymProvider synonymProvider = new SctICD11SynonymProvider(ICD11MatcherConstants.SNOMED_TO_ICD11);
+
+  protected static SctICD11SynonymProvider synonymProvider =
+      new SctICD11SynonymProvider(ICD11MatcherConstants.SNOMED_TO_ICD11);
 
   public AbstractNeoplasmICD11MatchingRule(ContentClientRest contentClient, String st, String sv,
       String tt, String tv, String token) {
@@ -68,9 +69,9 @@ public abstract class AbstractNeoplasmICD11MatchingRule extends AbstractICD11Mat
     return newConInfoStr;
   }
 
-
   @Override
-  public boolean executeContentParsers(String matcherName, SctNeoplasmDescriptionParser descParser, SctRelationshipParser relParser) throws IOException {
+  public boolean executeContentParsers(String matcherName, SctNeoplasmDescriptionParser descParser,
+    SctRelationshipParser relParser) throws IOException {
     // Generic
     boolean populatedFromFiles = descParser.readAllNeoplasmDescsFromFile();
     populatedFromFiles = populatedFromFiles && relParser.readAllNeoplasmRelsFromFile();
@@ -91,31 +92,32 @@ public abstract class AbstractNeoplasmICD11MatchingRule extends AbstractICD11Mat
    * @param matchDepthMap the lowest depth map
    * @param matchResultMap the match map
    * @param str the str
-   * @return 
+   * @return
    */
   private Set<String> identifyBestMatch(Map<String, Integer> matchDepthMap,
     Map<String, String> matchResultMap) {
     Set<String> lowestDepthStrings = new HashSet<>();
 
     for (String icdConId : matchDepthMap.keySet()) {
-      lowestDepthStrings.add(
-          "\n" + matchResultMap.get(icdConId) + "\t" + matchDepthMap.get(icdConId));
+      lowestDepthStrings
+          .add("\n" + matchResultMap.get(icdConId) + "\t" + matchDepthMap.get(icdConId));
     }
 
     return lowestDepthStrings;
   }
 
   private void identifyMatchesByToken(String desc, Map<String, String> matchMap,
-    Map<String, Integer> matchDepthMap, Map<String, Integer> lowestDepthMap, int depth) throws Exception {
+    Map<String, Integer> matchDepthMap, Map<String, Integer> lowestDepthMap, int depth)
+    throws Exception {
 
     String normalizedSiteString = cleanDescription(desc.toLowerCase(), getRuleBasedNonMatchTerms());
     Set<String> descsToProcess = getSynonymProvider().identifyEquivalencies(normalizedSiteString);
 
     Set<String> tokensToProcess = new HashSet<>();
     for (String descToProcess : descsToProcess) {
-        tokensToProcess.addAll(splitTokens(descToProcess.toLowerCase()));
+      tokensToProcess.addAll(splitTokens(descToProcess.toLowerCase()));
     }
-    
+
     for (String token : tokensToProcess) {
       if (!ICD11MatcherConstants.NON_MATCHING_TERMS.contains(token)) {
 
@@ -126,7 +128,7 @@ public abstract class AbstractNeoplasmICD11MatchingRule extends AbstractICD11Mat
             if (icd11Con.getValue().toLowerCase().matches(".*\\b" + token + "\\b.*")) {
 
               String resultString = "\t" + icd11Con.getCodeId() + "\t" + icd11Con.getValue() + "\t"
-                  + token;
+                  + icd11Con.getTerminologyId() + "\t" + token;
 
               if (!lowestDepthMap.keySet().contains(icd11Con.getCodeId())
                   || depth < lowestDepthMap.get(icd11Con.getCodeId())) {
@@ -196,7 +198,7 @@ public abstract class AbstractNeoplasmICD11MatchingRule extends AbstractICD11Mat
     if (!matchResultMap.isEmpty()) {
       return identifyBestMatch(matchDepthMap, matchResultMap);
     }
-    
+
     return new HashSet<String>();
   }
 

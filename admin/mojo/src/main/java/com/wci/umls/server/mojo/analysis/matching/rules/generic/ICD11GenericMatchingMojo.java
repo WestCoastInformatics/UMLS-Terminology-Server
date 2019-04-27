@@ -40,7 +40,7 @@ public class ICD11GenericMatchingMojo extends AbstractICD11MatchingMojo {
 
   protected final String MATCHER_NAME = "icd11-generic-matcher";
 
-  private final int SCORE_COLUMN = 4;
+  private final int SCORE_COLUMN = 5;
 
   /*
    * (non-Javadoc)

@@ -184,8 +184,8 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
   private String processBaseSearch(SearchResult result, String desc, int depth,
     Map<String, String> matchResultMap, Map<String, Integer> matchDepthMap,
     Map<String, Integer> lowestDepthMap) {
-    String resultString = "\t" + result.getCodeId() + "\t" + result.getValue() + "\t" + desc + "\t"
-        + result.getScore();
+    String resultString = "\t" + result.getCodeId() + "\t" + result.getValue() + "\t"
+        + result.getTerminologyId() + "\t" + desc + "\t" + result.getScore();
 
     if (!lowestDepthMap.keySet().contains(result.getCodeId())
         || depth < lowestDepthMap.get(result.getCodeId())) {
@@ -220,7 +220,7 @@ public abstract class AbstractGenericICD11MatchingRule extends AbstractICD11Matc
           // icd11Concept
           if (matches >= ((tokens.size() / 2) + (tokens.size() % 2))) {
             String resultString = "\t" + icd11Con.getCodeId() + "\t" + icd11Con.getValue() + "\t"
-                + desc + "\t" + "N/A";
+                + icd11Con.getTerminologyId() + "\t" + desc + "\t" + "N/A";
 
             if (!matchTokensMap.keySet().contains(icd11Con.getCodeId())
                 || matchTokensMap.get(icd11Con.getCodeId()) < matches) {

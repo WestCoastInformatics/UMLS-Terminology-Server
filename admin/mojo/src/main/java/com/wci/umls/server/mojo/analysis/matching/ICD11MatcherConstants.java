@@ -24,9 +24,9 @@ public class ICD11MatcherConstants {
 
   public static final int SNOMED_COLUMN = 1;
 
-  public static final int DEPTH_LOCATION_NEOPLASM = 4;
+  public static final int DEPTH_LOCATION_NEOPLASM = 5;
 
-  public static final int DEPTH_LOCATION_GENERIC = 5;
+  public static final int DEPTH_LOCATION_GENERIC = 6;
 
   public static final int PRINT_WRITER_DEV_TYPE = 0;
 
