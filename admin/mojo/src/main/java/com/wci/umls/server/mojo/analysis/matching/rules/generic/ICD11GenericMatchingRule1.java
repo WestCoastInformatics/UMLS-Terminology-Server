@@ -51,7 +51,7 @@ public class ICD11GenericMatchingRule1 extends AbstractGenericICD11MatchingRule 
 
   @Override
   public String getDefaultTarget() {
-    return "1C62.Z\tHuman immunodeficiency virus disease without mention of associated disease or condition, clinical stage unspecified";
+    return "1C62.Z\tHuman immunodeficiency virus disease without mention of associated disease or condition, clinical stage unspecified\t1508081745/unspecified";
   }
 
   @Override

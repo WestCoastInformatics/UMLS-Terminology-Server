@@ -58,7 +58,7 @@ public class ICD11NeoplasmMatchingRule7 extends AbstractNeoplasmICD11MatchingRul
 
   @Override
   public String getDefaultTarget() {
-    return "GB8Z\tCystic or dysplastic kidney disease, unspecified";
+    return "GB8Z\tCystic or dysplastic kidney disease, unspecified\t854539401/unspecified";
   }
 
   @Override
@@ -73,7 +73,7 @@ public class ICD11NeoplasmMatchingRule7 extends AbstractNeoplasmICD11MatchingRul
 
   @Override
   public String getDefaultSkinMatch() {
-    return "2F72.Y";
+    return "2F72.Y\tOther specified neoplasms of uncertain behaviour of skin\t1595346575/other";
   }
 
   @Override

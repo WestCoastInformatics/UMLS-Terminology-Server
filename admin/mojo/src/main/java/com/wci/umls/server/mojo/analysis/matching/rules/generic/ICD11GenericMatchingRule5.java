@@ -51,7 +51,7 @@ public class ICD11GenericMatchingRule5 extends AbstractGenericICD11MatchingRule 
 
   @Override
   public String getDefaultTarget() {
-    return "2E6Y\tCarcinoma in situ of other specified site";
+    return "2E6Y\tCarcinoma in situ of other specified site\t531713107/other";
   }
 
   @Override

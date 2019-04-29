@@ -37,7 +37,7 @@ public class ICD11NeoplasmMatchingRule4 extends AbstractNeoplasmICD11MatchingRul
 
   @Override
   public String getRuleName() {
-    return "Neoplasm Uncertain Behavior";
+    return "Neoplasm of Uncertain Behavior";
   }
 
   @Override
@@ -69,7 +69,7 @@ public class ICD11NeoplasmMatchingRule4 extends AbstractNeoplasmICD11MatchingRul
 
   @Override
   public String getDefaultTarget() {
-    return "2F7Y\tNeoplasms of uncertain behaviour of other specified site";
+    return "2F7Y\tNeoplasms of uncertain behaviour of other specified site\t1158485193/other";
   }
 
   @Override
@@ -84,7 +84,7 @@ public class ICD11NeoplasmMatchingRule4 extends AbstractNeoplasmICD11MatchingRul
 
   @Override
   public String getDefaultSkinMatch() {
-    return "2F72.Y";
+    return "2F72.Y\tOther specified neoplasms of uncertain behaviour of skin\t1595346575/other";
   }
 
   @Override

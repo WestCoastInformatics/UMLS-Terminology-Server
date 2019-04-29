@@ -55,7 +55,7 @@ public class ICD11NeoplasmMatchingRule1 extends AbstractNeoplasmICD11MatchingRul
 
   @Override
   public String getDefaultTarget() {
-    return "2E6Y\tCarcinoma in situ of other specified site";
+    return "2E6Y\tCarcinoma in situ of other specified site\t531713107/other";
   }
 
   @Override
@@ -70,7 +70,7 @@ public class ICD11NeoplasmMatchingRule1 extends AbstractNeoplasmICD11MatchingRul
 
   @Override
   public String getDefaultSkinMatch() {
-    return "2E64.Y";
+    return "2E64.Y\tOther specified carcinoma in situ of skin\t773281372/other";
   }
 
   @Override

@@ -59,7 +59,7 @@ public class ICD11GenericMatchingRule4a extends AbstractGenericICD11MatchingRule
 
   @Override
   public String getDefaultTarget() {
-    return "1C8Y\tOther specified viral infections of the central nervous system";
+    return "1C8Y\tOther specified viral infections of the central nervous system\t1104303944/other";
   }
 
   @Override

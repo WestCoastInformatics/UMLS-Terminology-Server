@@ -59,7 +59,7 @@ public class ICD11GenericMatchingRule5a extends AbstractGenericICD11MatchingRule
 
   @Override
   public String getDefaultTarget() {
-    return "1D4Y\tOther specified arthropod-borne viral fevers";
+    return "1D4Y\tOther specified arthropod-borne viral fevers\t921595235/other";
   }
 
   @Override

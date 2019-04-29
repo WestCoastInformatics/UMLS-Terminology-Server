@@ -59,7 +59,7 @@ public class ICD11GenericMatchingRule2a extends AbstractGenericICD11MatchingRule
 
   @Override
   public String getDefaultTarget() {
-    return "1B2Y\tOther specified mycobacterial diseases";
+    return "1B2Y\tOther specified mycobacterial diseases\t979278646/other";
   }
 
   @Override

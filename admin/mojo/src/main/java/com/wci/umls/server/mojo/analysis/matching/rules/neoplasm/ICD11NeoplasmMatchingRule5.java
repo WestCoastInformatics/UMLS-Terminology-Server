@@ -55,7 +55,7 @@ public class ICD11NeoplasmMatchingRule5 extends AbstractNeoplasmICD11MatchingRul
 
   @Override
   public String getDefaultTarget() {
-    return "2F38\tBenign neoplasm of other or unspecified sites";
+    return "2F38\tBenign neoplasm of other or unspecified sites\t943844578";
   }
 
   @Override

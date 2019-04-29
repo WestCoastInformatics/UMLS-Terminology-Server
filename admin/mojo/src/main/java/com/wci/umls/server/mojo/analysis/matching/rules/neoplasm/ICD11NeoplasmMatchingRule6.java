@@ -55,7 +55,7 @@ public class ICD11NeoplasmMatchingRule6 extends AbstractNeoplasmICD11MatchingRul
 
   @Override
   public String getDefaultTarget() {
-    return "2D4Z\tUnspecified malignant neoplasms of ill-defined or unspecified sites";
+    return "2D4Z\tUnspecified malignant neoplasms of ill-defined or unspecified sites\t1594217552/unspecified";
   }
 
   @Override
@@ -75,7 +75,7 @@ public class ICD11NeoplasmMatchingRule6 extends AbstractNeoplasmICD11MatchingRul
 
   @Override
   public String getDefaultSkinMatch() {
-    return "2C3Y";
+    return "2C3Y\tOther specified malignant neoplasms of skin\t1706880799/other";
   }
 
   @Override

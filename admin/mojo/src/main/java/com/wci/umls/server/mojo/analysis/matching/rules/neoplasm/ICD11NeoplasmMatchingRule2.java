@@ -55,7 +55,7 @@ public class ICD11NeoplasmMatchingRule2 extends AbstractNeoplasmICD11MatchingRul
 
   @Override
   public String getDefaultTarget() {
-    return "2E63.Y\tOther specified melanoma in situ neoplasms";
+    return "2E63.Y\tOther specified melanoma in situ neoplasms\t1576650184/other";
   }
 
   @Override
@@ -70,7 +70,7 @@ public class ICD11NeoplasmMatchingRule2 extends AbstractNeoplasmICD11MatchingRul
 
   @Override
   public String getDefaultSkinMatch() {
-    return "2E63.0Z";
+    return "2E63.0Z\tMelanoma in situ of skin, unspecified\t1538263896/unspecified";
   }
 
   @Override

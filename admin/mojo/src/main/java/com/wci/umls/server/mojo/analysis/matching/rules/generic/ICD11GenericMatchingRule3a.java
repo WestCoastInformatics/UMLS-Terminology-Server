@@ -59,7 +59,7 @@ public class ICD11GenericMatchingRule3a extends AbstractGenericICD11MatchingRule
 
   @Override
   public String getDefaultTarget() {
-    return "1A9Y\tOther specified predominantly sexually transmitted infections";
+    return "1A9Y\tOther specified predominantly sexually transmitted infections\t1904876434/other";
   }
 
   @Override
