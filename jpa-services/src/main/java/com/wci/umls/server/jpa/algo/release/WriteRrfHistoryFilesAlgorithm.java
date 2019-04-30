@@ -196,7 +196,7 @@ public class WriteRrfHistoryFilesAlgorithm
         manager.createQuery("select distinct value(cid), c.terminologyId  "
             + "from ConceptJpa c join c.atoms a join a.conceptTerminologyIds cid "
             + "where c.terminology = :terminology and c.version = :version "
-            + "and c.publishable = true and a.publishable = true "
+            + "and c.publishable = true "
             + "and key(cid) = :terminology");
     query.setParameter("terminology", getProject().getTerminology());
     query.setParameter("version", getProject().getVersion());
