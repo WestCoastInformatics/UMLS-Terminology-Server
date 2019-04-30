@@ -47,6 +47,7 @@ import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.algo.action.AbstractMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddAtomMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddRelationshipMolecularAction;
+import com.wci.umls.server.jpa.algo.action.AddSemanticTypeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.ApproveMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RedoMolecularAction;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
@@ -57,6 +58,7 @@ import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
+import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa;
@@ -83,6 +85,7 @@ import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.RelationshipIdentity;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
+import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.TrackingRecord;
@@ -220,6 +223,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixAdditionalRelTypeInverses2();
     } else if (actionName.equals("Remove Demotions")) {
       removeDemotions();
+    } else if (actionName.equals("Revise Semantic Types")) {
+      reviseSemanticTypes();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -2756,7 +2761,89 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     return true;
   }
   
+  private void reviseSemanticTypes() throws Exception {
+    // 11/30/2019  Revise for SNOMED insertion the stys for 'Alergy to...' concepts
 
+    logInfo(" Revise semantic types");
+
+    List<Concept> conceptToBeRevised = new ArrayList<>();
+
+    try {
+
+      Query query = getEntityManager().createNativeQuery(
+          "select concepts.id from concepts, concepts_atoms, atoms, concepts_semantic_type_components, semantic_type_components "
+              + " where concepts.name like 'Allergy to%' and concepts.lastModifiedBy = 'SNOMEDCT_US_2019_03_01' "
+              + " and concepts.workflowStatus = 'NEEDS_REVIEW' "
+              + " and concepts.terminology = 'NCIMTH' "
+              + " and concepts.id = concepts_semantic_type_components.concepts_id "
+              + " and concepts_semantic_type_components.semanticTypes_id  = semantic_type_components.id "
+              + " and semantic_type_components.semanticType != 'Pathologic Function' "
+              + " and concepts.id not in ( "
+              + " select concepts.id from concepts, concepts_atoms, atoms " 
+              + " where concepts.id = concepts_atoms.concepts_id " 
+              + " and concepts_atoms.atoms_id = atoms.id "
+              + " and atoms.workflowStatus = 'DEMOTION') "
+              + " and concepts.id = concepts_atoms.concepts_id "
+              + " and atoms.id = concepts_atoms.atoms_id "
+              + " and atoms.terminology = 'SNOMEDCT_US' "
+              + " group by atoms.codeId having count(distinct(atoms.codeId)) = 1");
+
+      logInfo("[ReviseSemanticTypes] Identifying concepts with incorrect stys");
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        Concept cpt = getConcept(id);
+        conceptToBeRevised.add(cpt);
+      }
+
+      setSteps(conceptToBeRevised.size());
+
+      logInfo("[ReviseSemanticTypes] " + conceptToBeRevised.size()
+          + " Concepts with incorrect stys identified");
+
+
+      for (final Concept concept : conceptToBeRevised) {
+        logInfo("[ReviseSemanticTypes] " + concept);
+        /*for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
+          removeSemanticTypeComponent(sty.getId());
+        }
+
+        // Create semantic type component
+        final SemanticTypeComponent sty = new SemanticTypeComponentJpa();
+        sty.setTerminologyId("");
+        sty.setObsolete(false);
+        sty.setPublishable(true);
+        sty.setPublished(false);
+        sty.setWorkflowStatus(WorkflowStatus.PUBLISHED);
+        sty.setSemanticType("Pathologic Function");
+        sty.setTerminology("NCIMTH");
+        sty.setVersion("latest");
+        sty.setTimestamp(new Date());
+
+        // Add the semantic type component
+        SemanticTypeComponent addedSty = addSemanticTypeComponent(sty, concept);
+
+        // Change status of the concept
+        concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+
+        // Add the semantic type component to concept
+        concept.getSemanticTypes().add(addedSty);
+
+        // update the concept
+        updateConcept(concept);
+        updateProgress();*/
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+
+    }
+
+    logInfo("Finished " + getName());
+
+  }
 
   /* see superclass */
   @Override
@@ -2811,7 +2898,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Fix MDR Descriptors", "Clear Worklists and Checklists",
             "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts", "Fix Null RUIs", 
             "Remove old relationships", "Assign Missing STY ATUIs", "Fix Component History Version",
-            "Fix AdditionalRelType Inverses 2", "Remove Demotions"));
+            "Fix AdditionalRelType Inverses 2", "Remove Demotions", "Revise Semantic Types"));
     params.add(param);
 
     return params;
