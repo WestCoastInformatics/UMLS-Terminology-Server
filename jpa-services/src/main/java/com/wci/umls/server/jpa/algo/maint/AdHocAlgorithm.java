@@ -50,6 +50,7 @@ import com.wci.umls.server.jpa.algo.action.AddRelationshipMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddSemanticTypeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.ApproveMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RedoMolecularAction;
+import com.wci.umls.server.jpa.algo.action.RemoveSemanticTypeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
@@ -2805,9 +2806,54 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       for (final Concept concept : conceptToBeRevised) {
         logInfo("[ReviseSemanticTypes] " + concept);
-        /*for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
-          removeSemanticTypeComponent(sty.getId());
+        
+        // Authorize project role, get userName
+        final String userName = "DSS";
+
+        final RemoveSemanticTypeMolecularAction action =
+            new RemoveSemanticTypeMolecularAction();
+
+        // Retrieve the project
+        final Project project = action.getProject(39751L);
+        if (!project.isEditingEnabled()) {
+          throw new LocalException(
+              "Editing is disabled on project: " + project.getName());
         }
+
+        
+        for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
+          // Configure the action
+          action.setProject(project);
+          action.setActivityId("AdHocReviseSTYS");
+          action.setConceptId(concept.getId());
+          action.setConceptId2(null);
+          action.setLastModifiedBy("E-" + userName);
+          action.setLastModified(concept.getLastModified().getTime());
+          action.setOverrideWarnings(true);
+          action.setTransactionPerOperation(false);
+          action.setMolecularActionFlag(true);
+          action.setChangeStatusFlag(true);
+
+          action.setSemanticTypeComponentId(sty.getId());
+
+          // Perform the action
+          final ValidationResult validationResult =
+              action.performMolecularAction(action, userName, true, false);
+
+          // If the action failed, bail out now.
+          if (!validationResult.isValid()) {
+            logInfo("[ReviseSemanticTypes] validation error " + validationResult);
+            throw new Exception();
+          }
+        }
+        commitClearBegin();
+
+        
+        // Instantiate services
+        final AddSemanticTypeMolecularAction addAction =
+            new AddSemanticTypeMolecularAction();
+
+
 
         // Create semantic type component
         final SemanticTypeComponent sty = new SemanticTypeComponentJpa();
@@ -2821,18 +2867,32 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         sty.setVersion("latest");
         sty.setTimestamp(new Date());
 
-        // Add the semantic type component
-        SemanticTypeComponent addedSty = addSemanticTypeComponent(sty, concept);
+        // Configure the addAction
+        addAction.setProject(project);
+        addAction.setActivityId("AdHocReviseSTYS");
+        addAction.setConceptId(concept.getId());
+        addAction.setConceptId2(null);
+        addAction.setLastModifiedBy("E-" + userName);
+        addAction.setLastModified(concept.getLastModified().getTime());
+        addAction.setOverrideWarnings(true);
+        addAction.setTransactionPerOperation(false);
+        addAction.setMolecularActionFlag(true);
+        addAction.setChangeStatusFlag(true);
 
-        // Change status of the concept
-        concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+        addAction.setSemanticTypeComponent(sty);
 
-        // Add the semantic type component to concept
-        concept.getSemanticTypes().add(addedSty);
+        // Perform the addAction
+        final ValidationResult validationResult =
+            addAction.performMolecularAction(addAction, userName, true, false);
 
-        // update the concept
-        updateConcept(concept);
-        updateProgress();*/
+        // If the addAction failed, bail out now.
+        if (!validationResult.isValid()) {
+          logInfo("[ReviseSemanticTypes] validation error " + validationResult);
+          throw new Exception();
+        }
+
+        updateProgress();
+        commitClearBegin();
       }
     } catch (Exception e) {
       e.printStackTrace();
