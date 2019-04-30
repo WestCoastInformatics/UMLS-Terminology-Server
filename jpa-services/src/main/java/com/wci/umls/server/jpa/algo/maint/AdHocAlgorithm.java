@@ -2804,7 +2804,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           + " Concepts with incorrect stys identified");
 
 
-      for (final Concept concept : conceptToBeRevised) {
+      for (Concept concept : conceptToBeRevised) {
         logInfo("[ReviseSemanticTypes] " + concept);
         
         // Authorize project role, get userName
@@ -2832,7 +2832,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           action.setOverrideWarnings(true);
           action.setTransactionPerOperation(false);
           action.setMolecularActionFlag(true);
-          action.setChangeStatusFlag(true);
+          action.setChangeStatusFlag(false);
 
           action.setSemanticTypeComponentId(sty.getId());
 
@@ -2848,6 +2848,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         }
         commitClearBegin();
 
+        // prevent stale concept
+        concept = getConcept(concept.getId());
         
         // Instantiate services
         final AddSemanticTypeMolecularAction addAction =
@@ -2877,7 +2879,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         addAction.setOverrideWarnings(true);
         addAction.setTransactionPerOperation(false);
         addAction.setMolecularActionFlag(true);
-        addAction.setChangeStatusFlag(true);
+        addAction.setChangeStatusFlag(false);
 
         addAction.setSemanticTypeComponent(sty);
 
