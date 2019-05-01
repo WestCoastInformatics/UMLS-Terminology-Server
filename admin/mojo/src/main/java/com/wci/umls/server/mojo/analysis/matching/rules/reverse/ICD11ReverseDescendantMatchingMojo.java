@@ -140,7 +140,7 @@ public class ICD11ReverseDescendantMatchingMojo extends AbstractICD11MatchingMoj
     HashSet<String> responses = new HashSet<>();
     for (ReverseMatchMapTarget match : matchData) {
       String response = "\t" + match.getIcd11Target().getCodeId() + "\t"
-          + match.getIcd11Target().getValue() + match.getIcd11Target().getTerminologyId() + "\t"
+          + match.getIcd11Target().getValue() + "\t" + match.getIcd11Target().getTerminologyId() + "\t"
           + "\tSct Ancestor: " + match.getAncestorSctCon().getName() + "\tAncestor SctId: "
           + match.getAncestorSctCon().getConceptId();
 
