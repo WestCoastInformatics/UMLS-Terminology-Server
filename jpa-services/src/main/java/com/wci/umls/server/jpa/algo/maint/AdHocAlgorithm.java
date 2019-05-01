@@ -2763,7 +2763,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   }
   
   private void reviseSemanticTypes() throws Exception {
-    // 11/30/2019  Revise for SNOMED insertion the stys for 'Alergy to...' concepts
+    // 11/30/2019 Revise for SNOMED insertion the stys for 'Alergy to...'
+    // concepts
 
     logInfo(" Revise semantic types");
 
@@ -2780,8 +2781,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
               + " and concepts_semantic_type_components.semanticTypes_id  = semantic_type_components.id "
               + " and semantic_type_components.semanticType != 'Pathologic Function' "
               + " and concepts.id not in ( "
-              + " select concepts.id from concepts, concepts_atoms, atoms " 
-              + " where concepts.id = concepts_atoms.concepts_id " 
+              + " select concepts.id from concepts, concepts_atoms, atoms "
+              + " where concepts.id = concepts_atoms.concepts_id "
               + " and concepts_atoms.atoms_id = atoms.id "
               + " and atoms.workflowStatus = 'DEMOTION') "
               + " and concepts.id = concepts_atoms.concepts_id "
@@ -2803,94 +2804,117 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       logInfo("[ReviseSemanticTypes] " + conceptToBeRevised.size()
           + " Concepts with incorrect stys identified");
 
+      RemoveSemanticTypeMolecularAction action = new RemoveSemanticTypeMolecularAction();
+      AddSemanticTypeMolecularAction addAction = new AddSemanticTypeMolecularAction();
 
       for (Concept concept : conceptToBeRevised) {
         logInfo("[ReviseSemanticTypes] " + concept);
-        
+
         // Authorize project role, get userName
         final String userName = "DSS";
+        try {
+          action = new RemoveSemanticTypeMolecularAction();
 
-        final RemoveSemanticTypeMolecularAction action =
-            new RemoveSemanticTypeMolecularAction();
-
-        // Retrieve the project
-        final Project project = action.getProject(39751L);
-        if (!project.isEditingEnabled()) {
-          throw new LocalException(
-              "Editing is disabled on project: " + project.getName());
-        }
-
-        
-        for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
-          // Configure the action
-          action.setProject(project);
-          action.setActivityId("AdHocReviseSTYS");
-          action.setConceptId(concept.getId());
-          action.setConceptId2(null);
-          action.setLastModifiedBy("E-" + userName);
-          action.setLastModified(concept.getLastModified().getTime());
-          action.setOverrideWarnings(true);
-          action.setTransactionPerOperation(false);
-          action.setMolecularActionFlag(true);
-          action.setChangeStatusFlag(false);
-
-          action.setSemanticTypeComponentId(sty.getId());
-
-          // Perform the action
-          final ValidationResult validationResult =
-              action.performMolecularAction(action, userName, true, false);
-
-          // If the action failed, bail out now.
-          if (!validationResult.isValid()) {
-            logInfo("[ReviseSemanticTypes] validation error " + validationResult);
-            throw new Exception();
+          // Retrieve the project
+          final Project project = action.getProject(39751L);
+          if (!project.isEditingEnabled()) {
+            throw new LocalException(
+                "Editing is disabled on project: " + project.getName());
           }
+
+          // prevent stale concept
+          concept = getConcept(concept.getId());
+
+          for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
+            // Configure the action
+            action.setProject(project);
+            action.setActivityId("AdHocReviseSTYS");
+            action.setConceptId(concept.getId());
+            action.setConceptId2(null);
+            action.setLastModifiedBy("E-" + userName);
+            action.setLastModified(concept.getLastModified().getTime());
+            action.setOverrideWarnings(true);
+            action.setTransactionPerOperation(false);
+            action.setMolecularActionFlag(true);
+            action.setChangeStatusFlag(false);
+
+            action.setSemanticTypeComponentId(sty.getId());
+
+            // Perform the action
+            final ValidationResult validationResult =
+                action.performMolecularAction(action, userName, true, false);
+
+            // If the action failed, bail out now.
+            if (!validationResult.isValid()) {
+              logInfo(
+                  "[ReviseSemanticTypes] validation error " + validationResult);
+              throw new Exception();
+            }
+          }
+        } catch (Exception e) {
+          e.printStackTrace();
+          fail("Unexpected exception thrown - please review stack trace.");
+        } finally {
+          action.close();
         }
+
         commitClearBegin();
 
         // prevent stale concept
         concept = getConcept(concept.getId());
-        
+
         // Instantiate services
-        final AddSemanticTypeMolecularAction addAction =
-            new AddSemanticTypeMolecularAction();
+        try {
+          addAction = new AddSemanticTypeMolecularAction();
 
+          // Retrieve the project
+          final Project project = addAction.getProject(39751L);
+          if (!project.isEditingEnabled()) {
+            throw new LocalException(
+                "Editing is disabled on project: " + project.getName());
+          }
+          
+          // Create semantic type component
+          final SemanticTypeComponent sty = new SemanticTypeComponentJpa();
+          sty.setTerminologyId("");
+          sty.setObsolete(false);
+          sty.setPublishable(true);
+          sty.setPublished(false);
+          sty.setWorkflowStatus(WorkflowStatus.PUBLISHED);
+          sty.setSemanticType("Pathologic Function");
+          sty.setTerminology("NCIMTH");
+          sty.setVersion("latest");
+          sty.setTimestamp(new Date());
 
+          // Configure the addAction
+          addAction.setProject(project);
+          addAction.setActivityId("AdHocReviseSTYS");
+          addAction.setConceptId(concept.getId());
+          addAction.setConceptId2(null);
+          addAction.setLastModifiedBy("E-" + userName);
+          addAction.setLastModified(concept.getLastModified().getTime());
+          addAction.setOverrideWarnings(true);
+          addAction.setTransactionPerOperation(false);
+          addAction.setMolecularActionFlag(true);
+          addAction.setChangeStatusFlag(false);
 
-        // Create semantic type component
-        final SemanticTypeComponent sty = new SemanticTypeComponentJpa();
-        sty.setTerminologyId("");
-        sty.setObsolete(false);
-        sty.setPublishable(true);
-        sty.setPublished(false);
-        sty.setWorkflowStatus(WorkflowStatus.PUBLISHED);
-        sty.setSemanticType("Pathologic Function");
-        sty.setTerminology("NCIMTH");
-        sty.setVersion("latest");
-        sty.setTimestamp(new Date());
+          addAction.setSemanticTypeComponent(sty);
 
-        // Configure the addAction
-        addAction.setProject(project);
-        addAction.setActivityId("AdHocReviseSTYS");
-        addAction.setConceptId(concept.getId());
-        addAction.setConceptId2(null);
-        addAction.setLastModifiedBy("E-" + userName);
-        addAction.setLastModified(concept.getLastModified().getTime());
-        addAction.setOverrideWarnings(true);
-        addAction.setTransactionPerOperation(false);
-        addAction.setMolecularActionFlag(true);
-        addAction.setChangeStatusFlag(false);
+          // Perform the addAction
+          final ValidationResult validationResult = addAction
+              .performMolecularAction(addAction, userName, true, false);
 
-        addAction.setSemanticTypeComponent(sty);
-
-        // Perform the addAction
-        final ValidationResult validationResult =
-            addAction.performMolecularAction(addAction, userName, true, false);
-
-        // If the addAction failed, bail out now.
-        if (!validationResult.isValid()) {
-          logInfo("[ReviseSemanticTypes] validation error " + validationResult);
-          throw new Exception();
+          // If the addAction failed, bail out now.
+          if (!validationResult.isValid()) {
+            logInfo(
+                "[ReviseSemanticTypes] validation error " + validationResult);
+            throw new Exception();
+          }
+        } catch (Exception e) {
+          e.printStackTrace();
+          fail("Unexpected exception thrown - please review stack trace.");
+        } finally {
+          addAction.close();
         }
 
         updateProgress();
