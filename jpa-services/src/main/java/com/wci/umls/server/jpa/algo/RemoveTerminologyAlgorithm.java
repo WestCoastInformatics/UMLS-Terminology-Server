@@ -464,6 +464,7 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
     }
 
     // remove definitions from the atoms
+    logInfo("  Remove definitions from atoms");
     query = manager.createQuery(
         "SELECT a.id FROM AtomJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -478,8 +479,32 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
     }
     commitClearBegin();
 
-    // remove atom relationships
-    logInfo("  Remove atom relationships");
+    // remove terminology atom relationships
+    logInfo("  Remove " + terminology + " atom relationships");
+    query = manager.createQuery(
+        "SELECT a.id FROM AtomRelationshipJpa a WHERE terminology = :terminology "
+            + " AND version = :version");
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+    ct = 0;
+    for (final Long id : (List<Long>) query.getResultList()) {
+      AtomRelationship atomRelationship =
+          (AtomRelationshipJpa) getRelationship(id, AtomRelationshipJpa.class);
+      Atom fromAtom = getAtom(atomRelationship.getFrom().getId());
+
+      fromAtom.getRelationships().remove(atomRelationship);
+      updateAtom(fromAtom);
+
+      removeRelationship(atomRelationship.getId(), AtomRelationshipJpa.class);
+
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
+    }
+    commitClearBegin();
+
+    // remove atom relationships from terminology atoms
+    // This will catch any non-source-terminology relationships that may be on
+    // the atom (such as demotions)
+    logInfo("  Remove atom relationships from " + terminology + " atoms");
     query = manager.createQuery(
         "SELECT a.id FROM AtomJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -511,7 +536,7 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
-    
+
     // Remove last release CUIs from atoms
     logInfo("  Remove last release CUIs");
     query = manager.createQuery(
@@ -960,9 +985,6 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
     }
     commitClearBegin();
 
-    commit();
-    clear();
-
     Logger.getLogger(getClass())
         .info("Finished removing attributes ... " + new Date());
     // set the transaction strategy based on status starting this routine
@@ -974,6 +996,9 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
         getVersion());
 
     fireProgressEvent(100, "Finished...");
+
+    commit();
+    clear();
   }
 
   /* see superclass */
