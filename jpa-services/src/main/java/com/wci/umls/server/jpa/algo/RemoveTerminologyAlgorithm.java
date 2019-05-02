@@ -684,7 +684,7 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
     commitClearBegin();
 
     // remove the atom tree positions
-    logInfo("  Remove concept tree positions");
+    logInfo("  Remove atom tree positions");
     query = manager.createQuery(
         "SELECT a.id FROM AtomTreePositionJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -699,6 +699,7 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
 
     // remove atoms from any concept/codes/descriptors (they can be added to
     // non-project/terminology ones during an insertion)
+    logInfo("  Remove atoms from concepts");
     query = manager.createQuery(
         "SELECT c.id, a.id FROM ConceptJpa c join c.atoms a WHERE a.terminology = :terminology "
             + " AND a.version = :version");
@@ -714,6 +715,7 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
     }
     commitClearBegin();
 
+    logInfo("  Remove atoms from codes");
     query = manager.createQuery(
         "SELECT c.id, a.id FROM CodeJpa c join c.atoms a WHERE a.terminology = :terminology "
             + " AND a.version = :version");
@@ -729,6 +731,7 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
     }
     commitClearBegin();
 
+    logInfo("  Remove atoms from descriptors");
     query = manager.createQuery(
         "SELECT d.id, a.id FROM DescriptorJpa d join d.atoms a WHERE a.terminology = :terminology "
             + " AND a.version = :version");
@@ -773,7 +776,6 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
     commitClearBegin();
 
     // remove the definitions
-    logInfo("  Remove definitions ");
     // query = manager.createQuery(
     // "SELECT a.id FROM DefinitionJpa a WHERE terminology = :terminology "
     // + " AND version = :version");
@@ -786,6 +788,7 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
     // }
     // commitClearBegin();
 
+    logInfo("  Remove definitions from atoms");
     query = manager.createQuery(
         "SELECT a.id, def.id FROM AtomJpa a join a.definitions def WHERE def.terminology = :terminology "
             + " AND def.version = :version");
@@ -801,6 +804,7 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
     }
     commitClearBegin();
 
+    logInfo("  Remove definitions from concepts");
     query = manager.createQuery(
         "SELECT c.id, def.id FROM ConceptJpa c join c.definitions def WHERE def.terminology = :terminology "
             + " AND def.version = :version");
@@ -846,7 +850,7 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
 
     // remove old attributes from updated components (can happen during an
     // insertion)
-    logInfo("  Remove attributes ");
+    logInfo("  Remove attributes from components");
     query = manager.createQuery(
         "SELECT a.id, att.id FROM AtomJpa a join a.attributes att WHERE att.terminology = :terminology "
             + " AND att.version = :version");
