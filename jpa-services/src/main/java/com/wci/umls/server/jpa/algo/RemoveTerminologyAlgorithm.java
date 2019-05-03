@@ -36,6 +36,7 @@ import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.Relationship;
@@ -359,7 +360,7 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
     commitClearBegin();
 
     // remove concept relationships
-    logInfo("  Remove concept relationships");
+    logInfo("  Remove " + terminology + "/" + version  +  " concept relationships");
     query = manager.createQuery(
         "SELECT a.id FROM ConceptRelationshipJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -372,6 +373,42 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
     }
     commitClearBegin();
 
+    // remove concept relationships from terminology atoms
+    // This will catch any other terminology's relationships that may be on
+    // the concept (such as MED-RT)
+    logInfo("  Remove concept relationships from " + terminology + "/" + version  + " concepts");
+    query = manager.createQuery(
+        "SELECT a.id FROM ConceptJpa a WHERE terminology = :terminology "
+            + " AND version = :version");
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+    ct = 0;
+    for (final Long id : (List<Long>) query.getResultList()) {
+      Concept concept = getConcept(id);
+      Concept relatedConcept = null;
+      for (final ConceptRelationship conceptRelationship : new ArrayList<>(
+          concept.getRelationships())) {
+
+        ConceptRelationship inverseRelationship =
+            (ConceptRelationship) getInverseRelationship(
+                getProject().getTerminology(), getProject().getVersion(),
+                conceptRelationship);
+        relatedConcept = conceptRelationship.getTo();
+
+        concept.getRelationships().remove(conceptRelationship);
+        relatedConcept.getRelationships().remove(inverseRelationship);
+
+        updateConcept(concept);
+        updateConcept(relatedConcept);
+
+        removeRelationship(conceptRelationship.getId(), ConceptRelationshipJpa.class);
+        removeRelationship(inverseRelationship.getId(),
+            ConceptRelationshipJpa.class);
+      }
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
+    }
+    commitClearBegin();    
+    
     // remove definitions from the concepts; definitions cannot be removed yet,
     // because they are used by atoms
     logInfo("  Remove definitions");
@@ -480,7 +517,7 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
     commitClearBegin();
 
     // remove terminology atom relationships
-    logInfo("  Remove " + terminology + " atom relationships");
+    logInfo("  Remove " + terminology + "/" + version  + " atom relationships");
     query = manager.createQuery(
         "SELECT a.id FROM AtomRelationshipJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -504,7 +541,7 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
     // remove atom relationships from terminology atoms
     // This will catch any non-source-terminology relationships that may be on
     // the atom (such as demotions)
-    logInfo("  Remove atom relationships from " + terminology + " atoms");
+    logInfo("  Remove atom relationships from " + terminology + "/" + version  + " atoms");
     query = manager.createQuery(
         "SELECT a.id FROM AtomJpa a WHERE terminology = :terminology "
             + " AND version = :version");
