@@ -106,8 +106,8 @@ public class ProdMidCleanupAlgorithm
             "select distinct a.terminology, a.version from codes a, terminologies t where t.terminology=a.terminology and t.version=a.version and t.current = false) terminologies;"
           );
           
-      List<Object> list = query.getResultList();
-      for (final Object[] entry : list) {
+      List<Object[]> objects = query.getResultList();
+      for (final Object[] entry : objects) {
         final String terminology = entry[0].toString();
         final String version = entry[1].toString();
         Terminology nonCurrentterminology = getTerminology(terminology, version);
