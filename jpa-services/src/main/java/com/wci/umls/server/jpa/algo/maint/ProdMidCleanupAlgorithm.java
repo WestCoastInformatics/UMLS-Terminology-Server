@@ -19,7 +19,6 @@ import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.algo.RemoveTerminologyAlgorithm;
 import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.model.content.Attribute;
-import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
@@ -87,51 +86,72 @@ public class ProdMidCleanupAlgorithm
 
       // Find all non-current terminologies
       List<Terminology> nonCurrentTerminologies = new ArrayList<>();
-      for (final Terminology terminology : getTerminologies().getObjects()) {
-        if (!terminology.isCurrent()) {
-          nonCurrentTerminologies.add(terminology);
-        }
-      }
+      // RAW 20190504 - this was returning hundreds of terminologies that had been
+      // cleaned out from previous runs, causing the process to take an extremely long time.
+      // Changed to only grab nonCurrent terminologies that actually contained content
+//      for (final Terminology terminology : getTerminologies().getObjects()) {
+//        if (!terminology.isCurrent()) {
+//          nonCurrentTerminologies.add(terminology);
+//        }
+//      }
 
-      int removals = 0;
+      Query query = getEntityManager().createNativeQuery(
+          "select distinct terminology, version from ( "+
+            "select distinct a.terminology, a.version from atoms a, terminologies t where t.terminology=a.terminology and t.version=a.version and t.current = false "+
+            "UNION ALL "+
+            "select distinct a.terminology, a.version from concepts a, terminologies t where t.terminology=a.terminology and t.version=a.version and t.current = false "+
+            "UNION ALL "+
+            "select distinct a.terminology, a.version from descriptors a, terminologies t where t.terminology=a.terminology and t.version=a.version and t.current = false "+
+            "UNION ALL "+
+            "select distinct a.terminology, a.version from codes a, terminologies t where t.terminology=a.terminology and t.version=a.version and t.current = false) terminologies;"
+          );
+          
+      List<Object> list = query.getResultList();
+      for (final Object[] entry : list) {
+        final String terminology = entry[0].toString();
+        final String version = entry[1].toString();
+        Terminology nonCurrentterminology = getTerminology(terminology, version);
+        nonCurrentTerminologies.add(nonCurrentterminology);
+      }      
       
+      
+      int removals = 0;
+
       WorkflowService workflowService = new WorkflowServiceJpa();
       workflowService.setLastModifiedBy("admin");
-      
-      WorkflowEpoch currentEpoch = workflowService.getCurrentWorkflowEpoch(getProject());
 
-      
+      WorkflowEpoch currentEpoch =
+          workflowService.getCurrentWorkflowEpoch(getProject());
+
       Set<Long> worklistIdsToRemove = new HashSet<>();
       Set<Long> checklistIdsToRemove = new HashSet<>();
       Set<Concept> conceptsWithoutAtoms = new HashSet<>();
 
       // Get worklists
-      Query query = getEntityManager().createQuery("select a.id from "
-          + "WorklistJpa a"); 
-          
+       query =
+          getEntityManager().createQuery("select a.id from " + "WorklistJpa a");
 
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
         worklistIdsToRemove.add(id);
       }
-      
+
       // Get checklists
-      query = getEntityManager().createQuery("select a.id from "
-          + "ChecklistJpa a"); 
-          
+      query = getEntityManager()
+          .createQuery("select a.id from " + "ChecklistJpa a");
 
       list = query.getResultList();
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
         checklistIdsToRemove.add(id);
       }
-      
+
       // Get concepts without atoms
       query = getEntityManager().createQuery("select c1.id from "
-          + "ConceptJpa c1 where c1.terminology = :terminology and c1.id NOT IN (select c2.id from ConceptJpa c2 JOIN c2.atoms)"); 
+          + "ConceptJpa c1 where c1.terminology = :terminology and c1.id NOT IN (select c2.id from ConceptJpa c2 JOIN c2.atoms)");
       query.setParameter("terminology", "NCIMTH");
-      
+
       list = query.getResultList();
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
@@ -142,12 +162,12 @@ public class ProdMidCleanupAlgorithm
       logInfo("[ProdMid Cleanup] " + checklistIdsToRemove.size()
           + " checklists to be removed");
       logInfo("[ProdMid Cleanup] " + worklistIdsToRemove.size()
-      + " worklists to be removed");
+          + " worklists to be removed");
       logInfo("[ProdMid Cleanup] " + conceptsWithoutAtoms.size()
-      + " concepts to be removed");
+          + " concepts to be removed");
 
-      setSteps(nonCurrentTerminologies.size() + checklistIdsToRemove.size() + worklistIdsToRemove.size()
-        + conceptsWithoutAtoms.size());
+      setSteps(nonCurrentTerminologies.size() + checklistIdsToRemove.size()
+          + worklistIdsToRemove.size() + conceptsWithoutAtoms.size());
 
       // Remove checklists
       for (Long id : checklistIdsToRemove) {
@@ -156,7 +176,7 @@ public class ProdMidCleanupAlgorithm
         updateProgress();
         removals++;
       }
-      
+
       // Remove worklists
       for (Long id : worklistIdsToRemove) {
         logInfo("[ProdMid Cleanup] " + id + " worklist to be removed");
@@ -165,9 +185,8 @@ public class ProdMidCleanupAlgorithm
         removals++;
       }
 
-      logInfo("[ProdMid Cleanup] " + removals
-          + " lists successfully removed.");
-      
+      logInfo("[ProdMid Cleanup] " + removals + " lists successfully removed.");
+
       // For each non-current terminology, run removeTerminologies on it (keep
       // the terminology itself for tracking purposes).
       for (final Terminology nonCurrentTerminology : nonCurrentTerminologies) {
@@ -199,18 +218,17 @@ public class ProdMidCleanupAlgorithm
         updateProgress();
       }
 
-      
       commitClearBegin();
-      
+
       // Consider truncating action tables, log entries, etc.
 
       logInfo("[ProdMid Cleanup] Removed content for " + getSteps()
           + " non-current terminologies.");
-      
+
       // Mark unpublished concepts without atoms and their components
       int markedConcepts = 0;
-     for (final Object entry : conceptsWithoutAtoms) {
-        
+      for (final Object entry : conceptsWithoutAtoms) {
+
         final Long id = Long.valueOf(entry.toString());
         Concept concept = getConcept(id);
         concept.setPublishable(false);
@@ -244,15 +262,17 @@ public class ProdMidCleanupAlgorithm
         }
         concept.setNotes(null);
         updateConcept(concept);
-        
+
         updateProgress();
         markedConcepts++;
       }
-  
-      logInfo("[ProdMid Cleanup] Marked unpublished content for concepts without atoms." + markedConcepts);
-      
+
+      logInfo(
+          "[ProdMid Cleanup] Marked unpublished content for concepts without atoms."
+              + markedConcepts);
+
       commitClearBegin();
-      
+
       logInfo("  project = " + getProject().getId());
       logInfo("  workId = " + getWorkId());
       logInfo("  activityId = " + getActivityId());
