@@ -125,7 +125,7 @@ public class ProdMidCleanupAlgorithm
 
       Set<Long> worklistIdsToRemove = new HashSet<>();
       Set<Long> checklistIdsToRemove = new HashSet<>();
-      Set<Concept> conceptsWithoutAtoms = new HashSet<>();
+      Set<Long> conceptsWithoutAtoms = new HashSet<>();
 
       // Get worklists
        query =
@@ -156,7 +156,7 @@ public class ProdMidCleanupAlgorithm
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
         Concept concept = getConcept(id);
-        conceptsWithoutAtoms.add(concept);
+        conceptsWithoutAtoms.add(id);
       }
 
       logInfo("[ProdMid Cleanup] " + checklistIdsToRemove.size()
@@ -227,10 +227,13 @@ public class ProdMidCleanupAlgorithm
 
       // Mark unpublished concepts without atoms and their components
       int markedConcepts = 0;
-      for (final Object entry : conceptsWithoutAtoms) {
+      for (final Long id : conceptsWithoutAtoms) {
 
-        final Long id = Long.valueOf(entry.toString());
+        //final Long id = Long.valueOf(entry.toString());
         Concept concept = getConcept(id);
+        if (concept == null) {
+          continue;
+        }
         concept.setPublishable(false);
         for (Definition def : concept.getDefinitions()) {
           def.setPublishable(false);
