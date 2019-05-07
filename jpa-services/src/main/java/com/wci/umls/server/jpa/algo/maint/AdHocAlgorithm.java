@@ -2154,7 +2154,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     try {
       Query query = getEntityManager().createQuery("select c1.id from "
-          + "ConceptJpa c1 where c1.terminology = :terminology and c1.id NOT IN (select c2.id from ConceptJpa c2 JOIN c2.atoms)");
+          + "ConceptJpa c1 where c1.terminology = :terminology and c1.publishable=true and c1.id NOT IN (select c2.id from ConceptJpa c2 JOIN c2.atoms)");
       query.setParameter("terminology", "NCIMTH");
       conceptsWithoutAtoms = query.getResultList();
       setSteps(conceptsWithoutAtoms.size());
@@ -2163,6 +2163,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
         final Long id = Long.valueOf(entry.toString());
         Concept concept = getConcept(id);
+        if (concept == null) {
+          logWarn("[AdHoc Algorithm] Concept designated to be marked unpublished that is null:" + id);
+          continue;
+        }
         concept.setPublishable(false);
         for (Definition def : concept.getDefinitions()) {
           def.setPublishable(false);
