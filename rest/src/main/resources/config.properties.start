@@ -2,7 +2,7 @@
 #
 # Database Connection Parameters
 #
-hibernate.dialect=org.hibernate.dialect.MySQLDialect
+hibernate.dialect=org.hibernate.dialect.MySQL57Dialect
 hibernate.connection.useUnicode=true
 hibernate.connection.characterEncoding=UTF-8
 hibernate.connection.charSet=UTF-8
@@ -23,6 +23,9 @@ hibernate.jdbc.default_batch_fetch_size=32
 hibernate.order_inserts=true
 hibernate.order_updates=true
 hibernate.jdbc.batch_versioned_data=true
+hibernate.physical_naming_strategy=org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+hibernate.implicit_naming_strategy=org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+hibernate.search.index_uninverting_allowed=true
 
 #
 # Envers auditing setting (disable for read-only or test environments)
