@@ -22,22 +22,33 @@ import javax.persistence.OneToOne;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.synonym.SynonymMap.Parser;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexReaderContext;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.FieldComparator;
 import org.apache.lucene.search.FieldComparatorSource;
+import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.Weight;
 import org.hibernate.search.SearchFactory;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.cfg.spi.IndexManagerFactory;
+import org.hibernate.search.indexes.spi.IndexManager;
+import org.hibernate.search.indexes.spi.IndexManagerType;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
@@ -577,37 +588,42 @@ public class IndexUtility {
 
     // preserve capitalization from incoming query (in order to correctly match
     // capitalized terms)
-    //queryParser.setLowercaseExpandedTerms(false); // TODO: What happend with this?  Was it replaced?
+    queryParser.setLowercaseExpandedTerms(false);
 
     // construct the query
     final String finalQuery = (pfsQuery.toString().startsWith(" AND "))
         ? pfsQuery.toString().substring(5) : pfsQuery.toString();
 
-    // ONLY log this if in dev mode
-    if ("DEV".equals(
-        ConfigUtility.getConfigProperties().getProperty("deploy.mode"))) {
-      Logger.getLogger(IndexUtility.class)
-          .info("  query = " + finalQuery + ", " + pfs);
-    }
-    try {
-      luceneQuery = queryParser.parse(finalQuery);
-    } catch (ParseException e) {
-      throw new LocalException("Unable to parse query");
-    }
+		// ONLY log this if in dev mode
+		if ("DEV".equals(ConfigUtility.getConfigProperties().getProperty("deploy.mode"))) {
+			Logger.getLogger(IndexUtility.class).info("  query = " + finalQuery + ", " + pfs);
+		}
+		try {
+			luceneQuery = queryParser.parse(finalQuery);
+		} catch (ParseException e) {
+			throw new LocalException("Unable to parse query");
+		}
 
-    // Validate query terms
-    luceneQuery = luceneQuery.rewrite(fullTextEntityManager.getSearchFactory()
-        .getIndexReaderAccessor().open(clazz));
-    final Set<Term> terms = new HashSet<>();
-    //luceneQuery.extractTerms(terms);  // TODO: What happend with this?  Was it replaced?
-    for (final Term t : terms) {
-      if (t.field() != null && !t.field().isEmpty() && !IndexUtility
-          .getIndexedFieldNames(clazz, false).contains(t.field())) {
-        throw new ParseException(
-            "Query references invalid field name " + t.field() + ", "
-                + IndexUtility.getIndexedFieldNames(clazz, false));
-      }
-    }
+		// Validate query terms
+		luceneQuery = luceneQuery.rewrite(fullTextEntityManager.getSearchFactory().getIndexReaderAccessor().open(clazz));
+
+		final Set<Term> terms = new HashSet<>();
+		try(IndexReader reader = fullTextEntityManager.getSearchFactory().getIndexReaderAccessor().open(clazz).getContext()
+				.reader();)
+		{
+  		IndexSearcher searcher = new IndexSearcher(reader);
+  
+  		Weight w = searcher.createWeight(luceneQuery, false);
+  		w.extractTerms(terms);
+  
+  		for (final Term t : terms) {
+  			if (t.field() != null && !t.field().isEmpty()
+  					&& !IndexUtility.getIndexedFieldNames(clazz, false).contains(t.field())) {
+  				throw new ParseException("Query references invalid field name " + t.field() + ", "
+  						+ IndexUtility.getIndexedFieldNames(clazz, false));
+  			}
+  		}
+		}
 
     fullTextQuery =
         fullTextEntityManager.createFullTextQuery(luceneQuery, clazz);
