@@ -115,7 +115,6 @@
 
 
     <!-- Owl API -->
-    <!-- These don't appear to be used.
     <dependency>
       <groupId>net.sourceforge.owlapi</groupId>
       <artifactId>owlapi-distribution</artifactId>
@@ -132,16 +131,13 @@
       <groupId>net.sourceforge.owlapi</groupId>
       <artifactId>owlapi-impl</artifactId>
     </dependency>
-    -->
 
     <!-- Classifier -->
-    <!-- This does not appear to be used.
     <dependency>
       <groupId>com.hermit-reasoner</groupId>
       <artifactId>org.semanticweb.hermit</artifactId>
-      <  !-- <groupId>au.csiro</groupId> <artifactId>snorocket-owlapi</artifactId> --  >
+      <!-- <groupId>au.csiro</groupId> <artifactId>snorocket-owlapi</artifactId> -->
     </dependency>
-    -->
 
     <!-- ANTLR Expression Parser -->
     <dependency>

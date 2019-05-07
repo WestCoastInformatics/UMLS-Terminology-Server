@@ -243,7 +243,6 @@
       </dependency>
 
       <!-- OWL API <version>4.1.0-RC2</version> -->
-      <!--  These don't appear to be used
       <dependency>
         <groupId>net.sourceforge.owlapi</groupId>
         <artifactId>owlapi-distribution</artifactId>
@@ -264,7 +263,6 @@
         <artifactId>owlapi-impl</artifactId>
         <version>3.4.3</version>
       </dependency>
-      -->
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
@@ -277,13 +275,11 @@
       </dependency>
 
       <!-- Classifier -->
-      <!-- This does not appear to be used
       <dependency>
         <groupId>au.csiro</groupId>
         <artifactId>snorocket-owlapi</artifactId>
         <version>2.7.2</version>
       </dependency>
-      -->
 
       <dependency>
         <groupId>com.hermit-reasoner</groupId>
