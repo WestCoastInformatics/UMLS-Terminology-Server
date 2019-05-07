@@ -57,7 +57,7 @@
       <artifactId>hibernate-envers</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.hibernate</groupId>
+      <groupId>org.hibernate.validator</groupId>
       <artifactId>hibernate-validator</artifactId>
     </dependency>
     <dependency>
@@ -67,6 +67,11 @@
     <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-suggest</artifactId>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-backward-codecs -->
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-backward-codecs</artifactId>
     </dependency>
     <dependency>
       <groupId>mysql</groupId>
@@ -110,6 +115,7 @@
 
 
     <!-- Owl API -->
+    <!-- These don't appear to be used.
     <dependency>
       <groupId>net.sourceforge.owlapi</groupId>
       <artifactId>owlapi-distribution</artifactId>
@@ -126,13 +132,16 @@
       <groupId>net.sourceforge.owlapi</groupId>
       <artifactId>owlapi-impl</artifactId>
     </dependency>
+    -->
 
     <!-- Classifier -->
+    <!-- This does not appear to be used.
     <dependency>
       <groupId>com.hermit-reasoner</groupId>
       <artifactId>org.semanticweb.hermit</artifactId>
-      <!-- <groupId>au.csiro</groupId> <artifactId>snorocket-owlapi</artifactId> -->
+      <  !-- <groupId>au.csiro</groupId> <artifactId>snorocket-owlapi</artifactId> --  >
     </dependency>
+    -->
 
     <!-- ANTLR Expression Parser -->
     <dependency>

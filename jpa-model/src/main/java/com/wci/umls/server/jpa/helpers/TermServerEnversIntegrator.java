@@ -3,12 +3,14 @@
  */
 package com.wci.umls.server.jpa.helpers;
 
-import org.hibernate.boot.registry.classloading.spi.ClassLoaderService;
-import org.hibernate.cfg.Configuration;
+import org.hibernate.boot.Metadata;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.envers.configuration.spi.AuditConfiguration;
-import org.hibernate.envers.event.spi.EnversIntegrator;
+import org.hibernate.envers.boot.internal.EnversIntegrator;
+import org.hibernate.envers.boot.internal.EnversService;
 import org.hibernate.envers.event.spi.EnversListenerDuplicationStrategy;
+import org.hibernate.envers.event.spi.EnversPostDeleteEventListenerImpl;
+import org.hibernate.envers.event.spi.EnversPostInsertEventListenerImpl;
+import org.hibernate.envers.event.spi.EnversPostUpdateEventListenerImpl;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
 import org.hibernate.service.spi.SessionFactoryServiceRegistry;
@@ -25,7 +27,7 @@ public class TermServerEnversIntegrator extends EnversIntegrator {
 
   /* see superclass */
   @Override
-  public void integrate(Configuration configuration,
+  public void integrate(Metadata metadata,
     SessionFactoryImplementor sessionFactory,
     SessionFactoryServiceRegistry serviceRegistry) {
 
@@ -34,22 +36,19 @@ public class TermServerEnversIntegrator extends EnversIntegrator {
       if (!"true".equals(ConfigUtility.getConfigProperties()
           .getProperty("hibernate.listeners.envers.autoRegister"))) {
 
-        super.integrate(configuration, sessionFactory, serviceRegistry);
+        //super.integrate(metadata, sessionFactory, serviceRegistry);
+        
+        final EventListenerRegistry listenerRegistry = serviceRegistry.getService(EventListenerRegistry.class);
+        final EnversService enversConfiguration = serviceRegistry.getService(EnversService.class);
+        listenerRegistry.addDuplicationStrategy(EnversListenerDuplicationStrategy.INSTANCE);        
 
-        final AuditConfiguration enversConfiguration =
-            AuditConfiguration.getFor(configuration,
-                serviceRegistry.getService(ClassLoaderService.class));
-        EventListenerRegistry listenerRegistry =
-            serviceRegistry.getService(EventListenerRegistry.class);
-
-        listenerRegistry
-            .addDuplicationStrategy(EnversListenerDuplicationStrategy.INSTANCE);
-
-        if (enversConfiguration.getEntCfg().hasAuditedEntities()) {
-          listenerRegistry.appendListeners(EventType.POST_INSERT,
-              new EmptyEnversPostInsertEventListenerImpl(enversConfiguration));
-          listenerRegistry.appendListeners(EventType.POST_DELETE,
-              new CustomEnversPostDeleteEventListenerImpl(enversConfiguration));
+        if (enversConfiguration.getEntitiesConfigurations().hasAuditedEntities()) {
+          //listenerRegistry.appendListeners(EventType.POST_INSERT, new EmptyEnversPostInsertEventListenerImpl(enversConfiguration));
+          //listenerRegistry.appendListeners(EventType.POST_DELETE, new CustomEnversPostDeleteEventListenerImpl(enversConfiguration));
+        	//////listenerRegistry.appendListeners( EventType.POST_UPDATE, new EnversPostUpdateEventListenerImpl( enversConfiguration ) );
+          //////listenerRegistry.appendListeners( EventType.POST_INSERT, new EnversPostInsertEventListenerImpl( enversConfiguration ) );
+          //listenerRegistry.appendListeners( EventType.PRE_UPDATE, new EnversPreUpdateEventListenerImpl( enversConfiguration ) );
+          //////listenerRegistry.appendListeners( EventType.POST_DELETE, new EnversPostDeleteEventListenerImpl( enversConfiguration ) );
         }
       }
     } catch (Exception e) {

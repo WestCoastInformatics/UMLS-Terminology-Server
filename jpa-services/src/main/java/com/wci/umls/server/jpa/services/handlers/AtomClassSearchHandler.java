@@ -6,6 +6,8 @@ package com.wci.umls.server.jpa.services.handlers;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -82,14 +84,13 @@ public class AtomClassSearchHandler extends AbstractConfigurable
     // Initialize spell checker
     if (p.containsKey("spellingFile") && p.containsKey("spellingIndex")) {
       // expect properties to have "spellingFile" and "spellingIndex"
-      final File dir = new File(p.getProperty("spellingIndex"));
+      final Path dir = Paths.get(p.getProperty("spellingIndex"));
       final Directory directory = FSDirectory.open(dir);
       spellChecker =
           new SpellChecker(directory, new LuceneLevenshteinDistance());
-      final IndexWriterConfig indexWriterConfig =
-          new IndexWriterConfig(Version.LATEST, new WhitespaceAnalyzer());
+      final IndexWriterConfig indexWriterConfig = new IndexWriterConfig(new WhitespaceAnalyzer()); 
       spellChecker.indexDictionary(
-          new PlainTextDictionary(new File(p.getProperty("spellingFile"))),
+          new PlainTextDictionary(Paths.get(p.getProperty("spellingFile"))), //new File(p.getProperty("spellingFile"))),
           indexWriterConfig, false);
 
     } else {

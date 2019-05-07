@@ -22,6 +22,7 @@ import javax.persistence.OneToOne;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.lucene.analysis.synonym.SynonymMap.Parser;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -576,7 +577,7 @@ public class IndexUtility {
 
     // preserve capitalization from incoming query (in order to correctly match
     // capitalized terms)
-    queryParser.setLowercaseExpandedTerms(false);
+    //queryParser.setLowercaseExpandedTerms(false); // TODO: What happend with this?  Was it replaced?
 
     // construct the query
     final String finalQuery = (pfsQuery.toString().startsWith(" AND "))
@@ -598,7 +599,7 @@ public class IndexUtility {
     luceneQuery = luceneQuery.rewrite(fullTextEntityManager.getSearchFactory()
         .getIndexReaderAccessor().open(clazz));
     final Set<Term> terms = new HashSet<>();
-    luceneQuery.extractTerms(terms);
+    //luceneQuery.extractTerms(terms);  // TODO: What happend with this?  Was it replaced?
     for (final Term t : terms) {
       if (t.field() != null && !t.field().isEmpty() && !IndexUtility
           .getIndexedFieldNames(clazz, false).contains(t.field())) {
@@ -627,9 +628,8 @@ public class IndexUtility {
 
               @Override
               public FieldComparator<Long> newComparator(String fieldname,
-                int numHits, int sortPos, boolean reversed) throws IOException {
-                return new RandomOrderFieldComparator(numHits, fieldname, null,
-                    null);
+                int numHits, int sortPos, boolean reversed) {
+              	return new RandomOrderFieldComparator(numHits, fieldname,  null);
               }
 
             }));

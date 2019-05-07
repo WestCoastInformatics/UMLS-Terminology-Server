@@ -3,9 +3,8 @@
  */
 package com.wci.umls.server.jpa.algo;
 
-import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,7 +24,6 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
-import org.apache.lucene.util.Version;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
@@ -36,27 +34,10 @@ import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.content.AtomJpa;
-import com.wci.umls.server.jpa.content.AtomTransitiveRelationshipJpa;
-import com.wci.umls.server.jpa.content.CodeJpa;
-import com.wci.umls.server.jpa.content.CodeTransitiveRelationshipJpa;
-import com.wci.umls.server.jpa.content.ConceptJpa;
-import com.wci.umls.server.jpa.content.ConceptTransitiveRelationshipJpa;
-import com.wci.umls.server.jpa.content.DescriptorJpa;
-import com.wci.umls.server.jpa.content.DescriptorTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.handlers.expr.EclConceptFieldNames;
-import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.AtomTransitiveRelationship;
-import com.wci.umls.server.model.content.Code;
-import com.wci.umls.server.model.content.CodeTransitiveRelationship;
-import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
-import com.wci.umls.server.model.content.ConceptTransitiveRelationship;
-import com.wci.umls.server.model.content.Descriptor;
-import com.wci.umls.server.model.content.DescriptorTransitiveRelationship;
-import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.RootService;
@@ -144,7 +125,7 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
     // remove (if exists) and create the directory
     ConfigUtility.createExpressionIndexDirectory(getTerminology(),
         getVersion());
-    directory = new NIOFSDirectory(new File(ConfigUtility
+    directory = new NIOFSDirectory(Paths.get(ConfigUtility
         .getExpressionIndexDirectoryName(getTerminology(), getVersion())));
 
     // get entity manager for direct queries
@@ -239,7 +220,7 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
     Logger.getLogger(getClass()).info("  Configuring index writer...");
 
     IndexWriterConfig config =
-        new IndexWriterConfig(Version.LATEST, new StandardAnalyzer());
+        new IndexWriterConfig(new StandardAnalyzer());
 
     iwriter = new IndexWriter(directory, config);
 
@@ -419,6 +400,8 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
 
     // write the basic fields
     conceptDoc.add(new StringField("type", idType.toString(), Field.Store.YES));
+    /*conceptDoc.add(new LongField(EclConceptFieldNames.INTERNAL_ID,
+        concept.getId(), Field.Store.YES));*/
     conceptDoc.add(new LongField(EclConceptFieldNames.INTERNAL_ID,
         concept.getId(), Field.Store.YES));
     conceptDoc.add(new StringField(EclConceptFieldNames.ID,

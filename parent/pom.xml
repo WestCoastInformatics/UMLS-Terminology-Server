@@ -54,11 +54,11 @@
     <releaseVersion>${project.version}</releaseVersion>
 
     <!-- Set third-party dependency versions -->
-    <hibernate.version>4.3.9.Final</hibernate.version>
-    <hibernate.em.version>4.3.9.Final</hibernate.em.version>
-    <hibernate.search.version>5.1.1.Final</hibernate.search.version>
-    <hibernate.entitymanager.version>4.1.0.Final</hibernate.entitymanager.version>
-    <hibernate.validator.version>5.0.1.Final</hibernate.validator.version>
+    <hibernate.version>5.4.2.Final</hibernate.version>
+    <hibernate.em.version>5.4.2.Final</hibernate.em.version>
+    <hibernate.search.version>5.11.1.Final</hibernate.search.version>
+    <!-- <hibernate.entitymanager.version>5.4.2.Final</hibernate.entitymanager.version> -->
+    <hibernate.validator.version>6.0.16.Final</hibernate.validator.version>
     <jersey.version>2.23.1</jersey.version>
     <jackson.version>2.9.4</jackson.version>
   </properties>
@@ -136,19 +136,25 @@
         <version>${hibernate.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.hibernate</groupId>
+        <groupId>org.hibernate.validator</groupId>
         <artifactId>hibernate-validator</artifactId>
         <version>${hibernate.validator.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-queryparser</artifactId>
-        <version>4.10.0</version>
+        <version>5.5.5</version>
       </dependency>
       <dependency>
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-suggest</artifactId>
-        <version>4.10.0</version>
+        <version>5.5.5</version>
+      </dependency>
+      <!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-backward-codecs -->
+      <dependency>
+        <groupId>org.apache.lucene</groupId>
+        <artifactId>lucene-backward-codecs</artifactId>
+        <version>5.5.5</version>
       </dependency>
       <dependency>
         <groupId>mysql</groupId>
@@ -237,6 +243,7 @@
       </dependency>
 
       <!-- OWL API <version>4.1.0-RC2</version> -->
+      <!--  These don't appear to be used
       <dependency>
         <groupId>net.sourceforge.owlapi</groupId>
         <artifactId>owlapi-distribution</artifactId>
@@ -257,6 +264,7 @@
         <artifactId>owlapi-impl</artifactId>
         <version>3.4.3</version>
       </dependency>
+      -->
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
@@ -269,11 +277,13 @@
       </dependency>
 
       <!-- Classifier -->
+      <!-- This does not appear to be used
       <dependency>
         <groupId>au.csiro</groupId>
         <artifactId>snorocket-owlapi</artifactId>
         <version>2.7.2</version>
       </dependency>
+      -->
 
       <dependency>
         <groupId>com.hermit-reasoner</groupId>
@@ -375,9 +385,17 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-plugin-plugin</artifactId>
-          <version>3.3</version>
+          <version>3.6.0</version>
+          <executions>
+                 <execution>
+                    <id>default-descriptor</id>
+                    <goals>
+                        <goal>descriptor</goal>
+                    </goals>
+                    <phase>process-classes</phase>
+                </execution>
+            </executions>
         </plugin>
-
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
@@ -466,8 +484,6 @@
             <autoReleaseAfterClose>true</autoReleaseAfterClose>
           </configuration>
         </plugin>
-
-
 
       </plugins>
     </pluginManagement>

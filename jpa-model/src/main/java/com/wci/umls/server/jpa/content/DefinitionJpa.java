@@ -35,7 +35,7 @@ public class DefinitionJpa extends AbstractComponentHasAttributes
     implements Definition {
 
   /** The value. */
-  @Column(nullable = false, length = 4000)
+  @Column(nullable = false, length = 8000)
   private String value;
 
   /** The alternate terminology ids. */

@@ -3,7 +3,6 @@ package com.wci.umls.server.jpa.services.helper;
 import java.util.Date;
 import java.util.Random;
 
-import org.apache.lucene.search.FieldCache.Parser;
 import org.apache.lucene.search.FieldComparator;
 
 /**
@@ -23,9 +22,8 @@ public class RandomOrderFieldComparator extends FieldComparator.LongComparator {
    * @param parser the parser
    * @param missingValue the missing value
    */
-  public RandomOrderFieldComparator(int numHits, String field, Parser parser,
-      Long missingValue) {
-    super(numHits, field, parser, missingValue);
+  public RandomOrderFieldComparator(int numHits, String field, Long missingValue) {
+    super(numHits, field, missingValue);
   }
 
   /* see superclass */

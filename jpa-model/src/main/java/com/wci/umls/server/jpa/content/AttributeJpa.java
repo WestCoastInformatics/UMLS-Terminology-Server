@@ -34,7 +34,7 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
   private String name;
 
   /** The value. */
-  @Column(nullable = false, length = 4000)
+  @Column(nullable = false, columnDefinition = "TEXT")
   private String value;
 
   /** The alternate terminology ids. */

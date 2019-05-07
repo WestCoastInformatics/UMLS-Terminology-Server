@@ -2,6 +2,7 @@ package com.wci.umls.server.jpa.services.handlers;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +81,7 @@ public class EclExpressionHandler extends AbstractConfigurable
     // instantiate the index searcher
     String indexDir =
         ConfigUtility.getExpressionIndexDirectoryName(terminology, version);
-    Directory dirFile = new NIOFSDirectory(new File(indexDir));
+    Directory dirFile = new NIOFSDirectory(Paths.get(indexDir));
     indexSearcher = new IndexSearcher(DirectoryReader.open(dirFile));
 
     // instantiate the modified SQS lucene converter

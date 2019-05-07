@@ -3,7 +3,8 @@
  */
 package com.wci.umls.server.jpa.helpers;
 
-import org.hibernate.envers.configuration.spi.AuditConfiguration;
+//import org.hibernate.envers.configuration.spi.AuditConfiguration;
+import org.hibernate.envers.boot.internal.EnversService;
 import org.hibernate.envers.event.spi.EnversPostInsertEventListenerImpl;
 import org.hibernate.event.spi.PostInsertEvent;
 import org.hibernate.persister.entity.EntityPersister;
@@ -23,7 +24,7 @@ public class EmptyEnversPostInsertEventListenerImpl
    * @param enversConfiguration the envers configuration
    */
   public EmptyEnversPostInsertEventListenerImpl(
-      AuditConfiguration enversConfiguration) {
+  		EnversService enversConfiguration) {
     super(enversConfiguration);
   }
 

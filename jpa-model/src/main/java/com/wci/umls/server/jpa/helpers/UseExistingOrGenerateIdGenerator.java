@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SessionImplementor;
-import org.hibernate.id.MultipleHiLoPerTableGenerator;
+import org.hibernate.id.enhanced.TableGenerator;
 
 import com.wci.umls.server.helpers.HasId;
 
@@ -16,11 +16,12 @@ import com.wci.umls.server.helpers.HasId;
  * set, keep it.
  */
 public class UseExistingOrGenerateIdGenerator
-    extends MultipleHiLoPerTableGenerator {
+    extends TableGenerator {
 
   /* see superclass */
-  @Override
-  public synchronized Serializable generate(SessionImplementor session,
+  //@Override
+  @SuppressWarnings("javadoc")
+	public synchronized Serializable generate(SessionImplementor session,
     Object object) throws HibernateException {
     if (object == null) {
       throw new HibernateException(new NullPointerException());
@@ -32,4 +33,6 @@ public class UseExistingOrGenerateIdGenerator
     // .getClassMetadata().getIdentifier(object, session);
     return id != null ? id : super.generate(session, object);
   }
+  
+  
 }
