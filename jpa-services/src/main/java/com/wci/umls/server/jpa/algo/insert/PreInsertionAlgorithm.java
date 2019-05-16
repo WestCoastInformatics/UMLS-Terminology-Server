@@ -232,7 +232,7 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           manager.createQuery("select max(a.id) from ConceptSubsetJpa a ");
       final Long conceptSubsetId2 = (Long) query.getSingleResult();
       conceptSubsetId =
-          conceptSubsetId2 != null ? conceptSubsetId2 : conceptSubsetId;
+          conceptSubsetId2 != null ? conceptSubsetId2 : 0L;
     } catch (NoResultException e) {
       conceptSubsetId = 0L;
     }
