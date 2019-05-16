@@ -54,7 +54,7 @@ public class ResetDemoDatabase {
    * 
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   @Test
   public void test() throws Exception {
 

@@ -795,7 +795,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
    * @return the process execution list
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   public ProcessExecutionList findCurrentlyExecutingHelper(Long projectId,
     ProcessService processService) throws Exception {
     final ProcessExecutionList processExecutions =
@@ -1761,7 +1761,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     final Thread t = new Thread(new Runnable() {
 
       /* see superclass */
-      @SuppressWarnings("cast")
+      //@SuppressWarnings("cast")
       @Override
       public void run() {
         ProcessServiceJpa processService = null;

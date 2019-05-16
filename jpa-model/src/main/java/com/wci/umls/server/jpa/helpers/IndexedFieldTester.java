@@ -104,7 +104,7 @@ public class IndexedFieldTester extends ProxyTester {
    * @throws NoSuchMethodException the no such method exception
    * @throws SecurityException the security exception
    */
-  @SuppressWarnings("static-method")
+  
   private Map<String, Boolean> getAnalyzedFieldsMap(Class<?> clazz)
     throws NoSuchMethodException, SecurityException {
 

@@ -118,9 +118,7 @@ public abstract class AbstractTerminologyLoaderAlgorithm
    * @param time the time
    * @return the total elapsed time str
    */
-  @SuppressWarnings({
-      "boxing"
-  })
+  //@SuppressWarnings({"boxing"})
   protected static String getTotalElapsedTimeStr(long time) {
     Long resultnum = (System.nanoTime() - time) / 1000000000;
     String result = resultnum.toString() + "s";

@@ -11,8 +11,6 @@ import java.util.Set;
 
 import javax.persistence.NoResultException;
 
-import org.apache.log4j.Logger;
-
 import com.google.common.collect.Sets;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.jpa.ValidationResultJpa;

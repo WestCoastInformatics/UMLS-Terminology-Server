@@ -103,9 +103,6 @@ public class KeyValuePairListUnitTest {
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings({
-    "static-method"
-  })
   @Test
   public void testHelperDegenerateUse004() throws Exception {
     try {
@@ -121,7 +118,7 @@ public class KeyValuePairListUnitTest {
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   @Test
   public void testHelperEdgeCases004() throws Exception {
     KeyValuePairList list1 = new KeyValuePairList();

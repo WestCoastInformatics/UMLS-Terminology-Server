@@ -19,8 +19,6 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -378,7 +376,7 @@ public abstract class RootServiceJpa implements RootService {
    * @return the value of the requested sort field
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   Object getSortFieldValue(final Object o, final String sortField)
     throws Exception {
     // split the fields for method retrieval, e.g. a.b.c. =
@@ -420,7 +418,7 @@ public abstract class RootServiceJpa implements RootService {
    * @throws Exception the exception
    */
   // package visibility
-  @SuppressWarnings("static-method")
+  
   Class<?> getSortFieldType(final Object o, final String sortField)
     throws Exception {
     // split the fields for method retrieval, e.g. a.b.c. =
@@ -660,7 +658,7 @@ public abstract class RootServiceJpa implements RootService {
    * @return the pfs comparator
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   protected <T> Comparator<T> getPfsComparator(final Class<T> clazz,
     final PfsParameter pfs) throws Exception {
     if (pfs != null
@@ -1622,7 +1620,7 @@ public abstract class RootServiceJpa implements RootService {
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private void validateInit() throws Exception {
     if (validationHandlersMap == null) {
       throw new Exception(
@@ -2430,7 +2428,7 @@ public abstract class RootServiceJpa implements RootService {
    * @param project the project
    * @return the default query params
    */
-  @SuppressWarnings("static-method")
+  
   public Map<String, String> getDefaultQueryParams(Project project) {
     final Map<String, String> params = new HashMap<>();
     params.put("projectTerminology", project.getTerminology());
@@ -2447,7 +2445,7 @@ public abstract class RootServiceJpa implements RootService {
    * @param params the params
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private void validateQueryAndParams(String query, QueryType type,
     Map<String, String> params) throws Exception {
 

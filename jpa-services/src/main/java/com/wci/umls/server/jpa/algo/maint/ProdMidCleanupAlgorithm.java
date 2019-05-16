@@ -72,6 +72,7 @@ public class ProdMidCleanupAlgorithm
    */
   /* see superclass */
   @Override
+  @SuppressWarnings("unchecked")
   public void compute() throws Exception {
     logInfo("Starting " + getName());
 
@@ -105,7 +106,7 @@ public class ProdMidCleanupAlgorithm
             "UNION ALL "+
             "select distinct a.terminology, a.version from codes a, terminologies t where t.terminology=a.terminology and t.version=a.version and t.current = false) terminologies;"
           );
-          
+      
       List<Object[]> objects = query.getResultList();
       for (final Object[] entry : objects) {
         final String terminology = entry[0].toString();

@@ -197,7 +197,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
    * @return the metadata helper
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private KeyValuePairLists getMetadataHelper(String terminology,
     String version) throws Exception {
     final MetadataService metadataService = new MetadataServiceJpa();

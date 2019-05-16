@@ -1,6 +1,5 @@
 package com.wci.umls.server.jpa.services.handlers;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -258,7 +257,7 @@ public class EclExpressionHandler extends AbstractConfigurable
    * @param includeIdFieldName the include id field name
    * @return the string
    */
-  @SuppressWarnings("static-method")
+  
   private String buildOptionsList(List<String> conceptRelatives,
     boolean includeIdFieldName) {
     final StringBuilder relativesIdBuilder = new StringBuilder();

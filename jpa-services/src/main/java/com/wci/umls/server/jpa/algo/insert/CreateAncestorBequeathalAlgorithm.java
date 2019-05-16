@@ -133,6 +133,7 @@ public class CreateAncestorBequeathalAlgorithm extends AbstractInsertMaintReleas
           );
       
 
+      @SuppressWarnings("unchecked")
       List<Object> list = query.getResultList();
       setSteps(list.size());
       /*List<Object> list = new ArrayList<>();

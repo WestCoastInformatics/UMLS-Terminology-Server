@@ -358,7 +358,7 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
    * @return the concept relationship
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   public ConceptRelationship findRelToConceptContainingAtom(Concept fromConcept,
     Atom toAtom) throws Exception {
 
@@ -408,7 +408,7 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
    * @param action the action
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
-  @SuppressWarnings("static-method")
+  
   public boolean isRemoveAction(AtomicAction action) {
     return action.getNewValue() == null && action.getField().equals("id");
   }
@@ -419,7 +419,7 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
    * @param action the action
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
-  @SuppressWarnings("static-method")
+  
   public boolean isAddAction(AtomicAction action) {
     return action.getOldValue() == null && action.getField().equals("id");
   }
@@ -430,7 +430,7 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
    * @param action the action
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
-  @SuppressWarnings("static-method")
+  
   public boolean isChangeAction(AtomicAction action) {
     return action.getOldValue() != null && action.getNewValue() != null
         && action.getCollectionClassName() == null;
@@ -442,7 +442,7 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
    * @param action the action
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
-  @SuppressWarnings("static-method")
+  
   public boolean isCollectionsAction(AtomicAction action) {
     return action.getCollectionClassName() != null;
   }
@@ -495,9 +495,7 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
    * @return the collection
    * @throws Exception the exception
    */
-  @SuppressWarnings({
-      "static-method", "rawtypes"
-  })
+  @SuppressWarnings("rawtypes")
   public Collection getCollection(AtomicAction a, Object containerObject)
     throws Exception {
     final List<Method> oneToManyMethods =
@@ -521,7 +519,7 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
    * @return the column method
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   public Method getColumnGetMethod(AtomicAction a) throws Exception {
     final List<Method> oneToManyMethods =
         IndexUtility.getAllColumnGetMethods(Class.forName(a.getClassName()));
@@ -544,7 +542,7 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
    * @return the column set method
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   public Method getColumnSetMethod(AtomicAction a) throws Exception {
     final List<Method> oneToManyMethods =
         IndexUtility.getAllColumnSetMethods(Class.forName(a.getClassName()));
@@ -568,7 +566,7 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
    * @return the object for value
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   public Object getObjectForValue(Class<?> type, String value)
     throws Exception {
     Object setObject = null;
@@ -717,7 +715,7 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
    * @param list the list
    * @param id the id
    */
-  @SuppressWarnings("static-method")
+  
   public void removeById(List<? extends HasId> list, Long id) {
     int index = 0;
     for (final HasId obj : list) {

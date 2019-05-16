@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.antlr.v4.runtime.ANTLRErrorStrategy;
-import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -108,7 +108,7 @@ public class ExpressionConstraintToLuceneConverter {
    */
   public String parse(String ecQuery) throws RecognitionException {
     final ExpressionConstraintLexer lexer =
-        new ExpressionConstraintLexer(new ANTLRInputStream(ecQuery));
+        new ExpressionConstraintLexer(CharStreams.fromString(ecQuery));
     CommonTokenStream tokens = new CommonTokenStream(lexer);
     final ExpressionConstraintParser parser =
         new ExpressionConstraintParser(tokens);

@@ -189,7 +189,6 @@ public class OwlUtility {
    * @param level the level
    * @throws Exception the exception
    */
-  @SuppressWarnings("rawtypes")
   public static void logOwlClassExpression(OWLClassExpression expr,
     OWLOntology ontology, int level) throws Exception {
     final String indent = ConfigUtility.getIndentForLevel(level);

@@ -78,7 +78,7 @@ public class FailOnceAlgorithm extends AbstractAlgorithm {
    *
    * @param firstRun the first run
    */
-  @SuppressWarnings("static-method")
+  
   public void setFirstRun(Boolean firstRun) {
     FailOnceAlgorithm.firstRun = firstRun;
   }

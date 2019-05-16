@@ -429,7 +429,7 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable
    * @param nullId the null id
    * @throws Exception
    */
-  @SuppressWarnings("static-method")
+  
   protected void resolveAttributes(ComponentHasAttributes component,
     boolean nullId) throws Exception {
     component.getAttributes().size();
@@ -449,7 +449,7 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable
    * @param component the component
    * @param nullId the null id
    */
-  @SuppressWarnings("static-method")
+  
   protected void resolveComponentHistory(Atom component, boolean nullId) {
     component.getComponentHistory().size();
     for (final ComponentHistory history : component.getComponentHistory()) {
@@ -466,7 +466,7 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable
    * @param component the component
    * @param nullId the null id
    */
-  @SuppressWarnings("static-method")
+  
   protected void resolveComponentHistory(Concept component, boolean nullId) {
     component.getComponentHistory().size();
     for (final ComponentHistory history : component.getComponentHistory()) {

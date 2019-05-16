@@ -139,7 +139,7 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
    * @return true, if successful
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private boolean isChanged(Concept concept,
     ComputePreferredNameHandler handler, PrecedenceList list) throws Exception {
 

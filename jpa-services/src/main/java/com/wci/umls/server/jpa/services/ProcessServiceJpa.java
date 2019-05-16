@@ -228,7 +228,7 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private void validateInit() throws Exception {
     if (algorithmsMap == null) {
       throw new Exception(
@@ -584,7 +584,7 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
    *
    * @param algorithmConfig the algorithm config
    */
-  @SuppressWarnings("static-method")
+  
   private void handleLazyInit(AlgorithmConfig algorithmConfig) {
     if (algorithmConfig == null) {
       return;
@@ -600,7 +600,7 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
    *
    * @param algorithmExecution the algorithm execution
    */
-  @SuppressWarnings("static-method")
+  
   private void handleLazyInit(AlgorithmExecution algorithmExecution) {
     if (algorithmExecution == null) {
       return;

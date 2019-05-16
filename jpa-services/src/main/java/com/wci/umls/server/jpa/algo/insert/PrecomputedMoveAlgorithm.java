@@ -107,6 +107,7 @@ public class PrecomputedMoveAlgorithm
    */
   /* see superclass */
   @Override
+  @SuppressWarnings("unchecked")
   public void compute() throws Exception {
     logInfo("Starting " + getName());
     logInfo("  integrity checks = " + checkNames);
@@ -278,7 +279,7 @@ public class PrecomputedMoveAlgorithm
           getProcess().getTerminology() + getProcess().getVersion());
       query.setParameter("cuis", cuiAtomsMap.keySet());
 
-      List<Object[]> results = query.getResultList();
+	  List<Object[]> results = query.getResultList();
       for (final Object[] result : results) {
         final Long id = Long.valueOf(result[0].toString());
         final String cui = result[1].toString();
@@ -496,7 +497,7 @@ public class PrecomputedMoveAlgorithm
           query.setParameter("atomId", atom.getId());
           query.setParameter("terminology", getProject().getTerminology());
 
-          List<Long> longResults = query.getResultList();
+		  List<Long> longResults = query.getResultList();
           for (final Long id : longResults) {
             atomConceptIdMap.put(atom, id);
           }

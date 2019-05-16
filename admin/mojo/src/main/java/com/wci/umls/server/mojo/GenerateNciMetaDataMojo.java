@@ -757,7 +757,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private void createNciInsertionProcess(Project project1, Long projectId,
     String authToken) throws Exception {
 
@@ -1199,7 +1199,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private void createSnomedCtInsertionProcess(Project project1, Long projectId,
     String authToken) throws Exception {
 
@@ -1652,7 +1652,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private void createUmlsInsertionProcess(Project project1, Long projectId,
     String authToken) throws Exception {
 
@@ -2091,7 +2091,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private void createTemplateInsertionProcess(Project project1, Long projectId,
     String authToken) throws Exception {
 
@@ -2488,7 +2488,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private void createPreProductionProcess(Project project1, Long projectId,
     String authToken) throws Exception {
 
@@ -2640,7 +2640,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private void createReleaseProcess(Project project1, Long projectId,
     String authToken) throws Exception {
 
@@ -2773,7 +2773,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private void createFeedbackProcess(Project project1, Long projectId,
     String authToken) throws Exception {
 
@@ -2847,7 +2847,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private void createProdMidCleanupProcess(Project project1, Long projectId,
     String authToken) throws Exception {
 
@@ -2941,7 +2941,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private void createReportProcesses(Project project1, Long projectId,
     String authToken) throws Exception {
 
@@ -3020,7 +3020,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private void createLexicalClassAssignmentProcess(Project project1,
     Long projectId, String authToken) throws Exception {
 
@@ -3065,7 +3065,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private void createReplaceAttributesProcess(Project project1, Long projectId,
     String authToken) throws Exception {
 
@@ -3111,7 +3111,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private void createRemapComponentInfoRelationshipsProcess(Project project1,
     Long projectId, String authToken) throws Exception {
 
@@ -3156,7 +3156,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private void createComputePreferredNamesProcess(Project project1,
     Long projectId, String authToken) throws Exception {
 
@@ -3247,7 +3247,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
    * @param name the name
    * @return the user
    */
-  @SuppressWarnings("static-method")
+  
   private UserJpa makeUser(String userName, String name) {
     final UserJpa user = new UserJpa();
     user.setUserName(userName);

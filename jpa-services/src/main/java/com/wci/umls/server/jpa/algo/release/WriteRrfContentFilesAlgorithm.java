@@ -20,7 +20,6 @@ import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
 
-import com.mchange.v1.util.MapUtils;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ComponentInfo;

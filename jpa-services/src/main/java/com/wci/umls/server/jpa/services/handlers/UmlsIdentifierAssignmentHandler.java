@@ -598,7 +598,7 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
 
     final Session session =
         getService().getEntityManager().unwrap(Session.class);
-    final org.hibernate.Query hQuery = session.createSQLQuery(
+    final org.hibernate.query.Query hQuery = session.createSQLQuery(
         "select id, componentId, componentTerminology, hashCode, terminologyId from attribute_identity "
             + "where terminology = :terminology and name = :name");
     hQuery.setParameter("terminology", terminology);
@@ -630,7 +630,7 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
 
     final Session session =
         getService().getEntityManager().unwrap(Session.class);
-    final org.hibernate.Query hQuery = session.createSQLQuery(
+    final org.hibernate.query.Query hQuery = session.createSQLQuery(
         "select id, stringClassId, terminologyId, termType, codeId, conceptId, descriptorId from atom_identity "
             + "where terminology = :terminology");
     hQuery.setParameter("terminology", terminology);
@@ -661,7 +661,7 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
 
     final Session session =
         getService().getEntityManager().unwrap(Session.class);
-    final org.hibernate.Query hQuery = session
+    final org.hibernate.query.Query hQuery = session
         .createSQLQuery("select id, name, language from string_class_identity");
     hQuery.setReadOnly(true).setFetchSize(100000).setCacheable(false);
     final ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
@@ -682,7 +682,7 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
 
     final Session session =
         getService().getEntityManager().unwrap(Session.class);
-    final org.hibernate.Query hQuery = session.createSQLQuery(
+    final org.hibernate.query.Query hQuery = session.createSQLQuery(
         "select id, language, normalizedName from lexical_class_identity");
     hQuery.setReadOnly(true).setFetchSize(100000).setCacheable(false);
     final ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
@@ -705,7 +705,7 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
 
     final Session session =
         getService().getEntityManager().unwrap(Session.class);
-    final org.hibernate.Query hQuery = session.createSQLQuery(
+    final org.hibernate.query.Query hQuery = session.createSQLQuery(
         "select id, additionalRelationshipType, fromId, fromTerminology, fromType, "
             + "relationshipType, terminologyId, toId, toTerminology, "
             + "toType from relationship_identity "
@@ -1109,7 +1109,7 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
    * @param aService the a service
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   public void closeService(UmlsIdentityService aService) throws Exception {
     if (aService != null && !aService.getTransactionPerOperation()) {
       // N/A
@@ -1194,7 +1194,7 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
   /**
    * Clear out all of the caches.
    */
-  @SuppressWarnings("static-method")
+  
   public void clearCaches() {
     attributeIdentityCache.clear();
     attributeIdentityCachedTerms.clear();

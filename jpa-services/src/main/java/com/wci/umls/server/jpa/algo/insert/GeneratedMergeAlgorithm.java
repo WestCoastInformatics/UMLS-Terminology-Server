@@ -20,16 +20,11 @@ import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePair;
-import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractMergeAlgorithm;
-import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
-import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
-import com.wci.umls.server.model.actions.MolecularAction;
-import com.wci.umls.server.model.actions.MolecularActionList;
 
 /**
  * Implementation of an algorithm to import attributes.

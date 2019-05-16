@@ -68,7 +68,7 @@ public class NullableFieldTester extends ProxyTester {
    * @return the fields with nullable annotations
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private Set<String> getNotNullFields(Class<?> clazz) throws Exception {
 
     Set<String> results = new HashSet<>();

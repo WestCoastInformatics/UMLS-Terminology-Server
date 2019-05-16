@@ -1025,7 +1025,7 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
    * @param editorLevel the editor level
    * @return the user
    */
-  @SuppressWarnings("static-method")
+  
   private UserJpa makeUser(String userName, String name, int editorLevel) {
     final UserJpa user = new UserJpa();
     user.setUserName(userName);

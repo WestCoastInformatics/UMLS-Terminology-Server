@@ -14,7 +14,7 @@ public class RootClientRest {
    * @param parameter the parameter
    * @param parameterName the parameter name
    */
-  @SuppressWarnings("static-method")
+  
   protected void validateNotEmpty(String parameter, String parameterName) {
     if (parameter == null) {
       throw new IllegalArgumentException("Parameter " + parameterName
@@ -32,7 +32,7 @@ public class RootClientRest {
    * @param parameter the parameter
    * @param parameterName the parameter name
    */
-  @SuppressWarnings("static-method")
+  
   protected void validateNotEmpty(Long parameter, String parameterName) {
     if (parameter == null) {
       throw new IllegalArgumentException("Parameter " + parameterName

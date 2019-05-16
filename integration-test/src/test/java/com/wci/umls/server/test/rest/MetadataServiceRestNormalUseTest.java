@@ -613,7 +613,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
   /**
    * Test addition, update, and removal of precedence lists.
    */
-  @SuppressWarnings("static-method")
+  
   @Test
   public void testPrecedenceList() {
 

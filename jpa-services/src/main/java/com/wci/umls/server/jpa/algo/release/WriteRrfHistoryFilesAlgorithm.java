@@ -368,7 +368,7 @@ public class WriteRrfHistoryFilesAlgorithm
    * @param c the c
    * @return the bequeathal rels
    */
-  @SuppressWarnings("static-method")
+  
   private List<ConceptRelationship> getCurrentBequeathalRels(Concept c) {
     final List<ConceptRelationship> bequeathalRels = new ArrayList<>();
     for (final ConceptRelationship rel : c.getRelationships()) {
@@ -825,7 +825,7 @@ public class WriteRrfHistoryFilesAlgorithm
    * @param inputDate the input date
    * @return the string
    */
-  @SuppressWarnings("static-method")
+  
   private String convertDate(String inputDate) {
     SimpleDateFormat dt = new SimpleDateFormat("yyyyMMdd");
     Date date;

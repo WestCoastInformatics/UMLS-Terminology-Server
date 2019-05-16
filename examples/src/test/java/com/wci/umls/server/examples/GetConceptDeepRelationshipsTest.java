@@ -117,7 +117,7 @@ public class GetConceptDeepRelationshipsTest extends ExampleSupport {
    * @param parameters the parameters
    * @return the parameter types
    */
-  @SuppressWarnings("static-method")
+  
   public Class<?>[] getParameterTypes(Object[] parameters) {
     Class<?>[] types = new Class<?>[parameters.length];
     for (int i = 0; i < parameters.length; i++) {

@@ -118,7 +118,7 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
    * @param fileName the file name
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private void checkFileExist(String srcFullPath, String fileName)
     throws Exception {
 
