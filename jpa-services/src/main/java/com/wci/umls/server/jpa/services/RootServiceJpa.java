@@ -28,6 +28,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import javax.persistence.Table;
 import javax.persistence.spi.PersistenceProvider;
+import javax.xml.bind.annotation.XmlSchema;
 
 import org.apache.log4j.Logger;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -126,9 +127,12 @@ public abstract class RootServiceJpa implements RootService {
     Properties config = null;
     try {
       config = ConfigUtility.getConfigProperties();
+      // NUNO - fails when setting factory
       // TODO: this fixes a bug.
-      PersistenceProvider provider = new HibernatePersistenceProvider();
-      factory = provider.createEntityManagerFactory("TermServiceDS", config);
+      //PersistenceProvider provider = new HibernatePersistenceProvider();
+      //factory = provider.createEntityManagerFactory("TermServiceDS", config);
+      setupBindInfoPackage();
+      factory = Persistence.createEntityManagerFactory("TermServiceDS", config);
     } catch (Exception e) {
       e.printStackTrace();
       factory = null;
@@ -175,6 +179,34 @@ public abstract class RootServiceJpa implements RootService {
     }
 
   }
+  
+  
+  // Fixes Maven issue with hibernate.cfg.xml even though the application does not have one.
+  // https://stackoverflow.com/questions/54673104/how-to-fix-unexpected-elementurihttp-www-hibernate-org-xsd-orm-cfg-lo
+	static void setupBindInfoPackage() {
+		String nsuri = "http://www.hibernate.org/xsd/orm/hbm";
+		String packageInfoClassName = "org.hibernate.boot.jaxb.hbm.spi.package-info";
+		try {
+			final Class<?> packageInfoClass = Class.forName(packageInfoClassName);
+			final XmlSchema xmlSchema = packageInfoClass.getAnnotation(XmlSchema.class);
+			if (xmlSchema == null) {
+				Logger.getLogger(RootServiceJpa.class)
+				    .warn(String.format("Class [{0}] is missing the [{1}] annotation. Processing bindings will probably fail.",
+				        packageInfoClassName, XmlSchema.class.getName()));
+			} else {
+				final String namespace = xmlSchema.namespace();
+				if (nsuri.equals(namespace)) {
+					Logger.getLogger(RootServiceJpa.class)
+					    .warn(String.format(
+					        "Namespace of the [{0}] annotation does not match [{1}]. Processing bindings will probably fail.",
+					        XmlSchema.class.getName(), nsuri));
+				}
+			}
+		} catch (ClassNotFoundException cnfex) {
+			Logger.getLogger(RootServiceJpa.class).warn(String.format(
+			    "Class [{0}] could not be found. Processing bindings will probably fail.", packageInfoClassName), cnfex);
+		}
+	}
 
   /** The manager. */
   protected EntityManager manager;
