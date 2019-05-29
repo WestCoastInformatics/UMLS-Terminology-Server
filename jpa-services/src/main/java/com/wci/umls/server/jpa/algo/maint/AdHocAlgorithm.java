@@ -2650,6 +2650,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     int updatedAdditionalRelationshipTypes = 0;
     List<AdditionalRelationshipTypeJpa> additionalRelationshipsTypes =
         new ArrayList<>();
+    List<AtomRelationshipJpa> atomRelationships =
+        new ArrayList<>();
 
     try {
 
@@ -2696,6 +2698,19 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         }
         updateProgress();
       }
+      
+      query = getEntityManager().createNativeQuery(
+          "select id from atom_relationships where additionalRelationshipType = 'gives_rise_to'");
+
+      final List<Object> ids = query.getResultList();
+
+      setSteps(ids.size());
+      for (final Object result : ids) {
+        final Relationship<?, ?> rel = (AtomRelationship) getRelationship(Long.valueOf(result.toString()), AtomRelationshipJpa.class);
+        rel.setAdditionalRelationshipType("develops_into");
+        updateRelationship(rel);
+      }
+
     } catch (Exception e) {
       e.printStackTrace();
       fail("Unexpected exception thrown - please review stack trace.");
