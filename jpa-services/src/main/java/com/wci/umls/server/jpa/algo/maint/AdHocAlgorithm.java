@@ -2657,7 +2657,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       // Get the three affected additional relationship types
       Query query = getEntityManager().createNativeQuery(
-          "select abbreviation from additional_relationship_types where id in (1398,1399,1322352)");
+          "select abbreviation from additional_relationship_types where id in (1398,1399,1322352,1260,327351)");
 
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
@@ -2692,6 +2692,26 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           updateAdditionalRelationshipType(additionalRelationshipType);
           updatedAdditionalRelationshipTypes++;
         }
+        // Set another incorrectly-inverted additional relationship type to its
+        // correct inverse
+        else if (additionalRelationshipType.getId() == 1260) {
+          AdditionalRelationshipType inverseRelType =
+              getAdditionalRelationshipType("NICHD_Parent_Of", "NCIMTH",
+                  "latest");
+          additionalRelationshipType.setInverse(inverseRelType);
+          updateAdditionalRelationshipType(additionalRelationshipType);
+          updatedAdditionalRelationshipTypes++;
+        }
+        // Set another incorrectly-inverted additional relationship type to its
+        // correct inverse
+        else if (additionalRelationshipType.getId() == 327351) {
+          AdditionalRelationshipType inverseRelType =
+              getAdditionalRelationshipType("CDRH_Parent_Of", "NCIMTH",
+                  "latest");
+          additionalRelationshipType.setInverse(inverseRelType);
+          updateAdditionalRelationshipType(additionalRelationshipType);
+          updatedAdditionalRelationshipTypes++;
+        }
         // We should never get here
         else {
           logError("WHAT HAPPENED!!!????");
@@ -2699,15 +2719,39 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         updateProgress();
       }
       
+      // update atom_relationships from 'gives_rise_to' to 'develops_into'
       query = getEntityManager().createNativeQuery(
           "select id from atom_relationships where additionalRelationshipType = 'gives_rise_to'");
 
-      final List<Object> ids = query.getResultList();
+      List<Object> ids = query.getResultList();
 
-      setSteps(ids.size());
       for (final Object result : ids) {
         final Relationship<?, ?> rel = (AtomRelationship) getRelationship(Long.valueOf(result.toString()), AtomRelationshipJpa.class);
         rel.setAdditionalRelationshipType("develops_into");
+        updateRelationship(rel);
+      } 
+      
+      // update concept_relationships from 'Parent_Is_NICHD' to 'NICHD_Parent_Of'
+      query = getEntityManager().createNativeQuery(
+          "select id from concept_relationships where additionalRelationshipType = 'Parent_Is_NICHD'");
+
+      ids = query.getResultList();
+
+      for (final Object result : ids) {
+        final Relationship<?, ?> rel = (ConceptRelationship) getRelationship(Long.valueOf(result.toString()), ConceptRelationshipJpa.class);
+        rel.setAdditionalRelationshipType("NICHD_Parent_Of");
+        updateRelationship(rel);
+      }
+      
+      // update concept_relationships from 'Parent_Is_CDRH' to 'CDRH_Parent_Of'
+      query = getEntityManager().createNativeQuery(
+          "select id from concept_relationships where additionalRelationshipType = 'Parent_Is_CDRH'");
+
+      ids = query.getResultList();
+
+      for (final Object result : ids) {
+        final Relationship<?, ?> rel = (ConceptRelationship) getRelationship(Long.valueOf(result.toString()), ConceptRelationshipJpa.class);
+        rel.setAdditionalRelationshipType("CDRH_Parent_Of");
         updateRelationship(rel);
       }
 
