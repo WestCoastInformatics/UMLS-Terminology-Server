@@ -2648,6 +2648,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo(" Fix Additional Rel Type Inverses 2");
 
     int updatedAdditionalRelationshipTypes = 0;
+    int updatedRelationships = 0;
     List<AdditionalRelationshipTypeJpa> additionalRelationshipsTypes =
         new ArrayList<>();
     List<AtomRelationshipJpa> atomRelationships =
@@ -2729,6 +2730,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         final Relationship<?, ?> rel = (AtomRelationship) getRelationship(Long.valueOf(result.toString()), AtomRelationshipJpa.class);
         rel.setAdditionalRelationshipType("develops_into");
         updateRelationship(rel);
+        updatedRelationships++;
       } 
       
       // update concept_relationships from 'Parent_Is_NICHD' to 'NICHD_Parent_Of'
@@ -2741,6 +2743,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         final Relationship<?, ?> rel = (ConceptRelationship) getRelationship(Long.valueOf(result.toString()), ConceptRelationshipJpa.class);
         rel.setAdditionalRelationshipType("NICHD_Parent_Of");
         updateRelationship(rel);
+        updatedRelationships++;
       }
       
       // update concept_relationships from 'Parent_Is_CDRH' to 'CDRH_Parent_Of'
@@ -2753,6 +2756,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         final Relationship<?, ?> rel = (ConceptRelationship) getRelationship(Long.valueOf(result.toString()), ConceptRelationshipJpa.class);
         rel.setAdditionalRelationshipType("CDRH_Parent_Of");
         updateRelationship(rel);
+        updatedRelationships++;
       }
 
     } catch (Exception e) {
@@ -2764,6 +2768,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     logInfo("Updated " + updatedAdditionalRelationshipTypes
         + " additional relationship types updated 2.");
+    logInfo("Updated " + updatedRelationships
+        + " relationships updated 2.");
     logInfo("Finished " + getName());
   }
   
