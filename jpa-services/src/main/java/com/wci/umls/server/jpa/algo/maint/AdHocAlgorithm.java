@@ -2658,7 +2658,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       // Get the three affected additional relationship types
       Query query = getEntityManager().createNativeQuery(
-          "select abbreviation from additional_relationship_types where id in (1398,1399,1322352,1260,327351)");
+          "select abbreviation from additional_relationship_types where id in (1398,1399,1322352,1260,1259,598402,327351,327352,598404)");
 
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
@@ -2697,19 +2697,29 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         // correct inverse
         else if (additionalRelationshipType.getId() == 1260) {
           AdditionalRelationshipType inverseRelType =
-              getAdditionalRelationshipType("NICHD_Parent_Of", "NCIMTH",
+              getAdditionalRelationshipType("Parent_Is_NICHD", "NCIMTH",
                   "latest");
           additionalRelationshipType.setInverse(inverseRelType);
           updateAdditionalRelationshipType(additionalRelationshipType);
           updatedAdditionalRelationshipTypes++;
         }
-        // Set another incorrectly-inverted additional relationship type to its
-        // correct inverse
-        else if (additionalRelationshipType.getId() == 327351) {
-          AdditionalRelationshipType inverseRelType =
-              getAdditionalRelationshipType("CDRH_Parent_Of", "NCIMTH",
-                  "latest");
-          additionalRelationshipType.setInverse(inverseRelType);
+        else if (additionalRelationshipType.getId() == 1259) {       
+          additionalRelationshipType.setPublishable(true);
+          updateAdditionalRelationshipType(additionalRelationshipType);
+          updatedAdditionalRelationshipTypes++;
+        }
+        else if (additionalRelationshipType.getId() == 327352) {       
+          additionalRelationshipType.setPublishable(true);
+          updateAdditionalRelationshipType(additionalRelationshipType);
+          updatedAdditionalRelationshipTypes++;
+        }
+        else if (additionalRelationshipType.getId() == 598402) {       
+          additionalRelationshipType.setPublishable(false);
+          updateAdditionalRelationshipType(additionalRelationshipType);
+          updatedAdditionalRelationshipTypes++;
+        }
+        else if (additionalRelationshipType.getId() == 598404) {       
+          additionalRelationshipType.setPublishable(false);
           updateAdditionalRelationshipType(additionalRelationshipType);
           updatedAdditionalRelationshipTypes++;
         }
@@ -2732,32 +2742,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         updateRelationship(rel);
         updatedRelationships++;
       } 
-      
-      // update concept_relationships from 'Parent_Is_NICHD' to 'NICHD_Parent_Of'
-      query = getEntityManager().createNativeQuery(
-          "select id from concept_relationships where additionalRelationshipType = 'Parent_Is_NICHD'");
 
-      ids = query.getResultList();
-
-      for (final Object result : ids) {
-        final Relationship<?, ?> rel = (ConceptRelationship) getRelationship(Long.valueOf(result.toString()), ConceptRelationshipJpa.class);
-        rel.setAdditionalRelationshipType("NICHD_Parent_Of");
-        updateRelationship(rel);
-        updatedRelationships++;
-      }
-      
-      // update concept_relationships from 'Parent_Is_CDRH' to 'CDRH_Parent_Of'
-      query = getEntityManager().createNativeQuery(
-          "select id from concept_relationships where additionalRelationshipType = 'Parent_Is_CDRH'");
-
-      ids = query.getResultList();
-
-      for (final Object result : ids) {
-        final Relationship<?, ?> rel = (ConceptRelationship) getRelationship(Long.valueOf(result.toString()), ConceptRelationshipJpa.class);
-        rel.setAdditionalRelationshipType("CDRH_Parent_Of");
-        updateRelationship(rel);
-        updatedRelationships++;
-      }
 
     } catch (Exception e) {
       e.printStackTrace();
