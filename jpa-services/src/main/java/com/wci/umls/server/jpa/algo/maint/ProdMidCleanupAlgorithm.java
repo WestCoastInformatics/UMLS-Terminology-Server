@@ -125,7 +125,7 @@ public class ProdMidCleanupAlgorithm
 
       Set<Long> worklistIdsToRemove = new HashSet<>();
       Set<Long> checklistIdsToRemove = new HashSet<>();
-      Set<Concept> conceptsWithoutAtoms = new HashSet<>();
+      Set<Long> conceptsWithoutAtoms = new HashSet<>();
 
       // Get worklists
        query =
@@ -147,16 +147,16 @@ public class ProdMidCleanupAlgorithm
         checklistIdsToRemove.add(id);
       }
 
-      // Get concepts without atoms
+      // Get publishable concepts without atoms
       query = getEntityManager().createQuery("select c1.id from "
-          + "ConceptJpa c1 where c1.terminology = :terminology and c1.id NOT IN (select c2.id from ConceptJpa c2 JOIN c2.atoms)");
+          + "ConceptJpa c1 where c1.terminology = :terminology and c1.publishable=true and c1.id NOT IN (select c2.id from ConceptJpa c2 JOIN c2.atoms)");
       query.setParameter("terminology", "NCIMTH");
 
       list = query.getResultList();
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
         Concept concept = getConcept(id);
-        conceptsWithoutAtoms.add(concept);
+        conceptsWithoutAtoms.add(id);
       }
 
       logInfo("[ProdMid Cleanup] " + checklistIdsToRemove.size()
@@ -164,7 +164,7 @@ public class ProdMidCleanupAlgorithm
       logInfo("[ProdMid Cleanup] " + worklistIdsToRemove.size()
           + " worklists to be removed");
       logInfo("[ProdMid Cleanup] " + conceptsWithoutAtoms.size()
-          + " concepts to be removed");
+          + " concepts to be marked unpublished");
 
       setSteps(nonCurrentTerminologies.size() + checklistIdsToRemove.size()
           + worklistIdsToRemove.size() + conceptsWithoutAtoms.size());
@@ -227,10 +227,14 @@ public class ProdMidCleanupAlgorithm
 
       // Mark unpublished concepts without atoms and their components
       int markedConcepts = 0;
-      for (final Object entry : conceptsWithoutAtoms) {
+      for (final Long id : conceptsWithoutAtoms) {
 
-        final Long id = Long.valueOf(entry.toString());
+        //final Long id = Long.valueOf(entry.toString());
         Concept concept = getConcept(id);
+        if (concept == null) {
+          logWarn("[ProdMid Cleanup] Concept designated to be marked unpublished that is null:" + id);
+          continue;
+        }
         concept.setPublishable(false);
         for (Definition def : concept.getDefinitions()) {
           def.setPublishable(false);

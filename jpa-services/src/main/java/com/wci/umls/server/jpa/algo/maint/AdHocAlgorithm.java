@@ -2098,7 +2098,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       Query query = getEntityManager().createNativeQuery(
           "select id from concept_subsets where terminology=:terminology and version=:version");
       query.setParameter("terminology", "SNOMEDCT_US");
-      query.setParameter("version", "2018_09_01");
+      query.setParameter("version", "2019_03_01");
 
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
@@ -2154,7 +2154,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     try {
       Query query = getEntityManager().createQuery("select c1.id from "
-          + "ConceptJpa c1 where c1.terminology = :terminology and c1.id NOT IN (select c2.id from ConceptJpa c2 JOIN c2.atoms)");
+          + "ConceptJpa c1 where c1.terminology = :terminology and c1.publishable=true and c1.id NOT IN (select c2.id from ConceptJpa c2 JOIN c2.atoms)");
       query.setParameter("terminology", "NCIMTH");
       conceptsWithoutAtoms = query.getResultList();
       setSteps(conceptsWithoutAtoms.size());
@@ -2163,6 +2163,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
         final Long id = Long.valueOf(entry.toString());
         Concept concept = getConcept(id);
+        if (concept == null) {
+          logWarn("[AdHoc Algorithm] Concept designated to be marked unpublished that is null:" + id);
+          continue;
+        }
         concept.setPublishable(false);
         for (Definition def : concept.getDefinitions()) {
           def.setPublishable(false);
@@ -2644,14 +2648,17 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo(" Fix Additional Rel Type Inverses 2");
 
     int updatedAdditionalRelationshipTypes = 0;
+    int updatedRelationships = 0;
     List<AdditionalRelationshipTypeJpa> additionalRelationshipsTypes =
+        new ArrayList<>();
+    List<AtomRelationshipJpa> atomRelationships =
         new ArrayList<>();
 
     try {
 
       // Get the three affected additional relationship types
       Query query = getEntityManager().createNativeQuery(
-          "select abbreviation from additional_relationship_types where id in (1398,1399,1322352)");
+          "select abbreviation from additional_relationship_types where id in (1398,1399,1322352,1260,1259,598402,327351,327352,598404)");
 
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
@@ -2686,12 +2693,57 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           updateAdditionalRelationshipType(additionalRelationshipType);
           updatedAdditionalRelationshipTypes++;
         }
+        // Set another incorrectly-inverted additional relationship type to its
+        // correct inverse
+        else if (additionalRelationshipType.getId() == 1260) {
+          AdditionalRelationshipType inverseRelType =
+              getAdditionalRelationshipType("Parent_Is_NICHD", "NCIMTH",
+                  "latest");
+          additionalRelationshipType.setInverse(inverseRelType);
+          updateAdditionalRelationshipType(additionalRelationshipType);
+          updatedAdditionalRelationshipTypes++;
+        }
+        else if (additionalRelationshipType.getId() == 1259) {       
+          additionalRelationshipType.setPublishable(true);
+          updateAdditionalRelationshipType(additionalRelationshipType);
+          updatedAdditionalRelationshipTypes++;
+        }
+        else if (additionalRelationshipType.getId() == 327352) {       
+          additionalRelationshipType.setPublishable(true);
+          updateAdditionalRelationshipType(additionalRelationshipType);
+          updatedAdditionalRelationshipTypes++;
+        }
+        else if (additionalRelationshipType.getId() == 598402) {       
+          additionalRelationshipType.setPublishable(false);
+          updateAdditionalRelationshipType(additionalRelationshipType);
+          updatedAdditionalRelationshipTypes++;
+        }
+        else if (additionalRelationshipType.getId() == 598404) {       
+          additionalRelationshipType.setPublishable(false);
+          updateAdditionalRelationshipType(additionalRelationshipType);
+          updatedAdditionalRelationshipTypes++;
+        }
         // We should never get here
         else {
           logError("WHAT HAPPENED!!!????");
         }
         updateProgress();
       }
+      
+      // update atom_relationships from 'gives_rise_to' to 'develops_into'
+      query = getEntityManager().createNativeQuery(
+          "select id from atom_relationships where additionalRelationshipType = 'gives_rise_to'");
+
+      List<Object> ids = query.getResultList();
+
+      for (final Object result : ids) {
+        final Relationship<?, ?> rel = (AtomRelationship) getRelationship(Long.valueOf(result.toString()), AtomRelationshipJpa.class);
+        rel.setAdditionalRelationshipType("develops_into");
+        updateRelationship(rel);
+        updatedRelationships++;
+      } 
+
+
     } catch (Exception e) {
       e.printStackTrace();
       fail("Unexpected exception thrown - please review stack trace.");
@@ -2701,6 +2753,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     logInfo("Updated " + updatedAdditionalRelationshipTypes
         + " additional relationship types updated 2.");
+    logInfo("Updated " + updatedRelationships
+        + " relationships updated 2.");
     logInfo("Finished " + getName());
   }
   
