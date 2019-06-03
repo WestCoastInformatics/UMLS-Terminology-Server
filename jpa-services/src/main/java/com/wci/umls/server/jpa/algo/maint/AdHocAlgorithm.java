@@ -54,6 +54,8 @@ import com.wci.umls.server.jpa.algo.action.RemoveSemanticTypeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
+import com.wci.umls.server.jpa.content.AtomSubsetJpa;
+import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.ComponentHistoryJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
@@ -70,6 +72,7 @@ import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
+import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHistory;
@@ -2093,7 +2096,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     int updatedRelationships = 0;
 
     final List<ConceptSubsetJpa> conceptSubsets = new ArrayList<>();
-
+    final List<AtomSubsetJpa> atomSubsets = new ArrayList<>();
     try {
       Query query = getEntityManager().createNativeQuery(
           "select id from concept_subsets where terminology=:terminology and version=:version");
@@ -2138,6 +2141,49 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     } finally {
     }
 
+    try {
+      Query query = getEntityManager().createNativeQuery(
+          "select id from atom_subsets where terminology=:terminology and version=:version");
+      query.setParameter("terminology", "SNOMEDCT_US");
+      query.setParameter("version", "2019_03_01");
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        atomSubsets
+            .add((AtomSubsetJpa) getSubset(id, AtomSubsetJpa.class));
+      }
+
+      setSteps(atomSubsets.size());
+
+      logInfo("[RemoveSNOMEDSubsets] " + atomSubsets.size()
+          + " Atom Subsets identified");
+
+      for (final AtomSubsetJpa subset : atomSubsets) {
+        logInfo("[RemoveSNOMEDSubsets] " + subset.getMembers().size()
+            + " Before removal atom Subset Members  identified on: "
+            + subset.getTerminologyId() + " " + subset.getId());
+        for (final AtomSubsetMember member : subset.getMembers()) {
+          for (final Attribute att : member.getAttributes()) {
+            removeAttribute(att.getId());
+          }
+          member.setAttributes(null);
+          updateSubsetMember(member);
+          removeSubsetMember(member.getId(), AtomSubsetMemberJpa.class);
+        }
+        subset.clearMembers();
+        updateSubset(subset);
+        removeSubset(subset.getId(), AtomSubsetJpa.class);
+        logInfo("[RemoveSNOMEDSubsets] " + subset.getMembers().size()
+            + " After removal Atom Subset Members  identified on: "
+            + subset.getTerminologyId() + " " + subset.getId());
+        updateProgress();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+    }
     logInfo(
         "Updated " + updatedRelationships + " component info relationships.");
     logInfo("Finished " + getName());
