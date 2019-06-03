@@ -476,7 +476,7 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // and if so reuse it (e.g. update suppressible, obsolete, version)
 
     // No terminology id for the member attribute
-    memberAtt.setTerminologyId("");
+    memberAtt.setTerminologyId(fields[12]);
 
     memberAtt.setTerminology(referencedTerminology.getTerminology());
     memberAtt.setVersion(referencedTerminology.getVersion());
