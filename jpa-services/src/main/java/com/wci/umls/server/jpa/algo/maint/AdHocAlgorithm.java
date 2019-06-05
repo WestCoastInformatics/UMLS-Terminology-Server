@@ -2176,6 +2176,14 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       logInfo("[RemoveSNOMEDSubsets] " + totalSubsetMembersSize
       + " Atom Subset Members identified");
 
+      // handle lazy init error
+      for (final AtomSubsetJpa subset : atomSubsets) {
+        for (final AtomSubsetMember member : subset.getMembers()) {
+            member.getAttributes().size();
+        }
+      }
+      
+      
       for (final AtomSubsetJpa subset : atomSubsets) {
         logInfo("[RemoveSNOMEDSubsets] " + subset.getMembers().size()
             + " Before removal atom Subset Members  identified on: "
