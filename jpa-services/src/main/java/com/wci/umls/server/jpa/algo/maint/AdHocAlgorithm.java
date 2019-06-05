@@ -171,6 +171,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       removeBadRelationships();
     } else if (actionName.equals("Remove SNOMED Subsets")) {
       removeSNOMEDSubsets();
+    } else if (actionName.equals("Remove SNOMED Atom Subsets")) {
+      removeSNOMEDAtomSubsets();
     } else if (actionName.equals("Remove Concepts without Atoms")) {
       removeConceptsWithoutAtoms();
     } else if (actionName.equals("Remove Orphaned Tracking Records")) {
@@ -2141,51 +2143,52 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     } finally {
     }
 
+    logInfo(
+        "Updated " + updatedRelationships + " component info relationships.");
+    logInfo("Finished " + getName());
+  }
+  
+  private void removeSNOMEDAtomSubsets() throws Exception {
+
+    logInfo(" Remove SNOMED Atom Subsets");
+
+    final List<AtomSubsetMemberJpa> atomSubsetMembers = new ArrayList<>();
+
     try {
       Query query = getEntityManager().createNativeQuery(
-          "select id from atom_subsets where terminology=:terminology and version=:version");
+          "select id from atom_subset_members where terminology=:terminology and version=:version");
       query.setParameter("terminology", "SNOMEDCT_US");
       query.setParameter("version", "2019_03_01");
 
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
-        atomSubsets
-            .add((AtomSubsetJpa) getSubset(id, AtomSubsetJpa.class));
+        atomSubsetMembers
+            .add((AtomSubsetMemberJpa) getSubsetMember(id, AtomSubsetMemberJpa.class));
       }
 
-      setSteps(atomSubsets.size());
+      setSteps(atomSubsetMembers.size());
 
-      logInfo("[RemoveSNOMEDSubsets] " + atomSubsets.size()
-          + " Atom Subsets identified");
+      logInfo("[RemoveSNOMEDSubsetMembers] " + atomSubsetMembers.size()
+          + " Atom Subset Members identified");
 
-      for (final AtomSubsetJpa subset : atomSubsets) {
-        logInfo("[RemoveSNOMEDSubsets] " + subset.getMembers().size()
-            + " Before removal atom Subset Members  identified on: "
-            + subset.getTerminologyId() + " " + subset.getId());
-        for (final AtomSubsetMember member : subset.getMembers()) {
+      for (final AtomSubsetMemberJpa member : atomSubsetMembers) {
+        
           for (final Attribute att : member.getAttributes()) {
             removeAttribute(att.getId());
           }
           member.setAttributes(null);
           updateSubsetMember(member);
           removeSubsetMember(member.getId(), AtomSubsetMemberJpa.class);
-        }
-        subset.clearMembers();
-        updateSubset(subset);
-        removeSubset(subset.getId(), AtomSubsetJpa.class);
-        logInfo("[RemoveSNOMEDSubsets] " + subset.getMembers().size()
-            + " After removal Atom Subset Members  identified on: "
-            + subset.getTerminologyId() + " " + subset.getId());
-        updateProgress();
+
+          updateProgress();
       }
     } catch (Exception e) {
       e.printStackTrace();
       fail("Unexpected exception thrown - please review stack trace.");
     } finally {
     }
-    logInfo(
-        "Updated " + updatedRelationships + " component info relationships.");
+
     logInfo("Finished " + getName());
   }
 
@@ -3072,7 +3075,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "e.g. Fix Orphan Definitions", 200, AlgorithmParameter.Type.ENUM, "");
     param.setPossibleValues(
         Arrays.asList("Fix Orphan Definitions", "Undo Stampings",
-            "Remove Bad Relationships", "Remove SNOMED Subsets", "Remove Orphaned Tracking Records",
+            "Remove Bad Relationships", "Remove SNOMED Subsets", "Remove SNOMED Atom Subsets", "Remove Orphaned Tracking Records",
             "Inactivate Old SRC atoms and AtomRels", "Fix SRC_ATOM_IDs",
             "Redo Molecular Actions", "Fix Bad Relationship Identities",
             "Fix Component Info Relationships", "Remove Concepts without Atoms",
