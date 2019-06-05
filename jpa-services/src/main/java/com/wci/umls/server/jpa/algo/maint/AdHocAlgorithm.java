@@ -2152,28 +2152,35 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     logInfo(" Remove SNOMED Atom Subsets");
 
-    final List<AtomSubsetMemberJpa> atomSubsetMembers = new ArrayList<>();
-
+    int totalSubsetMembersSize = 0;
+    final List<AtomSubsetJpa> atomSubsets = new ArrayList<>();
     try {
       Query query = getEntityManager().createNativeQuery(
-          "select id from atom_subset_members where terminology=:terminology and version=:version");
+          "select id from atom_subsets where terminology=:terminology and version=:version");
       query.setParameter("terminology", "SNOMEDCT_US");
       query.setParameter("version", "2019_03_01");
 
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
-        atomSubsetMembers
-            .add((AtomSubsetMemberJpa) getSubsetMember(id, AtomSubsetMemberJpa.class));
+        AtomSubsetJpa atomSubset = 
+            (AtomSubsetJpa) getSubset(id, AtomSubsetJpa.class);
+        atomSubsets.add(atomSubset);
+        totalSubsetMembersSize += atomSubset.getMembers().size();
       }
 
-      setSteps(atomSubsetMembers.size());
+      setSteps(totalSubsetMembersSize);
 
-      logInfo("[RemoveSNOMEDSubsetMembers] " + atomSubsetMembers.size()
-          + " Atom Subset Members identified");
+      logInfo("[RemoveSNOMEDSubsets] " + atomSubsets.size()
+          + " Atom Subsets identified");
+      logInfo("[RemoveSNOMEDSubsets] " + totalSubsetMembersSize
+      + " Atom Subset Members identified");
 
-      for (final AtomSubsetMemberJpa member : atomSubsetMembers) {
-        
+      for (final AtomSubsetJpa subset : atomSubsets) {
+        logInfo("[RemoveSNOMEDSubsets] " + subset.getMembers().size()
+            + " Before removal atom Subset Members  identified on: "
+            + subset.getTerminologyId() + " " + subset.getId());
+        for (final AtomSubsetMember member : subset.getMembers()) {
           for (final Attribute att : member.getAttributes()) {
             removeAttribute(att.getId());
           }
@@ -2182,12 +2189,23 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           removeSubsetMember(member.getId(), AtomSubsetMemberJpa.class);
 
           updateProgress();
+        }
+        subset.clearMembers();
+        updateSubset(subset);
+        removeSubset(subset.getId(), AtomSubsetJpa.class);
+        logInfo("[RemoveSNOMEDSubsets] " + subset.getMembers().size()
+            + " After removal atom Subset Members  identified on: "
+            + subset.getTerminologyId() + " " + subset.getId());
       }
     } catch (Exception e) {
       e.printStackTrace();
       fail("Unexpected exception thrown - please review stack trace.");
     } finally {
     }
+
+    logInfo(
+        "Removed " + totalSubsetMembersSize + " atom subset members.");
+    logInfo("Finished " + getName());
 
     logInfo("Finished " + getName());
   }
