@@ -54,6 +54,8 @@ import com.wci.umls.server.jpa.algo.action.RemoveSemanticTypeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
+import com.wci.umls.server.jpa.content.AtomSubsetJpa;
+import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.ComponentHistoryJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
@@ -70,6 +72,7 @@ import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
+import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHistory;
@@ -168,6 +171,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       removeBadRelationships();
     } else if (actionName.equals("Remove SNOMED Subsets")) {
       removeSNOMEDSubsets();
+    } else if (actionName.equals("Remove SNOMED Atom Subsets")) {
+      removeSNOMEDAtomSubsets();
     } else if (actionName.equals("Remove Concepts without Atoms")) {
       removeConceptsWithoutAtoms();
     } else if (actionName.equals("Remove Orphaned Tracking Records")) {
@@ -2093,7 +2098,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     int updatedRelationships = 0;
 
     final List<ConceptSubsetJpa> conceptSubsets = new ArrayList<>();
-
+    final List<AtomSubsetJpa> atomSubsets = new ArrayList<>();
     try {
       Query query = getEntityManager().createNativeQuery(
           "select id from concept_subsets where terminology=:terminology and version=:version");
@@ -2140,6 +2145,76 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     logInfo(
         "Updated " + updatedRelationships + " component info relationships.");
+    logInfo("Finished " + getName());
+  }
+  
+  private void removeSNOMEDAtomSubsets() throws Exception {
+
+    logInfo(" Remove SNOMED Atom Subsets");
+
+    int totalSubsetMembersSize = 0;
+    final List<AtomSubsetJpa> atomSubsets = new ArrayList<>();
+    try {
+      Query query = getEntityManager().createNativeQuery(
+          "select id from atom_subsets where terminology=:terminology and version=:version");
+      query.setParameter("terminology", "SNOMEDCT_US");
+      query.setParameter("version", "2019_03_01");
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        AtomSubsetJpa atomSubset = 
+            (AtomSubsetJpa) getSubset(id, AtomSubsetJpa.class);
+        atomSubsets.add(atomSubset);
+        totalSubsetMembersSize += atomSubset.getMembers().size();
+      }
+
+      setSteps(totalSubsetMembersSize);
+
+      logInfo("[RemoveSNOMEDSubsets] " + atomSubsets.size()
+          + " Atom Subsets identified");
+      logInfo("[RemoveSNOMEDSubsets] " + totalSubsetMembersSize
+      + " Atom Subset Members identified");
+
+      // handle lazy init error
+      for (final AtomSubsetJpa subset : atomSubsets) {
+        for (final AtomSubsetMember member : subset.getMembers()) {
+            member.getAttributes().size();
+        }
+      }
+      
+      
+      for (final AtomSubsetJpa subset : atomSubsets) {
+        logInfo("[RemoveSNOMEDSubsets] " + subset.getMembers().size()
+            + " Before removal atom Subset Members  identified on: "
+            + subset.getTerminologyId() + " " + subset.getId());
+        for (final AtomSubsetMember member : subset.getMembers()) {
+          for (final Attribute att : member.getAttributes()) {
+            removeAttribute(att.getId());
+          }
+          member.setAttributes(null);
+          updateSubsetMember(member);
+          removeSubsetMember(member.getId(), AtomSubsetMemberJpa.class);
+
+          updateProgress();
+        }
+        subset.clearMembers();
+        updateSubset(subset);
+        removeSubset(subset.getId(), AtomSubsetJpa.class);
+        logInfo("[RemoveSNOMEDSubsets] " + subset.getMembers().size()
+            + " After removal atom Subset Members  identified on: "
+            + subset.getTerminologyId() + " " + subset.getId());
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+    }
+
+    logInfo(
+        "Removed " + totalSubsetMembersSize + " atom subset members.");
+    logInfo("Finished " + getName());
+
     logInfo("Finished " + getName());
   }
 
@@ -3026,7 +3101,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "e.g. Fix Orphan Definitions", 200, AlgorithmParameter.Type.ENUM, "");
     param.setPossibleValues(
         Arrays.asList("Fix Orphan Definitions", "Undo Stampings",
-            "Remove Bad Relationships", "Remove SNOMED Subsets", "Remove Orphaned Tracking Records",
+            "Remove Bad Relationships", "Remove SNOMED Subsets", "Remove SNOMED Atom Subsets", "Remove Orphaned Tracking Records",
             "Inactivate Old SRC atoms and AtomRels", "Fix SRC_ATOM_IDs",
             "Redo Molecular Actions", "Fix Bad Relationship Identities",
             "Fix Component Info Relationships", "Remove Concepts without Atoms",
