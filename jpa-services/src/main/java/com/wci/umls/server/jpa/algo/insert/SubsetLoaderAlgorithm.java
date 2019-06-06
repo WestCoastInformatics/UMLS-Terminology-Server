@@ -461,7 +461,7 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     newAttribute.setName(fields[3]);
     newAttribute.setValue(fields[4]);
     newAttribute.setTerminology(referencedTerminology.getTerminology());
-    newAttribute.setTerminologyId("");
+    newAttribute.setTerminologyId(fields[12]);
 
     // Compute attribute identity
     final String subsetAtui =
