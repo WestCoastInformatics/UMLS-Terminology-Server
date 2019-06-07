@@ -5,6 +5,7 @@ package com.wci.umls.server.jpa.algo;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -87,29 +88,46 @@ public class Rf2SnapshotLoaderAlgorithm
   /** The isa type rel. */
   private final static String isaTypeRel = "116680003";
 
-  /** The root concept id. */
-  private final static String rootConceptId = "138875005";
+  /** The root concept id.
+   * SNOMED CT Concept = 138875005
+   * SOLOR Concept = 250562609450990
+   */
+  private final static String rootConceptId = "250562609450990"; //"138875005";
 
-  /** The Constant coreModuleId. */
-  private final static String coreModuleId = "900000000000207008";
-
-  /** The Constant metadataModuleId. */
-  private final static String metadataModuleId = "900000000000012004";
+  /** The Constant coreModuleId.
+   * SNOMED CT core module =  900000000000207008
+   */
+  private static final String coreModuleId = "900000000000207008";
+  
+  /** The Constant metadataModuleId.
+   * SNOMED CT model component module = 900000000000012004
+   * */
+  private static final String metadataModuleId = "107461206347994";
 
   /** The dpn ref set id. */
   private Set<String> dpnRefSetIds = new HashSet<>();
-
   {
-    // US English Language
+    // SNOMED US English Language
     dpnRefSetIds.add("900000000000509007");
-    // VET extension
+    // SNOMED VET extension
     dpnRefSetIds.add("332501000009101");
+    // English language (SOLOR)
+    dpnRefSetIds.add("11768452399991");    
   }
 
-  /** The dpn acceptability id. */
-  private String dpnAcceptabilityId = "900000000000548007";
+  /** The dpn acceptability id. 
+   * SNOMED Preferred is 900000000000548007
+   * */
+  private final String dpnAcceptabilitySnomedId = "900000000000548007";
+  
+  /** The dpn acceptability id. 
+   * LOINC Preferred is 900000000000549004 when loading for SOLOR
+   * */
+  private final String dpnAcceptabilityLoincId = "900000000000548007";
 
-  /** The dpn type id. */
+  /** The dpn type id.
+   * SNOMED Synonym is 900000000000013009
+   */
   private String dpnTypeId = "900000000000013009";
 
   /** The preferred atoms set. */
@@ -804,6 +822,9 @@ public class Rf2SnapshotLoaderAlgorithm
 
     // Connect concepts and atoms and compute preferred names
     logInfo("  Connect atoms and concepts");
+    
+    logInfo("  Preferred Atoms count: " + prefAtoms.size());
+    
     objectCt = 0;
     // NOTE: Hibernate-specific to support iterating
     final Query query = getEntityManager()
@@ -907,7 +928,7 @@ public class Rf2SnapshotLoaderAlgorithm
     while ((line = reader.readLine()) != null) {
 
       final String fields[] = FieldedStringTokenizer.split(line, "\t");
-
+      
       if (!fields[0].equals(id)) { // header
 
         // Stop if the effective time is past the release getVersion()
@@ -931,7 +952,11 @@ public class Rf2SnapshotLoaderAlgorithm
         addSubsetMember(member);
 
         // Save preferred atom id info
-        if (!member.isObsolete() && dpnAcceptabilityId.equals(fields[6])
+        if (!member.isObsolete() && dpnAcceptabilitySnomedId.equals(fields[6])
+            && dpnRefSetIds.contains(fields[4])) {
+          prefAtoms.add(member.getMember().getTerminologyId());
+        }
+        else if (!member.isObsolete() && dpnAcceptabilityLoincId.equals(fields[6])
             && dpnRefSetIds.contains(fields[4])) {
           prefAtoms.add(member.getMember().getTerminologyId());
         }
