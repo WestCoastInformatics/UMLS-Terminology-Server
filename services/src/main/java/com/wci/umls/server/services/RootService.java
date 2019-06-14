@@ -27,7 +27,7 @@ import com.wci.umls.server.services.handlers.ValidationCheck;
 /**
  * Represents a service.
  */
-public interface RootService extends Transactionable {
+public interface RootService extends Transactionable, AutoCloseable {
 
   /** The logging object ct threshold. */
   public final static int logCt = 5000;
@@ -48,6 +48,13 @@ public interface RootService extends Transactionable {
    * @throws Exception the exception
    */
   public void closeFactory() throws Exception;
+  
+  /**
+   * Closes the manager.
+   *
+   * @throws Exception the exception
+   */
+  public void close() throws Exception;
 
   /**
    * Refresh any cached data or handlers (e.g. reload handlers from the config).
