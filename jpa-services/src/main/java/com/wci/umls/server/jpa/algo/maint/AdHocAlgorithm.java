@@ -2587,7 +2587,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     logInfo(" Remove old relationships");
 
-    Query query = getEntityManager().createQuery("select cr.id from " +
+    Query query = getEntityManager().createNativeQuery("select cr.id from " +
         " concept_relationships cr, concepts c1, concepts c2 " +
         " where cr.from_id = c1.id " +
         " and cr.to_id = c2.id " + 
