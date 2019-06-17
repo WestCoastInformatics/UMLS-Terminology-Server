@@ -2596,7 +2596,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         " and cr.terminology != '2019AA' " +
         " and c1.terminology = 'NCIMTH' " +
         " and c2.terminology = 'NCIMTH' " +
-        " GROUP BY cui1, cui2 HAVING COUNT(*) > 1");
+        " GROUP BY c1.terminologyId, c2.terminologyId HAVING COUNT(*) > 1");
 
     logInfo("[RemoveOldRelationships] Loading "
         + "ConceptRelationship ids for old relationships that now have duplicates caused by the MTH 2018AB insertion");
