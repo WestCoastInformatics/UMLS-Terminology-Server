@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.Filter;
@@ -19,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -30,12 +30,14 @@ public class UserActivityLoggingFilter implements Filter {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final Logger activityLog = LoggerFactory.getLogger("USER_ACTIVITY_LOGGER");
+	private static final String[] webContent = {".js",".css",".html",".jpg",".png"};
+
 
 	/**
 	 * Default constructor.
 	 */
 	public UserActivityLoggingFilter() {
-		// TODO Auto-generated constructor stub
+		// default constructor
 	}
 
 	/**
@@ -43,7 +45,7 @@ public class UserActivityLoggingFilter implements Filter {
 	 */
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub
+		// not used
 	}
 
 	/**
@@ -56,16 +58,15 @@ public class UserActivityLoggingFilter implements Filter {
 		// log all requests
 
 		HttpServletRequest sr = (HttpServletRequest) request;
+		log.debug("URI: {}", sr.getRequestURI());
 
-		// exclude web content
-		if (!sr.getRequestURI().contains(".js") && !sr.getRequestURI().contains(".css")
-				&& !sr.getRequestURI().contains(".html") && !sr.getRequestURI().contains(".jpg")
-				&& !sr.getRequestURI().contains(".png")) {
-
+		if (Arrays.stream(webContent).parallel().noneMatch(sr.getRequestURI()::contains))
+		{
 			StringBuilder logString = new StringBuilder();
 
 			logString.append("[HOST: ").append(sr.getRemoteAddr()).append("]");
 			logString.append(" [AUTH: ").append(sr.getHeader("authorization")).append("]");
+			logString.append("[USER_AGENT: ").append(sr.getHeader("user-agent")).append("]");
 
 			// don't fail if can't parse cookie, just log and continue.
 			try {
@@ -79,9 +80,11 @@ public class UserActivityLoggingFilter implements Filter {
 
 			logString.append(" [PATH: ").append(sr.getRequestURI()).append("]");
 
-			activityLog.info(logString.toString());
+			activityLog.info("{}", logString);
 		}
 
+		sr.setAttribute("isApiCall", isApiCall(sr.getHeader("user-agent")));
+		
 		// pass the request along the filter chain
 		chain.doFilter(request, response);
 	}
@@ -91,7 +94,7 @@ public class UserActivityLoggingFilter implements Filter {
 	 */
 	@Override
 	public void init(FilterConfig fConfig) throws ServletException {
-		// TODO Auto-generated method stub
+		// not used
 	}
 
 	/**
@@ -122,10 +125,9 @@ public class UserActivityLoggingFilter implements Filter {
 	 * @param key
 	 *            String Name of the property to retrieve
 	 * @return value of the key
-	 * @throws JsonProcessingException
 	 * @throws IOException
 	 */
-	private String getValueFromJson(String jsonString, String key) throws JsonProcessingException, IOException {
+	private String getValueFromJson(String jsonString, String key) throws IOException {
 
 		if (jsonString == null || key == null) {
 			return null;
@@ -144,6 +146,14 @@ public class UserActivityLoggingFilter implements Filter {
 			}
 		}
 		return null;
+	}
+	
+	
+	protected boolean isApiCall(String browserDetails) {
+
+		final String[] browserCodes = {"msie", "safari", "opr", "opera", "chrome", "mozilla", "firefox", "rv" };
+		
+		return (Arrays.stream(browserCodes).parallel().noneMatch(browserDetails.toLowerCase()::contains));
 	}
 
 }

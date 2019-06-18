@@ -152,5 +152,14 @@ public interface SecurityServiceRest {
    */
   public UserList findUsers(String query, PfsParameterJpa pfs,
     String authToken) throws Exception;
-
+  
+  /**
+   * Confirm user's email address
+   * @param userToken the user token
+   * @return empty string
+   * @throws Exception the exception
+   *  
+   */
+  public String confirmUserEmail(String userToken) throws Exception;
+  
 }

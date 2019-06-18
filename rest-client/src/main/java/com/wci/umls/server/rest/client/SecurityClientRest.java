@@ -409,6 +409,13 @@ public class SecurityClientRest extends RootClientRest implements
     return list;
 
   }
+  
+	/* see superclass */
+	@Override
+	public String confirmUserEmail(String token) throws Exception {
 
-
+		// not implemented
+		
+		return "";
+	}
 }

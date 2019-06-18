@@ -3,8 +3,18 @@
  */
 package com.wci.umls.server.rest.impl;
 
+
+import java.util.Arrays;
+import java.util.Properties;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
@@ -36,44 +46,84 @@ public class RootServiceRestImpl {
   public RootServiceRestImpl() {
     // do nothing
   }
+  
+  private static Logger LOG = LoggerFactory.getLogger(RootServiceRestImpl.class);
+	
+	@Context
+  protected HttpServletRequest servletRequest;
 
   /**
    * Handle exception.
    *
-   * @param e the e
+   * @param e the Exception
    * @param whatIsHappening the what is happening
-   */
-  @SuppressWarnings("static-method")
-  public void handleException(Exception e, String whatIsHappening) {
-    try {
-      ExceptionHandler.handleException(e, whatIsHappening, "");
-    } catch (Exception e1) {
-      // do nothing
-    }
+	 */
+	@SuppressWarnings("static-method")
+	public void handleException(Exception e, String whatIsHappening) {
+		try {
+			ExceptionHandler.handleException(e, whatIsHappening, "");
+		} catch (Exception e1) {
+			// do nothing
+		}
 
-    // Ensure message has quotes.
-    // When migrating from jersey 1 to jersey 2, messages no longer
-    // had quotes around them when returned to client and angular
-    // could not parse them as json.
-    String message = e.getMessage();
-    if (message != null && !message.startsWith("\"")) {
-      message = "\"" + message + "\"";
-    }
-    // throw the local exception as a web application exception
-    if (e instanceof LocalException) {
-      throw new WebApplicationException(Response.status(500).entity(message).build());
-    }
+		// Ensure message has quotes.
+		// When migrating from jersey 1 to jersey 2, messages no longer
+		// had quotes around them when returned to client and angular
+		// could not parse them as json.
+		String message = addQuotes(e.getMessage());
+		
+		// throw the local exception as a web application exception
+		if (e instanceof LocalException) {
+			throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(message).build());
+		}
 
-    // throw the web application exception as-is, e.g. for 401 errors
-    if (e instanceof WebApplicationException) {
-      throw new WebApplicationException(message, e);
-    }
-    throw new WebApplicationException(Response.status(500)
-        .entity("\"Unexpected error " + whatIsHappening + ". Please contact the administrator.\"")
-        .build());
+		// throw the web application exception as-is, e.g. for 401 errors
+		if (e instanceof WebApplicationException) {
+			if (((WebApplicationException) e).getResponse().getEntity() instanceof String)
+			{
+				message = addQuotes(((WebApplicationException) e).getResponse().getEntity().toString());
+			}
+			// Rebuilding the Exception to ensure the Response status remains the same and setting message for the UI to parse.
+			// Throwing a new WebApplicationException was causing the a 500 error in the UI. (throw new WebApplicationException(e)) 
+			// Re-thrwwing the same error caused the message to drop. (WebApplicationException)e
+			throw new WebApplicationException(Response.status(((WebApplicationException) e).getResponse().getStatusInfo()).entity(message).build());
+		}
+		throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+				.entity("\"Unexpected error " + whatIsHappening + ". Please contact the administrator.\"").build());
 
-  }
+	}
 
+  /**
+   * Authorize the users application role.
+   *
+   * @param securityService the security service
+   * @param authToken the auth token
+   * @param perform the perform
+   * @param authRole the auth role
+	 * @param addApiUsage indicate if to increment the user's API count usage.
+	 * @return the string
+	 * @throws Exception the exception
+	 */
+	public String authorizeApp(SecurityService securityService, String authToken, String perform,
+			UserRole authRole, boolean addApiUsage) throws Exception {
+		// authorize call
+		UserRole role = securityService.getApplicationRoleForToken(authToken);
+		UserRole cmpRole = authRole;
+		if (cmpRole == null) {
+			cmpRole = UserRole.VIEWER;
+		}
+		if (!role.hasPrivilegesOf(cmpRole))
+			throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
+					.entity("User does not have permissions to " + perform + ".").build());
+
+		final String username = securityService.getUsernameForToken(authToken);
+		if (addApiUsage) {
+			requiresRegistrationNotification(securityService, username);
+		}
+		
+		return username;
+	}
+	
   /**
    * Authorize the users application role.
    *
@@ -257,5 +307,66 @@ public class RootServiceRestImpl {
         .sortAtoms(obj.getAtoms(), list));
     return list;
   }
+  
+	private String addQuotes(String string) {
+		if (string != null) {
+			if (!string.startsWith("\""))
+				string = "\"" + string;
 
+			if (!string.endsWith("\""))
+				string = string + "\"";
+		}
+		return string;
+	}
+	
+	/**
+	 * 
+	 * @param securityService
+	 * @param username
+	 * @return
+	 * @throws Exception
+	 */
+	private boolean requiresRegistrationNotification(SecurityService securityService, String username)
+			throws Exception {
+
+		boolean reachedWarning = false;
+		final Properties config = ConfigUtility.getConfigProperties();
+		if (config.containsKey("api.limit.warning.intervals")) {
+			final long[] apiWarningLimits = Arrays.stream(config.getProperty("api.limit.warning.intervals").split(","))
+					.mapToLong(Long::valueOf).toArray();
+
+			final User user = securityService.getUser(username);
+
+			final Boolean isApiCall = (Boolean) servletRequest.getAttribute("isApiCall");
+
+			if ((UserRole.USER.equals(user.getApplicationRole()) || UserRole.VIEWER.equals(user.getApplicationRole()))
+					&& isApiCall) {
+
+				final Long apiCount = user.getApiUsageCount();
+				user.setApiUsageCount((apiCount == null) ? 1 : apiCount + 1);
+				securityService.updateUser(user);
+
+				// warning if no email or email is example or email is not verified
+				// and api count hits one of the limits
+				if (!user.getEmailVerified() || user.getEmail().contains("example") || StringUtils.isBlank(user.getEmail())
+						|| StringUtils.isEmpty(user.getEmail())) {
+					if (Arrays.stream(apiWarningLimits).noneMatch(l -> l == user.getApiUsageCount())) {
+						// nothing
+					} else if (apiCount > Arrays.stream(apiWarningLimits).max().orElse(10 ^ 10)) {
+						String message = "Error: Max API calls reached. Please register your account on web site to continue using the application.";
+						throw new WebApplicationException(
+								Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(message).build());
+					} else {
+						reachedWarning = true;
+					}
+				}
+
+				if (reachedWarning) {
+					String message = "Warning: Please register your account on web site to continue using the application.";
+					throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED).entity(message).build());
+				}
+			}
+		}
+		return reachedWarning;
+	}
 }

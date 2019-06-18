@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -82,6 +83,10 @@ public class UserJpa implements User {
   /** The editor level. */
   @Column(nullable = false)
   private int editorLevel = 0;
+  
+  /** The last login */
+  @Column(nullable = true)
+  private Date lastLogin = null;
 
   /** The application role. */
   @Enumerated(EnumType.STRING)
@@ -91,6 +96,21 @@ public class UserJpa implements User {
   /** The auth token. */
   @Transient
   private String authToken;
+  
+  /** Api usage counter */
+  @Column(nullable = true)
+  private Long apiUsageCount = 0L;
+  
+  /** User login counter */
+  @Column(nullable = true)
+  private Long loginCount = 0L;
+  
+  @Column(nullable = true)
+  private Boolean emailVerified = false;
+  
+  /** The user token. */
+  @Column(nullable = true)
+  private String userToken = null;
 
   /** The user preferences. */
   @OneToOne(mappedBy = "user", targetEntity = UserPreferencesJpa.class, optional = true)
@@ -124,9 +144,14 @@ public class UserJpa implements User {
     team = user.getTeam();
     email = user.getEmail();
     editorLevel = user.getEditorLevel();
+    lastLogin = user.getLastLogin();
     applicationRole = user.getApplicationRole();
     authToken = user.getAuthToken();
     userPreferences = user.getUserPreferences();
+    apiUsageCount = user.getApiUsageCount();
+    loginCount = user.getLoginCount();
+    emailVerified = user.getEmailVerified();
+    userToken = user.getUserToken();
     projectRoleMap = new HashMap<>(user.getProjectRoleMap());
   }
 
@@ -209,6 +234,20 @@ public class UserJpa implements User {
   public void setEditorLevel(int editorLevel) {
     this.editorLevel = editorLevel;
   }
+  
+  /* see superclass */
+  @Override
+  public Date getLastLogin() {
+    return lastLogin;
+  }
+  
+  /* see superclass */
+  @Override 
+  public void setLastLogin(Date lastLogin) {
+	  this.lastLogin = lastLogin;
+  }
+  
+  
 
   /* see superclass */
   @Override
@@ -248,6 +287,11 @@ public class UserJpa implements User {
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((team == null) ? 0 : team.hashCode());
     result = prime * result + ((userName == null) ? 0 : userName.hashCode());
+    result = prime * result + ((lastLogin == null) ? 0 : lastLogin.hashCode());
+    result = prime * result + ((apiUsageCount == null) ? 0 : apiUsageCount.hashCode());
+    result = prime * result + ((loginCount == null) ? 0 : loginCount.hashCode());
+    result = prime * result + ((emailVerified == null) ? 0 : emailVerified.hashCode());
+    result = prime * result + ((userToken == null) ? 0 : userToken.hashCode());
     return result;
   }
 
@@ -290,6 +334,32 @@ public class UserJpa implements User {
         return false;
     } else if (!userName.equals(other.userName))
       return false;
+    if (lastLogin == null) {
+        if (other.lastLogin != null)
+          return false;
+      } else if (!lastLogin.equals(other.lastLogin))
+        return false;
+    if (apiUsageCount == null) {
+      if (other.apiUsageCount != null)
+        return false;
+    } else if (!apiUsageCount.equals(other.apiUsageCount))
+      return false;
+    if (loginCount == null) {
+      if (other.loginCount != null)
+        return false;
+    } else if (!loginCount.equals(other.loginCount))
+      return false;
+    if (emailVerified == null) {
+      if (other.emailVerified != null)
+        return false;
+    } else if (!emailVerified.equals(other.emailVerified))
+      return false;
+    if (userToken == null) {
+      if (other.userToken != null)
+        return false;
+    } else if (!userToken.equals(other.userToken))
+      return false;
+    
     return true;
   }
 
@@ -307,13 +377,13 @@ public class UserJpa implements User {
   }
 
   /* see superclass */
-  @Override
-  public String toString() {
-    return "UserJpa [id=" + id + ", userName=" + userName + ", name=" + name
-        + ", team=" + team + ", email=" + email + ", applicationRole="
-        + applicationRole + ", authToken=" + authToken + ", editorLevel="
-        + editorLevel + "]";
-  }
+	@Override
+	public String toString() {
+		return "UserJpa [id=" + id + ", userName=" + userName + ", name=" + name + ", team=" + team + ", email=" + email
+				+ ", applicationRole=" + applicationRole + ", authToken=" + authToken + ", editorLevel=" + editorLevel
+				+ ", lastLogin=" + lastLogin + ", apiUsageCount=" + apiUsageCount + ", loginCount=" + loginCount
+				+ ", emailVerified=" + emailVerified + ", userToken=" + userToken + "]";
+	}
 
   /*
    * <pre> This supports searching both for a particular role on a particular
@@ -343,4 +413,51 @@ public class UserJpa implements User {
     this.projectRoleMap = projectRoleMap;
   }
 
+  /* see superclass */
+	@Override
+	public Long getApiUsageCount() {
+		return this.apiUsageCount;
+	}
+
+	/* see superclass */
+	@Override
+	public void setApiUsageCount(Long apiUsageCount) {
+		this.apiUsageCount = apiUsageCount;
+	}
+	
+	/* see superclass */
+	@Override
+	public Long getLoginCount() {
+		return this.loginCount;
+	}
+
+	/* see superclass */
+	@Override
+	public void setLoginCount(Long loginCount) {
+		this.loginCount = loginCount;
+	}
+	
+	/* see superclass */
+	@Override
+	public Boolean getEmailVerified() {
+		return this.emailVerified;
+	}
+
+	/* see superclass */
+	@Override
+	public void setEmailVerified(Boolean emailVerified) {
+		this.emailVerified = emailVerified;
+	}
+	
+	/* see superclass */
+	@Override
+	public String getUserToken() {
+		return this.userToken;
+	}
+
+	/* see superclass */
+	@Override
+	public void setUserToken(String userToken) {
+		this.userToken = userToken;
+	}
 }

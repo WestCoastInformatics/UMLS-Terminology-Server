@@ -9,8 +9,9 @@ tsApp.controller('LoginCtrl', [
   'configureService',
   'tabService',
   'appConfig',
+  '$uibModal',
   function($rootScope, $scope, $http, $location, securityService, utilService, configureService,
-    tabService, appConfig) {
+    tabService, appConfig, $uibModal) {
     console.debug('configure LoginCtrl');
 
     // disable tabs in login view
@@ -30,36 +31,41 @@ tsApp.controller('LoginCtrl', [
       }
 
       securityService.authenticate(name, password).then(
-      // success
-      function(data) {
-        utilService.clearError();
-
-        securityService.setUser(data);
-
-        // set request header authorization and reroute
-        $http.defaults.headers.common.Authorization = data.authToken;
-
-        // if license required, go to license page
-        if (appConfig['deploy.license.enabled'] === 'true') {
-          $location.path('/license');
+        // success
+        function(data) {
+          utilService.clearError();
+          securityService.setUser(data);
+          // set request header authorization and reroute
+          $http.defaults.headers.common.Authorization = data.authToken;
+          
+          // show registration popup
+          var requiresReg = securityService.requiresRegistration(data);
+          if (requiresReg !== "") {
+          	$uibModal.open({
+              templateUrl: 'app/util/register/registerModal.html',
+              backdrop : (requiresReg === "WARN") ? 'none' : 'static',
+              controller : 'RegisterModalCtrl',
+              bindToController : true,
+            });
+          }
+          
+          // if license required, go to license page
+          if (appConfig['deploy.license.enabled'] === 'true') {
+            $location.path('/license');
+          }
+          // otherwise
+          else {
+            // Route the user to starting tab
+            tabService.routeAuthorizedUser(data.userPreferences);
+          }
+        },
+        // error
+        function(data) {
+          utilService.handleError({
+            data : data
+          });
         }
-
-        // otherwise
-        else {
-
-          // Route the user to starting tab
-          tabService.routeAuthorizedUser(data.userPreferences);
-
-        }
-
-      },
-
-      // error
-      function(data) {
-        utilService.handleError({
-          data : data
-        });
-      });
+      );
     };
 
     // Logout function

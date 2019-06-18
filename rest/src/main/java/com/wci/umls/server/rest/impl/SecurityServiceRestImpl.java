@@ -3,6 +3,9 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import java.util.Date;
+import java.util.UUID;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -31,6 +34,7 @@ import com.wci.umls.server.jpa.helpers.UserListJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
 import com.wci.umls.server.services.SecurityService;
+import com.wci.umls.server.services.handlers.UserRegistrationHandler;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -78,6 +82,11 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl
         throw new LocalException("Unable to authenticate user");
       
       activityLog.info("[USER:{}] [AUTH:{}]", user.getUserName(), user.getAuthToken());
+      final long loginCount = (user.getLoginCount() != null ) ? user.getLoginCount() : 0;
+      user.setLoginCount(loginCount + 1);
+      user.setLastLogin(new Date());
+      securityService.updateUser(user);
+      
       return user;
     } catch (Exception e) {
       handleException(e, "trying to authenticate a user");
@@ -265,17 +274,42 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "User, e.g. update", required = true) UserJpa user,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    log.info("RESTful call (Security): /user/update " + user);
     
-    SecurityService securityService = new SecurityServiceJpa();
-    try {
-      authorizeApp(securityService, authToken, "update concept",
-          UserRole.ADMINISTRATOR);
+  	log.info("RESTful call (Security): /user/update {}", user);
+    
+    try (SecurityService securityService = new SecurityServiceJpa();) {
+
+    	final User oldUser = securityService.getUser(user.getId());
+    	final String authUserName = securityService.getUsernameForToken(authToken);
+
+    	// administrators can update other user records, others may only update their own
+			if (authUserName != null && user.getUserName().equals(authUserName)) {
+				switch (oldUser.getApplicationRole()) {
+				case USER:
+					authorizeApp(securityService, authToken, "update user", UserRole.USER);
+					break;
+				case VIEWER:
+					authorizeApp(securityService, authToken, "update user", UserRole.VIEWER);
+					break;
+				case AUTHOR:
+					authorizeApp(securityService, authToken, "update user", UserRole.AUTHOR);
+					break;
+				default:
+				}
+			} else {
+				authorizeApp(securityService, authToken, "update user", UserRole.ADMINISTRATOR);
+			}
+    	
+    	//if change in email, send email to verify email address.
+    	if (user.getEmail() != null && !user.getEmail().equals(oldUser.getEmail()))
+    	{
+    		user.setUserToken(UUID.randomUUID().toString());
+    		UserRegistrationHandler.sendVerificationEmail(user);
+    	}
+    	
       securityService.updateUser(user);
     } catch (Exception e) {
       handleException(e, "trying to update a concept");
-    } finally {
-      securityService.close();
     }
   }
 
@@ -462,5 +496,35 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl
     } finally {
       securityService.close();
     }
+  }
+  
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/user/confirm/{token}")
+  @ApiOperation(value = "", notes = "Confirm email for user.")
+  public String confirmUserEmail(
+  		@ApiParam(value = "", required = true) @PathParam("token")  String token)    
+    throws Exception {
+  	
+    log.info("RESTful call (Security): /user/confirm/{}", token);
+        
+    try(SecurityService securityService = new SecurityServiceJpa();)
+    {
+    	final User user = securityService.getUserForUserToken(token);
+    	securityService.handleLazyInit(user);
+    	if (user != null) {
+    		user.setEmailVerified(true);
+    		securityService.updateUser(user);
+    		UserRegistrationHandler.sendRegistrationCompleteEmail(user);
+    	}
+    	else {
+    		log.error("Token is not valid for user.  Token: {}", token);
+    		throw new Exception(
+            "Token is not valid for user.");
+    		
+    	}
+    }
+    return "";
   }
 }

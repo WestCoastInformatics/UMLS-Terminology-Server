@@ -17,6 +17,8 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.AbstractConfigurable;
 import com.wci.umls.server.jpa.UserJpa;
+import com.wci.umls.server.jpa.services.SecurityServiceJpa;
+import com.wci.umls.server.services.SecurityService;
 import com.wci.umls.server.services.handlers.SecurityServiceHandler;
 
 /**
@@ -83,18 +85,29 @@ public class UtsSecurityServiceHandler extends AbstractConfigurable
      * Add a new user if there isn't one matching the username If there is, load
      * and update that user and save the changes
      */
-    String authUserName = username;
-    String authEmail = "test@example.com";
-    String authGivenName = "UTS User - " + username;
-    String authSurname = "";
+    User returnUser;
+    try( SecurityService securityService = new SecurityServiceJpa();)
+    {
+    	returnUser = securityService.getUser(username);
+    }
 
-    User returnUser = new UserJpa();
-    returnUser.setName(authGivenName + " " + authSurname);
-    returnUser.setEmail(authEmail);
-    returnUser.setUserName(authUserName);
-    returnUser.setApplicationRole(UserRole.VIEWER);
+    if (returnUser == null)
+    {
+    	returnUser = new UserJpa();
+      final String authUserName = username;
+      final String authEmail = "test@example.com";
+      final String authGivenName = "UTS User - " + username;
+      final String authSurname = "";
+            
+    	returnUser.setName(authGivenName + " " + authSurname);
+    	returnUser.setEmail(authEmail);
+    	returnUser.setUserName(authUserName);
+    	returnUser.setApiUsageCount(0l);
+    	returnUser.setUserToken(null);
+    	returnUser.setLoginCount(null);
+    	returnUser.setApplicationRole(UserRole.VIEWER);
+    }
     return returnUser;
-
   }
 
   /* see superclass */

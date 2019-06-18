@@ -19,7 +19,9 @@ tsApp.service('securityService', [
       authToken : null,
       applicationRole : null,
       userPreferences : null,
-      editorLevel : null
+      editorLevel : null,
+      loginCount : null,
+      emailVerified : null
     };
 
     // Search results
@@ -155,6 +157,9 @@ tsApp.service('securityService', [
       user.applicationRole = data.applicationRole;
       user.userPreferences = data.userPreferences;
       user.editorLevel = data.editorLevel;
+      user.loginCount = data.loginCount,
+      user.emailVerified = data.emailVerified;
+      
       $http.defaults.headers.common.Authorization = data.authToken;
 
       // Whenever set user is called, we should save a cookie
@@ -656,6 +661,22 @@ tsApp.service('securityService', [
         });
       }
       return deferred.promise;
+    };
+    
+    this.requiresRegistration = function() {
+    	var user = this.getUser();
+    	if((appConfig['deploy.registration.required'])
+      		&& (user.email.endsWith("example.com") || user.emailVerified == null)) {
+    		
+    			if (user.loginCount > appConfig['deploy.registration.login.count.force']) {
+    				console.debug("force user to register");
+    				return "LOCK";
+    			} else if (user.loginCount > appConfig['deploy.registration.login.count.warn']) {
+    				console.debug("ask user to register");
+    				return "WARN";
+    			}
+        }
+    		return "";
     };
 
     // Get favorite

@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -22,6 +23,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
@@ -148,6 +150,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
   /** The security service. */
   private SecurityService securityService;
+  
+  /** Servlet context */
+  @Context 
+  private ServletContext context;
 
   /**
    * Instantiates an empty {@link ContentServiceRestImpl}.
@@ -215,7 +221,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     try {
       authorizeApp(securityService, authToken, "create ECL indexes",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
       EclExpressionHandler handler =
           new EclExpressionHandler(terminology, version);
       return handler.getCount(query);
@@ -245,7 +251,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     try {
       authorizeApp(securityService, authToken,
-          "checking query for expression syntax", UserRole.VIEWER);
+          "checking query for expression syntax", UserRole.VIEWER, true);
       EclExpressionHandler handler =
           new EclExpressionHandler(terminology, version);
       return handler.resolve(query);
@@ -1181,10 +1187,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /concept/"
         + terminology + "/" + version + "/" + terminologyId);
+    
     final ContentService contentService = new ContentServiceJpa();
     try {
       String userName = authorizeApp(securityService, authToken,
-          "retrieve the concept", UserRole.VIEWER);
+          "retrieve the concept", UserRole.VIEWER, true);
 
       final Concept concept = contentService.getConcept(terminologyId,
           terminology, version, Branch.ROOT);
@@ -1223,7 +1230,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       final String userName = authorizeApp(securityService, authToken,
-          "retrieve the concept", UserRole.VIEWER);
+          "retrieve the concept", UserRole.VIEWER, true);
       final Concept concept = contentService.getConcept(conceptId);
 
       final Project project =
@@ -1260,7 +1267,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "retrieve the atom",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
       final Atom atom = contentService.getAtom(atomId);
 
       if (atom != null) {
@@ -1296,7 +1303,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "retrieve the mapSet",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       final MapSet mapSet = contentService.getMapSet(terminologyId, terminology,
           version, Branch.ROOT);
@@ -1333,7 +1340,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "retrieve mapsets",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
       final MapSetList list =
           contentService.getMapSets(terminology, version, Branch.ROOT);
       for (int i = 0; i < list.size(); i++) {
@@ -1374,7 +1381,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find concepts by query",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       // Empty queries return all results
       final SearchResultList sr = contentService.findConceptSearchResults(
@@ -1416,7 +1423,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     try {
       String username = authorizeApp(securityService, authToken,
-          "get concepts by query", UserRole.VIEWER);
+          "get concepts by query", UserRole.VIEWER, true);
 
       // Empty queries return all results
       final ConceptList cl = contentService.findConcepts(terminology, version,
@@ -1466,7 +1473,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find concepts by query",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       final SearchResultList sr = contentService
           .findConceptsForGeneralQuery(queryStr, JPQLStr, Branch.ROOT, pfs);
@@ -1503,7 +1510,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find codes by query",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       final SearchResultList sr = contentService
           .findCodesForGeneralQuery(queryStr, JPQLStr, Branch.ROOT, pfs);
@@ -1535,7 +1542,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find concepts by query",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       return contentService.autocompleteConcepts(terminology, version,
           searchTerm);
@@ -1568,7 +1575,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       String userName = authorizeApp(securityService, authToken,
-          "retrieve the descriptor", UserRole.VIEWER);
+          "retrieve the descriptor", UserRole.VIEWER, true);
 
       final Descriptor descriptor = contentService.getDescriptor(terminologyId,
           terminology, version, Branch.ROOT);
@@ -1609,7 +1616,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken,
-          "retrieve the inverse relationship type", UserRole.VIEWER);
+          "retrieve the inverse relationship type", UserRole.VIEWER, true);
 
       final String inverseRelType = contentService.getInverseRelationshipType(
           terminology, version, relationshipType);
@@ -1649,7 +1656,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find descriptors by query",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       // Empty queries return all results
       final SearchResultList sr = contentService.findDescriptorSearchResults(
@@ -1689,7 +1696,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find concepts by query",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       final SearchResultList sr = contentService
           .findDescriptorsForGeneralQuery(queryStr, JPQLStr, Branch.ROOT, pfs);
@@ -1722,7 +1729,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find descriptors by query",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       return contentService.autocompleteDescriptors(terminology, version,
           searchTerm);
@@ -1755,7 +1762,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       String userName = authorizeApp(securityService, authToken,
-          "retrieve the code", UserRole.VIEWER);
+          "retrieve the code", UserRole.VIEWER, true);
 
       final Code code = contentService.getCode(terminologyId, terminology,
           version, Branch.ROOT);
@@ -1801,7 +1808,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find codes by query",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       // Empty queries returns all results
       final SearchResultList sr = contentService.findCodeSearchResults(
@@ -1834,7 +1841,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find code by query",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
       return contentService.autocompleteCodes(terminology, version, searchTerm);
 
     } catch (Exception e) {
@@ -1865,7 +1872,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       String userName = authorizeApp(securityService, authToken,
-          "retrieve the lexical class", UserRole.VIEWER);
+          "retrieve the lexical class", UserRole.VIEWER, true);
 
       final LexicalClass lexicalClass = contentService
           .getLexicalClass(terminologyId, terminology, version, Branch.ROOT);
@@ -1908,7 +1915,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       String userName = authorizeApp(securityService, authToken,
-          "retrieve the string class", UserRole.VIEWER);
+          "retrieve the string class", UserRole.VIEWER, true);
 
       final StringClass stringClass = contentService
           .getStringClass(terminologyId, terminology, version, Branch.ROOT);
@@ -1954,7 +1961,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find ancestor concepts",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       final ConceptList list = contentService.findAncestorConcepts(
           terminologyId, terminology, version, parentsOnly, Branch.ROOT, pfs);
@@ -1997,7 +2004,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find descendant concepts",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       final ConceptList list = contentService.findDescendantConcepts(
           terminologyId, terminology, version, childrenOnly, Branch.ROOT, pfs);
@@ -2040,7 +2047,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find ancestor descriptors",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       final DescriptorList list = contentService.findAncestorDescriptors(
           terminologyId, terminology, version, parentsOnly, Branch.ROOT, pfs);
@@ -2082,7 +2089,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find descendant descriptors",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       final DescriptorList list = contentService.findDescendantDescriptors(
           terminologyId, terminology, version, childrenOnly, Branch.ROOT, pfs);
@@ -2124,7 +2131,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find ancestor codes",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
       final CodeList list = contentService.findAncestorCodes(terminologyId,
           terminology, version, parentsOnly, Branch.ROOT, pfs);
 
@@ -2165,7 +2172,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find descendant codes",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       final CodeList list = contentService.findDescendantCodes(terminologyId,
           terminology, version, childrenOnly, Branch.ROOT, pfs);
@@ -2203,7 +2210,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken,
-          "retrieve subset members for the concept", UserRole.VIEWER);
+          "retrieve subset members for the concept", UserRole.VIEWER, true);
 
       final SubsetMemberList list = contentService.getConceptSubsetMembers(
           terminologyId, terminology, version, Branch.ROOT);
@@ -2242,7 +2249,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken,
-          "retrieve subset members for the atom", UserRole.VIEWER);
+          "retrieve subset members for the atom", UserRole.VIEWER, true);
 
       final SubsetMemberList list = contentService.getAtomSubsetMembers(
           terminologyId, terminology, version, Branch.ROOT);
@@ -2288,7 +2295,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken,
-          "retrieve relationships for the concept", UserRole.VIEWER);
+          "retrieve relationships for the concept", UserRole.VIEWER, true);
 
       final RelationshipList list =
           contentService.findConceptRelationships(terminologyId, terminology,
@@ -2381,7 +2388,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken,
-          "retrieve deep relationships for the concept", UserRole.VIEWER);
+          "retrieve deep relationships for the concept", UserRole.VIEWER, true);
 
       return contentService.findConceptDeepRelationships(terminologyId,
           terminology, version, Branch.ROOT, query, inverseFlag,
@@ -2420,7 +2427,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken,
-          "retrieve relationships for the descriptor", UserRole.VIEWER);
+          "retrieve relationships for the descriptor", UserRole.VIEWER, true);
 
       final RelationshipList list =
           contentService.findDescriptorRelationships(terminologyId, terminology,
@@ -2467,7 +2474,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken,
-          "retrieve relationships for the code", UserRole.VIEWER);
+          "retrieve relationships for the code", UserRole.VIEWER, true);
 
       final RelationshipList list =
           contentService.findCodeRelationships(terminologyId, terminology,
@@ -2506,7 +2513,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "retrieve atom subsets",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       final SubsetList list =
           contentService.getAtomSubsets(terminology, version, Branch.ROOT);
@@ -2541,7 +2548,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "retrieve concept subsets",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
       final SubsetList list =
           contentService.getConceptSubsets(terminology, version, Branch.ROOT);
       for (int i = 0; i < list.size(); i++) {
@@ -2585,7 +2592,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find atom subset members",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       final SubsetMemberList list = contentService.findAtomSubsetMembers(
           subsetId, terminology, version, Branch.ROOT, queryStr, pfs);
@@ -2627,7 +2634,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find concept subset members",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       final SubsetMemberList list = contentService.findConceptSubsetMembers(
           subsetId, terminology, version, Branch.ROOT, queryStr, pfs);
@@ -2661,7 +2668,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken,
-          "retrieve trees for the concept ", UserRole.VIEWER);
+          "retrieve trees for the concept ", UserRole.VIEWER, true);
 
       final TreePositionList list =
           contentService.findTreePositions(null, null, null, Branch.ROOT,
@@ -2704,7 +2711,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken,
-          "retrieve trees for the concept ", UserRole.VIEWER);
+          "retrieve trees for the concept ", UserRole.VIEWER, true);
 
       final TreePositionList list =
           contentService.findTreePositions(terminologyId, terminology, version,
@@ -2747,7 +2754,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken,
-          "retrieve trees for the descriptor ", UserRole.VIEWER);
+          "retrieve trees for the descriptor ", UserRole.VIEWER, true);
 
       final TreePositionList list =
           contentService.findTreePositions(terminologyId, terminology, version,
@@ -2792,7 +2799,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "retrieve trees for the code",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       final TreePositionList list =
           contentService.findTreePositions(terminologyId, terminology, version,
@@ -2840,7 +2847,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find trees for the concept",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       final TreePositionList list =
           contentService.findTreePositions(null, terminology, version,
@@ -2916,7 +2923,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find trees for the descriptor",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       final TreePositionList list =
           contentService.findTreePositions(null, terminology, version,
@@ -2992,7 +2999,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find trees for the code",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       TreePositionList list =
           contentService.findTreePositions(null, terminology, version,
@@ -3063,7 +3070,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find trees for the code",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       // the TreeList to return
       final TreeList childTrees = new TreeListJpa();
@@ -3110,7 +3117,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find trees for the code",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       // the TreeList to return
       final TreeList childTrees = new TreeListJpa();
@@ -3159,7 +3166,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find trees for the code",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       // the TreeList to return
       final TreeList childTrees = new TreeListJpa();
@@ -3208,7 +3215,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find trees for the descriptor",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       // the TreeList to return
       final TreeList childTrees = new TreeListJpa();
@@ -3254,7 +3261,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find trees for the code",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       // instantiate root tree positions array, used to construct trees
       TreePositionList rootTreePositions = new TreePositionListJpa();
@@ -3340,7 +3347,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find trees for the code",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       // instantiate root tree positions array, used to construct trees
       TreePositionList rootTreePositions = new TreePositionListJpa();
@@ -3431,7 +3438,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find trees for the code",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       // instantiate root tree positions array, used to construct trees
       TreePositionList rootTreePositions = new TreePositionListJpa();
@@ -3525,7 +3532,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find mappings",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       final MapSet mapSet =
           contentService.getMapSet(mapSetId, terminology, version, Branch.ROOT);
@@ -3568,7 +3575,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find mappings",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       final MappingList mappingList = contentService.findConceptMappings(
           terminologyId, terminology, version, Branch.ROOT, query, pfs);
@@ -3609,7 +3616,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find mappings",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       final MappingList mappingList = contentService.findCodeMappings(
           terminologyId, terminology, version, Branch.ROOT, query, pfs);
@@ -3650,7 +3657,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find mappings",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       final MappingList mappingList = contentService.findDescriptorMappings(
           terminologyId, terminology, version, Branch.ROOT, query, pfs);
@@ -3687,7 +3694,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       final String userName = authorizeApp(securityService, authToken,
-          "get user favorites", UserRole.VIEWER);
+          "get user favorites", UserRole.VIEWER, true);
 
       final UserPreferences preferences =
           securityService.getUser(userName).getUserPreferences();
@@ -3783,7 +3790,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       final String userName = authorizeApp(securityService, authToken,
-          "add concept note", UserRole.VIEWER);
+          "add concept note", UserRole.VIEWER, true);
       contentService.setLastModifiedBy(userName);
       final Concept concept = contentService.getConcept(id);
 
@@ -3827,7 +3834,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       final String userName = authorizeApp(securityService, authToken,
-          "add atom note", UserRole.VIEWER);
+          "add atom note", UserRole.VIEWER, true);
       contentService.setLastModifiedBy(userName);
       final Atom atom = contentService.getAtom(id);
 
@@ -3871,7 +3878,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       final String userName = authorizeApp(securityService, authToken,
-          "remove concept note", UserRole.VIEWER);
+          "remove concept note", UserRole.VIEWER, true);
       contentService.setLastModifiedBy(userName);
 
       final ConceptNoteJpa note =
@@ -3907,7 +3914,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       final String userName = authorizeApp(securityService, authToken,
-          "remove atom note", UserRole.VIEWER);
+          "remove atom note", UserRole.VIEWER, true);
       contentService.setLastModifiedBy(userName);
 
       final AtomNoteJpa note =
@@ -3946,7 +3953,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       final String userName = authorizeApp(securityService, authToken,
-          "add code note", UserRole.VIEWER);
+          "add code note", UserRole.VIEWER, true);
       contentService.setLastModifiedBy(userName);
 
       Code code = contentService.getCode(id);
@@ -3990,7 +3997,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       final String userName = authorizeApp(securityService, authToken,
-          "remove code note", UserRole.VIEWER);
+          "remove code note", UserRole.VIEWER, true);
       contentService.setLastModifiedBy(userName);
 
       final CodeNoteJpa note =
@@ -4027,7 +4034,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       final String userName = authorizeApp(securityService, authToken,
-          "add descriptor note", UserRole.VIEWER);
+          "add descriptor note", UserRole.VIEWER, true);
       contentService.setLastModifiedBy(userName);
 
       Descriptor descriptor = contentService.getDescriptor(id);
@@ -4071,7 +4078,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       final String userName = authorizeApp(securityService, authToken,
-          "remove descriptor note", UserRole.VIEWER);
+          "remove descriptor note", UserRole.VIEWER, true);
       contentService.setLastModifiedBy(userName);
 
       final DescriptorNoteJpa note = (DescriptorNoteJpa) contentService
@@ -4109,7 +4116,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken,
-          "get components with notes for query", UserRole.VIEWER);
+          "get components with notes for query", UserRole.VIEWER, true);
 
       final SearchResultList results = new SearchResultListJpa();
 
@@ -4232,7 +4239,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken,
-          "retrieve relationships for the component info", UserRole.VIEWER);
+          "retrieve relationships for the component info", UserRole.VIEWER, true);
 
       final RelationshipList list =
           contentService.findComponentInfoRelationships(terminologyId,
@@ -4453,7 +4460,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken,
-          "retrieve deep tree positionsfor the concept", UserRole.VIEWER);
+          "retrieve deep tree positionsfor the concept", UserRole.VIEWER, true);
 
       final TreePositionList results =
           contentService.findConceptDeepTreePositions(terminologyId,
@@ -4494,7 +4501,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     try {
       authorizeApp(securityService, authToken, "export simple",
-          UserRole.VIEWER);
+          UserRole.VIEWER, true);
 
       final Terminology t = contentService.getTerminology(terminology, version);
       if (t == null) {

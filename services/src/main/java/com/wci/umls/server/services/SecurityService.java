@@ -146,6 +146,15 @@ public interface SecurityService extends RootService {
    * @throws Exception the exception
    */
   public UserList findUsers(String query, PfsParameter pfs) throws Exception;
+  
+  /**
+   * Gets the user for token.
+   *
+   * @param userToken the user token
+   * @return the user for user token
+   * @throws Exception the exception
+   */
+  public User getUserForUserToken(String userToken) throws Exception;
 
 
 }

@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server;
 
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -150,4 +151,78 @@ public interface User {
    * @param editorLevel the editor level
    */
   public void setEditorLevel(int editorLevel);
+  
+  /**
+   * Returns the last time the user logged into the site.
+   * 
+   * @return timestamp of the user's last login
+   */
+  public Date getLastLogin();
+  
+  
+  /**
+   * Set the user's last login timestamp
+   * 
+   * @param timestamp
+   */
+  public void setLastLogin(Date timestamp);
+  
+  /**
+   * Return the number of times a user has used the application's API.
+   * Not all APIs used may be counted.
+   * 
+   * @return long count of the user's API usage.
+   */
+  public Long getApiUsageCount();
+  
+  /**
+   * Set the number of times a user has used the application's API.
+   *  
+   * @param apiUsageCount
+   */
+  public void setApiUsageCount(Long apiUsageCount);
+  
+  
+  /**
+   * Return the number of times a user has logged into the application
+   * 
+   * @return long count of the user login.
+   */
+  public Long getLoginCount();
+  
+  /**
+   * Set the number of times a user has logged into the application.
+   *  
+   * @param loginCount
+   */
+  public void setLoginCount(Long loginCount);
+  
+  /**
+   * Track if the user's email has been verified.
+   *  
+   * @return Boolean emailVerified
+   */
+  public Boolean getEmailVerified();
+  
+  /**
+   * Track if the user's email has been verified.
+   *  
+   * @param emailVerified
+   */
+  public void setEmailVerified(Boolean emailVerified);
+  
+  /**
+   * Returns the token.
+   *
+   * @return the token
+   */
+  public String getUserToken();
+
+  /**
+   * Sets the token.
+   *
+   * @param token the token
+   */
+  public void setUserToken(String token);
+  
 }

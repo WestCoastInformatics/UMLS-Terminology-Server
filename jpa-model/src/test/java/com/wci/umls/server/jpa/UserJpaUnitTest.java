@@ -77,6 +77,11 @@ public class UserJpaUnitTest extends ModelUnitSupport {
     tester.include("name");
     tester.include("team");
     tester.include("userName");
+    tester.include("lastLogin");
+    tester.include("apiUsageCount");
+    tester.include("loginCount");    
+    tester.include("emailVerified");
+    tester.include("userToken");
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());

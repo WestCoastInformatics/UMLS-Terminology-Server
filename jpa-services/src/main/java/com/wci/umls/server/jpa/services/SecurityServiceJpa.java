@@ -517,4 +517,26 @@ public class SecurityServiceJpa extends RootServiceJpa
     }
 
   }
+  
+  /* see superclass */
+  @Override
+  public User getUserForUserToken(String userToken) throws Exception {
+  	// use guest user for null token
+    if (userToken == null)
+      throw new LocalException(
+          "Attempt to confirm user's email address without token.");
+    
+    javax.persistence.Query query = manager
+        .createQuery("select u from UserJpa u where userToken = :userToken");
+    
+    query.setParameter("userToken", userToken);
+    
+    try {
+      final User user = (User) query.getSingleResult();
+      handleLazyInit(user);
+      return user;
+    } catch (NoResultException e) {
+      return null;
+    }
+  }
 }
