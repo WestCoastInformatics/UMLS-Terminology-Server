@@ -1,0 +1,26 @@
+<div class="modal-header">
+	<h4 style="display: inline;">Please register to continue using {{appName}}.</h4>
+</div>
+<div class="modal-body">
+	<div class="row">
+		<div class="col-md-10 col-xs-12">
+			<div style="padding-bottom:20px">
+				You will receive an email to confirm your email.
+			</div>
+			<form>
+				<div class="form-group">
+					<label for="name">Name</label>
+					<input id="name" type="text" ng-model="reg.user.name">
+				</div>
+				<div class="form-group">
+					<label for="email">Email</label>
+					<input id="email" type="text" ng-model="reg.user.email">
+				</div>
+			</form>
+			<div errors="errors" warnings="warnings"></div>
+		</div>
+	</div>
+</div>
+<div class="modal-footer">
+	<button ng-click="register()" class="btn btn-xs btn-primary">Submit</button>
+</div>
