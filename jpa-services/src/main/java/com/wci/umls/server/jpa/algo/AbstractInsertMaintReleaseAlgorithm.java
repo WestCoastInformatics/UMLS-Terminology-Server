@@ -956,27 +956,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (componentId == null) {
         return null;
       }
-      
-      Concept concept = getComponent(componentId, ConceptJpa.class);
-      // Handle lazy init
-      if (concept != null) {
-        concept.getAtoms().size();
-        concept.getAttributes().size();
-        concept.getComponentHistory().size();
-        concept.getDefinitions().size();
-        // NOTE: If above doesn't work, try the following
-        for (final Definition definition : concept.getDefinitions()) {
-          definition.getValue();
-        }
-        concept.getRelationships().size();
-        concept.getInverseRelationships().size();
-        concept.getLabels().size();
-        concept.getMembers().size();
-        concept.setNotes(new ArrayList<>());
-        concept.getSemanticTypes().size();
-        concept.getTreePositions().size();
-      }
-      return concept;
+
+      return getComponent(componentId, ConceptJpa.class);
     }
 
     else if (type.equals("CUI_CURRENT")) {
@@ -995,27 +976,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (componentId == null) {
         return null;
       }
-      
-      Concept concept = getComponent(componentId, ConceptJpa.class);
-      // Handle lazy init
-      if (concept != null) {
-        concept.getAtoms().size();
-        concept.getAttributes().size();
-        concept.getComponentHistory().size();
-        concept.getDefinitions().size();
-        // NOTE: If above doesn't work, try the following
-        for (final Definition definition : concept.getDefinitions()) {
-          definition.getValue();
-        }
-        concept.getRelationships().size();
-        concept.getInverseRelationships().size();
-        concept.getLabels().size();
-        concept.getMembers().size();
-        concept.setNotes(new ArrayList<>());
-        concept.getSemanticTypes().size();
-        concept.getTreePositions().size();
-      }
-      return concept;
+
+      return getComponent(componentId, ConceptJpa.class);
     }
 
     else if (type.equals("CUI_PREVIOUS")) {
@@ -1034,27 +996,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (componentId == null) {
         return null;
       }
-      
-      Concept concept = getComponent(componentId, ConceptJpa.class);
-      // Handle lazy init
-      if (concept != null) {
-        concept.getAtoms().size();
-        concept.getAttributes().size();
-        concept.getComponentHistory().size();
-        concept.getDefinitions().size();
-        // NOTE: If above doesn't work, try the following
-        for (final Definition definition : concept.getDefinitions()) {
-          definition.getValue();
-        }
-        concept.getRelationships().size();
-        concept.getInverseRelationships().size();
-        concept.getLabels().size();
-        concept.getMembers().size();
-        concept.setNotes(new ArrayList<>());
-        concept.getSemanticTypes().size();
-        concept.getTreePositions().size();
-      }
-      return concept;
+
+      return getComponent(componentId, ConceptJpa.class);
     }
 
     else if (type.equals("DEFINITION")) {
