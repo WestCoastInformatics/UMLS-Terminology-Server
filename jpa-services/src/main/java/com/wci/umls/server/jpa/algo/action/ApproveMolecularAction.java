@@ -14,6 +14,7 @@ import java.util.Set;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
@@ -24,6 +25,7 @@ import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
+import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
 /**
  * A molecular action for approving a concept.
@@ -71,12 +73,35 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
 
     // Get all "inverse" relationships for the concept (e.g.
     // where toId is the id)
+    // MTH relationships lose their RUIs through this call, so we need to
+    // replace them with the identifier handler.
+    IdentifierAssignmentHandler handler =
+        newIdentifierAssignmentHandler(getProject().getTerminology());
+
     final Map<Long, ConceptRelationship> inverseRelsMap = new HashMap<>();
     for (final Relationship rel : findConceptRelationships(null,
         getTerminology(), getVersion(), Branch.ROOT,
         "toId:" + getConcept().getId(), false, null).getObjects()) {
+      if (rel.getTerminology().equals("MTH")) {
+
+        final String inverseRelType =
+            getRelationshipType(rel.getRelationshipType(),
+                getProject().getTerminology(), getProject().getVersion())
+                    .getInverse().getAbbreviation();
+        String inverseAdditionalRelType = null;
+        if (!ConfigUtility.isEmpty(rel.getAdditionalRelationshipType())) {
+          inverseAdditionalRelType =
+              getAdditionalRelationshipType(rel.getAdditionalRelationshipType(),
+                  getProject().getTerminology(), getProject().getVersion())
+                      .getInverse().getAbbreviation();
+        }
+        final String rui = handler.getTerminologyId((ConceptRelationship) rel,
+            inverseRelType, inverseAdditionalRelType);
+        rel.getAlternateTerminologyIds().put(getProject().getTerminology(),rui);
+      }
       final ConceptRelationship crel =
-          new ConceptRelationshipJpa((ConceptRelationship) rel, false);
+          new ConceptRelationshipJpa((ConceptRelationship) rel, true);
+
       if (inverseRelsMap.containsKey(crel.getFrom().getId())) {
         throw new Exception("Multiple concept level relationships from "
             + crel.getFrom().getId());
