@@ -2587,11 +2587,16 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     logInfo(" Remove old relationships");
 
-    Query query = getEntityManager().createQuery("SELECT c.id "
-        + "FROM ConceptRelationshipJpa c "
-        + "WHERE c.publishable=false and (c.terminology=:terminology AND NOT c.version=:version)");
-    query.setParameter("terminology", "MTH");
-    query.setParameter("version", "2018AB");
+    Query query = getEntityManager().createNativeQuery("select cr.id from " +
+        " concept_relationships cr, concepts c1, concepts c2 " +
+        " where cr.from_id = c1.id " +
+        " and cr.to_id = c2.id " + 
+        " AND from_id < to_id " +
+        " and cr.terminology = 'MTH' " +
+        " and cr.terminology != '2019AA' " +
+        " and c1.terminology = 'NCIMTH' " +
+        " and c2.terminology = 'NCIMTH' " +
+        " GROUP BY c1.terminologyId, c2.terminologyId HAVING COUNT(*) > 1");
 
     logInfo("[RemoveOldRelationships] Loading "
         + "ConceptRelationship ids for old relationships that now have duplicates caused by the MTH 2018AB insertion");
@@ -2720,6 +2725,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // new one was added, but old one was not made unpublishable or detached from inverse.
     // set the old inverse to pubishable=false.
     // Update inverse to point to the new correct one.
+    // 6/2019 Add functionality to address more Invalid additional_relationship_types
+    // including those related to NICHD and CDRH
     logInfo(" Fix Additional Rel Type Inverses 2");
 
     int updatedAdditionalRelationshipTypes = 0;
@@ -2770,6 +2777,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         }
         // Set another incorrectly-inverted additional relationship type to its
         // correct inverse
+        // Confirm that  Parent_Is_NICHD is inverse of Has_NICHD_Parent
         else if (additionalRelationshipType.getId() == 1260) {
           AdditionalRelationshipType inverseRelType =
               getAdditionalRelationshipType("Parent_Is_NICHD", "NCIMTH",
@@ -2778,21 +2786,25 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           updateAdditionalRelationshipType(additionalRelationshipType);
           updatedAdditionalRelationshipTypes++;
         }
+        //  Parent_Is_NICHD (publishable)
         else if (additionalRelationshipType.getId() == 1259) {       
           additionalRelationshipType.setPublishable(true);
           updateAdditionalRelationshipType(additionalRelationshipType);
           updatedAdditionalRelationshipTypes++;
         }
+        // Parent_Is_CDRH  (publishable)
         else if (additionalRelationshipType.getId() == 327352) {       
           additionalRelationshipType.setPublishable(true);
           updateAdditionalRelationshipType(additionalRelationshipType);
           updatedAdditionalRelationshipTypes++;
         }
+        // NICHD_Parent_Of (not publishable)
         else if (additionalRelationshipType.getId() == 598402) {       
           additionalRelationshipType.setPublishable(false);
           updateAdditionalRelationshipType(additionalRelationshipType);
           updatedAdditionalRelationshipTypes++;
         }
+        // CDRH_Parent_Of (not publishable)
         else if (additionalRelationshipType.getId() == 598404) {       
           additionalRelationshipType.setPublishable(false);
           updateAdditionalRelationshipType(additionalRelationshipType);
