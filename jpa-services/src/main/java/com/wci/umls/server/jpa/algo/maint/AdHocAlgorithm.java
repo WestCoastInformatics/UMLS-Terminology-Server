@@ -2577,8 +2577,6 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     
   }
   
- 
-
   private void removeOldRelationships() throws Exception {
     // 12/15/2018 concept_relationships were created by MTH_2018AB test
     // insertion that duplicated existing concept_relationships from old
