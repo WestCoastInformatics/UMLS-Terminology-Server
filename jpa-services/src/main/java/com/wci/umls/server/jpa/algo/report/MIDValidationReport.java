@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa.algo.report;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -156,7 +157,8 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
       final StringBuilder msg = new StringBuilder();
       msg.append("\r\n");
       msg.append(
-          "MID Validation has found some issues with the following checks:\r\n");
+          "MID Validation has found some issues with the following checks on " +
+              InetAddress.getLocalHost().getHostName() + ":\r\n");
       msg.append("\r\n");
 
       for (final String key : errors.keySet()) {
@@ -182,10 +184,11 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
           from = config.getProperty("mail.smtp.user");
         }
         try {
+          String server = InetAddress.getLocalHost().getHostName();
+          String title = "MEME Mid Validation Report - "
+              + ConfigUtility.DATE_YYYYMMDD.format(new Date()) + " (" + server + ")";
           ConfigUtility.sendEmail(
-              "MEME Mid Validation Report - "
-                  + ConfigUtility.DATE_YYYYMMDD.format(new Date()),
-              from, getEmail(), msg.toString(), config);
+              title, from, getEmail(), msg.toString(), config);
         } catch (Exception e) {
           e.printStackTrace();
           // do nothing - this just means email couldn't be sent
