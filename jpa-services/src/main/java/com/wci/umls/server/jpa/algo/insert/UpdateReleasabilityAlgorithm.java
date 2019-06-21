@@ -195,8 +195,10 @@ public class UpdateReleasabilityAlgorithm
       }
 
       // Now mark all non-current SRC atoms as unpublishable.
-      String query = "SELECT a.id " + "FROM AtomJpa a, TerminologyJpa t "
-          + "WHERE a.terminology='SRC' AND a.publishable=true AND t.current = false AND a.codeId=CONCAT('V-',t.terminology,'_',t.version)";
+     String query = "SELECT a.id " + "FROM AtomJpa a, TerminologyJpa t "
+         + "WHERE a.terminology='SRC' AND a.publishable=true AND t.current = false AND " +
+         "(a.codeId=CONCAT('V-',t.terminology,'_',t.version) OR " +
+         "a.codeId=CONCAT('V-',t.terminology,t.version))";
 
       // Perform a QueryActionAlgorithm using the class and query
       QueryActionAlgorithm queryAction = new QueryActionAlgorithm();

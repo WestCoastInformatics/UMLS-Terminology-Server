@@ -54,6 +54,8 @@ import com.wci.umls.server.jpa.algo.action.RemoveSemanticTypeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
+import com.wci.umls.server.jpa.content.AtomSubsetJpa;
+import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.ComponentHistoryJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
@@ -70,6 +72,7 @@ import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
+import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHistory;
@@ -168,6 +171,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       removeBadRelationships();
     } else if (actionName.equals("Remove SNOMED Subsets")) {
       removeSNOMEDSubsets();
+    } else if (actionName.equals("Remove SNOMED Atom Subsets")) {
+      removeSNOMEDAtomSubsets();
     } else if (actionName.equals("Remove Concepts without Atoms")) {
       removeConceptsWithoutAtoms();
     } else if (actionName.equals("Remove Orphaned Tracking Records")) {
@@ -2093,12 +2098,12 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     int updatedRelationships = 0;
 
     final List<ConceptSubsetJpa> conceptSubsets = new ArrayList<>();
-
+    final List<AtomSubsetJpa> atomSubsets = new ArrayList<>();
     try {
       Query query = getEntityManager().createNativeQuery(
           "select id from concept_subsets where terminology=:terminology and version=:version");
       query.setParameter("terminology", "SNOMEDCT_US");
-      query.setParameter("version", "2018_09_01");
+      query.setParameter("version", "2019_03_01");
 
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
@@ -2142,6 +2147,76 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Updated " + updatedRelationships + " component info relationships.");
     logInfo("Finished " + getName());
   }
+  
+  private void removeSNOMEDAtomSubsets() throws Exception {
+
+    logInfo(" Remove SNOMED Atom Subsets");
+
+    int totalSubsetMembersSize = 0;
+    final List<AtomSubsetJpa> atomSubsets = new ArrayList<>();
+    try {
+      Query query = getEntityManager().createNativeQuery(
+          "select id from atom_subsets where terminology=:terminology and version=:version");
+      query.setParameter("terminology", "SNOMEDCT_US");
+      query.setParameter("version", "2019_03_01");
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        AtomSubsetJpa atomSubset = 
+            (AtomSubsetJpa) getSubset(id, AtomSubsetJpa.class);
+        atomSubsets.add(atomSubset);
+        totalSubsetMembersSize += atomSubset.getMembers().size();
+      }
+
+      setSteps(totalSubsetMembersSize);
+
+      logInfo("[RemoveSNOMEDSubsets] " + atomSubsets.size()
+          + " Atom Subsets identified");
+      logInfo("[RemoveSNOMEDSubsets] " + totalSubsetMembersSize
+      + " Atom Subset Members identified");
+
+      // handle lazy init error
+      for (final AtomSubsetJpa subset : atomSubsets) {
+        for (final AtomSubsetMember member : subset.getMembers()) {
+            member.getAttributes().size();
+        }
+      }
+      
+      
+      for (final AtomSubsetJpa subset : atomSubsets) {
+        logInfo("[RemoveSNOMEDSubsets] " + subset.getMembers().size()
+            + " Before removal atom Subset Members  identified on: "
+            + subset.getTerminologyId() + " " + subset.getId());
+        for (final AtomSubsetMember member : subset.getMembers()) {
+          for (final Attribute att : member.getAttributes()) {
+            removeAttribute(att.getId());
+          }
+          member.setAttributes(null);
+          updateSubsetMember(member);
+          removeSubsetMember(member.getId(), AtomSubsetMemberJpa.class);
+
+          updateProgress();
+        }
+        subset.clearMembers();
+        updateSubset(subset);
+        removeSubset(subset.getId(), AtomSubsetJpa.class);
+        logInfo("[RemoveSNOMEDSubsets] " + subset.getMembers().size()
+            + " After removal atom Subset Members  identified on: "
+            + subset.getTerminologyId() + " " + subset.getId());
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+    }
+
+    logInfo(
+        "Removed " + totalSubsetMembersSize + " atom subset members.");
+    logInfo("Finished " + getName());
+
+    logInfo("Finished " + getName());
+  }
 
   private void removeConceptsWithoutAtoms() throws Exception {
     // 11/20/2018 Mark unpublishable shell concepts that have no atoms
@@ -2154,7 +2229,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     try {
       Query query = getEntityManager().createQuery("select c1.id from "
-          + "ConceptJpa c1 where c1.terminology = :terminology and c1.id NOT IN (select c2.id from ConceptJpa c2 JOIN c2.atoms)");
+          + "ConceptJpa c1 where c1.terminology = :terminology and c1.publishable=true and c1.id NOT IN (select c2.id from ConceptJpa c2 JOIN c2.atoms)");
       query.setParameter("terminology", "NCIMTH");
       conceptsWithoutAtoms = query.getResultList();
       setSteps(conceptsWithoutAtoms.size());
@@ -2163,6 +2238,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
         final Long id = Long.valueOf(entry.toString());
         Concept concept = getConcept(id);
+        if (concept == null) {
+          logWarn("[AdHoc Algorithm] Concept designated to be marked unpublished that is null:" + id);
+          continue;
+        }
         concept.setPublishable(false);
         for (Definition def : concept.getDefinitions()) {
           def.setPublishable(false);
@@ -2498,8 +2577,6 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     
   }
   
- 
-
   private void removeOldRelationships() throws Exception {
     // 12/15/2018 concept_relationships were created by MTH_2018AB test
     // insertion that duplicated existing concept_relationships from old
@@ -2508,11 +2585,16 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     logInfo(" Remove old relationships");
 
-    Query query = getEntityManager().createQuery("SELECT c.id "
-        + "FROM ConceptRelationshipJpa c "
-        + "WHERE c.publishable=false and (c.terminology=:terminology AND NOT c.version=:version)");
-    query.setParameter("terminology", "MTH");
-    query.setParameter("version", "2018AB");
+    Query query = getEntityManager().createNativeQuery("select cr.id from " +
+        " concept_relationships cr, concepts c1, concepts c2 " +
+        " where cr.from_id = c1.id " +
+        " and cr.to_id = c2.id " + 
+        " AND from_id < to_id " +
+        " and cr.terminology = 'MTH' " +
+        " and cr.terminology != '2019AA' " +
+        " and c1.terminology = 'NCIMTH' " +
+        " and c2.terminology = 'NCIMTH' " +
+        " GROUP BY c1.terminologyId, c2.terminologyId HAVING COUNT(*) > 1");
 
     logInfo("[RemoveOldRelationships] Loading "
         + "ConceptRelationship ids for old relationships that now have duplicates caused by the MTH 2018AB insertion");
@@ -2641,17 +2723,22 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // new one was added, but old one was not made unpublishable or detached from inverse.
     // set the old inverse to pubishable=false.
     // Update inverse to point to the new correct one.
+    // 6/2019 Add functionality to address more Invalid additional_relationship_types
+    // including those related to NICHD and CDRH
     logInfo(" Fix Additional Rel Type Inverses 2");
 
     int updatedAdditionalRelationshipTypes = 0;
+    int updatedRelationships = 0;
     List<AdditionalRelationshipTypeJpa> additionalRelationshipsTypes =
+        new ArrayList<>();
+    List<AtomRelationshipJpa> atomRelationships =
         new ArrayList<>();
 
     try {
 
       // Get the three affected additional relationship types
       Query query = getEntityManager().createNativeQuery(
-          "select abbreviation from additional_relationship_types where id in (1398,1399,1322352)");
+          "select abbreviation from additional_relationship_types where id in (1398,1399,1322352,1260,1259,598402,327351,327352,598404)");
 
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
@@ -2686,12 +2773,62 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           updateAdditionalRelationshipType(additionalRelationshipType);
           updatedAdditionalRelationshipTypes++;
         }
+        // Set another incorrectly-inverted additional relationship type to its
+        // correct inverse
+        // Confirm that  Parent_Is_NICHD is inverse of Has_NICHD_Parent
+        else if (additionalRelationshipType.getId() == 1260) {
+          AdditionalRelationshipType inverseRelType =
+              getAdditionalRelationshipType("Parent_Is_NICHD", "NCIMTH",
+                  "latest");
+          additionalRelationshipType.setInverse(inverseRelType);
+          updateAdditionalRelationshipType(additionalRelationshipType);
+          updatedAdditionalRelationshipTypes++;
+        }
+        //  Parent_Is_NICHD (publishable)
+        else if (additionalRelationshipType.getId() == 1259) {       
+          additionalRelationshipType.setPublishable(true);
+          updateAdditionalRelationshipType(additionalRelationshipType);
+          updatedAdditionalRelationshipTypes++;
+        }
+        // Parent_Is_CDRH  (publishable)
+        else if (additionalRelationshipType.getId() == 327352) {       
+          additionalRelationshipType.setPublishable(true);
+          updateAdditionalRelationshipType(additionalRelationshipType);
+          updatedAdditionalRelationshipTypes++;
+        }
+        // NICHD_Parent_Of (not publishable)
+        else if (additionalRelationshipType.getId() == 598402) {       
+          additionalRelationshipType.setPublishable(false);
+          updateAdditionalRelationshipType(additionalRelationshipType);
+          updatedAdditionalRelationshipTypes++;
+        }
+        // CDRH_Parent_Of (not publishable)
+        else if (additionalRelationshipType.getId() == 598404) {       
+          additionalRelationshipType.setPublishable(false);
+          updateAdditionalRelationshipType(additionalRelationshipType);
+          updatedAdditionalRelationshipTypes++;
+        }
         // We should never get here
         else {
           logError("WHAT HAPPENED!!!????");
         }
         updateProgress();
       }
+      
+      // update atom_relationships from 'gives_rise_to' to 'develops_into'
+      query = getEntityManager().createNativeQuery(
+          "select id from atom_relationships where additionalRelationshipType = 'gives_rise_to'");
+
+      List<Object> ids = query.getResultList();
+
+      for (final Object result : ids) {
+        final Relationship<?, ?> rel = (AtomRelationship) getRelationship(Long.valueOf(result.toString()), AtomRelationshipJpa.class);
+        rel.setAdditionalRelationshipType("develops_into");
+        updateRelationship(rel);
+        updatedRelationships++;
+      } 
+
+
     } catch (Exception e) {
       e.printStackTrace();
       fail("Unexpected exception thrown - please review stack trace.");
@@ -2701,6 +2838,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     logInfo("Updated " + updatedAdditionalRelationshipTypes
         + " additional relationship types updated 2.");
+    logInfo("Updated " + updatedRelationships
+        + " relationships updated 2.");
     logInfo("Finished " + getName());
   }
   
@@ -2972,7 +3111,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "e.g. Fix Orphan Definitions", 200, AlgorithmParameter.Type.ENUM, "");
     param.setPossibleValues(
         Arrays.asList("Fix Orphan Definitions", "Undo Stampings",
-            "Remove Bad Relationships", "Remove SNOMED Subsets", "Remove Orphaned Tracking Records",
+            "Remove Bad Relationships", "Remove SNOMED Subsets", "Remove SNOMED Atom Subsets", "Remove Orphaned Tracking Records",
             "Inactivate Old SRC atoms and AtomRels", "Fix SRC_ATOM_IDs",
             "Redo Molecular Actions", "Fix Bad Relationship Identities",
             "Fix Component Info Relationships", "Remove Concepts without Atoms",
