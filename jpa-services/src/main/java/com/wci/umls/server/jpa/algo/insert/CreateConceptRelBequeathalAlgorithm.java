@@ -5,9 +5,7 @@ package com.wci.umls.server.jpa.algo.insert;
 
 import static org.junit.Assert.fail;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,17 +19,13 @@ import javax.persistence.Query;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.algo.action.AbstractMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddRelationshipMolecularAction;
 import com.wci.umls.server.jpa.algo.action.ApproveMolecularAction;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
-import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -134,7 +128,7 @@ public class CreateConceptRelBequeathalAlgorithm extends AbstractInsertMaintRele
           
           );
       
-
+      @SuppressWarnings("unchecked")
       List<Object> list = query.getResultList();
       setSteps(list.size());
       List<Long> conceptsToBeApproved = new ArrayList<>();

@@ -1001,7 +1001,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    * @return the language
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private String getLanguage(OWLAnnotation annotation) throws Exception {
     if (annotation.getValue() instanceof OWLLiteral) {
       return ((OWLLiteral) annotation.getValue()).getLang();
@@ -1021,7 +1021,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    * @return the name
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private String getValue(OWLAnnotation annotation) throws Exception {
     if (annotation.getValue() instanceof OWLLiteral) {
       return ((OWLLiteral) annotation.getValue()).getLiteral();
@@ -2299,7 +2299,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    * @param iri the iri
    * @return the terminology id
    */
-  @SuppressWarnings("static-method")
+  
   private String getTerminologyId(IRI iri) {
 
     if (iri.toString().contains("#")) {

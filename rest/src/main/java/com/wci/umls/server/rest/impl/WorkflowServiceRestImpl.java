@@ -3298,7 +3298,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
    * @return the project info
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private ComponentInfo getProjectInfo(Project project) throws Exception {
     return new ComponentInfoJpa(project.getId(), project.getTerminology(), null, null,
         project.getName(), IdType.PROJECT);
@@ -3564,7 +3564,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
    * @return the input stream
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private InputStream exportList(List<TrackingRecord> records, WorkflowService workflowService)
     throws Exception {
     // Write a header

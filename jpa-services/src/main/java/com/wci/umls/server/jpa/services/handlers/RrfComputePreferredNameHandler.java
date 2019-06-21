@@ -113,7 +113,7 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
    * @return the rank
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   public String getRank(final Atom atom, final PrecedenceList list)
     throws Exception {
 
@@ -174,7 +174,7 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
    * @return the rank
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   public <T extends Relationship<?, ?>> String getRank(final T relationship,
     final PrecedenceList list) throws Exception {
     // Bail if no list specified or found
@@ -211,7 +211,7 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
    * @param list the list
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   public void cacheList(PrecedenceList list) throws Exception {
 
     // No list - simply return to try something new

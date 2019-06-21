@@ -74,7 +74,7 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements Con
    * @param props the props
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private void validateProperty(String name, Properties props) throws Exception {
     if (props == null) {
       throw new Exception("Properties are null");

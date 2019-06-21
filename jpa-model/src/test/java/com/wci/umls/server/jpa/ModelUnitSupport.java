@@ -26,7 +26,7 @@ public class ModelUnitSupport {
    * @return the method
    * @throws IOException Signals that an I/O exception has occurred.
    */
-  @SuppressWarnings("static-method")
+  
   public String getMethodText(String match, Path file) throws IOException {
     final List<String> lines = Files.lines(file).collect(Collectors.toList());
     final StringBuilder sb = new StringBuilder();

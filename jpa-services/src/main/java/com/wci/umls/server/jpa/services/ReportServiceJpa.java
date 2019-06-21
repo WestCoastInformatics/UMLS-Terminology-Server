@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.text.WordUtils;
+import org.apache.commons.text.WordUtils;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.Project;
@@ -785,7 +785,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
    * @param status the status
    * @return the status char
    */
-  @SuppressWarnings("static-method")
+  
   private String getStatusChar(WorkflowStatus status) {
     if (status == WorkflowStatus.NEEDS_REVIEW) {
       return "N";
@@ -906,7 +906,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
    * @param decorate the decorate
    * @return the open style tag
    */
-  @SuppressWarnings("static-method")
+  
   public String getOpenStyleTag(WorkflowStatus status, boolean publishable,
     boolean obsolete, boolean orangeFlag, boolean decorate) {
     if (!decorate) {
@@ -936,7 +936,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
    * @param decorate the decorate
    * @return the close style tag
    */
-  @SuppressWarnings("static-method")
+  
   public String getCloseStyleTag(WorkflowStatus status, boolean publishable,
     boolean obsolete, boolean orangeFlag, boolean decorate) {
     if (!decorate) {
@@ -962,7 +962,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
    * @param t the t
    * @return the vsab
    */
-  @SuppressWarnings("static-method")
+  
   private String getTerminologyAndVersion(HasTerminology t) {
     return t.getTerminology()
         + (t.getVersion().equals("latest") ? "" : ("_" + t.getVersion()));
@@ -974,7 +974,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
    * @param conceptId the concept id
    * @return the cached contexts
    */
-  @SuppressWarnings("static-method")
+  
   private String getCachedContexts(Long conceptId) {
     synchronized (conceptContextsCache) {
       if (conceptContextsCache.containsKey(conceptId)) {
@@ -990,7 +990,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
    * @param conceptId the concept id
    * @param contexts the contexts
    */
-  @SuppressWarnings("static-method")
+  
   private void cacheContexts(Long conceptId, String contexts) {
     synchronized (conceptContextsCache) {
       conceptContextsCache.put(conceptId, contexts);
@@ -1002,7 +1002,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
    *
    * @param conceptId the concept id
    */
-  @SuppressWarnings("static-method")
+  
   public static void clearCachedContextsForConcept(Long conceptId) {
     synchronized (conceptContextsCache) {
       conceptContextsCache.remove(conceptId);

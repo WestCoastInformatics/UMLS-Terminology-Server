@@ -43,7 +43,7 @@ public class RootServiceRestImpl {
    * @param e the e
    * @param whatIsHappening the what is happening
    */
-  @SuppressWarnings("static-method")
+  
   public void handleException(Exception e, String whatIsHappening) {
     try {
       ExceptionHandler.handleException(e, whatIsHappening, "");
@@ -144,9 +144,7 @@ public class RootServiceRestImpl {
    * @param time the time
    * @return the total elapsed time str
    */
-  @SuppressWarnings({
-      "boxing"
-  })
+  //@SuppressWarnings({"boxing"})
   protected static String getTotalElapsedTimeStr(long time) {
     Long resultnum = (System.nanoTime() - time) / 1000000000;
     String result = resultnum.toString() + "s";
@@ -232,7 +230,7 @@ public class RootServiceRestImpl {
    * @return the precedence list
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   public PrecedenceList sortAtoms(SecurityService service, ContentService contentService,
     String userName, AtomClass obj, Project project) throws Exception {
     PrecedenceList list = null;

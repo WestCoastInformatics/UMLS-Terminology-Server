@@ -19,8 +19,6 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -30,6 +28,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import javax.persistence.Table;
 import javax.persistence.spi.PersistenceProvider;
+import javax.xml.bind.annotation.XmlSchema;
 
 import org.apache.log4j.Logger;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -128,9 +127,12 @@ public abstract class RootServiceJpa implements RootService {
     Properties config = null;
     try {
       config = ConfigUtility.getConfigProperties();
+      // NUNO - fails when setting factory
       // TODO: this fixes a bug.
-      PersistenceProvider provider = new HibernatePersistenceProvider();
-      factory = provider.createEntityManagerFactory("TermServiceDS", config);
+      //PersistenceProvider provider = new HibernatePersistenceProvider();
+      //factory = provider.createEntityManagerFactory("TermServiceDS", config);
+      setupBindInfoPackage();
+      factory = Persistence.createEntityManagerFactory("TermServiceDS", config);
     } catch (Exception e) {
       e.printStackTrace();
       factory = null;
@@ -177,6 +179,34 @@ public abstract class RootServiceJpa implements RootService {
     }
 
   }
+  
+  
+  // Fixes Maven issue with hibernate.cfg.xml even though the application does not have one.
+  // https://stackoverflow.com/questions/54673104/how-to-fix-unexpected-elementurihttp-www-hibernate-org-xsd-orm-cfg-lo
+	static void setupBindInfoPackage() {
+		String nsuri = "http://www.hibernate.org/xsd/orm/hbm";
+		String packageInfoClassName = "org.hibernate.boot.jaxb.hbm.spi.package-info";
+		try {
+			final Class<?> packageInfoClass = Class.forName(packageInfoClassName);
+			final XmlSchema xmlSchema = packageInfoClass.getAnnotation(XmlSchema.class);
+			if (xmlSchema == null) {
+				Logger.getLogger(RootServiceJpa.class)
+				    .warn(String.format("Class [{0}] is missing the [{1}] annotation. Processing bindings will probably fail.",
+				        packageInfoClassName, XmlSchema.class.getName()));
+			} else {
+				final String namespace = xmlSchema.namespace();
+				if (nsuri.equals(namespace)) {
+					Logger.getLogger(RootServiceJpa.class)
+					    .warn(String.format(
+					        "Namespace of the [{0}] annotation does not match [{1}]. Processing bindings will probably fail.",
+					        XmlSchema.class.getName(), nsuri));
+				}
+			}
+		} catch (ClassNotFoundException cnfex) {
+			Logger.getLogger(RootServiceJpa.class).warn(String.format(
+			    "Class [{0}] could not be found. Processing bindings will probably fail.", packageInfoClassName), cnfex);
+		}
+	}
 
   /** The manager. */
   protected EntityManager manager;
@@ -378,7 +408,7 @@ public abstract class RootServiceJpa implements RootService {
    * @return the value of the requested sort field
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   Object getSortFieldValue(final Object o, final String sortField)
     throws Exception {
     // split the fields for method retrieval, e.g. a.b.c. =
@@ -420,7 +450,7 @@ public abstract class RootServiceJpa implements RootService {
    * @throws Exception the exception
    */
   // package visibility
-  @SuppressWarnings("static-method")
+  
   Class<?> getSortFieldType(final Object o, final String sortField)
     throws Exception {
     // split the fields for method retrieval, e.g. a.b.c. =
@@ -660,7 +690,7 @@ public abstract class RootServiceJpa implements RootService {
    * @return the pfs comparator
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   protected <T> Comparator<T> getPfsComparator(final Class<T> clazz,
     final PfsParameter pfs) throws Exception {
     if (pfs != null
@@ -1622,7 +1652,7 @@ public abstract class RootServiceJpa implements RootService {
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private void validateInit() throws Exception {
     if (validationHandlersMap == null) {
       throw new Exception(
@@ -2430,7 +2460,7 @@ public abstract class RootServiceJpa implements RootService {
    * @param project the project
    * @return the default query params
    */
-  @SuppressWarnings("static-method")
+  
   public Map<String, String> getDefaultQueryParams(Project project) {
     final Map<String, String> params = new HashMap<>();
     params.put("projectTerminology", project.getTerminology());
@@ -2447,7 +2477,7 @@ public abstract class RootServiceJpa implements RootService {
    * @param params the params
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private void validateQueryAndParams(String query, QueryType type,
     Map<String, String> params) throws Exception {
 

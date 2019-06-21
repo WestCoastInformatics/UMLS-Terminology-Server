@@ -7,9 +7,7 @@ import static java.lang.Math.toIntExact;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -25,30 +23,20 @@ import java.util.stream.Collectors;
 
 import javax.persistence.Query;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-import org.hibernate.Hibernate;
-
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.Project;
-import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.QueryType;
-import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
-import com.wci.umls.server.jpa.algo.action.AbstractMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddAtomMolecularAction;
-import com.wci.umls.server.jpa.algo.action.AddRelationshipMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddSemanticTypeMolecularAction;
-import com.wci.umls.server.jpa.algo.action.ApproveMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RedoMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RemoveSemanticTypeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
@@ -89,14 +77,11 @@ import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.RelationshipIdentity;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
-import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
-import com.wci.umls.server.services.ContentService;
-import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.UmlsIdentityService;
 import com.wci.umls.server.services.WorkflowService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
@@ -408,7 +393,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("[RemoveBadRelationships] Loading "
         + "ConceptRelationship ids for relationships created by the MTH 2017AB insertion");
 
-    List<Object> list = query.getResultList();
+    @SuppressWarnings("unchecked")
+	List<Object> list = query.getResultList();
     for (final Object entry : list) {
       final Long id = Long.valueOf(entry.toString());
       relIds.add(id);
@@ -505,7 +491,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("[RemoveOrphanedTrackingRecords] Loading "
         + "TrackingRecord ids for orphaned tracking records");
 
-    List<Object> list = query.getResultList();
+    @SuppressWarnings("unchecked")
+	List<Object> list = query.getResultList();
     for (final Object entry : list) {
       final Long id = Long.valueOf(entry.toString());
       trackingRecordIds.add(id);
@@ -1042,6 +1029,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
   }
 
+  @SuppressWarnings("unchecked")
   private void fixBadRelationshipIdentities() throws Exception {
     // 5/7/2018 Issues with MTH relationship identities imported from
     // MEME4 were identified.
@@ -1076,7 +1064,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       logInfo("[FixBadRelationshipIdentities] Identifying "
           + "duplicate relationship identities");
 
-      List<Object> list = query.getResultList();
+	  List<Object> list = query.getResultList();
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
         relationshipIdentities.add(identityService.getRelationshipIdentity(id));
@@ -1102,7 +1090,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         query.setParameter("toId", identity.getToId());
         query.setParameter("relationshipType", identity.getRelationshipType());
 
-        List<Object> list2 = query.getResultList();
+		List<Object> list2 = query.getResultList();
         for (final Object entry : list2) {
           final Long id = Long.valueOf(entry.toString());
           RelationshipIdentity duplicateRelationshipIdentity =
@@ -1357,6 +1345,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       logInfo("[FixComponentInfoRelationships] Identifying "
           + "ComponentInfoRelationships with blank from/to Terminology Ids");
 
+      @SuppressWarnings("unchecked")
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
@@ -1420,6 +1409,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       Query query = getEntityManager().createNativeQuery(
           "select id from component_info_relationships where lastModifiedBy='NCIMTH_201805'");
 
+      @SuppressWarnings("unchecked")
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
@@ -1472,6 +1462,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       Query query = getEntityManager().createNativeQuery(
           "select id from worklists where workflowStatus='REVIEW_DONE'");
 
+      @SuppressWarnings("unchecked")
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
@@ -1519,6 +1510,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
               + "c.terminology='NCIMTH' and a.terminology='SNOMEDCT_US' and "
               + "a.name like '%(disposition)' and a.termType='FN'");
 
+      @SuppressWarnings("unchecked")
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
@@ -1655,6 +1647,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       logInfo("[FixRelGroups] Identifying "
           + "relationships with rel groups set to NULL");
 
+      @SuppressWarnings("unchecked")
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
@@ -1716,6 +1709,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       logInfo("[FixSourceLevelRels] Identifying "
           + "source-level relationships with status=N");
 
+      @SuppressWarnings("unchecked")
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
@@ -1774,6 +1768,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       Query query = getEntityManager().createNativeQuery(
           "select abbreviation from additional_relationship_types where id in (1259,327352,850135)");
 
+      @SuppressWarnings("unchecked")
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
         final String abbreviation = entry.toString();
@@ -1919,6 +1914,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       Query query = getEntityManager().createNativeQuery(
           "select id from atoms where termType='RHT' and terminology='NCIMTH'");
 
+      @SuppressWarnings("unchecked")
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
         final Long atomId = Long.valueOf(entry.toString());
@@ -1978,11 +1974,15 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       // Remove descriptors created by insertions
       Query query = getEntityManager().createNativeQuery(
           "select id from descriptors where terminology='MDR' and version!='20_0'");
+      
+      @SuppressWarnings("unchecked")
       List<Object> list = query.getResultList();
 
       // Set publishable=false MDR descriptors to publishable=true
       Query query2 = getEntityManager().createNativeQuery(
           "select id from descriptors where terminology='MDR' and version='20_0' and publishable=false");
+      
+      @SuppressWarnings("unchecked")
       List<Object> list2 = query2.getResultList();
 
       setSteps(list.size() + list2.size());
@@ -2027,6 +2027,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   }
 
+  @SuppressWarnings("unchecked")
   private void removeOldWorklistsChecklists() throws Exception {
     // 10/22/2018 Remove old worklists and checklists that should have
     // been removed during release process cleanup
@@ -2105,6 +2106,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       query.setParameter("terminology", "SNOMEDCT_US");
       query.setParameter("version", "2019_03_01");
 
+      @SuppressWarnings("unchecked")
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
@@ -2218,6 +2220,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
   }
 
+  @SuppressWarnings("unchecked")
   private void removeConceptsWithoutAtoms() throws Exception {
     // 11/20/2018 Mark unpublishable shell concepts that have no atoms
 
@@ -2306,6 +2309,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           + "where a.terminology = :terminology and a.name like :name or name = 'name'");
       query.setParameter("name", "PDQ%to NCI%Mappings");
       query.setParameter("terminology", "PDQ");
+      
+      @SuppressWarnings("unchecked")
       List<Object> list = query.getResultList();
       // get codes
       for (final Object entry : list) {
@@ -2344,6 +2349,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   }
 
+  @SuppressWarnings("unchecked")
   private void fixDuplicateConcepts() throws Exception {
     // 5/7/2018 These were created erroneously during the load from MEME4
     // (having to do with the loading of component_histories and dead CUIs),
@@ -2530,6 +2536,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       Query query = getEntityManager().createNativeQuery(
           "select cr.id from concept_relationships cr left join conceptrelationshipjpa_alternateterminologyids crat on cr.id=crat.ConceptRelationshipJpa_id where cr.publishable and crat.alternateTerminologyIds is null and terminology != 'NCIMTH'");
 
+      @SuppressWarnings("unchecked")
       List<Object> list = query.getResultList();
     
       for (final Object entry : list) {
@@ -2599,6 +2606,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("[RemoveOldRelationships] Loading "
         + "ConceptRelationship ids for old relationships that now have duplicates caused by the MTH 2018AB insertion");
 
+    @SuppressWarnings("unchecked")
     List<Object> list = query.getResultList();
     setSteps(list.size());
     logInfo("[RemoveOldRelationships] " + list.size()
@@ -2689,6 +2697,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       logInfo("[FixComponentHistoryVersion] Identifying "
           + "ComponentHistories with version 'latest'");
 
+      @SuppressWarnings("unchecked")
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
@@ -2740,6 +2749,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       Query query = getEntityManager().createNativeQuery(
           "select abbreviation from additional_relationship_types where id in (1398,1399,1322352,1260,1259,598402,327351,327352,598404)");
 
+      @SuppressWarnings("unchecked")
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
         final String abbreviation = entry.toString();
@@ -2865,7 +2875,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       );
       
-
+      @SuppressWarnings("unchecked")
       final List<Object[]> ids = query.getResultList();
 
       setSteps(ids.size());
@@ -2891,6 +2901,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
   }
   
+  @SuppressWarnings("unused")
   private boolean noXRRel(Concept a, Concept b) {
     for (ConceptRelationship cr : a.getRelationships()) {
       if (cr.getRelationshipType().equals("XR") && (cr.getFrom().getId() == b.getId() || cr.getTo().getId() == b.getId())) {
@@ -2931,6 +2942,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       logInfo("[ReviseSemanticTypes] Identifying concepts with incorrect stys");
 
+      @SuppressWarnings("unchecked")
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
@@ -3136,6 +3148,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   }
 
   
+  @SuppressWarnings("unused")
   private void convertToChecklist(String name, long projectId, List<Long[]> results, PfsParameter pfs) throws Exception {
     WorkflowService workflowService = new WorkflowServiceJpa();
     final Project project = workflowService.getProject(projectId);

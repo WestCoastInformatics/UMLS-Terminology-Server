@@ -79,9 +79,7 @@ public class KeyValuePairUnitTest {
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings({
-    "static-method",
-  })
+  
   @Test
   public void testHelperDegenerateUse003() throws Exception {
     try {
@@ -97,7 +95,7 @@ public class KeyValuePairUnitTest {
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   @Test
   public void testHelperEdgeCases003() throws Exception {
     // Expect no exceptions

@@ -6,7 +6,7 @@
   <!-- Module Metadata -->
   <groupId>com.wcinformatics.umls.server</groupId>
   <artifactId>term-server-parent</artifactId>
-  <version>1.6.0-SNAPSHOT</version>
+  <version>1.6.0-RC2</version>
   <packaging>pom</packaging>
   <name>Terminology server parent.</name>
   <description>Parent project. Used to define versions of third party modules</description>
@@ -249,6 +249,23 @@
         <scope>provided</scope>
       </dependency>
       
+      <!-- Java 11 removed jaxb from jdk  -->      
+      <dependency>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>jaxb-runtime</artifactId>
+        <version>2.3.1</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.xml.bind</groupId>
+        <artifactId>jaxb-api</artifactId>
+        <version>2.3.1</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.activation</groupId>
+        <artifactId>javax.activation-api</artifactId>
+        <version>1.2.0</version>
+      </dependency>
+      
       <dependency>
         <groupId>net.sourceforge.owlapi</groupId>
         <artifactId>owlapi-distribution</artifactId>
@@ -330,6 +347,12 @@
         <artifactId>commons-lang3</artifactId>
         <version>3.9</version>
       </dependency>
+      
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-text</artifactId>
+        <version>1.6</version>
+      </dependency>
 
       <dependency>
         <groupId>commons-io</groupId>
@@ -384,14 +407,14 @@
           <artifactId>maven-plugin-plugin</artifactId>
           <version>3.6.0</version>
           <executions>
-                 <execution>
-                    <id>default-descriptor</id>
-                    <goals>
-                        <goal>descriptor</goal>
-                    </goals>
-                    <phase>process-classes</phase>
-                </execution>
-            </executions>
+            <execution>
+              <id>default-descriptor</id>
+                <goals>
+                  <goal>descriptor</goal>
+                </goals>
+              <phase>process-classes</phase>
+            </execution>
+          </executions>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -408,10 +431,10 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.2</version>
+          <version>3.8.0</version>
           <configuration>
-            <source>1.8</source>
-            <target>1.8</target>
+            <source>11</source>
+            <target>11</target>
           </configuration>
         </plugin>
 
@@ -424,9 +447,12 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.18.1</version>
+          <version>2.22.0</version>
           <configuration>
             <skipTests>false</skipTests>
+            <argLine>
+              --illegal-access=permit
+            </argLine>
           </configuration>
         </plugin>
 
@@ -499,14 +525,12 @@
             </execution>
           </executions>
         </plugin>
-        
       </plugins>
     </pluginManagement>
   </build>
 
   <!-- Profiles -->
   <profiles>
-
     <!-- Isolate release process from normal build configuration -->
     <profile>
       <id>release</id>
@@ -516,20 +540,23 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
-            <version>3.0.0</version>
+            <version>3.1.0</version>
             <executions>
               <execution>
                 <id>attach-sources</id>
                 <goals>
                   <goal>jar-no-fork</goal>
                 </goals>
+                <configuration>
+                  <doclint>none</doclint>
+                </configuration>
               </execution>
             </executions>
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.10.3</version>
+            <version>3.1.0</version>
             <configuration>
               <tags>
                 <tag>
@@ -557,6 +584,9 @@
                 <goals>
                   <goal>jar</goal>
                 </goals>
+                <configuration>
+                  <doclint>none</doclint>
+                </configuration>
               </execution>
             </executions>
           </plugin>

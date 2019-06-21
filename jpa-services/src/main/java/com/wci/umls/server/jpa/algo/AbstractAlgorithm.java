@@ -199,9 +199,7 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
    * @param time the time
    * @return the total elapsed time str
    */
-  @SuppressWarnings({
-      "boxing"
-  })
+  //@SuppressWarnings({"boxing"})
   protected static String getTotalElapsedTimeStr(long time) {
     Long resultnum = (System.nanoTime() - time) / 1000000000;
     String result = resultnum.toString() + "s";
@@ -395,7 +393,7 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
    * @param p the p
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   public void checkRequiredProperties(String[] required, Properties p)
     throws Exception {
     if (p == null) {

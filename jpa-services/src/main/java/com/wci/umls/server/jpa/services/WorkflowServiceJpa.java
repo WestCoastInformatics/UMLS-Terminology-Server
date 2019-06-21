@@ -1294,7 +1294,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
    * @return the string
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private String composeQuery(Project project, String query) throws Exception {
     final StringBuilder localQuery = new StringBuilder();
     if (query != null && !query.equals("null"))
@@ -1324,7 +1324,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private void validateInit() throws Exception {
 
     if (workflowHandlerMap == null) {

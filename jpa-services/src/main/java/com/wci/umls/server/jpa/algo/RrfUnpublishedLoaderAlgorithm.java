@@ -241,7 +241,7 @@ public class RrfUnpublishedLoaderAlgorithm
         new File(getInputPath(), "atomNotes.txt"), Charset.forName("UTF-8"));
 
     final Session session = manager.unwrap(Session.class);
-    final org.hibernate.Query hQuery =
+    final org.hibernate.query.Query hQuery =
         session.createSQLQuery("select b.alternateTerminologyIds, a.id "
             + "from atoms a, AtomJpa_alternateTerminologyIds b "
             + "where b.AtomJpa_id = a.id "
@@ -344,7 +344,7 @@ public class RrfUnpublishedLoaderAlgorithm
         new File(getInputPath(), "srcAtomIds.txt"), Charset.forName("UTF-8"));
 
     final Session session = manager.unwrap(Session.class);
-    final org.hibernate.Query hQuery =
+    final org.hibernate.query.Query hQuery =
         session.createSQLQuery("select b.alternateTerminologyIds, a.id "
             + "from atoms a, AtomJpa_alternateTerminologyIds b "
             + "where b.AtomJpa_id = a.id "

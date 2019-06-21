@@ -360,7 +360,7 @@ public class Rf2FileSorter {
    * @param sortColumns the sort columns
    * @return the comparator
    */
-  @SuppressWarnings("static-method")
+  
   private Comparator<String> getComparator(final int[] sortColumns) {
     return new Comparator<String>() {
       @Override

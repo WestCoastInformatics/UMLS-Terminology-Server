@@ -552,9 +552,8 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    * @param time the time
    * @return the elapsed time
    */
-  @SuppressWarnings({
-      "boxing", "unused"
-  })
+  //@SuppressWarnings({"boxing", "unused"})
+  @SuppressWarnings({"unused"})
   private static Long getElapsedTime(long time) {
     return (System.nanoTime() - time) / 1000000000;
   }
@@ -620,9 +619,7 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    * @param sortColumns the sort columns
    * @return the comparator
    */
-  @SuppressWarnings({
-      "static-method", "unused"
-  })
+  @SuppressWarnings({"unused"})
   private Comparator<String> getComparator(final int[] sortColumns) {
     return new Comparator<String>() {
       @Override

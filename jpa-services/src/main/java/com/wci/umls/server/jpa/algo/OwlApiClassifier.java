@@ -696,7 +696,7 @@ public class OwlApiClassifier extends AbstractAlgorithm implements Classifier {
    * @param iri the iri
    * @return the terminology id
    */
-  @SuppressWarnings("static-method")
+  
   private String getTerminologyId(IRI iri) {
 
     if (iri.toString().contains("#")) {

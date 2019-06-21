@@ -489,7 +489,7 @@ public class RelationshipLoaderAlgorithm
    * @param lineList the line list
    * @return the list
    */
-  @SuppressWarnings("static-method")
+  
   private List<String> removeDups(List<String> lineList) {
     // Make a set of the rela, ID1, and ID2, so you don't create duplicate
     // relationships.

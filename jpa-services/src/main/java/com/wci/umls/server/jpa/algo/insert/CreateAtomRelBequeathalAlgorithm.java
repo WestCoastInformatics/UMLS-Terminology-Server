@@ -128,11 +128,10 @@ public class CreateAtomRelBequeathalAlgorithm extends AbstractInsertMaintRelease
           +  "      AND cpt.terminology = 'NCIMTH'  "
           +  "      AND ac.conceptTerminologyIds_KEY = 'NCIMTH'  "
           +  "      AND mr.rel = 'DEL'  )"
-        
-          
           );
       
 
+      @SuppressWarnings("unchecked")
       List<Object> list = query.getResultList();
       setSteps(list.size());
       /*List<Object> list = new ArrayList<>();

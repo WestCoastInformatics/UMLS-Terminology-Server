@@ -352,7 +352,7 @@ public class MapSetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
    * @param atn the atn
    * @return true, if is map set attribute
    */
-  @SuppressWarnings("static-method")
+  
   private boolean isMapSetAttribute(String atn) {
     if (atn.equals("MAPSETNAME") || atn.equals("MAPSETVERSION")
         || atn.equals("TOVSAB") || atn.equals("TORSAB")
@@ -376,7 +376,7 @@ public class MapSetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
    * @param atn the atn
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
-  @SuppressWarnings("static-method")
+  
   private boolean isXmapAttribute(String atn) {
     if (atn.equals("XMAP") || atn.equals("XMAPFROM") || atn.equals("XMAPTO")) {
       return true;

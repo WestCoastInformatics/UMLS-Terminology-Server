@@ -235,7 +235,7 @@ public class EclExpressionHandlerTest {
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   @Test
   public void testSearchWithEcl() throws Exception {
     ContentService contentService = new ContentServiceJpa();

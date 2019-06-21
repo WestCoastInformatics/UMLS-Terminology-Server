@@ -56,9 +56,7 @@ public class QuerySearchHandler extends DefaultSearchHandler {
    * @return the list
    * @throws Exception the exception
    */
-  @SuppressWarnings({
-      "unchecked", "static-method"
-  })
+  @SuppressWarnings("unchecked")
   private <T extends HasId> List<T> executeQuery(String query,
     boolean nativeFlag, Class<T> clazz, Map<String, String> params,
     EntityManager manager) throws Exception {

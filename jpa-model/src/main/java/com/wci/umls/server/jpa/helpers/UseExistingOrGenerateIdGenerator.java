@@ -20,7 +20,7 @@ public class UseExistingOrGenerateIdGenerator
 
   /* see superclass */
   //@Override
-  @SuppressWarnings("javadoc")
+  //@SuppressWarnings("javadoc")
 	public synchronized Serializable generate(SessionImplementor session,
     Object object) throws HibernateException {
     if (object == null) {

@@ -175,7 +175,7 @@ public class ComponentInfoRelRemapperAlgorithm
    * @return the type
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private String getType(IdType idType, String terminologyId) throws Exception {
     final String stringType;
     switch (idType) {

@@ -2743,7 +2743,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     final Query term2 = new TermQuery(new Term("version", version));
     final Query term3 = new TermQuery(new Term("atoms.suppressible", "false"));
     final Query term4 = new TermQuery(new Term("suppressible", "false"));
-    final BooleanQuery booleanQuery = new BooleanQuery();
+    final BooleanQuery.Builder booleanQuery = new BooleanQuery.Builder();
     booleanQuery.add(term1, BooleanClause.Occur.MUST);
     booleanQuery.add(term2, BooleanClause.Occur.MUST);
     booleanQuery.add(term3, BooleanClause.Occur.MUST);
@@ -2754,9 +2754,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
       booleanQuery.add(term5, BooleanClause.Occur.MUST);
     }
     booleanQuery.add(query, BooleanClause.Occur.MUST);
-
+    final Query queryForSearch = booleanQuery.build();
     final FullTextQuery fullTextQuery =
-        fullTextEntityManager.createFullTextQuery(booleanQuery, clazz);
+        fullTextEntityManager.createFullTextQuery(queryForSearch, clazz);
 
     fullTextQuery.setMaxResults(20);
 
@@ -5007,7 +5007,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private void validateInit() throws Exception {
     if (idHandlerMap == null) {
       throw new Exception(

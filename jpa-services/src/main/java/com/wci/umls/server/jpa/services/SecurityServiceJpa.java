@@ -508,7 +508,7 @@ public class SecurityServiceJpa extends RootServiceJpa
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private void validateInit() throws Exception {
     if (handler == null) {
       throw new Exception(

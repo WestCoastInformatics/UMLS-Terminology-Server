@@ -219,7 +219,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    * @return the list
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   public List<String> loadFileIntoStringList(File srcDirFile, String fileName,
     String keepRegexFilter, String skipRegexFilter, Long sortField)
     throws Exception {
@@ -765,7 +765,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    * @param terminologyId the terminology id
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   public void putComponent(Component component, String terminologyId)
     throws Exception {
     if (component instanceof Atom) {
@@ -1423,7 +1423,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    * @return the workflow status
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   public WorkflowStatus lookupWorkflowStatus(String string) throws Exception {
     switch (string) {
       case "R":
@@ -1442,7 +1442,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    * @return the string
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   public String lookupRelationshipType(String string) throws Exception {
     switch (string) {
       case "AQ":
@@ -1534,7 +1534,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   /**
    * Clear out all of the caches.
    */
-  @SuppressWarnings("static-method")
+  
   public void clearCaches() {
     atomCachedTerms.clear();
     atomIdCache.clear();
@@ -1563,7 +1563,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   /**
    * Clear attribute caches.
    */
-  @SuppressWarnings("static-method")
+  
   public void clearAttributeCaches() {
     attributeCachedTerms.clear();
     attributeIdCache.clear();
@@ -1700,7 +1700,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    * @return the string
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   public String computeVersion(String terminologyAndVersion, String terminology)
     throws Exception {
 

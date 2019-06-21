@@ -351,7 +351,7 @@ public class ProxyTester {
    * @return an instance of an enum
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private Object makeEnum(Class<?> clazz1, int initializer) throws Exception {
     Method m = clazz1.getMethod("values", new Class[0]);
     Object[] o = (Object[]) m.invoke(null, new Object[0]);

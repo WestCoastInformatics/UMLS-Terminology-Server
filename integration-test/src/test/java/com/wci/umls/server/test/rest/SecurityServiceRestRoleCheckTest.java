@@ -31,7 +31,7 @@ public class SecurityServiceRestRoleCheckTest extends SecurityServiceRestTest {
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   @Before
   public void setup() throws Exception {
 

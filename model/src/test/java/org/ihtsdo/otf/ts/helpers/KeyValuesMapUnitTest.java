@@ -83,9 +83,7 @@ public class KeyValuesMapUnitTest {
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings({
-    "static-method"
-  })
+  
   @Test
   public void testHelperDegenerateUse011() throws Exception {
     try {
@@ -101,7 +99,7 @@ public class KeyValuesMapUnitTest {
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   @Test
   public void testHelperEdgeCases011() throws Exception {
     KeyValuesMap map1 = new KeyValuesMap();

@@ -2060,7 +2060,7 @@ public class Rf2SnapshotLoaderAlgorithm
    * @param moduleId the module id
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
-  @SuppressWarnings("static-method")
+  
   private boolean isExtensionModule(String moduleId) {
     return !moduleId.equals(coreModuleId) && !moduleId.equals(metadataModuleId);
   }

@@ -32,7 +32,7 @@ public class IntegrationUnitSupport {
    * @return the method
    * @throws IOException Signals that an I/O exception has occurred.
    */
-  @SuppressWarnings("static-method")
+  
   public String getMethodText(String match, Path file) throws IOException {
     final List<String> lines = Files.lines(file).collect(Collectors.toList());
     final StringBuilder sb = new StringBuilder();
@@ -66,7 +66,7 @@ public class IntegrationUnitSupport {
    * @return the validation result
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   public ValidationResult checkActionPreconditions(
     AbstractMolecularAction action) throws Exception {
 

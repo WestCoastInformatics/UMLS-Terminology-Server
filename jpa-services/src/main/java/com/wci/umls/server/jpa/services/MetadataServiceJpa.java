@@ -186,7 +186,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa
    * @param list the list
    * @return the abbreviation map
    */
-  @SuppressWarnings("static-method")
+  
   private Map<String, String> getAbbreviationMap(
     List<? extends Abbreviation> list) {
     final Map<String, String> result = new HashMap<>();
@@ -1157,7 +1157,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  
   private void validateInit() throws Exception {
     if (graphResolverMap == null) {
       throw new Exception(

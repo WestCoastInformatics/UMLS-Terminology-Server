@@ -1749,7 +1749,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    * @param atn the atn
    * @return true, if is map set attribute
    */
-  @SuppressWarnings("static-method")
+  
   private boolean isMapSetAttribute(String atn) {
     if (atn.equals("MAPSETNAME") || atn.equals("MAPSETVERSION")
         || atn.equals("TOVSAB") || atn.equals("TORSAB")
@@ -3655,9 +3655,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    * @param time the time
    * @return the elapsed time
    */
-  @SuppressWarnings({
-      "boxing", "unused"
-  })
+  //@SuppressWarnings({"boxing", "unused"})
+  @SuppressWarnings({"unused"})
   private static Long getElapsedTime(long time) {
     return (System.nanoTime() - time) / 1000000000;
   }
@@ -3707,7 +3706,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    * @param moduleId the module id
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
-  @SuppressWarnings("static-method")
+  
   private boolean isExtensionModule(String moduleId) {
     return !moduleId.equals("900000000000207008")
         && !moduleId.equals("900000000000012004");
