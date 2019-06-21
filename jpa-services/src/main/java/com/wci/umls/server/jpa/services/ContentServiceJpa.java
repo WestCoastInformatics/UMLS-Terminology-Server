@@ -3895,10 +3895,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
         finalQuery, "toNameSort", clazz, pfs, totalCt, manager));
     results.setTotalCount(totalCt[0]);
 
-    for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : results
+    // Removed due to NE-611 graph resolver was removing RUIs on inverse relationships
+    // when approving concepts
+    /*for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : results
         .getObjects()) {
       getGraphResolutionHandler(terminology).resolve(rel);
-    }
+    }*/
     return results;
 
   }

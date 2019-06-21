@@ -5,6 +5,7 @@ package com.wci.umls.server.rest.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -2073,10 +2074,11 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               } else {
                 from = config.getProperty("mail.smtp.user");
               }
+              String server = InetAddress.getLocalHost().getHostName();
+              String title = "[Terminology Server] Run Complete for Process: "
+                  + processExecution.getName() + " (" + server + ")";
               ConfigUtility.sendEmail(
-                  "[Terminology Server] Run Complete for Process: "
-                      + processExecution.getName(),
-                  from, recipients, processService.getProcessLog(projectId,
+                  title, from, recipients, processService.getProcessLog(projectId,
                       processExecutionId, null, 1000),
                   config);
             }
