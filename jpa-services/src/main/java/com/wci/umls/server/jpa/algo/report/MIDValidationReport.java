@@ -114,7 +114,7 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
       String queryStr = queries.get(name);
       logInfo("  " + name + " = " + queryStr);
       checkCancel();
-      fireProgressEvent((int) (ct * 100.0 / totalCt), "Running " + name);
+      fireProgressEvent((int) (ct++ * 100.0 / totalCt), "Running " + name);
       try {
         // Get and execute query (truncate any trailing semi-colon)
         final Query query = manager.createNativeQuery(queryStr);

@@ -2904,6 +2904,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   private void reviseSemanticTypes() throws Exception {
     // 11/30/2019 Revise for SNOMED insertion the stys for 'Alergy to...'
     // concepts
+    // 6/25/2019 Revise for SNOMED insertion the stys for '
 
     logInfo(" Revise semantic types");
 
@@ -2913,12 +2914,12 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       Query query = getEntityManager().createNativeQuery(
           "select concepts.id from concepts, concepts_atoms, atoms, concepts_semantic_type_components, semantic_type_components "
-              + " where concepts.name like 'Allergy to%' and concepts.lastModifiedBy = 'SNOMEDCT_US_2019_03_01' "
+              + " where concepts.name like '% only product in % dose form%' and concepts.lastModifiedBy = 'SNOMEDCT_US_2019_03_01' "
               + " and concepts.workflowStatus = 'NEEDS_REVIEW' "
               + " and concepts.terminology = 'NCIMTH' "
               + " and concepts.id = concepts_semantic_type_components.concepts_id "
               + " and concepts_semantic_type_components.semanticTypes_id  = semantic_type_components.id "
-              + " and semantic_type_components.semanticType != 'Pathologic Function' "
+              + " and semantic_type_components.semanticType != 'Clinical Drug' "
               + " and concepts.id not in ( "
               + " select concepts.id from concepts, concepts_atoms, atoms "
               + " where concepts.id = concepts_atoms.concepts_id "
@@ -3020,7 +3021,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           sty.setPublishable(true);
           sty.setPublished(false);
           sty.setWorkflowStatus(WorkflowStatus.PUBLISHED);
-          sty.setSemanticType("Pathologic Function");
+          sty.setSemanticType("Clinical Drug");
           sty.setTerminology("NCIMTH");
           sty.setVersion("latest");
           sty.setTimestamp(new Date());
