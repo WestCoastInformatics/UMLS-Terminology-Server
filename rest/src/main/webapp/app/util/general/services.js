@@ -24,6 +24,15 @@ tsApp
           longMessage : null,
           expand : false
         };
+        
+        this.registrationModal = function(style) {
+        	$uibModal.open({
+            templateUrl: 'app/util/register/registerModal.html',
+            backdrop : (style === "WARN") ? 'none' : 'static',
+            controller : 'RegisterModalCtrl',
+            bindToController : true,
+          });
+        }
 
         // tinymce options
         this.tinymceOptions = {
@@ -561,6 +570,12 @@ tsApp
             }
             callbacks[key] = itemsToAdd[key];
           }
+        };
+        
+        this.validateEmail = function(email) {
+          var regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+          email = email.trim();
+          return !(email === "" || !regex.test(email))
         };
 
       } ]);

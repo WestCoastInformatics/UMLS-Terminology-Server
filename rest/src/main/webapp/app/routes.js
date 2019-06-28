@@ -308,7 +308,12 @@ tsApp.run([
             deferred.reject(data);
           }
 
-        );
+        ).then(function (){
+          //show registration popup if user requires registration
+        	if ($location.path() !== '/login' && $location.path() !== '/landing' ) {
+        		securityService.requiresRegistration()
+        	}
+        });
       return deferred.promise;
     } // end configureRoutes
 

@@ -38,16 +38,8 @@ tsApp.controller('LoginCtrl', [
           // set request header authorization and reroute
           $http.defaults.headers.common.Authorization = data.authToken;
           
-          // show registration popup
-          var requiresReg = securityService.requiresRegistration(data);
-          if (requiresReg !== "") {
-          	$uibModal.open({
-              templateUrl: 'app/util/register/registerModal.html',
-              backdrop : (requiresReg === "WARN") ? 'none' : 'static',
-              controller : 'RegisterModalCtrl',
-              bindToController : true,
-            });
-          }
+          // if user requires registration show registration popup
+          securityService.requiresRegistration();
           
           // if license required, go to license page
           if (appConfig['deploy.license.enabled'] === 'true') {

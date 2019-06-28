@@ -664,19 +664,23 @@ tsApp.service('securityService', [
     };
     
     this.requiresRegistration = function() {
-    	var user = this.getUser();
-    	if((appConfig['deploy.registration.required'])
-      		&& (user.email.endsWith("example.com") || user.emailVerified == null)) {
-    		
-    			if (user.loginCount > appConfig['deploy.registration.login.count.force']) {
-    				console.debug("force user to register");
-    				return "LOCK";
-    			} else if (user.loginCount > appConfig['deploy.registration.login.count.warn']) {
-    				console.debug("ask user to register");
-    				return "WARN";
-    			}
+      var deferred = $q.defer();
+      var user = this.getUser();
+
+      if (user.authToken !== null) {
+        if((appConfig['deploy.registration.required'])
+            && (user.email.endsWith("example.com") || user.emailVerified == null)) {
+
+          if (user.loginCount > appConfig['deploy.registration.login.count.force']) {
+            console.debug("force user to register");
+            utilService.registrationModal("LOCK")
+          } else if (user.loginCount > appConfig['deploy.registration.login.count.warn']) {
+            console.debug("ask user to register");
+            utilService.registrationModal("WARN")
+          }
         }
-    		return "";
+      }
+      return deferred.promise;
     };
 
     // Get favorite
