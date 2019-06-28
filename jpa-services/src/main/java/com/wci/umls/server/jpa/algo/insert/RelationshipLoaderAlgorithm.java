@@ -76,6 +76,8 @@ public class RelationshipLoaderAlgorithm
    */
   protected Boolean bequeathalRels = false;
 
+  private Set<String> cachedTerminologies = new HashSet<>();
+
   /**
    * Filename defaults to relationships.src. Only changed if this is a
    * bequeathal run
@@ -172,7 +174,8 @@ public class RelationshipLoaderAlgorithm
       //
       // Load the relationships.src file
       //
-      // if relationships.src file isn't in srcDirFile, check in srcDirFile/maint
+      // if relationships.src file isn't in srcDirFile, check in
+      // srcDirFile/maint
       File f = new File(getSrcDirFile(), fileName);
       if (!f.exists()) {
         setSrcDirFile(new File(getSrcDirFile(), "maint"));
@@ -567,13 +570,12 @@ public class RelationshipLoaderAlgorithm
     // indicate that concept caching needs to include unpublishable concepts
     // this is because child concept in bequeathal rel is unpublishable
     boolean unpublishable = true;
-    
+
     // Load the from and to objects based on type
-    final Component fromComponent =
-        getComponent(fromClassIdType, fromTermId,
-            fromTermAndVersion.equals("") ? null
-                : getCachedTerminology(fromTermAndVersion).getTerminology(),
-            null, unpublishable);
+    Component fromComponent = getComponent(fromClassIdType, fromTermId,
+        fromTermAndVersion.equals("") ? null
+            : getCachedTerminology(fromTermAndVersion).getTerminology(),
+        null, unpublishable);
 
     if (fromComponent == null) {
       logWarnAndUpdate(line, "Could not find from Component for this line.",
@@ -581,16 +583,34 @@ public class RelationshipLoaderAlgorithm
       return;
     }
 
-    final Component toComponent =
-        getComponent(toClassIdType, toTermId,
-            toTermAndVersion.equals("") ? null
-                : getCachedTerminology(toTermAndVersion).getTerminology(),
-            null, unpublishable);
+    final Component toComponent = getComponent(toClassIdType, toTermId,
+        toTermAndVersion.equals("") ? null
+            : getCachedTerminology(toTermAndVersion).getTerminology(),
+        null, unpublishable);
 
     if (toComponent == null) {
       logWarnAndUpdate(line, "Could not find to Component for this line.",
           "Relationship Loader: Could not find to Component");
       return;
+    }
+
+    // There is a rare edge-case where caching performed in loading the
+    // toComponent can sever the database link for the fromComponent, resulting
+    // in lazyInit errors later on.
+    // To handle this, if this is the first time a particular terminology has
+    // been passed into toComponent = getComponent (which would trigger a
+    // caching), reload the fromComponent to be safe
+
+    if (!toTermAndVersion.equals("")) {
+      if (!cachedTerminologies
+          .contains(getCachedTerminology(toTermAndVersion).getTerminology())) {
+        fromComponent = getComponent(fromClassIdType, fromTermId,
+            fromTermAndVersion.equals("") ? null
+                : getCachedTerminology(fromTermAndVersion).getTerminology(),
+            null, unpublishable);
+        cachedTerminologies
+            .add(getCachedTerminology(toTermAndVersion).getTerminology());
+      }
     }
 
     // NEW THINKING: allow a component info relationship from a SCUI/SDUI/CODE
@@ -604,7 +624,8 @@ public class RelationshipLoaderAlgorithm
     // }
 
     // Create the relationship.
-    // If id_type_1 and id_type_2 resolve to the same type of object, the relationship is of that type.
+    // If id_type_1 and id_type_2 resolve to the same type of object, the
+    // relationship is of that type.
     // Otherwise, it's a Component Info Relationship
     Relationship newRelationship = null;
     Class relClass = null;
@@ -710,13 +731,15 @@ public class RelationshipLoaderAlgorithm
 
     // Check to see if relationship with matching RUI already exists in the
     // database
-    final Relationship oldRelationship = (newRelationshipRui.equals("") ? null : 
-        (Relationship) getComponent("RUI", newRelationshipRui,
-        getCachedTerminology(sourceTermAndVersion).getTerminology(), relClass));
-    final Relationship oldInverseRelationship = (newInverseRelationshipRui.equals("") ? null : 
-        (Relationship) getComponent("RUI", newInverseRelationshipRui,
+    final Relationship oldRelationship = (newRelationshipRui.equals("") ? null
+        : (Relationship) getComponent("RUI", newRelationshipRui,
             getCachedTerminology(sourceTermAndVersion).getTerminology(),
             relClass));
+    final Relationship oldInverseRelationship =
+        (newInverseRelationshipRui.equals("") ? null
+            : (Relationship) getComponent("RUI", newInverseRelationshipRui,
+                getCachedTerminology(sourceTermAndVersion).getTerminology(),
+                relClass));
 
     // If no relationships with the same RUI exists, add this new
     // relationship

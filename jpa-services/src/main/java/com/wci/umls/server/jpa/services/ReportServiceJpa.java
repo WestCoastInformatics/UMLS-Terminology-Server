@@ -549,9 +549,9 @@ public class ReportServiceJpa extends HistoryServiceJpa
 
     // Reviewed Related Concepts
     final List<ConceptRelationship> reviewedRelatedConcepts = new ArrayList<>();
+    int ct = 0;
     for (final Relationship<?, ?> relationship : relList) {
       final ConceptRelationship rel = (ConceptRelationship) relationship;
-      int ct = 0;
       if ((rel.getWorkflowStatus() == WorkflowStatus.READY_FOR_PUBLICATION
           || rel.getWorkflowStatus() == WorkflowStatus.PUBLISHED)
           && !usedFromIds.contains(rel.getFrom().getTerminologyId()) && ct < 20
@@ -570,6 +570,10 @@ public class ReportServiceJpa extends HistoryServiceJpa
     if (reviewedRelatedConcepts.size() > 0) {
       sb.append("REVIEWED RELATED CONCEPT(S)").append(lineEnd);
       sb.append(getRelationshipsReport(reviewedRelatedConcepts));
+      if (ct >= 20) {
+        sb.append("*** Reviewed related concepts were truncated.").append(lineEnd);
+        sb.append("*** Reference the relationship panel for the full list.").append(lineEnd);
+      }
     }
 
     // Context Relationships
