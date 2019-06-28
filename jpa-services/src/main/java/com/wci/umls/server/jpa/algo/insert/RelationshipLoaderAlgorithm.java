@@ -601,14 +601,14 @@ public class RelationshipLoaderAlgorithm
     // been passed into toComponent = getComponent (which would trigger a
     // caching), reload the fromComponent to be safe
 
-    if (!cachedTerminologies
-        .contains(getCachedTerminology(toTermAndVersion).getTerminology())) {
-      fromComponent = getComponent(fromClassIdType, fromTermId,
-          fromTermAndVersion.equals("") ? null
-              : getCachedTerminology(fromTermAndVersion).getTerminology(),
-          null, unpublishable);
-      cachedTerminologies
-          .add(getCachedTerminology(toTermAndVersion).getTerminology());
+    if (!toTermAndVersion.equals("")){
+      if (!cachedTerminologies.contains(getCachedTerminology(toTermAndVersion).getTerminology())) {
+        fromComponent = getComponent(fromClassIdType, fromTermId,
+            fromTermAndVersion.equals("") ? null
+                : getCachedTerminology(fromTermAndVersion).getTerminology(),
+            null, unpublishable);
+        cachedTerminologies
+            .add(getCachedTerminology(toTermAndVersion).getTerminology());
     }
 
     // NEW THINKING: allow a component info relationship from a SCUI/SDUI/CODE
