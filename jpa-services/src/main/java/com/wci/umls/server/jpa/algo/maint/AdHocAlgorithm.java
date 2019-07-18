@@ -2912,7 +2912,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     try {
 
-      Query query = getEntityManager().createNativeQuery(
+      /*Query query = getEntityManager().createNativeQuery(
           "select concepts.id from concepts, concepts_atoms, atoms, concepts_semantic_type_components, semantic_type_components "
               + " where concepts.name like '% only product in % dose form%' and concepts.lastModifiedBy = 'SNOMEDCT_US_2019_03_01' "
               + " and concepts.workflowStatus = 'NEEDS_REVIEW' "
@@ -2928,8 +2928,24 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
               + " and concepts.id = concepts_atoms.concepts_id "
               + " and atoms.id = concepts_atoms.atoms_id "
               + " and atoms.terminology = 'SNOMEDCT_US' "
-              + " group by atoms.codeId having count(distinct(atoms.codeId)) = 1");
+              + " group by atoms.codeId having count(distinct(atoms.codeId)) = 1");*/
 
+      
+      Query query = getEntityManager().createNativeQuery(
+      " select distinct concepts.id " +
+      " from concepts, atoms, concepts_atoms, concepts_semantic_type_components, semantic_type_components " +
+      " where concepts.name like '% in % dosage form%' " +
+      " and concepts.workflowStatus = 'NEEDS_REVIEW' " +   
+      " and concepts.terminology = 'NCIMTH' " +
+      " and concepts.lastModifiedBy = 'NCIMTH_latest' " +
+      " and concepts.id = concepts_atoms.concepts_id " +
+      " and atoms.id = concepts_atoms.atoms_id " +
+      " and concepts.id = concepts_semantic_type_components.concepts_id " +
+      " and concepts_semantic_type_components.semanticTypes_id  = semantic_type_components.id " +
+      " and semantic_type_components.semanticType != 'Clinical Drug';");
+      
+      
+      
       logInfo("[ReviseSemanticTypes] Identifying concepts with incorrect stys");
 
       List<Object> list = query.getResultList();
