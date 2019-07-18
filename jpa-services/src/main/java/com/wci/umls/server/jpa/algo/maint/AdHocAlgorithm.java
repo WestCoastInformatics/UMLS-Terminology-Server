@@ -3007,6 +3007,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
               throw new Exception();
             }
             
+            commitClearBegin();   
+            
             // prevent stale concept - get concept's revised lastModified time
             concept = getConcept(concept.getId());
           }
@@ -3017,7 +3019,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           action.close();
         }
 
-        commitClearBegin();
+
 
         // prevent stale concept
         concept = getConcept(concept.getId());
