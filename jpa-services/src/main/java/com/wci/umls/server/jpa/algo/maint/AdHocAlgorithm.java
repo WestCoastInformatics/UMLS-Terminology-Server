@@ -3006,6 +3006,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
                   "[ReviseSemanticTypes] validation error " + validationResult);
               throw new Exception();
             }
+            
+            // prevent stale concept - get concept's revised lastModified time
+            concept = getConcept(concept.getId());
           }
         } catch (Exception e) {
           e.printStackTrace();
