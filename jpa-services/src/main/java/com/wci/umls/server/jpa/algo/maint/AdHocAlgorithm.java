@@ -207,6 +207,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       turnOffCTRPSDC();
     } else if (actionName.equals("Fix Terminology Names")) {
       fixTerminologyNames();
+    } else if (actionName.equals("Fix Terminologies")) {
+      fixTerminologies();
     } else if (actionName.equals("Fix RHT Atoms")) {
       fixRHTAtoms();
     } else if (actionName.equals("Fix MDR Descriptors")) {
@@ -1905,6 +1907,49 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
   }
 
+  private void fixTerminologies() throws Exception {
+    // 8/20/2019 Terminology codes, names and versions out of sync.
+    // See NE-619
+    logInfo(" Fix Terminologies");
+
+    int updatedTerminologies = 0;
+
+    try {
+
+      // Get all terminologies
+      TerminologyList terminolgyList = getTerminologies();
+
+      setSteps(terminolgyList.getObjects().size());
+
+      for (final Terminology terminology : terminolgyList.getObjects()) {
+        String[] segments = terminology.getPreferredName().split(",");
+        String newPreferredName = "";
+        if (segments.length >= 2 && segments[segments.length - 1]
+            .equals(segments[segments.length - 2])) {
+          newPreferredName = terminology.getPreferredName().substring(0,
+              terminology.getPreferredName().lastIndexOf(','));
+        }
+
+        if (!newPreferredName.equals("")) {
+          terminology
+              .setPreferredName(newPreferredName);
+          updatedTerminologies++;
+        }
+
+        updateProgress();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+      // n/a
+    }
+
+    logInfo("Updated " + updatedTerminologies
+        + " terminology names to remove duplicate versions.");
+    logInfo("Finished " + getName());
+  }
+  
   private void fixRHTAtoms() throws Exception {
     // 9/20/2018 Issues identified where RHT atoms had terminology of 'NCIMTH',
     // instead of 'SRC'.
@@ -3141,7 +3186,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Set Stamped Worklists To Ready For Publication",
             "Add Disposition Atoms", "Fix RelGroups", "Fix Source Level Rels",
             "Fix AdditionalRelType Inverses", "Fix Snomed Family",
-            "Turn off CTRP-SDC", "Fix Terminology Names", "Fix RHT Atoms",
+            "Turn off CTRP-SDC", "Fix Terminology Names", "Fix Terminologies", "Fix RHT Atoms",
             "Fix MDR Descriptors", "Clear Worklists and Checklists",
             "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts", "Fix Null RUIs", 
             "Remove old relationships", "Assign Missing STY ATUIs", "Fix Component History Version",
