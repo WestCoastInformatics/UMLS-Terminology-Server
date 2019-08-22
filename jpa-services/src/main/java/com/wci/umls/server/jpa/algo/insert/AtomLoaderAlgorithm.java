@@ -212,7 +212,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         final String newAtomAui = handler.getTerminologyId(newAtom);
 
         // Check to see if atom with matching AUI already exists in the database
-        final Atom oldAtom = (Atom) getComponent("AUI", newAtomAui, null, null);
+        final Atom oldAtom = (Atom) getComponent("AUI", newAtomAui, null, null, true);
 
         // Check if existing atom has already been processes on a previous run.
         // In this case, skip to the next line
@@ -387,7 +387,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             if (atomAui != null) {
 
               // Load the atom with matching AUI
-              final Atom atom = (Atom) getComponent("AUI", atomAui, null, null);
+              final Atom atom = (Atom) getComponent("AUI", atomAui, null, null, true);
 
               if (atom == null) {
                 // do nothing. This will occur often - umlscui.txt contains way
