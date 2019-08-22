@@ -3182,10 +3182,19 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         String atomAUI = atom.getAlternateTerminologyIds()
             .get(getProject().getTerminology());
 
+        // There is a very particular edge-case where an MTH/PN atom was set to
+        // unpublishable by an editor prior to the last release (and is
+        // therefore not represented in the AUICUI map).
+        // For these, clear out the lastReleaseCUI
+        if (!auiCuiMap.containsKey(atomAUI)
+            && atom.getTerminology().equals("MTH") && atom.getTermType().equals("PN")) {
+          atom.getConceptTerminologyIds().remove(getProject().getTerminology());
+          updateAtom(atom);
+          updatedAtomCount++;
+        }
         // If this atom is not represented in the AUICUI map, skip it
-        if (!auiCuiMap.containsKey(atomAUI)) {
-          updateProgress();
-          continue;
+        else if (!auiCuiMap.containsKey(atomAUI)) {
+          //Do nothing - it will auto-skip due to the else-if
         }
         // Otherwise, if the atom's lastReleaseCui doesn't match the CUI in the
         // AUICUI map, update the atom
@@ -3273,7 +3282,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts",
         "Fix Null RUIs", "Remove old relationships", "Assign Missing STY ATUIs",
         "Fix Component History Version", "Fix AdditionalRelType Inverses 2",
-        "Remove Demotions", "Revise Semantic Types","Fix Atom Last Release CUI"));
+        "Remove Demotions", "Revise Semantic Types",
+        "Fix Atom Last Release CUI"));
     params.add(param);
 
     return params;
