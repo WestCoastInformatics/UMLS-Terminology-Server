@@ -341,7 +341,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     Query query = getEntityManager().createQuery(
         "select value(b), a.id from AtomJpa a join a.alternateTerminologyIds b "
             + "where KEY(b) = :terminology "
-            + (unpublishable ? "" : " AND publishable = true "));
+            + (unpublishable ? "" : " and a.publishable = true "));
     query.setParameter("terminology", terminology);
 
     List<Object[]> list = query.getResultList();
@@ -355,7 +355,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     query = getEntityManager()
         .createQuery("select a.terminologyId, a.id from AtomJpa a "
             + "WHERE a.terminology = :terminology AND a.terminologyId != '' "
-            + "and a.publishable=true");
+            + (unpublishable ? "" : " and a.publishable = true "));
     query.setParameter("terminology", terminology);
 
     list = query.getResultList();
