@@ -3187,7 +3187,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         // therefore not represented in the AUICUI map).
         // For these, clear out the lastReleaseCUI
         if (!auiCuiMap.containsKey(atomAUI)
-            && atom.getTerminology().equals("MTH") && atom.getTermType().equals("PN")) {
+            && atom.getTerminology().equals("MTH") && atom.getTermType().equals("PN") && !ConfigUtility.isEmpty(atom.getConceptTerminologyIds().get(getProject().getTerminology()))) {
           atom.getConceptTerminologyIds().remove(getProject().getTerminology());
           updateAtom(atom);
           updatedAtomCount++;
