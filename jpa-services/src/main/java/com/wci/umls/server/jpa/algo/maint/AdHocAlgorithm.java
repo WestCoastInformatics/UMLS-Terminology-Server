@@ -7,9 +7,7 @@ import static java.lang.Math.toIntExact;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -25,30 +23,21 @@ import java.util.stream.Collectors;
 
 import javax.persistence.Query;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-import org.hibernate.Hibernate;
-
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.Project;
-import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.QueryType;
-import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
-import com.wci.umls.server.jpa.algo.action.AbstractMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddAtomMolecularAction;
-import com.wci.umls.server.jpa.algo.action.AddRelationshipMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddSemanticTypeMolecularAction;
-import com.wci.umls.server.jpa.algo.action.ApproveMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RedoMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RemoveSemanticTypeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
@@ -89,14 +78,11 @@ import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.RelationshipIdentity;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
-import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
-import com.wci.umls.server.services.ContentService;
-import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.UmlsIdentityService;
 import com.wci.umls.server.services.WorkflowService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
@@ -142,7 +128,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             + File.separator + getProcess().getInputPath();
 
     setSrcDirFile(new File(srcFullPath));
-    
+
     return validationResult;
   }
 
@@ -224,7 +210,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     } else if (actionName.equals("Remove old relationships")) {
       removeOldRelationships();
     } else if (actionName.equals("Assign Missing STY ATUIs")) {
-      assignMissingStyAtui(); 
+      assignMissingStyAtui();
     } else if (actionName.equals("Fix Component History Version")) {
       fixComponentHistoryVersion();
     } else if (actionName.equals("Fix AdditionalRelType Inverses 2")) {
@@ -233,6 +219,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       removeDemotions();
     } else if (actionName.equals("Revise Semantic Types")) {
       reviseSemanticTypes();
+    } else if (actionName.equals("Fix Atom Last Release CUI")) {
+      fixAtomLastReleaseCui();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -1876,9 +1864,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         if (terminology.getRootTerminology().getFamily().equals("NCI")
             || terminology.getRootTerminology().getFamily()
                 .equals("SNOMEDCT_US")
-            || terminology.getRootTerminology().getFamily().equals("MED-RT") ||
-             terminology.getRootTerminology().getFamily().equals("NCBI") ||
-             terminology.getRootTerminology().getFamily().equals("MTH")) {
+            || terminology.getRootTerminology().getFamily().equals("MED-RT")
+            || terminology.getRootTerminology().getFamily().equals("NCBI")
+            || terminology.getRootTerminology().getFamily().equals("MTH")) {
           versionSuffix = ", " + terminology.getVersion();
         } else if (terminology.getRootTerminology().getFamily().equals("MDR")) {
           versionSuffix = ", " + terminology.getVersion().replace("_", ".");
@@ -1936,8 +1924,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         }
 
         if (!newPreferredName.equals("")) {
-          terminology
-              .setPreferredName(newPreferredName);
+          terminology.setPreferredName(newPreferredName);
           updatedTerminologies++;
         }
 
@@ -1954,7 +1941,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         + " terminology names to remove duplicate versions.");
     logInfo("Finished " + getName());
   }
-  
+
   private void fixRHTAtoms() throws Exception {
     // 9/20/2018 Issues identified where RHT atoms had terminology of 'NCIMTH',
     // instead of 'SRC'.
@@ -2197,7 +2184,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Updated " + updatedRelationships + " component info relationships.");
     logInfo("Finished " + getName());
   }
-  
+
   private void removeSNOMEDAtomSubsets() throws Exception {
 
     logInfo(" Remove SNOMED Atom Subsets");
@@ -2213,7 +2200,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
-        AtomSubsetJpa atomSubset = 
+        AtomSubsetJpa atomSubset =
             (AtomSubsetJpa) getSubset(id, AtomSubsetJpa.class);
         atomSubsets.add(atomSubset);
         totalSubsetMembersSize += atomSubset.getMembers().size();
@@ -2224,16 +2211,15 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       logInfo("[RemoveSNOMEDSubsets] " + atomSubsets.size()
           + " Atom Subsets identified");
       logInfo("[RemoveSNOMEDSubsets] " + totalSubsetMembersSize
-      + " Atom Subset Members identified");
+          + " Atom Subset Members identified");
 
       // handle lazy init error
       for (final AtomSubsetJpa subset : atomSubsets) {
         for (final AtomSubsetMember member : subset.getMembers()) {
-            member.getAttributes().size();
+          member.getAttributes().size();
         }
       }
-      
-      
+
       for (final AtomSubsetJpa subset : atomSubsets) {
         logInfo("[RemoveSNOMEDSubsets] " + subset.getMembers().size()
             + " Before removal atom Subset Members  identified on: "
@@ -2261,8 +2247,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     } finally {
     }
 
-    logInfo(
-        "Removed " + totalSubsetMembersSize + " atom subset members.");
+    logInfo("Removed " + totalSubsetMembersSize + " atom subset members.");
     logInfo("Finished " + getName());
 
     logInfo("Finished " + getName());
@@ -2289,7 +2274,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         final Long id = Long.valueOf(entry.toString());
         Concept concept = getConcept(id);
         if (concept == null) {
-          logWarn("[AdHoc Algorithm] Concept designated to be marked unpublished that is null:" + id);
+          logWarn(
+              "[AdHoc Algorithm] Concept designated to be marked unpublished that is null:"
+                  + id);
           continue;
         }
         concept.setPublishable(false);
@@ -2489,77 +2476,69 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
 
   }
-  
-  /*private void fixDuplicateConcepts() throws Exception {
-    // 5/7/2018 These were created erroneously during the load from MEME4 
-    // (having to do with the loading of component_histories and dead CUIs), 
-    // and need to be taken care of.
 
-    logInfo(" Fix duplicate concepts");
+  /*
+   * private void fixDuplicateConcepts() throws Exception { // 5/7/2018 These
+   * were created erroneously during the load from MEME4 // (having to do with
+   * the loading of component_histories and dead CUIs), // and need to be taken
+   * care of.
+   * 
+   * logInfo(" Fix duplicate concepts");
+   * 
+   * List<ConceptRelationship> duplicateConcepts = new ArrayList<>();
+   * 
+   * try {
+   * 
+   * // Identify all relationship identities that have duplicates // REAL QUERY
+   * Query query = getEntityManager().createNativeQuery(
+   * "select id from concept_relationships where publishable and terminology != 'NCIMTH' limit 55"
+   * );
+   * 
+   * 
+   * logInfo("[TEST] ");
+   * 
+   * List<Object> list = query.getResultList(); int ct = 0; for (final Object
+   * entry : list) { final Long id = Long.valueOf(entry.toString());
+   * ConceptRelationship cptRel = (ConceptRelationship)getRelationship(id,
+   * ConceptRelationshipJpa.class); duplicateConcepts.add(cptRel); ct++; if (ct
+   * == 50) { break; } }
+   * 
+   * setSteps(duplicateConcepts.size());
+   * 
+   * logInfo("[TEST] " + duplicateConcepts.size() +
+   * " Concept duplicates identified");
+   * 
+   * for (final ConceptRelationship rel : duplicateConcepts) {
+   * System.out.println("rel before: " + rel);
+   * rel.getAlternateTerminologyIds().clear(); updateRelationship(rel);
+   * //updateProgress(); //System.out.println("rel after: " + rel); }
+   * 
+   * commitClearBegin(); } catch (Exception e) { e.printStackTrace();
+   * fail("Unexpected exception thrown - please review stack trace."); } finally
+   * {
+   * 
+   * }
+   * 
+   * logInfo("Finished " + getName());
+   * 
+   * }
+   */
 
-    List<ConceptRelationship> duplicateConcepts = new ArrayList<>();
-
-    try {
-
-      // Identify all relationship identities that have duplicates
-      // REAL QUERY
-      Query query = getEntityManager().createNativeQuery(
-          "select id from concept_relationships where publishable and terminology != 'NCIMTH' limit 55");
-
-
-      logInfo("[TEST] ");
-
-      List<Object> list = query.getResultList();
-      int ct = 0;
-      for (final Object entry : list) {
-        final Long id = Long.valueOf(entry.toString());
-        ConceptRelationship cptRel = (ConceptRelationship)getRelationship(id, ConceptRelationshipJpa.class);
-        duplicateConcepts.add(cptRel);
-        ct++;
-        if (ct == 50) {
-          break;
-        }
-      }
-
-      setSteps(duplicateConcepts.size());
-
-      logInfo("[TEST] " + duplicateConcepts.size()
-          + " Concept duplicates identified");
-
-      for (final ConceptRelationship rel : duplicateConcepts) {
-        System.out.println("rel before: " + rel);
-        rel.getAlternateTerminologyIds().clear();
-        updateRelationship(rel);
-        //updateProgress();
-        //System.out.println("rel after: " + rel);
-      }
-
-      commitClearBegin();
-    } catch (Exception e) {
-      e.printStackTrace();
-      fail("Unexpected exception thrown - please review stack trace.");
-    } finally {
-
-    }
-    
-    logInfo("Finished " + getName());
-    
-  }*/
-  
   private void fixNullRUIs() throws Exception {
-    // 12/17/2018 Ensure all components are attached to their identity.  
-    // Concept rels inexplicably got null RUIs and the RUIs need to be 
+    // 12/17/2018 Ensure all components are attached to their identity.
+    // Concept rels inexplicably got null RUIs and the RUIs need to be
     // reassigned.
 
     logInfo(" Fix null RUIs");
 
     List<Long> relsToFix = new ArrayList<>();
     Map<String, String> relTypeMap = new HashMap<>();
-    
-    IdentifierAssignmentHandler handler = newIdentifierAssignmentHandler(getProject().getTerminology());
+
+    IdentifierAssignmentHandler handler =
+        newIdentifierAssignmentHandler(getProject().getTerminology());
     handler.setTransactionPerOperation(false);
     handler.beginTransaction();
-    
+
     try {
 
       for (final RelationshipType rel : getRelationshipTypes(
@@ -2574,27 +2553,29 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         relTypeMap.put(rel.getAbbreviation(),
             rel.getInverse().getAbbreviation());
       }
-      
-      // Identify all concept relationships with null alternate terminology ids (RUIs)
+
+      // Identify all concept relationships with null alternate terminology ids
+      // (RUIs)
       // REAL QUERY
       Query query = getEntityManager().createNativeQuery(
           "select cr.id from concept_relationships cr left join conceptrelationshipjpa_alternateterminologyids crat on cr.id=crat.ConceptRelationshipJpa_id where cr.publishable and crat.alternateTerminologyIds is null and terminology != 'NCIMTH'");
 
       List<Object> list = query.getResultList();
-    
+
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
         relsToFix.add(id);
       }
-      
+
       logInfo("[FixNullRUIs] " + relsToFix.size()
-      + " Concept relationships identified with null RUIs");
-      
+          + " Concept relationships identified with null RUIs");
 
       setSteps(relsToFix.size());
       for (Long relId : relsToFix) {
-        ConceptRelationship relationship = (ConceptRelationship)getRelationship(relId, ConceptRelationshipJpa.class);       
-        
+        ConceptRelationship relationship =
+            (ConceptRelationship) getRelationship(relId,
+                ConceptRelationshipJpa.class);
+
         if (!relationship.getTerminology().equals("MTH")) {
           continue;
         }
@@ -2605,15 +2586,16 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         final String relationshipRui = handler.getTerminologyId(relationship,
             inverseRelType, inverseAdditionalRelType);
         relationship.getAlternateTerminologyIds().size();
-        relationship.getAlternateTerminologyIds().put(getProject().getTerminology(), relationshipRui);
+        relationship.getAlternateTerminologyIds()
+            .put(getProject().getTerminology(), relationshipRui);
         updateRelationship(relationship);
         updateProgress();
       }
 
-      commitClearBegin();      
+      commitClearBegin();
       handler.commit();
       handler.close();
-      
+
     } catch (Exception e) {
       e.printStackTrace();
       handler.rollback();
@@ -2622,11 +2604,11 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     } finally {
 
     }
-    
+
     logInfo("Finished " + getName());
-    
+
   }
-  
+
   private void removeOldRelationships() throws Exception {
     // 12/15/2018 concept_relationships were created by MTH_2018AB test
     // insertion that duplicated existing concept_relationships from old
@@ -2635,16 +2617,13 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     logInfo(" Remove old relationships");
 
-    Query query = getEntityManager().createNativeQuery("select cr.id from " +
-        " concept_relationships cr, concepts c1, concepts c2 " +
-        " where cr.from_id = c1.id " +
-        " and cr.to_id = c2.id " + 
-        " AND from_id < to_id " +
-        " and cr.terminology = 'MTH' " +
-        " and cr.terminology != '2019AA' " +
-        " and c1.terminology = 'NCIMTH' " +
-        " and c2.terminology = 'NCIMTH' " +
-        " GROUP BY c1.terminologyId, c2.terminologyId HAVING COUNT(*) > 1");
+    Query query = getEntityManager().createNativeQuery("select cr.id from "
+        + " concept_relationships cr, concepts c1, concepts c2 "
+        + " where cr.from_id = c1.id " + " and cr.to_id = c2.id "
+        + " AND from_id < to_id " + " and cr.terminology = 'MTH' "
+        + " and cr.terminology != '2019AA' " + " and c1.terminology = 'NCIMTH' "
+        + " and c2.terminology = 'NCIMTH' "
+        + " GROUP BY c1.terminologyId, c2.terminologyId HAVING COUNT(*) > 1");
 
     logInfo("[RemoveOldRelationships] Loading "
         + "ConceptRelationship ids for old relationships that now have duplicates caused by the MTH 2018AB insertion");
@@ -2663,10 +2642,12 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
 
   }
-  
+
   private void assignMissingStyAtui() throws Exception {
-    // 1/8/2019 ATUI is missing on STY C0303976|T104|A1.4.1.2|Chemical Viewed Structurally|||
-    // May need to be run ONLY DURING RELEASE PROCESS if AssignReleaseIdentifiersAlgorithm misses it again
+    // 1/8/2019 ATUI is missing on STY C0303976|T104|A1.4.1.2|Chemical Viewed
+    // Structurally|||
+    // May need to be run ONLY DURING RELEASE PROCESS if
+    // AssignReleaseIdentifiersAlgorithm misses it again
 
     logInfo(" Assign missing sty ATUI");
 
@@ -2696,8 +2677,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       if (sty == null) {
         logInfo("sty is null " + result.toString() + " " + c.toString());
       }
-      logInfo("[AssignMissingStyAtui]  "
-          + c.getTerminologyId() + " " + sty.getId());
+      logInfo("[AssignMissingStyAtui]  " + c.getTerminologyId() + " "
+          + sty.getId());
       // For each semantic type component (e.g. concept.getSemanticTypes())
       final String origAtui = sty.getTerminologyId();
       sty.setTerminologyId("");
@@ -2718,7 +2699,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
 
   }
-  
+
   private void fixComponentHistoryVersion() throws Exception {
     // 1/16/2019 ComponentHistory version should match associatedRelease, not be
     // 'latest'
@@ -2767,13 +2748,15 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Updated " + updatedHistories + " component histories.");
     logInfo("Finished " + getName());
   }
-  
+
   private void fixAdditionalRelTypeInverses2() throws Exception {
     // 1/25/2019 Issues identified with additional relationship types where
-    // new one was added, but old one was not made unpublishable or detached from inverse.
+    // new one was added, but old one was not made unpublishable or detached
+    // from inverse.
     // set the old inverse to pubishable=false.
     // Update inverse to point to the new correct one.
-    // 6/2019 Add functionality to address more Invalid additional_relationship_types
+    // 6/2019 Add functionality to address more Invalid
+    // additional_relationship_types
     // including those related to NICHD and CDRH
     logInfo(" Fix Additional Rel Type Inverses 2");
 
@@ -2781,8 +2764,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     int updatedRelationships = 0;
     List<AdditionalRelationshipTypeJpa> additionalRelationshipsTypes =
         new ArrayList<>();
-    List<AtomRelationshipJpa> atomRelationships =
-        new ArrayList<>();
+    List<AtomRelationshipJpa> atomRelationships = new ArrayList<>();
 
     try {
 
@@ -2825,7 +2807,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         }
         // Set another incorrectly-inverted additional relationship type to its
         // correct inverse
-        // Confirm that  Parent_Is_NICHD is inverse of Has_NICHD_Parent
+        // Confirm that Parent_Is_NICHD is inverse of Has_NICHD_Parent
         else if (additionalRelationshipType.getId() == 1260) {
           AdditionalRelationshipType inverseRelType =
               getAdditionalRelationshipType("Parent_Is_NICHD", "NCIMTH",
@@ -2834,26 +2816,26 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           updateAdditionalRelationshipType(additionalRelationshipType);
           updatedAdditionalRelationshipTypes++;
         }
-        //  Parent_Is_NICHD (publishable)
-        else if (additionalRelationshipType.getId() == 1259) {       
+        // Parent_Is_NICHD (publishable)
+        else if (additionalRelationshipType.getId() == 1259) {
           additionalRelationshipType.setPublishable(true);
           updateAdditionalRelationshipType(additionalRelationshipType);
           updatedAdditionalRelationshipTypes++;
         }
-        // Parent_Is_CDRH  (publishable)
-        else if (additionalRelationshipType.getId() == 327352) {       
+        // Parent_Is_CDRH (publishable)
+        else if (additionalRelationshipType.getId() == 327352) {
           additionalRelationshipType.setPublishable(true);
           updateAdditionalRelationshipType(additionalRelationshipType);
           updatedAdditionalRelationshipTypes++;
         }
         // NICHD_Parent_Of (not publishable)
-        else if (additionalRelationshipType.getId() == 598402) {       
+        else if (additionalRelationshipType.getId() == 598402) {
           additionalRelationshipType.setPublishable(false);
           updateAdditionalRelationshipType(additionalRelationshipType);
           updatedAdditionalRelationshipTypes++;
         }
         // CDRH_Parent_Of (not publishable)
-        else if (additionalRelationshipType.getId() == 598404) {       
+        else if (additionalRelationshipType.getId() == 598404) {
           additionalRelationshipType.setPublishable(false);
           updateAdditionalRelationshipType(additionalRelationshipType);
           updatedAdditionalRelationshipTypes++;
@@ -2864,7 +2846,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         }
         updateProgress();
       }
-      
+
       // update atom_relationships from 'gives_rise_to' to 'develops_into'
       query = getEntityManager().createNativeQuery(
           "select id from atom_relationships where additionalRelationshipType = 'gives_rise_to'");
@@ -2872,12 +2854,13 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       List<Object> ids = query.getResultList();
 
       for (final Object result : ids) {
-        final Relationship<?, ?> rel = (AtomRelationship) getRelationship(Long.valueOf(result.toString()), AtomRelationshipJpa.class);
+        final Relationship<?, ?> rel =
+            (AtomRelationship) getRelationship(Long.valueOf(result.toString()),
+                AtomRelationshipJpa.class);
         rel.setAdditionalRelationshipType("develops_into");
         updateRelationship(rel);
         updatedRelationships++;
-      } 
-
+      }
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -2888,20 +2871,18 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     logInfo("Updated " + updatedAdditionalRelationshipTypes
         + " additional relationship types updated 2.");
-    logInfo("Updated " + updatedRelationships
-        + " relationships updated 2.");
+    logInfo("Updated " + updatedRelationships + " relationships updated 2.");
     logInfo("Finished " + getName());
   }
-  
-  
+
   private void removeDemotions() throws Exception {
-    // 3/22/2019 Clean up demotions that should have been removed during concept approval.
+    // 3/22/2019 Clean up demotions that should have been removed during concept
+    // approval.
 
     logInfo(" Remove Demotions");
-  
+
     try {
 
-      
       Query query = getEntityManager().createNativeQuery("select "
           + "ar.id relId, " + "cr.to_id c1Id, " + "cr.from_id c2Id " + "from "
           + "atom_relationships ar, " + "concept_relationships cr, "
@@ -2914,43 +2895,47 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           + "and cr.workflowStatus in ('READY_FOR_PUBLICATION', 'PUBLISHED') "
 
       );
-      
 
       final List<Object[]> ids = query.getResultList();
 
       setSteps(ids.size());
-      for (final Object[] result : ids) {;
-        final Relationship<?, ?> rel = (AtomRelationship) getRelationship(Long.valueOf(result[0].toString()), AtomRelationshipJpa.class);
+      for (final Object[] result : ids) {
+        ;
+        final Relationship<?, ?> rel = (AtomRelationship) getRelationship(
+            Long.valueOf(result[0].toString()), AtomRelationshipJpa.class);
         final Concept c1 = getConcept(Long.valueOf(result[1].toString()));
         final Concept c2 = getConcept(Long.valueOf(result[2].toString()));
-      
-        logInfo("Remove demotion: " + rel.getId() + " between " + c1.getId() + " and " + c2.getId());
+
+        logInfo("Remove demotion: " + rel.getId() + " between " + c1.getId()
+            + " and " + c2.getId());
         if (rel != null) {
           removeRelationship(rel.getId(), AtomRelationshipJpa.class);
         }
         updateProgress();
       }
-      
+
     } catch (Exception e) {
       e.printStackTrace();
       fail("Unexpected exception thrown - please review stack trace.");
     } finally {
       // n/a
     }
-    
+
     logInfo("Finished " + getName());
   }
-  
+
   private boolean noXRRel(Concept a, Concept b) {
     for (ConceptRelationship cr : a.getRelationships()) {
-      if (cr.getRelationshipType().equals("XR") && (cr.getFrom().getId() == b.getId() || cr.getTo().getId() == b.getId())) {
-          System.out.println("found XR rel: " + a.getId() + " " + b.getId());
-          return false;
+      if (cr.getRelationshipType().equals("XR")
+          && (cr.getFrom().getId() == b.getId()
+              || cr.getTo().getId() == b.getId())) {
+        System.out.println("found XR rel: " + a.getId() + " " + b.getId());
+        return false;
       }
     }
     return true;
   }
-  
+
   private void reviseSemanticTypes() throws Exception {
     // 11/30/2019 Revise for SNOMED insertion the stys for 'Alergy to...'
     // concepts
@@ -2962,40 +2947,40 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     try {
 
-      /*Query query = getEntityManager().createNativeQuery(
-          "select concepts.id from concepts, concepts_atoms, atoms, concepts_semantic_type_components, semantic_type_components "
-              + " where concepts.name like '% only product in % dose form%' and concepts.lastModifiedBy = 'SNOMEDCT_US_2019_03_01' "
+      /*
+       * Query query = getEntityManager().createNativeQuery(
+       * "select concepts.id from concepts, concepts_atoms, atoms, concepts_semantic_type_components, semantic_type_components "
+       * +
+       * " where concepts.name like '% only product in % dose form%' and concepts.lastModifiedBy = 'SNOMEDCT_US_2019_03_01' "
+       * + " and concepts.workflowStatus = 'NEEDS_REVIEW' " +
+       * " and concepts.terminology = 'NCIMTH' " +
+       * " and concepts.id = concepts_semantic_type_components.concepts_id " +
+       * " and concepts_semantic_type_components.semanticTypes_id  = semantic_type_components.id "
+       * + " and semantic_type_components.semanticType != 'Clinical Drug' " +
+       * " and concepts.id not in ( " +
+       * " select concepts.id from concepts, concepts_atoms, atoms " +
+       * " where concepts.id = concepts_atoms.concepts_id " +
+       * " and concepts_atoms.atoms_id = atoms.id " +
+       * " and atoms.workflowStatus = 'DEMOTION') " +
+       * " and concepts.id = concepts_atoms.concepts_id " +
+       * " and atoms.id = concepts_atoms.atoms_id " +
+       * " and atoms.terminology = 'SNOMEDCT_US' " +
+       * " group by atoms.codeId having count(distinct(atoms.codeId)) = 1");
+       */
+
+      Query query =
+          getEntityManager().createNativeQuery(" select distinct concepts.id "
+              + " from concepts, atoms, concepts_atoms, concepts_semantic_type_components, semantic_type_components "
+              + " where concepts.name like '% in % dosage form%' "
               + " and concepts.workflowStatus = 'NEEDS_REVIEW' "
               + " and concepts.terminology = 'NCIMTH' "
-              + " and concepts.id = concepts_semantic_type_components.concepts_id "
-              + " and concepts_semantic_type_components.semanticTypes_id  = semantic_type_components.id "
-              + " and semantic_type_components.semanticType != 'Clinical Drug' "
-              + " and concepts.id not in ( "
-              + " select concepts.id from concepts, concepts_atoms, atoms "
-              + " where concepts.id = concepts_atoms.concepts_id "
-              + " and concepts_atoms.atoms_id = atoms.id "
-              + " and atoms.workflowStatus = 'DEMOTION') "
+              + " and concepts.lastModifiedBy = 'NCIMTH_latest' "
               + " and concepts.id = concepts_atoms.concepts_id "
               + " and atoms.id = concepts_atoms.atoms_id "
-              + " and atoms.terminology = 'SNOMEDCT_US' "
-              + " group by atoms.codeId having count(distinct(atoms.codeId)) = 1");*/
+              + " and concepts.id = concepts_semantic_type_components.concepts_id "
+              + " and concepts_semantic_type_components.semanticTypes_id  = semantic_type_components.id "
+              + " and semantic_type_components.semanticType != 'Clinical Drug';");
 
-      
-      Query query = getEntityManager().createNativeQuery(
-      " select distinct concepts.id " +
-      " from concepts, atoms, concepts_atoms, concepts_semantic_type_components, semantic_type_components " +
-      " where concepts.name like '% in % dosage form%' " +
-      " and concepts.workflowStatus = 'NEEDS_REVIEW' " +   
-      " and concepts.terminology = 'NCIMTH' " +
-      " and concepts.lastModifiedBy = 'NCIMTH_latest' " +
-      " and concepts.id = concepts_atoms.concepts_id " +
-      " and atoms.id = concepts_atoms.atoms_id " +
-      " and concepts.id = concepts_semantic_type_components.concepts_id " +
-      " and concepts_semantic_type_components.semanticTypes_id  = semantic_type_components.id " +
-      " and semantic_type_components.semanticType != 'Clinical Drug';");
-      
-      
-      
       logInfo("[ReviseSemanticTypes] Identifying concepts with incorrect stys");
 
       List<Object> list = query.getResultList();
@@ -3010,8 +2995,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       logInfo("[ReviseSemanticTypes] " + conceptToBeRevised.size()
           + " Concepts with incorrect stys identified");
 
-      RemoveSemanticTypeMolecularAction action = new RemoveSemanticTypeMolecularAction();
-      AddSemanticTypeMolecularAction addAction = new AddSemanticTypeMolecularAction();
+      RemoveSemanticTypeMolecularAction action =
+          new RemoveSemanticTypeMolecularAction();
+      AddSemanticTypeMolecularAction addAction =
+          new AddSemanticTypeMolecularAction();
 
       for (Concept concept : conceptToBeRevised) {
         logInfo("[ReviseSemanticTypes] " + concept);
@@ -3056,9 +3043,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
                   "[ReviseSemanticTypes] validation error " + validationResult);
               throw new Exception();
             }
-            
-            commitClearBegin();   
-            
+
+            commitClearBegin();
+
             // prevent stale concept - get concept's revised lastModified time
             concept = getConcept(concept.getId());
           }
@@ -3068,8 +3055,6 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         } finally {
           action.close();
         }
-
-
 
         // prevent stale concept
         concept = getConcept(concept.getId());
@@ -3084,7 +3069,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             throw new LocalException(
                 "Editing is disabled on project: " + project.getName());
           }
-          
+
           // Create semantic type component
           final SemanticTypeComponent sty = new SemanticTypeComponentJpa();
           sty.setTerminologyId("");
@@ -3142,6 +3127,111 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   }
 
+  private void fixAtomLastReleaseCui() throws Exception {
+    // 08/22/2019 The previous FeedbackReleaseAlgorithm ignored unpublishable
+    // atoms, and so some didn't have their last release CUI updated
+    // (atom.getConceptTerminologyIds().get('NCIMTH'))
+    // Load the 201904 MRCONSO, and update unpublishable atoms' last release CUI
+
+    logInfo(" Fix atom last release CUI");
+
+    int updatedAtomCount = 0;
+
+    try {
+
+      logInfo(
+          "[FixAtomLastReleaseCUI] Loading the AUI/CUI map for 201904 MRCONSO");
+
+      Map<String, String> auiCuiMap = new HashMap<>();
+
+      // Check the mr directory
+      String mrPath = config.getProperty("source.data.dir") + "/"
+          + getProcess().getInputPath() + "/" + getProcess().getVersion()
+          + "/META";
+
+      final File mrDirFile = new File(mrPath);
+      if (!mrDirFile.exists()) {
+        throw new Exception(
+            "Specified input directory does not exist = " + mrPath);
+      }
+
+      final List<String> lines =
+          loadFileIntoStringList(mrDirFile, "MRCONSO.RRF", null, null, null);
+
+      final String fields[] = new String[19];
+
+      for (final String line : lines) {
+        FieldedStringTokenizer.split(line, "|", 19, fields);
+
+        auiCuiMap.put(fields[7], fields[0]);
+
+      }
+
+      logInfo(
+          "[FixAtomLastReleaseCUI] Finsihed loading the AUI/CUI map for 201904 MRCONSO");
+
+      Query query = getEntityManager()
+          .createNativeQuery(" select id from atoms where publishable=false");
+
+      logInfo("[FixAtomLastReleaseCUI] Loading all unpublishable atoms");
+
+      List<Object> list = query.getResultList();
+      setSteps(list.size());
+
+      logInfo("[FixAtomLastReleaseCUI] " + list.size()
+          + " unpublishable atoms to have their last release CUIs checked to see if they need to be updated");
+
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        Atom atom = getAtom(id);
+        String atomAUI = atom.getAlternateTerminologyIds()
+            .get(getProject().getTerminology());
+
+        // There is a very particular edge-case where an MTH/PN atom was set to
+        // unpublishable by an editor prior to the last release (and is
+        // therefore not represented in the AUICUI map).
+        // For these, clear out the lastReleaseCUI
+        if (!auiCuiMap.containsKey(atomAUI)
+            && atom.getTerminology().equals("MTH") && atom.getTermType().equals("PN") && !ConfigUtility.isEmpty(atom.getConceptTerminologyIds().get(getProject().getTerminology()))) {
+          atom.getConceptTerminologyIds().remove(getProject().getTerminology());
+          updateAtom(atom);
+          updatedAtomCount++;
+        }
+        // If this atom is not represented in the AUICUI map, skip it
+        else if (!auiCuiMap.containsKey(atomAUI)) {
+          //Do nothing - it will auto-skip due to the else-if
+        }
+        // Otherwise, if the atom's lastReleaseCui doesn't match the CUI in the
+        // AUICUI map, update the atom
+        else {
+          final String atomlastReleaseCUI = atom.getConceptTerminologyIds()
+              .get(getProject().getTerminology());
+
+          if (!auiCuiMap.get(atomAUI).equals(atomlastReleaseCUI)) {
+            atom.getConceptTerminologyIds().put(getProject().getTerminology(),
+                auiCuiMap.get(atomAUI));
+            updateAtom(atom);
+            updatedAtomCount++;
+          }
+        }
+
+        updateProgress();
+      }
+
+      commitClearBegin();
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+
+    }
+
+    logInfo("Updated " + updatedAtomCount + " atoms last release CUI.");
+    logInfo("Finished " + getName());
+
+  }
+
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -3181,21 +3271,24 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     AlgorithmParameter param = new AlgorithmParameterJpa("Action Name",
         "actionName", "Name of Ad Hoc Action to be performed",
         "e.g. Fix Orphan Definitions", 200, AlgorithmParameter.Type.ENUM, "");
-    param.setPossibleValues(
-        Arrays.asList("Fix Orphan Definitions", "Undo Stampings",
-            "Remove Bad Relationships", "Remove SNOMED Subsets", "Remove SNOMED Atom Subsets", "Remove Orphaned Tracking Records",
-            "Inactivate Old SRC atoms and AtomRels", "Fix SRC_ATOM_IDs",
-            "Redo Molecular Actions", "Fix Bad Relationship Identities",
-            "Fix Component Info Relationships", "Remove Concepts without Atoms",
-            "Set Component Info Relationships To Publishable",
-            "Set Stamped Worklists To Ready For Publication",
-            "Add Disposition Atoms", "Fix RelGroups", "Fix Source Level Rels",
-            "Fix AdditionalRelType Inverses", "Fix Snomed Family",
-            "Turn off CTRP-SDC", "Fix Terminology Names", "Fix Terminologies", "Fix RHT Atoms",
-            "Fix MDR Descriptors", "Clear Worklists and Checklists",
-            "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts", "Fix Null RUIs", 
-            "Remove old relationships", "Assign Missing STY ATUIs", "Fix Component History Version",
-            "Fix AdditionalRelType Inverses 2", "Remove Demotions", "Revise Semantic Types"));
+    param.setPossibleValues(Arrays.asList("Fix Orphan Definitions",
+        "Undo Stampings", "Remove Bad Relationships", "Remove SNOMED Subsets",
+        "Remove SNOMED Atom Subsets", "Remove Orphaned Tracking Records",
+        "Inactivate Old SRC atoms and AtomRels", "Fix SRC_ATOM_IDs",
+        "Redo Molecular Actions", "Fix Bad Relationship Identities",
+        "Fix Component Info Relationships", "Remove Concepts without Atoms",
+        "Set Component Info Relationships To Publishable",
+        "Set Stamped Worklists To Ready For Publication",
+        "Add Disposition Atoms", "Fix RelGroups", "Fix Source Level Rels",
+        "Fix AdditionalRelType Inverses", "Fix Snomed Family",
+        "Turn off CTRP-SDC", "Fix Terminology Names", "Fix Terminologies",
+        "Fix RHT Atoms", "Fix MDR Descriptors",
+        "Clear Worklists and Checklists",
+        "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts",
+        "Fix Null RUIs", "Remove old relationships", "Assign Missing STY ATUIs",
+        "Fix Component History Version", "Fix AdditionalRelType Inverses 2",
+        "Remove Demotions", "Revise Semantic Types",
+        "Fix Atom Last Release CUI"));
     params.add(param);
 
     return params;
@@ -3207,18 +3300,17 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     return "Perform Ad Hoc Action, normally for data fixes.";
   }
 
-  
-  private void convertToChecklist(String name, long projectId, List<Long[]> results, PfsParameter pfs) throws Exception {
+  private void convertToChecklist(String name, long projectId,
+    List<Long[]> results, PfsParameter pfs) throws Exception {
     WorkflowService workflowService = new WorkflowServiceJpa();
     final Project project = workflowService.getProject(projectId);
     final ChecklistList checklists = findChecklists(project, null, null);
     for (final Checklist checklist : checklists.getObjects()) {
       if (checklist.getName().equals(name)
           && checklist.getProject().equals(project)) {
-          throw new LocalException(
-              "A checklist for project " + project.getName() + " with name "
-                  + checklist.getName() + " already exists.");
-        
+        throw new LocalException("A checklist for project " + project.getName()
+            + " with name " + checklist.getName() + " already exists.");
+
       }
     }
 
@@ -3228,7 +3320,6 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     checklist.setDescription(name + " description");
     checklist.setProject(project);
     checklist.setTimestamp(new Date());
-
 
     // keys should remain sorted
     final Set<Long> clustersEncountered = new HashSet<>();
@@ -3291,4 +3382,5 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // Add the checklist
     final Checklist newChecklist = addChecklist(checklist);
   }
+
 }

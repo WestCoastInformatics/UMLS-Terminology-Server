@@ -910,7 +910,7 @@ public class WriteRrfHistoryFilesAlgorithm
       // shouldn't happen
       if (releases.size() > 1) {
         throw new Exception(
-            "Unexpected facts from multiple releases = " + releases);
+            "Unexpected facts for CUI = " + cui + ", from multiple releases = " + releases + ". Here are the facts: " + facts);
       }
 
       // Handle simpler cases

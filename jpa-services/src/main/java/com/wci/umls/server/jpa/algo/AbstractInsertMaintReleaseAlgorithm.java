@@ -335,12 +335,13 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
-  private void cacheExistingAtomIds(String terminology) throws Exception {
+  private void cacheExistingAtomIds(String terminology, boolean unpublishable) throws Exception {
 
     // Load alternateTerminologyIds
     Query query = getEntityManager().createQuery(
         "select value(b), a.id from AtomJpa a join a.alternateTerminologyIds b "
-            + "where KEY(b) = :terminology and a.publishable=true");
+            + "where KEY(b) = :terminology "
+            + (unpublishable ? "" : " and a.publishable = true "));
     query.setParameter("terminology", terminology);
 
     List<Object[]> list = query.getResultList();
@@ -354,7 +355,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     query = getEntityManager()
         .createQuery("select a.terminologyId, a.id from AtomJpa a "
             + "WHERE a.terminology = :terminology AND a.terminologyId != '' "
-            + "and a.publishable=true");
+            + (unpublishable ? "" : " and a.publishable = true "));
     query.setParameter("terminology", terminology);
 
     list = query.getResultList();
@@ -829,7 +830,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
     if (type.equals("AUI")) {
       if (!atomCachedTerms.contains(getProject().getTerminology())) {
-        cacheExistingAtomIds(getProject().getTerminology());
+        cacheExistingAtomIds(getProject().getTerminology(), unpublishable);
       }
       final Long componentId = atomIdCache.get(terminologyId);
       if (componentId == null) {
@@ -853,7 +854,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
     else if (type.equals("SRC_ATOM_ID")) {
       if (!atomCachedTerms.contains(getProject().getTerminology() + "-SRC")) {
-        cacheExistingAtomIds(getProject().getTerminology() + "-SRC");
+        cacheExistingAtomIds(getProject().getTerminology() + "-SRC", unpublishable);
       }
       final Long componentId = atomIdCache.get(terminologyId);
       if (componentId == null) {
@@ -877,7 +878,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
     else if (type.equals("SOURCE_AUI") || type.equals("ROOT_SOURCE_AUI")) {
       if (!atomCachedTerms.contains(terminology)) {
-        cacheExistingAtomIds(terminology);
+        cacheExistingAtomIds(terminology, unpublishable);
       }
       final Long componentId = atomIdCache.get(terminologyId);
       if (componentId == null) {

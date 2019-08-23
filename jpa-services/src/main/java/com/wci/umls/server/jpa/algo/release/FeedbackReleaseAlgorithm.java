@@ -123,7 +123,7 @@ public class FeedbackReleaseAlgorithm
       // Albumin|0|N|256|
 
       // Get the atom
-      final Atom atom = (Atom) getComponent("AUI", fields[7], fields[12], null);
+      final Atom atom = (Atom) getComponent("AUI", fields[7], null, null, true);
       if (atom == null) {
         //throw new Exception("Unexpected dead AUI " + fields[7]);
         updateProgress();
