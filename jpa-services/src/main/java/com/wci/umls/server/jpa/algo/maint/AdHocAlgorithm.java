@@ -1831,7 +1831,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     rootTerminology.setFamily("SNOMEDCT_US");
     updateRootTerminology(rootTerminology);
 
-    rootTerminology = getRootTerminology("CCS");
+    rootTerminology = getRootTerminology("CCS_10");
     rootTerminology.setFamily("CCS_10");
     updateRootTerminology(rootTerminology);
     
