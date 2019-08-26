@@ -26,6 +26,7 @@ import javax.persistence.Query;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
@@ -221,10 +222,15 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       reviseSemanticTypes();
     } else if (actionName.equals("Fix Atom Last Release CUI")) {
       fixAtomLastReleaseCui();
+    } else if (actionName.equals("Fix VPT and Terminologies")) {
+      fixVPTAndTerminologies();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
 
+    
+    
+    
     commitClearBegin();
 
     logInfo("  project = " + getProject().getId());
@@ -1942,6 +1948,74 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
   }
 
+  private void fixVPTAndTerminologies() throws Exception {
+    // 8/26/2019 Inconsistencies between VPT and terminology names came in with MTH_2019AA, and were caught by the 201908 release.
+    // See NE-625
+    logInfo(" Fix VPT and Terminologies");
+
+    int updatedTerminologies = 0;
+    int updatedVPTs = 0;
+
+    try {
+
+      // Get all terminologies
+      TerminologyList terminolgyList = getTerminologies();
+
+      setSteps(4);
+
+      for (final Terminology terminology : terminolgyList.getObjects()) {
+        //Only look through current terminologies
+        if (!terminology.isCurrent()){
+          continue;
+        }
+        String newPreferredName = "";
+        if (terminology.getPreferredName().equals("National Drug File, FDASPL, 2018_02_05_18_12_03")){
+          newPreferredName = "National Drug File - FDASPL, 2018_02_05";
+        }
+        else if(terminology.getPreferredName().equals("National Drug File, FMTSME, 2018_02_05_18_12_03")){
+          newPreferredName = "National Drug File - FMTSME, 2018_02_05";
+        }
+        else if (terminology.getPreferredName().equals("Vaccines Administered, 2017_02_08, 2018_10_18")){
+          newPreferredName = "Vaccines Administered, 2018_10_18, 2019_02_04"; 
+        }
+        // Not one of the terminologies we need to change
+        else {
+          continue;
+        }
+
+        if (!newPreferredName.equals("")) {
+          terminology.setPreferredName(newPreferredName);
+          updateTerminology(terminology);
+          updatedTerminologies++;
+
+          updateProgress();
+        }
+
+      }
+      
+      Atom atom = getAtom(8902115L);
+      atom.setName("NCBI Taxonomy, 2018_04_19");
+      updateAtom(atom);
+      updatedVPTs++;
+      
+      commitClearBegin();
+      
+      
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+      // n/a
+    }
+
+    logInfo("Updated " + updatedTerminologies
+        + " terminology names.");
+    logInfo("Updated " + updatedVPTs
+        + " VPT names.");
+    logInfo("Finished " + getName());
+  }
+  
+  
   private void fixRHTAtoms() throws Exception {
     // 9/20/2018 Issues identified where RHT atoms had terminology of 'NCIMTH',
     // instead of 'SRC'.
@@ -3288,7 +3362,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Fix Null RUIs", "Remove old relationships", "Assign Missing STY ATUIs",
         "Fix Component History Version", "Fix AdditionalRelType Inverses 2",
         "Remove Demotions", "Revise Semantic Types",
-        "Fix Atom Last Release CUI"));
+        "Fix Atom Last Release CUI","Fix VPT and Terminologies"));
     params.add(param);
 
     return params;
