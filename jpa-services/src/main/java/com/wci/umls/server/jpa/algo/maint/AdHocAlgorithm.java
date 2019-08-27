@@ -1976,7 +1976,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           newPreferredName = "National Drug File - FMTSME, 2018_02_05";
         }
         else if (terminology.getPreferredName().equals("Vaccines Administered, 2017_02_08, 2018_10_18")){
-          newPreferredName = "Vaccines Administered, 2018_10_18, 2019_02_04"; 
+          newPreferredName = "Vaccines Administered, 2018_10_18, 2019_03_04"; 
         }
         // Not one of the terminologies we need to change
         else {
@@ -1997,6 +1997,14 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       atom.setName("NCBI Taxonomy, 2018_04_19");
       updateAtom(atom);
       updatedVPTs++;
+      updateProgress();
+      
+      atom=getAtom(11042820L);
+      atom.setName("Vaccines Administered, 2018_10_18, 2019_03_04");
+      updateAtom(atom);
+      updatedVPTs++;
+      updateProgress();
+      
       
       commitClearBegin();
       
