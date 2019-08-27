@@ -557,6 +557,9 @@ public class WriteRrfMetadataFilesAlgorithm
     for (final AdditionalRelationshipType rela : getAdditionalRelationshipTypes(
         getProject().getTerminology(), getProject().getVersion())
             .getObjects()) {
+      if(!rela.isPublishable()){
+        continue;
+      }
       StringBuilder sb = new StringBuilder();
       sb.append("RELA").append("|");
       sb.append(rela.getAbbreviation()).append("|");
