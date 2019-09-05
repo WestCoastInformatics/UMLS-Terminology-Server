@@ -224,6 +224,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixAtomLastReleaseCui();
     } else if (actionName.equals("Fix VPT and Terminologies")) {
       fixVPTAndTerminologies();
+    } else if (actionName.equals("Fix Atom Suppressible and Obsolete")) {
+      fixAtomSuppressibleAndObsolete();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -3314,6 +3316,77 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   }
 
+  private void fixAtomSuppressibleAndObsolete() throws Exception {
+    // 9/5/2019 201908 release identified atoms that needed their Suppressible and Obsolete values changed.
+    // All AB atoms should be suppressible=true, and all IS and OP atoms should be suppressible=true and obsolete=true
+    logInfo(" Fix Atom Suppressible and Obsolete");
+
+    int updatedAtoms = 0;
+    List<Long> atomIds = new ArrayList<>();
+
+    try {
+
+      // Get all AB, IS, and OP atoms.
+      Query query = getEntityManager().createNativeQuery(
+          "select id from atoms where termType in ('AB','IS','OP')");
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final Long atomId = Long.valueOf(entry.toString());
+        atomIds.add(atomId);
+      }
+
+      setSteps(atomIds.size());
+
+      logInfo("[FixAtomSuppressibleAndObsolete] " + atomIds.size() + " AB, IS, and OP atoms identified");
+
+      for (final Long atomId : atomIds) {
+
+        final Atom atom = getAtom(atomId);
+        
+        // Update AB atoms as needed
+        if (atom.getTermType().equals("AB")) {
+          if(!atom.isSuppressible()){
+            atom.setSuppressible(true);
+            updateAtom(atom);
+            updatedAtoms++;
+          }
+        }
+        // Update OP and IS atoms as needed
+        else if (atom.getTermType().equals("OP") || atom.getTermType().equals("IS")){
+          Boolean atomChanged=false;
+          if(!atom.isSuppressible()){
+            atom.setSuppressible(true);
+            atomChanged = true;
+          }
+          if(!atom.isObsolete()){
+            atom.setObsolete(true);
+            atomChanged = true;
+          }
+          if(atomChanged){
+            updateAtom(atom);
+            updatedAtoms++;
+          }
+        }
+        // We should never get here
+        else {
+          logError("WHAT HAPPENED!!!????");
+        }
+        updateProgress();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+      // n/a
+    }
+
+    logInfo(
+        "Updated " + updatedAtoms + " AB, IS, and OP atoms' suppressible and/or obsolete values.");
+    logInfo("Finished " + getName());
+  }
+  
+  
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -3370,7 +3443,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Fix Null RUIs", "Remove old relationships", "Assign Missing STY ATUIs",
         "Fix Component History Version", "Fix AdditionalRelType Inverses 2",
         "Remove Demotions", "Revise Semantic Types",
-        "Fix Atom Last Release CUI","Fix VPT and Terminologies"));
+        "Fix Atom Last Release CUI","Fix VPT and Terminologies","Fix Atom Suppressible and Obsolete"));
     params.add(param);
 
     return params;
