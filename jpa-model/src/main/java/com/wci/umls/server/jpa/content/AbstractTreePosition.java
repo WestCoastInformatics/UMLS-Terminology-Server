@@ -31,7 +31,7 @@ public abstract class AbstractTreePosition<T extends ComponentHasAttributesAndNa
 
   /** The additional relationship type. */
   @Column(nullable = true)
-  private String additionalRelationshipType;
+  private String additionalRelationshipType = "";
 
   /** The ancestor path. */
   @Column(nullable = true, length = 4000)

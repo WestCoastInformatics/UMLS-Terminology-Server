@@ -26,7 +26,6 @@ import javax.persistence.Query;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
@@ -46,6 +45,7 @@ import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
+import com.wci.umls.server.jpa.content.AtomTreePositionJpa;
 import com.wci.umls.server.jpa.content.ComponentHistoryJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
@@ -226,13 +226,12 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixVPTAndTerminologies();
     } else if (actionName.equals("Fix Atom Suppressible and Obsolete")) {
       fixAtomSuppressibleAndObsolete();
+    } else if (actionName.equals("Change null treeposition Relas to blank")) {
+      changeNullTreePositionRelasToBlank();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
 
-    
-    
-    
     commitClearBegin();
 
     logInfo("  project = " + getProject().getId());
@@ -1836,7 +1835,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     rootTerminology = getRootTerminology("CCS_10");
     rootTerminology.setFamily("CCS_10");
     updateRootTerminology(rootTerminology);
-    
+
     logInfo("Finished " + getName());
   }
 
@@ -1951,7 +1950,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   }
 
   private void fixVPTAndTerminologies() throws Exception {
-    // 8/26/2019 Inconsistencies between VPT and terminology names came in with MTH_2019AA, and were caught by the 201908 release.
+    // 8/26/2019 Inconsistencies between VPT and terminology names came in with
+    // MTH_2019AA, and were caught by the 201908 release.
     // See NE-625
     logInfo(" Fix VPT and Terminologies");
 
@@ -1966,19 +1966,20 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       setSteps(4);
 
       for (final Terminology terminology : terminolgyList.getObjects()) {
-        //Only look through current terminologies
-        if (!terminology.isCurrent()){
+        // Only look through current terminologies
+        if (!terminology.isCurrent()) {
           continue;
         }
         String newPreferredName = "";
-        if (terminology.getPreferredName().equals("National Drug File, FDASPL, 2018_02_05_18_12_03")){
+        if (terminology.getPreferredName()
+            .equals("National Drug File, FDASPL, 2018_02_05_18_12_03")) {
           newPreferredName = "National Drug File - FDASPL, 2018_02_05";
-        }
-        else if(terminology.getPreferredName().equals("National Drug File, FMTSME, 2018_02_05_18_12_03")){
+        } else if (terminology.getPreferredName()
+            .equals("National Drug File, FMTSME, 2018_02_05_18_12_03")) {
           newPreferredName = "National Drug File - FMTSME, 2018_02_05";
-        }
-        else if (terminology.getPreferredName().equals("Vaccines Administered, 2017_02_08, 2018_10_18")){
-          newPreferredName = "Vaccines Administered, 2018_10_18, 2019_03_04"; 
+        } else if (terminology.getPreferredName()
+            .equals("Vaccines Administered, 2017_02_08, 2018_10_18")) {
+          newPreferredName = "Vaccines Administered, 2018_10_18, 2019_03_04";
         }
         // Not one of the terminologies we need to change
         else {
@@ -1994,23 +1995,21 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         }
 
       }
-      
+
       Atom atom = getAtom(8902115L);
       atom.setName("NCBI Taxonomy, 2018_04_19");
       updateAtom(atom);
       updatedVPTs++;
       updateProgress();
-      
-      atom=getAtom(11042820L);
+
+      atom = getAtom(11042820L);
       atom.setName("Vaccines Administered, 2018_10_18, 2019_03_04");
       updateAtom(atom);
       updatedVPTs++;
       updateProgress();
-      
-      
+
       commitClearBegin();
-      
-      
+
     } catch (Exception e) {
       e.printStackTrace();
       fail("Unexpected exception thrown - please review stack trace.");
@@ -2018,14 +2017,11 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       // n/a
     }
 
-    logInfo("Updated " + updatedTerminologies
-        + " terminology names.");
-    logInfo("Updated " + updatedVPTs
-        + " VPT names.");
+    logInfo("Updated " + updatedTerminologies + " terminology names.");
+    logInfo("Updated " + updatedVPTs + " VPT names.");
     logInfo("Finished " + getName());
   }
-  
-  
+
   private void fixRHTAtoms() throws Exception {
     // 9/20/2018 Issues identified where RHT atoms had terminology of 'NCIMTH',
     // instead of 'SRC'.
@@ -3276,14 +3272,17 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         // therefore not represented in the AUICUI map).
         // For these, clear out the lastReleaseCUI
         if (!auiCuiMap.containsKey(atomAUI)
-            && atom.getTerminology().equals("MTH") && atom.getTermType().equals("PN") && !ConfigUtility.isEmpty(atom.getConceptTerminologyIds().get(getProject().getTerminology()))) {
+            && atom.getTerminology().equals("MTH")
+            && atom.getTermType().equals("PN")
+            && !ConfigUtility.isEmpty(atom.getConceptTerminologyIds()
+                .get(getProject().getTerminology()))) {
           atom.getConceptTerminologyIds().remove(getProject().getTerminology());
           updateAtom(atom);
           updatedAtomCount++;
         }
         // If this atom is not represented in the AUICUI map, skip it
         else if (!auiCuiMap.containsKey(atomAUI)) {
-          //Do nothing - it will auto-skip due to the else-if
+          // Do nothing - it will auto-skip due to the else-if
         }
         // Otherwise, if the atom's lastReleaseCui doesn't match the CUI in the
         // AUICUI map, update the atom
@@ -3317,8 +3316,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   }
 
   private void fixAtomSuppressibleAndObsolete() throws Exception {
-    // 9/5/2019 201908 release identified atoms that needed their Suppressible and Obsolete values changed.
-    // All AB atoms should be suppressible=true, and all IS and OP atoms should be suppressible=true and obsolete=true
+    // 9/5/2019 201908 release identified atoms that needed their Suppressible
+    // and Obsolete values changed.
+    // All AB atoms should be suppressible=true, and all IS and OP atoms should
+    // be suppressible=true and obsolete=true
     logInfo(" Fix Atom Suppressible and Obsolete");
 
     int updatedAtoms = 0;
@@ -3338,32 +3339,34 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       setSteps(atomIds.size());
 
-      logInfo("[FixAtomSuppressibleAndObsolete] " + atomIds.size() + " AB, IS, and OP atoms identified");
+      logInfo("[FixAtomSuppressibleAndObsolete] " + atomIds.size()
+          + " AB, IS, and OP atoms identified");
 
       for (final Long atomId : atomIds) {
 
         final Atom atom = getAtom(atomId);
-        
+
         // Update AB atoms as needed
         if (atom.getTermType().equals("AB")) {
-          if(!atom.isSuppressible()){
+          if (!atom.isSuppressible()) {
             atom.setSuppressible(true);
             updateAtom(atom);
             updatedAtoms++;
           }
         }
         // Update OP and IS atoms as needed
-        else if (atom.getTermType().equals("OP") || atom.getTermType().equals("IS")){
-          Boolean atomChanged=false;
-          if(!atom.isSuppressible()){
+        else if (atom.getTermType().equals("OP")
+            || atom.getTermType().equals("IS")) {
+          Boolean atomChanged = false;
+          if (!atom.isSuppressible()) {
             atom.setSuppressible(true);
             atomChanged = true;
           }
-          if(!atom.isObsolete()){
+          if (!atom.isObsolete()) {
             atom.setObsolete(true);
             atomChanged = true;
           }
-          if(atomChanged){
+          if (atomChanged) {
             updateAtom(atom);
             updatedAtoms++;
           }
@@ -3381,12 +3384,64 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       // n/a
     }
 
-    logInfo(
-        "Updated " + updatedAtoms + " AB, IS, and OP atoms' suppressible and/or obsolete values.");
+    logInfo("Updated " + updatedAtoms
+        + " AB, IS, and OP atoms' suppressible and/or obsolete values.");
     logInfo("Finished " + getName());
   }
-  
-  
+
+  private void changeNullTreePositionRelasToBlank() throws Exception {
+    // 9/6/2019 201908 release threw an error where additionalRelationshipTypes
+    // were set to 'null'. Change all NULL values to ""
+    logInfo(" Change Null TreePosition Relas To Blank");
+
+    int updatedTreePositions = 0;
+    List<Long> treePositionsIds = new ArrayList<>();
+
+    try {
+
+      // atom_tree_positions that have NULL relas.
+      Query query = getEntityManager().createNativeQuery(
+          "select id from atom_tree_positions where additionalRelationshipType is null");
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final Long treePositionId = Long.valueOf(entry.toString());
+        treePositionsIds.add(treePositionId);
+      }
+
+      setSteps(treePositionsIds.size());
+
+      logInfo("[ChangeNullTreePositionRelasToBlank] " + treePositionsIds.size()
+          + " tree positions need to have NULL RELAs set to blank");
+
+      for (final Long treePositionId : treePositionsIds) {
+
+        final AtomTreePositionJpa atomTreePosition =
+            (AtomTreePositionJpa) getTreePosition(treePositionId,
+                AtomTreePositionJpa.class);
+
+        if (atomTreePosition.getAdditionalRelationshipType() == null) {
+          atomTreePosition.setAdditionalRelationshipType("");
+          updateTreePosition(atomTreePosition);
+          updatedTreePositions++;
+        }
+        // We should never get here
+        else {
+          throw new Exception("WHAT HAPPENED!!!????");
+        }
+        updateProgress();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+      // n/a
+    }
+
+    logInfo("Updated " + updatedTreePositions + " atom tree positions.");
+    logInfo("Finished " + getName());
+  }
+
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -3443,7 +3498,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Fix Null RUIs", "Remove old relationships", "Assign Missing STY ATUIs",
         "Fix Component History Version", "Fix AdditionalRelType Inverses 2",
         "Remove Demotions", "Revise Semantic Types",
-        "Fix Atom Last Release CUI","Fix VPT and Terminologies","Fix Atom Suppressible and Obsolete"));
+        "Fix Atom Last Release CUI", "Fix VPT and Terminologies",
+        "Fix Atom Suppressible and Obsolete",
+        "Change null treeposition Relas to blank"));
     params.add(param);
 
     return params;
