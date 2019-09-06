@@ -341,8 +341,8 @@ public class MetadataLoaderAlgorithm
           getComputePreferredNameHandler(getProject().getTerminology());
       prefNameHandler.clearCaches();
 
-      commitClearBegin();      
-      
+      commitClearBegin();
+
       logInfo("Finished " + getName());
 
     } catch (Exception e) {
@@ -496,16 +496,16 @@ public class MetadataLoaderAlgorithm
         final Terminology term = new TerminologyJpa();
         term.setCitation(new CitationJpa(fields[16]));
         term.setCurrent(true);
-        
-        //Preferred Name version suffix is different depending on terminology's family
+
+        // Preferred Name version suffix is different depending on terminology's
+        // family
         String versionSuffix = null;
         if (fields[6].equals("MDR")) {
           versionSuffix = ", " + fields[5].replace("_", ".");
-        }
-        else {
+        } else {
           versionSuffix = ", " + fields[5];
         }
-        
+
         term.setPreferredName(fields[7] + versionSuffix);
         term.setTerminology(fields[4]);
         term.setVersion(computeVersion(fields[0], fields[4]));
@@ -919,29 +919,34 @@ public class MetadataLoaderAlgorithm
       }
       // If it Does already exist, update as necessary
       else {
-        TermType loadedTermType = getCachedTermType(fields[5]);
-        Boolean termTypeChanged = false;
+        // NE-626 Change of thinking: different insertions are switching these
+        // values back and forth.
+        // Once a term-type is created, only let these values be changes via the
+        // UI.
 
-        if ((loadedTermType.isSuppressible() && !fields[2].equals("Y"))
-            || (!loadedTermType.isSuppressible() && fields[2].equals("Y"))) {
-          termTypeChanged = true;
-          loadedTermType.setSuppressible(fields[2].equals("Y"));
-        }
-        if ((loadedTermType.isExclude() && !fields[3].equals("Y"))
-            || (!loadedTermType.isExclude() && fields[3].equals("Y"))) {
-          termTypeChanged = true;
-          loadedTermType.setExclude(fields[3].equals("Y"));
-        }
-        if ((loadedTermType.isNormExclude() && !fields[4].equals("Y"))
-            || (!loadedTermType.isNormExclude() && fields[4].equals("Y"))) {
-          termTypeChanged = true;
-          loadedTermType.setNormExclude(fields[4].equals("Y"));
-        }
-
-        if (termTypeChanged) {
-          logInfo("  updating term type = " + loadedTermType);
-          updateTermType(loadedTermType);
-        }
+        // TermType loadedTermType = getCachedTermType(fields[5]);
+        // Boolean termTypeChanged = false;
+        //
+        // if ((loadedTermType.isSuppressible() && !fields[2].equals("Y"))
+        // || (!loadedTermType.isSuppressible() && fields[2].equals("Y"))) {
+        // termTypeChanged = true;
+        // loadedTermType.setSuppressible(fields[2].equals("Y"));
+        // }
+        // if ((loadedTermType.isExclude() && !fields[3].equals("Y"))
+        // || (!loadedTermType.isExclude() && fields[3].equals("Y"))) {
+        // termTypeChanged = true;
+        // loadedTermType.setExclude(fields[3].equals("Y"));
+        // }
+        // if ((loadedTermType.isNormExclude() && !fields[4].equals("Y"))
+        // || (!loadedTermType.isNormExclude() && fields[4].equals("Y"))) {
+        // termTypeChanged = true;
+        // loadedTermType.setNormExclude(fields[4].equals("Y"));
+        // }
+        //
+        // if (termTypeChanged) {
+        // logInfo(" updating term type = " + loadedTermType);
+        // updateTermType(loadedTermType);
+        // }
       }
     }
     // After we finish going through both files, add everything from the map to
@@ -1176,9 +1181,11 @@ public class MetadataLoaderAlgorithm
         rela.setInverse(inverseRela);
         updateAdditionalRelationshipType(rela);
         getCachedAdditionalRelationshipTypes().put(abbreviation, rela);
-        // NE-588 inverseRela may also need to be updated if it is pointing to a rela that is now
+        // NE-588 inverseRela may also need to be updated if it is pointing to a
+        // rela that is now
         // deprecated and needs to be made unpublishable
-        if (inverseRela.getInverse() != null && !inverseRela.getInverse().equals(rela)) {
+        if (inverseRela.getInverse() != null
+            && !inverseRela.getInverse().equals(rela)) {
           inverseRela.getInverse().setPublishable(false);
           inverseRela.setInverse(rela);
           updateAdditionalRelationshipType(inverseRela);
