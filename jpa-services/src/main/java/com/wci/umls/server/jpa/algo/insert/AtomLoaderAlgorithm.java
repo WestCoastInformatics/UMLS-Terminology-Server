@@ -4,9 +4,12 @@
 package com.wci.umls.server.jpa.algo.insert;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 
 import com.wci.umls.server.AlgorithmParameter;
@@ -80,6 +83,38 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     setSrcDirFile(new File(srcFullPath));
     if (!getSrcDirFile().exists()) {
       throw new Exception("Specified input directory does not exist");
+    }
+    
+    // Get valid terminologies first
+    final String query = "SELECT term.terminology, term.version from TerminologyJpa term";
+
+    javax.persistence.Query jpaQuery =
+      getEntityManager().createQuery(query);
+
+    final List<Object[]> list = jpaQuery.getResultList();
+
+    List<String> possibleCodeIds = new ArrayList<>();
+    for (Object[] entry : list) {
+      possibleCodeIds.add("V-" + entry[0] + entry[1]);
+      possibleCodeIds.add("V-" + entry[0] + "_" + entry[1]);
+    }
+
+    //
+    // Validate Terminology Names
+    //
+    List<String> srcLines = loadFileIntoStringList(getSrcDirFile(), "classes_atoms.src",
+        "(.*)SRC/V(.*)", null, null);
+
+    String fields[] = new String[14];
+    
+    // Check each of the source lines
+    for (String line : srcLines) {
+      FieldedStringTokenizer.split(line, "|", 14, fields);
+      if (!possibleCodeIds.contains(fields[3])) {
+        validationResult.addError(
+            "classes_atoms.src references a SRC atom with a codeId " + fields[3] + " that doesn't match the format or terminology content available.");
+      }
+ 
     }
 
     return validationResult;
