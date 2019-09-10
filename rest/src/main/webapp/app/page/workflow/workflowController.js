@@ -471,6 +471,11 @@ tsApp.controller('WorkflowCtrl', [
 
     // Regenerate single bin
     $scope.regenerateBin = function(bin) {
+      
+    if (!$scope.selected.project.editingEnabled) {
+      window.alert("Bin cannot be regenerated while editing is disabled.");
+      return;
+    }
     	// Get confirmation before regenerating
    		 var	 regenerate = confirm('This bin took ' + bin.creationTime/1000 + ' seconds to process last time it was run. \n\n Are you sure you want to regenerate now?');
    		 
