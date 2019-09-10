@@ -247,7 +247,7 @@ public class ReloadConceptHistoryAlgorithm
         concept.getComponentHistory().remove(cui1History);
         removeComponentHistory(cui1History.getId());
         updateConcept(concept);
-        commitClearBegin();
+//        commitClearBegin();
         componentHistoryDeletedCount++;
       }
 
