@@ -61,6 +61,7 @@ public class TermServerApplication extends ResourceConfig {
     register(MetaEditingServiceRestImpl.class);
     register(WorkflowServiceRestImpl.class);
     register(ReportServiceRestImpl.class);
+    register(InversionServiceRestImpl.class);
 
     // Enable this for logging
     // register(LoggingFeature.class);

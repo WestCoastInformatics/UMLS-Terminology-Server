@@ -1,0 +1,60 @@
+<form ng-submit="submitSourceIdRangeRequest();">
+  <div class="modal-header">
+    <h4 style="display: inline">{{type}}</h4>
+    <span style="float: right">
+      <i class="noul glyphicon glyphicon-remove" ng-click="close()"></i>
+    </span>
+  </div>
+
+  <div class="modal-body">
+
+    <table class="slim table">
+      <tr ng-show="action == 'Update'">
+        <td>
+          <b>Source Abbreviation</b>
+        </td>
+        <td>
+          <input autofocus ng-model="sab" size="40"
+            placeholder="e.g. MTH" />
+        </td>
+      </tr>
+      <tr ng-show="action == 'Update'">
+        <td>
+          <b>Version</b>
+        </td>
+        <td>
+          <input autofocus ng-model="version" size="40"
+            placeholder="e.g. 2018AB" />
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Number of Ids</b>
+        </td>
+        <td>
+          <input type="number" size="4" ng-model="numberOfIds"
+            list="clusterCtList" placeholder="e.g. 10000, 20000" />
+        </td>
+      </tr>
+
+    </table>
+
+    <!-- Errors -->
+    <div errors="errors"></div>
+
+    <!-- Warnings -->
+    <div class="alert alert-warning" ng-repeat="warning in warnings">
+      {{warning}}
+      <div style="cursor: pointer; display: inline; float: right; width: 3%;">
+      </div>
+    </div>
+
+  </div>
+
+
+  <div class="modal-footer">
+    <button ng-disabled="warnings.length > 0" class="btn btn-primary"
+      ng-bind="action"></button>
+    <span class="btn btn-warning" ng-click="close()">Close</span>
+  </div>
+</form>

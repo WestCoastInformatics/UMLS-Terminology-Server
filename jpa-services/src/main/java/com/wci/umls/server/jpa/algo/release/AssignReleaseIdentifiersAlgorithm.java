@@ -79,9 +79,9 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
     previousProgress = 0;
     stepsCompleted = 0;
 
-    assignCuis();
+    //assignCuis();
 
-    assignRuis();
+    //assignRuis();
 
     assignAtuis();
 

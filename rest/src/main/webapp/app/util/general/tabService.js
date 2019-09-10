@@ -73,6 +73,13 @@ tsApp
                   projectRole : true
                 });
                 break;
+              case 'inversion':
+                this.tabs.push({
+                  link : 'inversion',
+                  label : 'Inversion',
+                  projectRole : true
+                });
+                break;
               case 'admin':
                 this.tabs.push({
                   link : 'admin',

@@ -3,9 +3,11 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -1255,6 +1257,22 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass()).info("RESTful call (Process): /config/" + id
         + "/execute?projectId=" + projectId + " for user " + authToken);
 
+    Process p = Runtime.getRuntime().exec(new String[]{"bash","-c","ulimit -m"});
+
+    ArrayList<String> output = new ArrayList<String>();
+    BufferedReader br = new BufferedReader(
+        new InputStreamReader(p.getInputStream()));
+    String line = null;
+    while ( (line = br.readLine()) != null )
+        output.add(line);
+
+    //There should really be a timeout here.
+    if (0 != p.waitFor()) {
+        return null;
+    }
+    Logger.getLogger(getClass()).info("****" + output);
+
+    
     final ProcessService processService = new ProcessServiceJpa();
 
     Long executionId = null;

@@ -217,6 +217,17 @@ tsApp.run([
               });
             }
 
+            // Process page
+            if (appConfig['deploy.enabled.tabs']
+              && appConfig['deploy.enabled.tabs'].split(',').indexOf('inversion') != -1) {
+              console.debug('Route enabled: /inversion');
+              $routeProviderReference.when('/inversion', {
+                templateUrl : 'app/page/inversion/inversion.html',
+                controller : 'InversionCtrl',
+                reloadOnSearch : false
+              });
+            }
+            
             // These routes are always enabled
             // Content with mode set (e.g. 'simple' for component report)
             console

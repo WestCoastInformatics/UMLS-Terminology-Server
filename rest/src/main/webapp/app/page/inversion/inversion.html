@@ -1,0 +1,24 @@
+<!-- Controlled by InversionCtrl (in inversionController.js)  -->
+<div class="row">
+      <div class="mt10 col-md-12 col-xs-12">
+
+        <h1>Source Atom Id Ranges</h1>
+        <table class="slim table table-hover pointer" style="margin-top: 10px;">
+          
+          <tbody>
+            <tr>
+              <td>Source Abbreviation:</td>
+              <td><input ng-model="sab" size="20"
+            placeholder="e.g. MTH" /></td>
+              <td>Version:</td>
+              <td><input ng-model="version" size="20"
+            placeholder="e.g. 2018AB" /></td>
+            </tr>
+ 
+          </tbody>
+        </table>
+        <button class="btn btn-xs btn-primary" ng-click="search()">Search</button>
+        <button class="btn btn-xs btn-primary" ng-click="openRequestRangeModal()">Request Range</button>
+        <button class="btn btn-xs btn-primary" ng-click="openSubmitRangeUpdateModal()">Submit Adjustment</button>
+      </div>
+</div>
