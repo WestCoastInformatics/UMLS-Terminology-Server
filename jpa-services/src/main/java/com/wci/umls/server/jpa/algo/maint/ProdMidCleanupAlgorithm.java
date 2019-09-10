@@ -18,6 +18,7 @@ import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.algo.RemoveTerminologyAlgorithm;
 import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
+import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
@@ -225,6 +226,26 @@ public class ProdMidCleanupAlgorithm
       logInfo("[ProdMid Cleanup] Removed content for " + getSteps()
           + " non-current terminologies.");
 
+      // Identify all non-publishable atoms, and remove their conceptTerminologyId where Key='NCIMTH'
+      query = getEntityManager().createNativeQuery(
+          "select distinct a.id from atoms a where a.publishable = false ");
+          
+      objects = query.getResultList();
+      int updatedAtoms = 0;
+      for (final Object[] entry : objects) {
+        final Long atomId = Long.valueOf(entry.toString());;  
+        Atom unpublishedAtom = getAtom(atomId);
+        unpublishedAtom.removeConceptTerminologyId("NCIMTH");
+        updateAtom(unpublishedAtom);
+        updatedAtoms++;
+      }
+      
+      logInfo(
+          "[ProdMid Cleanup] Removed conceptTerminologyId where Key='NCIMTH' on unpublished atoms. "
+              + updatedAtoms);
+
+      commitClearBegin();
+      
       // Mark unpublished concepts without atoms and their components
       int markedConcepts = 0;
       for (final Long id : conceptsWithoutAtoms) {
