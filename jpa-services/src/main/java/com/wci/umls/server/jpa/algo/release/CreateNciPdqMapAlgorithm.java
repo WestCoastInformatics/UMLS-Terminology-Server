@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa.algo.release;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -147,7 +148,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
           atom.setPublishable(false);
           updateAtom(atom);
         }
-        // Turn the code off too
+/*        // Turn the code off too
         final Code code = getCode(atom.getCodeId(), atom.getTerminology(),
             atom.getVersion(), Branch.ROOT);
         code.setPublishable(false);
@@ -156,7 +157,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
         for (Attribute att : code.getAttributes()) {
           att.setPublishable(false);
           updateAttribute(att, code);
-        }
+        }*/
       }
       concept.setPublishable(false);
       updateConcept(concept);
@@ -164,13 +165,44 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
       // make the project concept unpublishable - e.g. MatrixInitializer at end
       // of "pre production"
     }
+    
+    // added this section to mark old code and it's attributes unpublishable
+    // because section above not working
+    List<Code> pdqNciMappingCodes = new ArrayList<>();
+    Query jpaQuery = getEntityManager().createQuery("select a.id from "
+        + "CodeJpa a "
+        + "where a.terminology = :terminology and a.name like :name or name = 'name' and a.publishable = true");
+    jpaQuery.setParameter("name", "PDQ%to NCI%Mappings");
+    jpaQuery.setParameter("terminology", "PDQ");
+    List<Object> codeList = jpaQuery.getResultList();
+    // get codes
+    for (final Object entry : codeList) {
+      final Long id = Long.valueOf(entry.toString());
+      Code code = getCode(id);
+      pdqNciMappingCodes.add(code);
+     
+    }
+    // get older code, if there is more than one
+    Code olderCode = pdqNciMappingCodes.get(0);
+    for (Code code : pdqNciMappingCodes) {
+      if (code.getLastModified().before(olderCode.getLastModified())) {
+        olderCode = code;
+      }
+    }
+    olderCode.setPublishable(false);
+    updateCode(olderCode);
+    // turn off all attributes on older code
+    for (Attribute att : olderCode.getAttributes()) {
+      att.setPublishable(false);
+      updateAttribute(att, olderCode);
+    }
     commitClearBegin();
 
     // 2b. Make any other PDQ map sets unpublishable
 
     query = "SELECT DISTINCT m FROM MapSetJpa m "
         + "WHERE m.terminology=:terminology and m.publishable=true";
-    Query jpaQuery = getEntityManager().createQuery(query);
+    jpaQuery = getEntityManager().createQuery(query);
     jpaQuery.setParameter("terminology", "PDQ");
 
     @SuppressWarnings("unchecked")
