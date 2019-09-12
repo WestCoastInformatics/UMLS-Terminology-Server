@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2019 West Coast Informatics, LLC
  */
 /*
  * 
@@ -13,7 +13,7 @@ import com.wci.umls.server.model.inversion.SourceIdRange;
 /**
  * Represents a service for accessing {@link SourceIdRange} information.
  */
-public interface InversionService extends RootService {
+public interface InversionService extends ProjectService {
 
 
   /**
@@ -39,9 +39,10 @@ public interface InversionService extends RootService {
    * Update source id range.
    *
    * @param sourceIdRange the source id range
+   * @param numberOfIds the number of ids
    * @throws Exception the exception
    */
-  public void updateSourceIdRange(SourceIdRange sourceIdRange) throws Exception;
+  public SourceIdRange updateSourceIdRange(SourceIdRange sourceIdRange, int numberOfIds) throws Exception;
 
 
   /**
@@ -64,5 +65,21 @@ public interface InversionService extends RootService {
    */
   public SourceIdRange getSourceIdRange(Project project, String terminology,
     String version) throws Exception;
+
+
+  /**
+   * Request source id range.
+   *
+   * @param project the project
+   * @param terminology the terminology
+   * @param version the version
+   * @param numberOfIds the number of ids
+   * @return the source id range
+   * @throws Exception the exception
+   */
+  public SourceIdRange requestSourceIdRange(Project project, String terminology,
+    String version, int numberOfIds) throws Exception;
+
+
 
 }

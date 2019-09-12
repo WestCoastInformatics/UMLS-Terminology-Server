@@ -3,23 +3,19 @@
  */
 package com.wci.umls.server.jpa.services;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
 import javax.persistence.NoResultException;
 
 import org.apache.log4j.Logger;
-import org.apache.lucene.queryparser.classic.QueryParserBase;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.jpa.helpers.content.SubsetListJpa;
 import com.wci.umls.server.jpa.inversion.SourceIdRangeJpa;
-import com.wci.umls.server.jpa.workflow.WorkflowConfigJpa;
-import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.inversion.SourceIdRange;
 import com.wci.umls.server.services.InversionService;
-import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
  * JPA and JAXB enabled implementation of {@link InversionService}.
@@ -42,16 +38,17 @@ public class InversionServiceJpa extends HistoryServiceJpa
   /* see superclass */
   @Override
   public SourceIdRange getSourceIdRange(Long id) {
-    Logger.getLogger(getClass()).debug("Inversion Service - get sourceIdRange " + id);
-    final SourceIdRange sourceIdRange = manager.find(SourceIdRangeJpa.class, id);
+    Logger.getLogger(getClass())
+        .debug("Inversion Service - get sourceIdRange " + id);
+    final SourceIdRange sourceIdRange =
+        manager.find(SourceIdRangeJpa.class, id);
     return sourceIdRange;
   }
 
-
-
   /* see superclass */
   @Override
-  public SourceIdRange addSourceIdRange(SourceIdRange sourceIdRange) throws Exception {
+  public SourceIdRange addSourceIdRange(SourceIdRange sourceIdRange)
+    throws Exception {
     Logger.getLogger(getClass())
         .debug("Inversion Service - add sourceIdRange - " + sourceIdRange);
     return addHasLastModified(sourceIdRange);
@@ -59,10 +56,29 @@ public class InversionServiceJpa extends HistoryServiceJpa
 
   /* see superclass */
   @Override
-  public void updateSourceIdRange(SourceIdRange sourceIdRange) throws Exception {
+  public SourceIdRange updateSourceIdRange(SourceIdRange sourceIdRange,
+    int numberOfIds) throws Exception {
     Logger.getLogger(getClass())
         .debug("Inversion Service - update sourceIdRange - " + sourceIdRange);
-    updateHasLastModified(sourceIdRange);
+    // Get the max id previously assigned to any source
+    final javax.persistence.Query query = manager
+        .createQuery("select max(a.endSourceId) from SourceIdRangeJpa a");
+    try {
+      @SuppressWarnings("unchecked")
+      final List<Object> m = query.getResultList();
+
+      // create a new SourceIdRange with the previous max id incremented by one
+      Long beginSourceId = (Long) (m.get(0)) + 1L;
+      sourceIdRange.setBeginSourceId(beginSourceId);
+      sourceIdRange.setEndSourceId(beginSourceId + numberOfIds - 1L);
+
+      updateHasLastModified(sourceIdRange);
+
+      return sourceIdRange;
+
+    } catch (NoResultException e) {
+      return null;
+    }
   }
 
   /* see superclass */
@@ -74,8 +90,9 @@ public class InversionServiceJpa extends HistoryServiceJpa
   }
 
   @Override
-  public SourceIdRange getSourceIdRange(Project project, String terminology, String version) throws Exception {
-   
+  public SourceIdRange getSourceIdRange(Project project, String terminology,
+    String version) throws Exception {
+
     final javax.persistence.Query query =
         manager.createQuery("select a from SourceIdRangeJpa a where "
             + "version = :version and terminology = :terminology");
@@ -87,7 +104,7 @@ public class InversionServiceJpa extends HistoryServiceJpa
       @SuppressWarnings("unchecked")
       final List<Object> m = query.getResultList();
       SourceIdRangeJpa sourceIdRange = new SourceIdRangeJpa();
-      sourceIdRange = (SourceIdRangeJpa)m.get(0);
+      sourceIdRange = (SourceIdRangeJpa) m.get(0);
 
       return sourceIdRange;
 
@@ -110,5 +127,33 @@ public class InversionServiceJpa extends HistoryServiceJpa
       localQuery.append("projectId:" + project.getId());
     }
     return localQuery.toString();
+  }
+
+  @Override
+  public SourceIdRange requestSourceIdRange(Project project, String terminology,
+    String version, int numberOfIds) throws Exception {
+
+    // Get the max id previously assigned to any source
+    final javax.persistence.Query query = manager
+        .createQuery("select max(a.endSourceId) from SourceIdRangeJpa a");
+    try {
+      @SuppressWarnings("unchecked")
+      final List<Object> m = query.getResultList();
+
+      // create a new SourceIdRange with the previous max id incremented by one
+      SourceIdRangeJpa sourceIdRange = new SourceIdRangeJpa();
+      Long beginSourceId = (Long) (m.get(0)) + 1L;
+      sourceIdRange.setBeginSourceId(beginSourceId);
+      sourceIdRange.setEndSourceId(beginSourceId + numberOfIds - 1L);
+      sourceIdRange.setProject(project);
+      sourceIdRange.setTerminology(terminology);
+      sourceIdRange.setVersion(version);
+
+      addHasLastModified(sourceIdRange);
+      return sourceIdRange;
+
+    } catch (NoResultException e) {
+      return null;
+    }
   }
 }

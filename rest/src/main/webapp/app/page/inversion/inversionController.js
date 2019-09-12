@@ -35,9 +35,49 @@ tsApp
           projectRoles : []
         }
 
+        // Selected variables
+        $scope.selected = {
+          project : null,
+          config : null,
+          bin : null,
+          clusterType : null,
+          projectRole : null,
+          // Used to trigger events in worklist-table directive controller
+          refreshCt : 0,
+          terminology : null,
+          metadata : null,
+          epoch : null,
+          report : null
+        };
+        // Set the project
+        $scope.setProject = function(project) {
+          $scope.selected.project = project;
+
+        }
+        
+        // Retrieve all projects
+        $scope.getProjects = function() {
+
+          projectService.getProjectsForUser($scope.user).then(
+          // Success
+          function(data) {
+            $scope.lists.projects = data.projects;
+            $scope.setProject(data.project);
+          });
+
+        };
+        
+        // Convert date to a string
+        $scope.toDate = function(lastModified) {
+          return utilService.toDate(lastModified);
+        };
+        
         // Request range modal
         $scope.openRequestRangeModal = function(sab, version) {
-
+          if (!sab || !version) {
+            window.alert('Source Abbreviation and Version must be set before requesting a new range. ');
+            return;
+          }
           var modalInstance = $uibModal.open({
             templateUrl : 'app/page/inversion/requestRange.html',
             backdrop : 'static',
@@ -67,16 +107,19 @@ tsApp
           modalInstance.result.then(
           // Success
           function(sourceIdRange) {
-            
-
+            $scope.entry = sourceIdRange;
+            $scope.entry.numberOfIds = $scope.entry.endSourceId - $scope.entry.beginSourceId + 1;
           });
         };
         
         // Request range modal
         $scope.openSubmitRangeUpdateModal = function(sab, version) {
-
+          if (!sab || !version) {
+            window.alert('Source Abbreviation and Version must be set before updating the range. ');
+            return;
+          }
           var modalInstance = $uibModal.open({
-            templateUrl : 'app/page/inversion/submitRangeUpdate.html',
+            templateUrl : 'app/page/inversion/requestRange.html',
             backdrop : 'static',
             controller : 'SourceIdRangeModalCtrl',
             resolve : {
@@ -104,10 +147,28 @@ tsApp
           modalInstance.result.then(
           // Success
           function(sourceIdRange) {
-            
-
+            $scope.entry = sourceIdRange;
+            $scope.entry.numberOfIds = $scope.entry.endSourceId - $scope.entry.beginSourceId + 1;         
           });
         };
+        
+        $scope.search = function(sab, version) {
+          if (!sab || !version) {
+            window.alert('Source Abbreviation and Version must be set before retrieving the range. ');
+            return;
+          }
+          inversionService.getSourceIdRange($scope.selected.project.id, sab, version).then(
+          // Success
+          function(data) {
+            $scope.entry = data;
+            $scope.entry.numberOfIds = $scope.entry.endSourceId - $scope.entry.beginSourceId + 1;
+          },
+          // Error
+          function(data) {
+            $scope.errors[0] = data;
+            utilService.clearError();
+          });      
+        }
         
         //
         // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION
@@ -115,24 +176,10 @@ tsApp
         $scope.initialize = function() {
           // configure tab
           securityService.saveTab($scope.user.userPreferences, '/inversion');
-          //$scope.getProjects();
+          $scope.getProjects();
 
-          // Get all terminologies
-          metadataService.getTerminologies().then(
-          // Success
-          function(data) {
-            $scope.lists.terminologies = data.terminologies;
-          });
+
           
-          /*inversionService.removeSourceIdRange(1).then(
-            function(data) {
-              
-            });*/
-          inversionService.getSourceIdRange(39751, "MTH", "2018AB").then(
-            // Success
-            function(data) {
-             
-            });
         };
 
         //

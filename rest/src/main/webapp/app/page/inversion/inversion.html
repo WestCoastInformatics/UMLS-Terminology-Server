@@ -1,24 +1,62 @@
 <!-- Controlled by InversionCtrl (in inversionController.js)  -->
 <div class="row">
-      <div class="mt10 col-md-12 col-xs-12">
+  <div class="mt10 col-md-12 col-xs-12">
 
-        <h1>Source Atom Id Ranges</h1>
-        <table class="slim table table-hover pointer" style="margin-top: 10px;">
-          
-          <tbody>
-            <tr>
-              <td>Source Abbreviation:</td>
-              <td><input ng-model="sab" size="20"
-            placeholder="e.g. MTH" /></td>
-              <td>Version:</td>
-              <td><input ng-model="version" size="20"
-            placeholder="e.g. 2018AB" /></td>
-            </tr>
- 
-          </tbody>
-        </table>
-        <button class="btn btn-xs btn-primary" ng-click="search()">Search</button>
-        <button class="btn btn-xs btn-primary" ng-click="openRequestRangeModal()">Request Range</button>
-        <button class="btn btn-xs btn-primary" ng-click="openSubmitRangeUpdateModal()">Submit Adjustment</button>
-      </div>
+    <!-- Accordion -->
+    <uib-accordion> <uib-accordion-group is-open="true">
+    <uib-accordion-heading>
+    <h5>
+      <span uib-tooltip="Request and retrieve source atom id ranges">Source Atom Id Ranges</span>
+    </h5>
+    </uib-accordion-heading>
+
+    <table class="slim table table-hover pointer" style="margin-top: 10px;">
+
+      <tbody>
+        <tr>
+          <td>Source Abbreviation:</td>
+          <td>
+            <input ng-model="sab" size="20" placeholder="e.g. MTH" />
+          </td>
+          <td>Version:</td>
+          <td>
+            <input ng-model="version" size="20" placeholder="e.g. 2018AB" />
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+
+    <table class="slim table table-hover pointer" style="margin-top: 10px;">
+      <thead>
+        <th>SAB</th>
+        <th>Version</th>
+        <th>Min</th>
+        <th>Max</th>
+        <th># Requested</th>
+        <th>Last Modified</th>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{entry.terminology}}</td>
+          <td>{{entry.version}}</td>
+          <td>{{entry.beginSourceId}}</td>
+          <td>{{entry.endSourceId}}</td>
+          <td>{{entry.numberOfIds}}</td>
+          <td>{{toDate(entry.lastModified)}}</td>
+        </tr>
+
+      </tbody>
+    </table>
+    <div style="margin-top:40px">
+      <button class="btn btn-xs btn-primary" ng-click="search(sab, version)">Search</button>
+      <button class="btn btn-xs btn-primary"
+        ng-click="openRequestRangeModal(sab, version)">Request Range</button>
+      <button class="btn btn-xs btn-primary"
+        ng-click="openSubmitRangeUpdateModal(sab, version)">Submit
+        Adjustment</button>
+    </div>
+    </uib-accordion-group></uib-accordion>
+
+  </div>
 </div>

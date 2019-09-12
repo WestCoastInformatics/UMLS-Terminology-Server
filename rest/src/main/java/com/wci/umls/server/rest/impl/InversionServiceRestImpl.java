@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.inversion.SourceIdRangeJpa;
 import com.wci.umls.server.jpa.services.InversionServiceJpa;
 import com.wci.umls.server.jpa.services.ProjectServiceJpa;
@@ -125,5 +126,83 @@ public class InversionServiceRestImpl extends RootServiceRestImpl
     }
   }
 
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/range/{id}/{terminology}/{version}/{numberofids}")
+  @ApiOperation(value = "Request new sourceIdRange for vsab", notes = "Requests a new sourceIdRange for the specified versioned source abbreviation", response = SourceIdRangeJpa.class)
+  public SourceIdRange requestSourceIdRange(
+    @ApiParam(value = "Project id, e.g. 2", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "SourceIdRange terminology, e.g. MTH", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "SourceIdRange version, e.g. 2018AB", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Number of ids requested, e.g. 100000", required = true) @PathParam("numberofids") Integer numberOfIds,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (SourceIdRange): /range/" + id + "/" + terminology + "/" + version + "/" + numberOfIds);
 
+    final InversionService inversionService = new InversionServiceJpa();
+    try {
+      String userName = authorizeApp(securityService, authToken, "get the inversion service",
+          UserRole.VIEWER);
+      
+      inversionService.setLastModifiedBy(userName);
+      final Project project = inversionService.getProject(id);
+      SourceIdRange sourceIdRange;
+      try {
+        sourceIdRange = inversionService.requestSourceIdRange(project, terminology, version, numberOfIds);
+      } catch (Exception e) {
+        throw new LocalException(
+            "The source id range has already been assigned for " + terminology + " with version " + version +
+            ".  Consider the 'Submit Adjustment' option.");
+      }
+      return sourceIdRange;
+    } catch (Exception e) {
+      handleException(e, "trying to request a source id range");
+      return null;
+    } finally {
+      inversionService.close();
+      securityService.close();
+    }
+  }
+  
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/range/update/{id}/{terminology}/{version}/{numberofids}")
+  @ApiOperation(value = "Request new sourceIdRange for vsab", notes = "Requests a new sourceIdRange for the specified versioned source abbreviation", response = SourceIdRangeJpa.class)
+  public SourceIdRange updateSourceIdRange(
+    @ApiParam(value = "Project id, e.g. 2", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "SourceIdRange terminology, e.g. MTH", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "SourceIdRange version, e.g. 2018AB", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Number of ids requested, e.g. 100000", required = true) @PathParam("numberofids") Integer numberOfIds,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (SourceIdRange): /range/" + id + "/" + terminology + "/" + version + "/" + numberOfIds);
+
+    final InversionService inversionService = new InversionServiceJpa();
+    try {
+      String userName = authorizeApp(securityService, authToken, "get the inversion service",
+          UserRole.VIEWER);
+      
+      inversionService.setLastModifiedBy(userName);
+      final Project project = inversionService.getProject(id);
+      SourceIdRange sourceIdRange; 
+      try {
+        sourceIdRange = inversionService.getSourceIdRange(project, terminology, version);
+      } catch(Exception e) {
+        throw new LocalException(
+            "The source id range has not yet been assigned for " + terminology + " with version " + version +
+            ".  Consider the 'Request Range' option.");
+      }
+      
+      sourceIdRange = inversionService.updateSourceIdRange(sourceIdRange, numberOfIds);
+      return sourceIdRange;
+    } catch (Exception e) {
+      handleException(e, "trying to update a source id range");
+      return null;
+    } finally {
+      inversionService.close();
+      securityService.close();
+    }
+  }
 }
