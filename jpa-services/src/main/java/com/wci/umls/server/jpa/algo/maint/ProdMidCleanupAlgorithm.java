@@ -232,7 +232,7 @@ public class ProdMidCleanupAlgorithm
           
       objects = query.getResultList();
       int updatedAtoms = 0;
-      for (final Object[] entry : objects) {
+      for (final Object entry : objects) {
         final Long atomId = Long.valueOf(entry.toString());;  
         Atom unpublishedAtom = getAtom(atomId);
         unpublishedAtom.removeConceptTerminologyId("NCIMTH");
