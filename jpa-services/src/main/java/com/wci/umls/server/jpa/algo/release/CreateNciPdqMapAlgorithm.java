@@ -148,16 +148,13 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
           atom.setPublishable(false);
           updateAtom(atom);
         }
-/*        // Turn the code off too
-        final Code code = getCode(atom.getCodeId(), atom.getTerminology(),
-            atom.getVersion(), Branch.ROOT);
-        code.setPublishable(false);
-        updateCode(code);
-        // Turn off the code attributes also
-        for (Attribute att : code.getAttributes()) {
-          att.setPublishable(false);
-          updateAttribute(att, code);
-        }*/
+        /*
+         * // Turn the code off too final Code code = getCode(atom.getCodeId(),
+         * atom.getTerminology(), atom.getVersion(), Branch.ROOT);
+         * code.setPublishable(false); updateCode(code); // Turn off the code
+         * attributes also for (Attribute att : code.getAttributes()) {
+         * att.setPublishable(false); updateAttribute(att, code); }
+         */
       }
       concept.setPublishable(false);
       updateConcept(concept);
@@ -165,7 +162,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
       // make the project concept unpublishable - e.g. MatrixInitializer at end
       // of "pre production"
     }
-    
+
     // added this section to mark old code and it's attributes unpublishable
     // because section above not working
     List<Code> pdqNciMappingCodes = new ArrayList<>();
@@ -180,22 +177,19 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
       final Long id = Long.valueOf(entry.toString());
       Code code = getCode(id);
       pdqNciMappingCodes.add(code);
-     
+
     }
-    // get older code, if there is more than one
-    Code olderCode = pdqNciMappingCodes.get(0);
+
     for (Code code : pdqNciMappingCodes) {
-      if (code.getLastModified().before(olderCode.getLastModified())) {
-        olderCode = code;
+      code.setPublishable(false);
+      updateCode(code);
+      // turn off all attributes for old code
+      for (Attribute att : code.getAttributes()) {
+        att.setPublishable(false);
+        updateAttribute(att, code);
       }
     }
-    olderCode.setPublishable(false);
-    updateCode(olderCode);
-    // turn off all attributes on older code
-    for (Attribute att : olderCode.getAttributes()) {
-      att.setPublishable(false);
-      updateAttribute(att, olderCode);
-    }
+
     commitClearBegin();
 
     // 2b. Make any other PDQ map sets unpublishable
@@ -311,7 +305,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
     // 5b. Create a "code" for the PDQ/XM atom
     Code code = new CodeJpa();
     code.setName("PDQ_" + pdq.getVersion() + " to NCI_" + nci.getVersion()
-    + " Mappings");
+        + " Mappings");
     code.setTerminology(pdq.getTerminology());
     code.setVersion(pdq.getVersion());
     code.setTerminologyId("100001");
@@ -391,7 +385,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
       updateCode(code);
     }
     commitClearBegin();
-    
+
     // 8. Create mappings
     // * query: join PDQ->NCI in the same project concept, both publishable
     query =
