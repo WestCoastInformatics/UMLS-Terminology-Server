@@ -7,16 +7,14 @@ tsApp.controller('SourceIdRangeModalCtrl', [
   'selected',
   'lists',
   'user',
-  'sab',
-  'version',
+  'vsab',
   'action',
-  function($scope, $uibModalInstance, utilService, inversionService, selected, lists, user, sab, version, action) {
-    console.debug("configure SourceIdRangeModalCtrl", sab, version, action);
+  function($scope, $uibModalInstance, utilService, inversionService, selected, lists, user, vsab, action) {
+    console.debug("configure SourceIdRangeModalCtrl", vsab, action);
 
     // Scope vars
     $scope.action = action;
-    $scope.sab = sab;
-    $scope.version = version;
+    $scope.vsab = vsab;
     $scope.selected = selected;
     $scope.numberOfIds;
 
@@ -39,7 +37,7 @@ tsApp.controller('SourceIdRangeModalCtrl', [
         window.alert('Requested number of ids must be specified.');
         return;
       }
-      inversionService.requestSourceIdRange($scope.selected.project.id, $scope.sab, $scope.version, $scope.numberOfIds).then(
+      inversionService.requestSourceIdRange($scope.selected.project.id, $scope.vsab, $scope.numberOfIds).then(
       // Success
       function(data) {
         $uibModalInstance.close(data);
@@ -57,7 +55,7 @@ tsApp.controller('SourceIdRangeModalCtrl', [
         window.alert('Requested number of ids must be specified.');
         return;
       }
-      inversionService.updateSourceIdRange($scope.selected.project.id, $scope.sab, $scope.version, $scope.numberOfIds).then(
+      inversionService.updateSourceIdRange($scope.selected.project.id, $scope.vsab, $scope.numberOfIds).then(
       // Success
       function(data) {
         $uibModalInstance.close(data);

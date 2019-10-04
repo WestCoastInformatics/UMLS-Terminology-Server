@@ -26,8 +26,7 @@ tsApp
         projectService.getUserHasAnyRole();
         tabService.setSelectedTabByLabel('Inversion');
 
-        $scope.sab = '';
-        $scope.version = '';
+        $scope.vsab = '';
         
         // Lists
         $scope.lists = {
@@ -73,9 +72,9 @@ tsApp
         };
         
         // Request range modal
-        $scope.openRequestRangeModal = function(sab, version) {
-          if (!sab || !version) {
-            window.alert('Source Abbreviation and Version must be set before requesting a new range. ');
+        $scope.openRequestRangeModal = function(vsab) {
+          if (!vsab) {
+            window.alert('Versioned Source Abbreviation must be set before requesting a new range. ');
             return;
           }
           var modalInstance = $uibModal.open({
@@ -92,11 +91,8 @@ tsApp
               user : function() {
                 return $scope.user;
               },
-              sab : function() {
-                return sab;
-              },
-              version : function() {
-                return version;
+              vsab : function() {
+                return vsab;
               },
               action : function() {
                 return 'Add';
@@ -113,9 +109,9 @@ tsApp
         };
         
         // Request range modal
-        $scope.openSubmitRangeUpdateModal = function(sab, version) {
-          if (!sab || !version) {
-            window.alert('Source Abbreviation and Version must be set before updating the range. ');
+        $scope.openSubmitRangeUpdateModal = function(vsab) {
+          if (!vsab) {
+            window.alert('Versioned Source Abbreviation must be set before updating the range. ');
             return;
           }
           var modalInstance = $uibModal.open({
@@ -132,11 +128,8 @@ tsApp
               user : function() {
                 return $scope.user;
               },
-              sab : function() {
-                return sab;
-              },
-              version : function() {
-                return version;
+              vsab : function() {
+                return vsab;
               },
               action : function() {
                 return 'Update';
@@ -152,12 +145,12 @@ tsApp
           });
         };
         
-        $scope.search = function(sab, version) {
-          if (!sab || !version) {
+        $scope.search = function(vsab) {
+          if (!vsab) {
             window.alert('Source Abbreviation and Version must be set before retrieving the range. ');
             return;
           }
-          inversionService.getSourceIdRange($scope.selected.project.id, sab, version).then(
+          inversionService.getSourceIdRange($scope.selected.project.id, vsab).then(
           // Success
           function(data) {
             $scope.entry = data;

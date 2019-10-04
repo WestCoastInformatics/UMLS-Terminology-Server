@@ -67,15 +67,14 @@ public class InversionServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @GET
-  @Path("/range/{id}/{terminology}/{version}")
+  @Path("/range/{id}/{terminology}")
   @ApiOperation(value = "Get sourceIdRange for vsab", notes = "Gets the sourceIdRange for the specified versioned source abbreviation", response = SourceIdRangeJpa.class)
   public SourceIdRange getSourceIdRange(
     @ApiParam(value = "Project id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "SourceIdRange terminology, e.g. MTH", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "SourceIdRange version, e.g. 2018AB", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (SourceIdRange): /" + id + "/" + terminology + "/" + version);
+    Logger.getLogger(getClass()).info("RESTful call (SourceIdRange): /" + id + "/" + terminology );
 
     final InversionService inversionService = new InversionServiceJpa();
     try {
@@ -83,7 +82,7 @@ public class InversionServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
       final ProjectService projectService = new ProjectServiceJpa();
       final Project project = projectService.getProject(id);
-      final SourceIdRange sourceIdRange = inversionService.getSourceIdRange(project, terminology, version);
+      final SourceIdRange sourceIdRange = inversionService.getSourceIdRange(project, terminology);
       return sourceIdRange;
     } catch (Exception e) {
       handleException(e, "trying to get a sourceIdRange");
@@ -129,16 +128,15 @@ public class InversionServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @GET
-  @Path("/range/{id}/{terminology}/{version}/{numberofids}")
+  @Path("/range/{id}/{terminology}/{numberofids}")
   @ApiOperation(value = "Request new sourceIdRange for vsab", notes = "Requests a new sourceIdRange for the specified versioned source abbreviation", response = SourceIdRangeJpa.class)
   public SourceIdRange requestSourceIdRange(
     @ApiParam(value = "Project id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "SourceIdRange terminology, e.g. MTH", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "SourceIdRange version, e.g. 2018AB", required = true) @PathParam("version") String version,
     @ApiParam(value = "Number of ids requested, e.g. 100000", required = true) @PathParam("numberofids") Integer numberOfIds,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (SourceIdRange): /range/" + id + "/" + terminology + "/" + version + "/" + numberOfIds);
+    Logger.getLogger(getClass()).info("RESTful call (SourceIdRange): /range/" + id + "/" + terminology + "/" + numberOfIds);
 
     final InversionService inversionService = new InversionServiceJpa();
     try {
@@ -149,10 +147,10 @@ public class InversionServiceRestImpl extends RootServiceRestImpl
       final Project project = inversionService.getProject(id);
       SourceIdRange sourceIdRange;
       try {
-        sourceIdRange = inversionService.requestSourceIdRange(project, terminology, version, numberOfIds);
+        sourceIdRange = inversionService.requestSourceIdRange(project, terminology, numberOfIds);
       } catch (Exception e) {
         throw new LocalException(
-            "The source id range has already been assigned for " + terminology + " with version " + version +
+            "The source id range has already been assigned for " + terminology + " with version " +
             ".  Consider the 'Submit Adjustment' option.");
       }
       return sourceIdRange;
@@ -168,16 +166,15 @@ public class InversionServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @GET
-  @Path("/range/update/{id}/{terminology}/{version}/{numberofids}")
+  @Path("/range/update/{id}/{terminology}/{numberofids}")
   @ApiOperation(value = "Request new sourceIdRange for vsab", notes = "Requests a new sourceIdRange for the specified versioned source abbreviation", response = SourceIdRangeJpa.class)
   public SourceIdRange updateSourceIdRange(
     @ApiParam(value = "Project id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "SourceIdRange terminology, e.g. MTH", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "SourceIdRange version, e.g. 2018AB", required = true) @PathParam("version") String version,
     @ApiParam(value = "Number of ids requested, e.g. 100000", required = true) @PathParam("numberofids") Integer numberOfIds,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (SourceIdRange): /range/" + id + "/" + terminology + "/" + version + "/" + numberOfIds);
+    Logger.getLogger(getClass()).info("RESTful call (SourceIdRange): /range/" + id + "/" + terminology + "/" + numberOfIds);
 
     final InversionService inversionService = new InversionServiceJpa();
     try {
@@ -188,10 +185,10 @@ public class InversionServiceRestImpl extends RootServiceRestImpl
       final Project project = inversionService.getProject(id);
       SourceIdRange sourceIdRange; 
       try {
-        sourceIdRange = inversionService.getSourceIdRange(project, terminology, version);
+        sourceIdRange = inversionService.getSourceIdRange(project, terminology);
       } catch(Exception e) {
         throw new LocalException(
-            "The source id range has not yet been assigned for " + terminology + " with version " + version +
+            "The source id range has not yet been assigned for " + terminology  +
             ".  Consider the 'Request Range' option.");
       }
       

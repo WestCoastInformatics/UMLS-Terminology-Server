@@ -14,13 +14,9 @@
 
       <tbody>
         <tr>
-          <td>Source Abbreviation:</td>
+          <td>Versioned Terminology:</td>
           <td>
-            <input ng-model="sab" size="20" placeholder="e.g. MTH" />
-          </td>
-          <td>Version:</td>
-          <td>
-            <input ng-model="version" size="20" placeholder="e.g. 2018AB" />
+            <input ng-model="vsab" size="20" placeholder="e.g. MTH_2018AB" />
           </td>
         </tr>
 
@@ -30,7 +26,6 @@
     <table class="slim table table-hover pointer" style="margin-top: 10px;">
       <thead>
         <th>SAB</th>
-        <th>Version</th>
         <th>Min</th>
         <th>Max</th>
         <th># Requested</th>
@@ -39,7 +34,6 @@
       <tbody>
         <tr>
           <td>{{entry.terminology}}</td>
-          <td>{{entry.version}}</td>
           <td>{{entry.beginSourceId}}</td>
           <td>{{entry.endSourceId}}</td>
           <td>{{entry.numberOfIds}}</td>
@@ -49,11 +43,11 @@
       </tbody>
     </table>
     <div style="margin-top:40px">
-      <button class="btn btn-xs btn-primary" ng-click="search(sab, version)">Search</button>
+      <button class="btn btn-xs btn-primary" ng-click="search(vsab)">Search</button>
       <button class="btn btn-xs btn-primary"
-        ng-click="openRequestRangeModal(sab, version)">Request Range</button>
+        ng-click="openRequestRangeModal(vsab)">Request Range</button>
       <button class="btn btn-xs btn-primary"
-        ng-click="openSubmitRangeUpdateModal(sab, version)">Submit
+        ng-click="openSubmitRangeUpdateModal(vsab)">Submit
         Adjustment</button>
     </div>
     </uib-accordion-group></uib-accordion>

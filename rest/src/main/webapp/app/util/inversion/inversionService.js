@@ -8,12 +8,12 @@ tsApp.service('inversionService', [
   'utilService',
   function($http, $q, Upload, gpService, utilService) {
 
-    this.getSourceIdRange = function(projectId, terminology, version) {
+    this.getSourceIdRange = function(projectId, terminology) {
       var deferred = $q.defer();
 
       // Get projects
       gpService.increment();
-      $http.get(inversionUrl + '/range/' + projectId + '/' + terminology + '/' + version).then(
+      $http.get(inversionUrl + '/range/' + projectId + '/' + terminology ).then(
       // success
       function(response) {
         console.debug('  source id range = ', response.data);
@@ -29,12 +29,12 @@ tsApp.service('inversionService', [
       return deferred.promise;
     };
     
-    this.requestSourceIdRange = function(projectId, terminology, version, numberofids) {
+    this.requestSourceIdRange = function(projectId, terminology, numberofids) {
       var deferred = $q.defer();
 
       // Get projects
       gpService.increment();
-      $http.get(inversionUrl + '/range/' + projectId + '/' + terminology + '/' + version + '/' + numberofids).then(
+      $http.get(inversionUrl + '/range/' + projectId + '/' + terminology  + '/' + numberofids).then(
       // success
       function(response) {
         console.debug('  requested source id range = ', response.data);
@@ -50,12 +50,12 @@ tsApp.service('inversionService', [
       return deferred.promise;
     };
     
-    this.updateSourceIdRange = function(projectId, terminology, version, numberofids) {
+    this.updateSourceIdRange = function(projectId, terminology, numberofids) {
       var deferred = $q.defer();
 
       // Get projects
       gpService.increment();
-      $http.get(inversionUrl + '/range/update/' + projectId + '/' + terminology + '/' + version + '/' + numberofids).then(
+      $http.get(inversionUrl + '/range/update/' + projectId + '/' + terminology  + '/' + numberofids).then(
       // success
       function(response) {
         console.debug('  submitted adjustment on source id range = ', response.data);

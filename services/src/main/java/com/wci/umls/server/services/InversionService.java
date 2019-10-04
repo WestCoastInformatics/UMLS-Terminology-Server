@@ -59,12 +59,10 @@ public interface InversionService extends ProjectService {
    *
    * @param project the project
    * @param terminology the terminology
-   * @param version the version
    * @return the source id range
    * @throws Exception the exception
    */
-  public SourceIdRange getSourceIdRange(Project project, String terminology,
-    String version) throws Exception;
+  public SourceIdRange getSourceIdRange(Project project, String terminology) throws Exception;
 
 
   /**
@@ -72,13 +70,12 @@ public interface InversionService extends ProjectService {
    *
    * @param project the project
    * @param terminology the terminology
-   * @param version the version
    * @param numberOfIds the number of ids
    * @return the source id range
    * @throws Exception the exception
    */
   public SourceIdRange requestSourceIdRange(Project project, String terminology,
-    String version, int numberOfIds) throws Exception;
+    int numberOfIds) throws Exception;
 
 
 

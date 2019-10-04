@@ -61,13 +61,9 @@ public class SourceIdRangeJpa implements SourceIdRange {
   @Temporal(TemporalType.TIMESTAMP)
   private Date timestamp = new Date();
 
-  /** The terminology. */
+  /** The versioned terminology. */
   @Column(nullable = false)
   private String terminology;
-
-  /** The version. */
-  @Column(nullable = false)
-  private String version;
   
   /** The begin source id. */
   @Column(nullable = false)
@@ -92,7 +88,6 @@ public class SourceIdRangeJpa implements SourceIdRange {
     lastModifiedBy = sourceIdRange.getLastModifiedBy();
     timestamp = sourceIdRange.getTimestamp();
     terminology = sourceIdRange.getTerminology();
-    version = sourceIdRange.getVersion();
     project = sourceIdRange.getProject();
   }
 
@@ -158,20 +153,8 @@ public class SourceIdRangeJpa implements SourceIdRange {
 
   /* see superclass */
   @Override
-  public void setTerminology(String terminology) {
-    this.terminology = terminology;
-  }
-
-  /* see superclass */
-  @Override
-  public String getVersion() {
-    return version;
-  }
-
-  /* see superclass */
-  @Override
-  public void setVersion(String version) {
-    this.version = version;
+  public void setTerminology(String vsab) {
+    this.terminology = vsab;
   }
 
   /* see superclass */
@@ -224,7 +207,7 @@ public class SourceIdRangeJpa implements SourceIdRange {
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
-    result = prime * result + ((version == null) ? 0 : version.hashCode());
+
     return result;
   }
 
@@ -277,11 +260,7 @@ public class SourceIdRangeJpa implements SourceIdRange {
         return false;
     } else if (!timestamp.equals(other.timestamp))
       return false;
-    if (version == null) {
-      if (other.version != null)
-        return false;
-    } else if (!version.equals(other.version))
-      return false;
+
     return true;
   }
 
@@ -289,7 +268,7 @@ public class SourceIdRangeJpa implements SourceIdRange {
   public String toString() {
     return "SourceIdRangeJpa [id=" + id + ", lastModified=" + lastModified
         + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
-        + ", terminology=" + terminology + ", version=" + version
+        + ", vsab=" + terminology 
         + ", beginSourceId=" + beginSourceId + ", endSourceId=" + endSourceId
         + ", project=" + project + "]";
   }

@@ -90,17 +90,15 @@ public class InversionServiceJpa extends HistoryServiceJpa
   }
 
   @Override
-  public SourceIdRange getSourceIdRange(Project project, String terminology,
-    String version) throws Exception {
+  public SourceIdRange getSourceIdRange(Project project, String terminology) throws Exception {
 
     final javax.persistence.Query query =
         manager.createQuery("select a from SourceIdRangeJpa a where "
-            + "version = :version and terminology = :terminology");
+            + "terminology like :terminology");
     // Try to retrieve the single expected result If zero or more than one
     // result are returned, log error and set result to null
     try {
-      query.setParameter("terminology", terminology);
-      query.setParameter("version", version);
+      query.setParameter("terminology", "%" + terminology + "%");
       @SuppressWarnings("unchecked")
       final List<Object> m = query.getResultList();
       SourceIdRangeJpa sourceIdRange = new SourceIdRangeJpa();
@@ -131,7 +129,7 @@ public class InversionServiceJpa extends HistoryServiceJpa
 
   @Override
   public SourceIdRange requestSourceIdRange(Project project, String terminology,
-    String version, int numberOfIds) throws Exception {
+    int numberOfIds) throws Exception {
 
     // Get the max id previously assigned to any source
     final javax.persistence.Query query = manager
@@ -142,12 +140,14 @@ public class InversionServiceJpa extends HistoryServiceJpa
 
       // create a new SourceIdRange with the previous max id incremented by one
       SourceIdRangeJpa sourceIdRange = new SourceIdRangeJpa();
-      Long beginSourceId = (Long) (m.get(0)) + 1L;
+      Long beginSourceId = 0L;
+      if (m != null && m.get(0) != null) {
+        beginSourceId = (Long) (m.get(0)) + 1L;
+      }
       sourceIdRange.setBeginSourceId(beginSourceId);
       sourceIdRange.setEndSourceId(beginSourceId + numberOfIds - 1L);
       sourceIdRange.setProject(project);
       sourceIdRange.setTerminology(terminology);
-      sourceIdRange.setVersion(version);
 
       addHasLastModified(sourceIdRange);
       return sourceIdRange;

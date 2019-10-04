@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2019 West Coast Informatics, LLC
  */
 package com.wci.umls.server.model.inversion;
 
@@ -11,7 +11,7 @@ import com.wci.umls.server.helpers.HasTerminology;
  * Represents a collection of versioned sabs and their reserved starting and ending
  * source atom ids.
  */
-public interface SourceIdRange extends HasTerminology, HasLastModified {
+public interface SourceIdRange extends HasLastModified {
 
   /**
    * Sets the begin source id.
@@ -54,5 +54,19 @@ public interface SourceIdRange extends HasTerminology, HasLastModified {
    * @param project the new project
    */
   public void setProject(Project project);
+
+  /**
+   * Returns the versioned terminology.
+   *
+   * @return the versioned terminology
+   */
+  public String getTerminology();
+
+  /**
+   * Sets the versioned terminology.
+   *
+   * @param vsab the versioned terminology
+   */
+  public void setTerminology(String vsab);
 
 }
