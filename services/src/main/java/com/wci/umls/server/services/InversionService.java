@@ -8,6 +8,7 @@ package com.wci.umls.server.services;
 
 
 import com.wci.umls.server.Project;
+import com.wci.umls.server.helpers.content.SourceIdRangeList;
 import com.wci.umls.server.model.inversion.SourceIdRange;
 
 /**
@@ -62,7 +63,7 @@ public interface InversionService extends ProjectService {
    * @return the source id range
    * @throws Exception the exception
    */
-  public SourceIdRange getSourceIdRange(Project project, String terminology) throws Exception;
+  public SourceIdRangeList getSourceIdRange(Project project, String terminology) throws Exception;
 
 
   /**
@@ -71,11 +72,12 @@ public interface InversionService extends ProjectService {
    * @param project the project
    * @param terminology the terminology
    * @param numberOfIds the number of ids
+   * @param beginSourceId the begin source id
    * @return the source id range
    * @throws Exception the exception
    */
   public SourceIdRange requestSourceIdRange(Project project, String terminology,
-    int numberOfIds) throws Exception;
+    int numberOfIds, long beginSourceId) throws Exception;
 
 
 

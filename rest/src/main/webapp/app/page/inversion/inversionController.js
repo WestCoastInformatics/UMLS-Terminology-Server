@@ -27,6 +27,7 @@ tsApp
         tabService.setSelectedTabByLabel('Inversion');
 
         $scope.vsab = '';
+        $scope.entries = [];
         
         // Lists
         $scope.lists = {
@@ -105,6 +106,8 @@ tsApp
           function(sourceIdRange) {
             $scope.entry = sourceIdRange;
             $scope.entry.numberOfIds = $scope.entry.endSourceId - $scope.entry.beginSourceId + 1;
+            $scope.entries = [];
+            $scope.entries.push($scope.entry);
           });
         };
         
@@ -141,7 +144,9 @@ tsApp
           // Success
           function(sourceIdRange) {
             $scope.entry = sourceIdRange;
-            $scope.entry.numberOfIds = $scope.entry.endSourceId - $scope.entry.beginSourceId + 1;         
+            $scope.entry.numberOfIds = $scope.entry.endSourceId - $scope.entry.beginSourceId + 1; 
+            $scope.entries = [];
+            $scope.entries.push($scope.entry);
           });
         };
         
@@ -153,8 +158,11 @@ tsApp
           inversionService.getSourceIdRange($scope.selected.project.id, vsab).then(
           // Success
           function(data) {
-            $scope.entry = data;
-            $scope.entry.numberOfIds = $scope.entry.endSourceId - $scope.entry.beginSourceId + 1;
+            $scope.entries = data.sourceIdRanges;
+            for (var i = 0; i < $scope.entries.length; i++) {
+              $scope.entry = $scope.entries[i];
+              $scope.entry.numberOfIds = $scope.entry.endSourceId - $scope.entry.beginSourceId + 1;
+            }
           },
           // Error
           function(data) {

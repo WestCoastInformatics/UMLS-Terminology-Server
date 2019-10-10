@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.jpa.services;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -13,6 +12,8 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.content.SourceIdRangeList;
+import com.wci.umls.server.jpa.helpers.content.SourceIdRangeListJpa;
 import com.wci.umls.server.jpa.inversion.SourceIdRangeJpa;
 import com.wci.umls.server.model.inversion.SourceIdRange;
 import com.wci.umls.server.services.InversionService;
@@ -90,21 +91,23 @@ public class InversionServiceJpa extends HistoryServiceJpa
   }
 
   @Override
-  public SourceIdRange getSourceIdRange(Project project, String terminology) throws Exception {
+  public SourceIdRangeList getSourceIdRange(Project project, String terminology) throws Exception {
 
     final javax.persistence.Query query =
-        manager.createQuery("select a from SourceIdRangeJpa a where "
+        manager.createQuery("select id from SourceIdRangeJpa a where "
             + "terminology like :terminology");
-    // Try to retrieve the single expected result If zero or more than one
-    // result are returned, log error and set result to null
     try {
       query.setParameter("terminology", "%" + terminology + "%");
       @SuppressWarnings("unchecked")
-      final List<Object> m = query.getResultList();
-      SourceIdRangeJpa sourceIdRange = new SourceIdRangeJpa();
-      sourceIdRange = (SourceIdRangeJpa) m.get(0);
-
-      return sourceIdRange;
+      final List<Object> list = query.getResultList();
+      SourceIdRangeListJpa sourceIdRangeList = new SourceIdRangeListJpa();
+      
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        sourceIdRangeList.getObjects().add(getSourceIdRange(id));
+      }
+      sourceIdRangeList.setTotalCount(sourceIdRangeList.getObjects().size());
+      return sourceIdRangeList;
 
     } catch (NoResultException e) {
       return null;
@@ -129,20 +132,25 @@ public class InversionServiceJpa extends HistoryServiceJpa
 
   @Override
   public SourceIdRange requestSourceIdRange(Project project, String terminology,
-    int numberOfIds) throws Exception {
+    int numberOfIds, long beginId) throws Exception {
 
     // Get the max id previously assigned to any source
     final javax.persistence.Query query = manager
         .createQuery("select max(a.endSourceId) from SourceIdRangeJpa a");
     try {
-      @SuppressWarnings("unchecked")
-      final List<Object> m = query.getResultList();
-
       // create a new SourceIdRange with the previous max id incremented by one
       SourceIdRangeJpa sourceIdRange = new SourceIdRangeJpa();
-      Long beginSourceId = 0L;
-      if (m != null && m.get(0) != null) {
-        beginSourceId = (Long) (m.get(0)) + 1L;
+      Long beginSourceId = new Long(beginId);
+      
+      // if begin id not indicated (not SNOMED)
+      if (beginSourceId == 0L) {
+        @SuppressWarnings("unchecked")
+        final List<Object> m = query.getResultList();
+
+        beginSourceId = 0L;
+        if (m != null && m.get(0) != null) {
+          beginSourceId = (Long) (m.get(0)) + 1L;
+        }
       }
       sourceIdRange.setBeginSourceId(beginSourceId);
       sourceIdRange.setEndSourceId(beginSourceId + numberOfIds - 1L);

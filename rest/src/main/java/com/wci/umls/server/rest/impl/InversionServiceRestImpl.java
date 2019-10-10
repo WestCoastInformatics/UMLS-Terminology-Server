@@ -10,6 +10,7 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
@@ -17,6 +18,7 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.helpers.content.SourceIdRangeList;
 import com.wci.umls.server.jpa.inversion.SourceIdRangeJpa;
 import com.wci.umls.server.jpa.services.InversionServiceJpa;
 import com.wci.umls.server.jpa.services.ProjectServiceJpa;
@@ -69,7 +71,7 @@ public class InversionServiceRestImpl extends RootServiceRestImpl
   @GET
   @Path("/range/{id}/{terminology}")
   @ApiOperation(value = "Get sourceIdRange for vsab", notes = "Gets the sourceIdRange for the specified versioned source abbreviation", response = SourceIdRangeJpa.class)
-  public SourceIdRange getSourceIdRange(
+  public SourceIdRangeList getSourceIdRange(
     @ApiParam(value = "Project id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "SourceIdRange terminology, e.g. MTH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -82,10 +84,10 @@ public class InversionServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
       final ProjectService projectService = new ProjectServiceJpa();
       final Project project = projectService.getProject(id);
-      final SourceIdRange sourceIdRange = inversionService.getSourceIdRange(project, terminology);
-      return sourceIdRange;
+      final SourceIdRangeList sourceIdRangeList = inversionService.getSourceIdRange(project, terminology);
+      return sourceIdRangeList;
     } catch (Exception e) {
-      handleException(e, "trying to get a sourceIdRange");
+      handleException(e, "trying to get sourceIdRange(s)");
       return null;
     } finally {
       inversionService.close();
@@ -134,9 +136,10 @@ public class InversionServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Project id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "SourceIdRange terminology, e.g. MTH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Number of ids requested, e.g. 100000", required = true) @PathParam("numberofids") Integer numberOfIds,
+    @ApiParam(value = "Begin id to start the range (only for SNOMED)", required = false) @QueryParam("beginSourceId") Long beginSourceId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (SourceIdRange): /range/" + id + "/" + terminology + "/" + numberOfIds);
+    Logger.getLogger(getClass()).info("RESTful call (SourceIdRange): /range/" + id + "/" + terminology + "/" + numberOfIds + ": " + beginSourceId);
 
     final InversionService inversionService = new InversionServiceJpa();
     try {
@@ -147,7 +150,8 @@ public class InversionServiceRestImpl extends RootServiceRestImpl
       final Project project = inversionService.getProject(id);
       SourceIdRange sourceIdRange;
       try {
-        sourceIdRange = inversionService.requestSourceIdRange(project, terminology, numberOfIds);
+        long beginId = beginSourceId != null ? beginSourceId.longValue() : 0L;
+        sourceIdRange = inversionService.requestSourceIdRange(project, terminology, numberOfIds, beginId);
       } catch (Exception e) {
         throw new LocalException(
             "The source id range has already been assigned for " + terminology + " with version " +
@@ -183,9 +187,18 @@ public class InversionServiceRestImpl extends RootServiceRestImpl
       
       inversionService.setLastModifiedBy(userName);
       final Project project = inversionService.getProject(id);
-      SourceIdRange sourceIdRange; 
+      SourceIdRangeList sourceIdRangeList; 
+      SourceIdRange sourceIdRange = null;
       try {
-        sourceIdRange = inversionService.getSourceIdRange(project, terminology);
+        sourceIdRangeList = inversionService.getSourceIdRange(project, terminology);
+        for (SourceIdRange sir : sourceIdRangeList.getObjects()) {
+          if (sir.getTerminology().equals(terminology)) {
+            sourceIdRange = sir;
+          }
+        }
+        if (sourceIdRange == null) {
+          throw new Exception();
+        }
       } catch(Exception e) {
         throw new LocalException(
             "The source id range has not yet been assigned for " + terminology  +

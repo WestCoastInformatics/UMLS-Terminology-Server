@@ -29,12 +29,13 @@ tsApp.service('inversionService', [
       return deferred.promise;
     };
     
-    this.requestSourceIdRange = function(projectId, terminology, numberofids) {
+    this.requestSourceIdRange = function(projectId, terminology, numberofids, beginSourceId) {
       var deferred = $q.defer();
 
       // Get projects
       gpService.increment();
-      $http.get(inversionUrl + '/range/' + projectId + '/' + terminology  + '/' + numberofids).then(
+      $http.get(inversionUrl + '/range/' + projectId + '/' + terminology  + '/' + numberofids + 
+        (beginSourceId ? ('?beginSourceId=' + beginSourceId) : '')).then(
       // success
       function(response) {
         console.debug('  requested source id range = ', response.data);

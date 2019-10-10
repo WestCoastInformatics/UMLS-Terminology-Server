@@ -14,8 +14,9 @@
 
       <tbody>
         <tr>
-          <td>Versioned Terminology:</td>
+          
           <td>
+            Versioned Terminology:
             <input ng-model="vsab" size="20" placeholder="e.g. MTH_2018AB" />
           </td>
         </tr>
@@ -32,7 +33,7 @@
         <th>Last Modified</th>
       </thead>
       <tbody>
-        <tr>
+        <tr ng-repeat="entry in entries">
           <td>{{entry.terminology}}</td>
           <td>{{entry.beginSourceId}}</td>
           <td>{{entry.endSourceId}}</td>
