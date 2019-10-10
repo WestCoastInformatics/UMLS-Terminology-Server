@@ -16,16 +16,6 @@ public interface InversionServiceRest {
 
 
   /**
-   * Update sourceIdRange.
-   *
-   * @param sourceIdRangeId the source id range id
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
-/*  public void updateSourceIdRange(SourceIdRangeJpa sourceIdRange, String authToken)
-    throws Exception;*/
-
-  /**
    * Removes the sourceIdRange.
    *
    * @param sourceIdRangeId the sourceIdRange id
@@ -69,15 +59,13 @@ public interface InversionServiceRest {
    * @param id the id
    * @param terminology the terminology
    * @param numberOfIds the number of ids
+   * @param beginSourceId the begin source id
    * @param authToken the auth token
    * @return the source id range
    * @throws Exception the exception
    */
   public SourceIdRange updateSourceIdRange(Long id, String terminology,
-    Integer numberOfIds, String authToken) throws Exception;
-
-
-
+    Integer numberOfIds, Long beginSourceId, String authToken) throws Exception;
 
 
 }

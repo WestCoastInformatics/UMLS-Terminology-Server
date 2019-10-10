@@ -41,9 +41,11 @@ public interface InversionService extends ProjectService {
    *
    * @param sourceIdRange the source id range
    * @param numberOfIds the number of ids
+   * @param beginId the begin id
+   * @return the source id range
    * @throws Exception the exception
    */
-  public SourceIdRange updateSourceIdRange(SourceIdRange sourceIdRange, int numberOfIds) throws Exception;
+  public SourceIdRange updateSourceIdRange(SourceIdRange sourceIdRange, int numberOfIds, long beginId) throws Exception;
 
 
   /**
@@ -78,6 +80,8 @@ public interface InversionService extends ProjectService {
    */
   public SourceIdRange requestSourceIdRange(Project project, String terminology,
     int numberOfIds, long beginSourceId) throws Exception;
+
+
 
 
 

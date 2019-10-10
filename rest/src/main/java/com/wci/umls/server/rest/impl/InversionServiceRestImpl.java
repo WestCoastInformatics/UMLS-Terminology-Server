@@ -176,9 +176,10 @@ public class InversionServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Project id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "SourceIdRange terminology, e.g. MTH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Number of ids requested, e.g. 100000", required = true) @PathParam("numberofids") Integer numberOfIds,
+    @ApiParam(value = "Begin id to start the range (only for SNOMED)", required = false) @QueryParam("beginSourceId") Long beginSourceId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (SourceIdRange): /range/" + id + "/" + terminology + "/" + numberOfIds);
+    Logger.getLogger(getClass()).info("RESTful call (SourceIdRange): /range/" + id + "/" + terminology + "/" + numberOfIds + ": " + beginSourceId);
 
     final InversionService inversionService = new InversionServiceJpa();
     try {
@@ -205,7 +206,7 @@ public class InversionServiceRestImpl extends RootServiceRestImpl
             ".  Consider the 'Request Range' option.");
       }
       
-      sourceIdRange = inversionService.updateSourceIdRange(sourceIdRange, numberOfIds);
+      sourceIdRange = inversionService.updateSourceIdRange(sourceIdRange, numberOfIds, beginSourceId);
       return sourceIdRange;
     } catch (Exception e) {
       handleException(e, "trying to update a source id range");

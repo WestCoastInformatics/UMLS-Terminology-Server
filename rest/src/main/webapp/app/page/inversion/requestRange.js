@@ -64,7 +64,7 @@ tsApp.controller('SourceIdRangeModalCtrl', [
         return;
       }
       inversionService.updateSourceIdRange($scope.selected.project.id, $scope.vsab,
-        $scope.numberOfIds).then(
+        $scope.numberOfIds, $scope.beginSourceId).then(
       // Success
       function(data) {
         $uibModalInstance.close(data);
