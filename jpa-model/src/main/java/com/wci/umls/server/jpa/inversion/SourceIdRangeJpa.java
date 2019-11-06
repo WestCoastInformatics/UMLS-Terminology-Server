@@ -230,11 +230,6 @@ public class SourceIdRangeJpa implements SourceIdRange {
         return false;
     } else if (!endSourceId.equals(other.endSourceId))
       return false;
-    if (id == null) {
-      if (other.id != null)
-        return false;
-    } else if (!id.equals(other.id))
-      return false;
     if (lastModified == null) {
       if (other.lastModified != null)
         return false;
