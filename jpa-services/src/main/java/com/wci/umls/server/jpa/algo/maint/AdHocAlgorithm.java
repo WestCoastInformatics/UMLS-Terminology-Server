@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
@@ -33,6 +34,7 @@ import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.QueryType;
+import com.wci.umls.server.helpers.content.SourceIdRangeList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -3479,21 +3481,34 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           loadFileIntoStringList(mrDirFile, "src_atom_id_range.out", null, null, null);
 
       final String fields[] = new String[4];
+      
+      Map<String, String> latestEntries = new HashMap<>();
 
+      // unique the rows so only get the latest for each vsab
       for (final String line : lines) {
         FieldedStringTokenizer.split(line, "|", 4, fields);
-
+        // vsab is the key, other fields comprise the value
+        latestEntries.put(fields[0], line);
+      }
+  
+      // now add source range for each vsab
+      for (Entry<String, String> entry : latestEntries.entrySet()) {   
+        FieldedStringTokenizer.split(entry.getValue(), "|", 4, fields);
         SourceIdRange range = new SourceIdRangeJpa();
         range.setBeginSourceId(Long.parseLong(fields[1]));
         range.setEndSourceId(Long.parseLong(fields[2]));
         String pattern = "dd-MMM-yy";
         SimpleDateFormat df = new SimpleDateFormat(pattern);
         range.setLastModified(df.parse(fields[3]));
-        range.setTerminology(fields[0]);
+        range.setTerminology(entry.getKey());
+        range.setLastModifiedBy("DSS");
+        range.setProject(getProject());
+        range.setTimestamp(new Date());
         
+        service.setLastModifiedBy("DSS");
         service.addSourceIdRange(range);
         rangeCount++;
-        updateProgress();
+        commitClearBegin();
       }
       
     } catch (Exception e) {
