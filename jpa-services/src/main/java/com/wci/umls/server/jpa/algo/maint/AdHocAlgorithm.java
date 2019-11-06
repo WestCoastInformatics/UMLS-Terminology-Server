@@ -3499,11 +3499,11 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         range.setEndSourceId(Long.parseLong(fields[2]));
         String pattern = "dd-MMM-yy";
         SimpleDateFormat df = new SimpleDateFormat(pattern);
-        range.setLastModified(df.parse(fields[3]));
+        range.setLastModified(new Date());
         range.setTerminology(entry.getKey());
         range.setLastModifiedBy("DSS");
         range.setProject(getProject());
-        range.setTimestamp(new Date());
+        range.setTimestamp(df.parse(fields[3]));
         
         service.setLastModifiedBy("DSS");
         service.addSourceIdRange(range);
