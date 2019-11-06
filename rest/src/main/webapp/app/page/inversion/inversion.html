@@ -30,6 +30,7 @@
         <th>Min</th>
         <th>Max</th>
         <th># Requested</th>
+        <th>Created</th>
         <th>Last Modified</th>
       </thead>
       <tbody>
@@ -38,6 +39,7 @@
           <td>{{entry.beginSourceId}}</td>
           <td>{{entry.endSourceId}}</td>
           <td>{{entry.numberOfIds}}</td>
+          <td>{{toDate(entry.timestamp)}}</td>
           <td>{{toDate(entry.lastModified)}}</td>
         </tr>
 
