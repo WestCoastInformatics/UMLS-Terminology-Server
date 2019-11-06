@@ -112,7 +112,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       FieldedStringTokenizer.split(line, "|", 14, fields);
       if (!possibleCodeIds.contains(fields[3])) {
         validationResult.addError(
-            "classes_atoms.src references a SRC atom with a codeId " + fields[3] + " that doesn't match the format or terminology content available.");
+            "ERROR: classes_atoms.src references a SRC atom with a codeId " + fields[3] + " that doesn't match the format or terminology content available.");
       }
  
     }

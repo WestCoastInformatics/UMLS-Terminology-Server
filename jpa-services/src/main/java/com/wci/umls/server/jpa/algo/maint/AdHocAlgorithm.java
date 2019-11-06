@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
@@ -32,6 +34,7 @@ import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.QueryType;
+import com.wci.umls.server.helpers.content.SourceIdRangeList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -53,7 +56,9 @@ import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.inversion.SourceIdRangeJpa;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
+import com.wci.umls.server.jpa.services.InversionServiceJpa;
 import com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa;
 import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.jpa.workflow.ChecklistJpa;
@@ -75,6 +80,7 @@ import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
+import com.wci.umls.server.model.inversion.SourceIdRange;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.RelationshipIdentity;
 import com.wci.umls.server.model.meta.RelationshipType;
@@ -84,6 +90,7 @@ import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
+import com.wci.umls.server.services.InversionService;
 import com.wci.umls.server.services.UmlsIdentityService;
 import com.wci.umls.server.services.WorkflowService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
@@ -228,6 +235,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixAtomSuppressibleAndObsolete();
     } else if (actionName.equals("Change null treeposition Relas to blank")) {
       changeNullTreePositionRelasToBlank();
+    } else if (actionName.equals("Initialize Source Atom Id Range App")) {
+      initializeSourceAtomIdRanges();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -3442,6 +3451,74 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
   }
 
+  private void initializeSourceAtomIdRanges() throws Exception {
+    // 11/05/2019 Initialize the source atom id range application with the final 
+    // data from MEME4
+
+    logInfo(" Initialize Source Atom Id Range App");
+
+    int rangeCount = 0;
+
+    try {
+
+      logInfo(
+          "[InitializeSourceAtomIdRanges] Loading the initial ranges");
+
+      InversionService service = new InversionServiceJpa();
+      
+      // Check the mr directory
+      String mrPath = config.getProperty("source.data.dir") + "/"
+          + getProcess().getInputPath() + "/" + getProcess().getVersion()
+          + "/META";
+
+      final File mrDirFile = new File(mrPath);
+      if (!mrDirFile.exists()) {
+        throw new Exception(
+            "Specified input directory does not exist = " + mrPath);
+      }
+
+      final List<String> lines =
+          loadFileIntoStringList(mrDirFile, "src_atom_id_range.out", null, null, null);
+
+      final String fields[] = new String[4];
+      
+      Map<String, String> latestEntries = new HashMap<>();
+
+      // unique the rows so only get the latest for each vsab
+      for (final String line : lines) {
+        FieldedStringTokenizer.split(line, "|", 4, fields);
+        // vsab is the key, other fields comprise the value
+        latestEntries.put(fields[0], line);
+      }
+  
+      // now add source range for each vsab
+      for (Entry<String, String> entry : latestEntries.entrySet()) {   
+        FieldedStringTokenizer.split(entry.getValue(), "|", 4, fields);
+        SourceIdRange range = new SourceIdRangeJpa();
+        range.setBeginSourceId(Long.parseLong(fields[1]));
+        range.setEndSourceId(Long.parseLong(fields[2]));
+        String pattern = "dd-MMM-yy";
+        SimpleDateFormat df = new SimpleDateFormat(pattern);
+        range.setLastModified(df.parse(fields[3]));
+        range.setTerminology(entry.getKey());
+        range.setLastModifiedBy("DSS");
+        range.setProject(getProject());
+        range.setTimestamp(new Date());
+        
+        service.setLastModifiedBy("DSS");
+        service.addSourceIdRange(range);
+        rangeCount++;
+        commitClearBegin();
+      }
+      
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+      // n/a
+    }
+  }
+  
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -3499,7 +3576,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Fix Component History Version", "Fix AdditionalRelType Inverses 2",
         "Remove Demotions", "Revise Semantic Types",
         "Fix Atom Last Release CUI", "Fix VPT and Terminologies",
-        "Fix Atom Suppressible and Obsolete",
+        "Fix Atom Suppressible and Obsolete", "Initialize Source Atom Id Range App",
         "Change null treeposition Relas to blank"));
     params.add(param);
 
