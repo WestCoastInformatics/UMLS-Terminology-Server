@@ -2602,9 +2602,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
    * rel.getAlternateTerminologyIds().clear(); updateRelationship(rel);
    * //updateProgress(); //System.out.println("rel after: " + rel); }
    * 
-   * commitClearBegin(); } catch (Exception e) { e.printStackTrace();
-   * fail("Unexpected exception thrown - please review stack trace."); } finally
-   * {
+   * commitClearBegin(); } catch (Exception e) { e.printStackTrace(); fail(
+   * "Unexpected exception thrown - please review stack trace."); } finally {
    * 
    * }
    * 
@@ -3452,7 +3451,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   }
 
   private void initializeSourceAtomIdRanges() throws Exception {
-    // 11/05/2019 Initialize the source atom id range application with the final 
+    // 11/05/2019 Initialize the source atom id range application with the final
     // data from MEME4
 
     logInfo(" Initialize Source Atom Id Range App");
@@ -3461,11 +3460,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     try {
 
-      logInfo(
-          "[InitializeSourceAtomIdRanges] Loading the initial ranges");
+      logInfo("[InitializeSourceAtomIdRanges] Loading the initial ranges");
 
       InversionService service = new InversionServiceJpa();
-      
+
       // Check the mr directory
       String mrPath = config.getProperty("source.data.dir") + "/"
           + getProcess().getInputPath() + "/" + getProcess().getVersion()
@@ -3477,11 +3475,11 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "Specified input directory does not exist = " + mrPath);
       }
 
-      final List<String> lines =
-          loadFileIntoStringList(mrDirFile, "src_atom_id_range.out", null, null, null);
+      final List<String> lines = loadFileIntoStringList(mrDirFile,
+          "src_atom_id_range.out", null, null, null);
 
       final String fields[] = new String[4];
-      
+
       Map<String, String> latestEntries = new HashMap<>();
 
       // unique the rows so only get the latest for each vsab
@@ -3490,9 +3488,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         // vsab is the key, other fields comprise the value
         latestEntries.put(fields[0], line);
       }
-  
+
       // now add source range for each vsab
-      for (Entry<String, String> entry : latestEntries.entrySet()) {   
+      for (Entry<String, String> entry : latestEntries.entrySet()) {
         FieldedStringTokenizer.split(entry.getValue(), "|", 4, fields);
         SourceIdRange range = new SourceIdRangeJpa();
         range.setBeginSourceId(Long.parseLong(fields[1]));
@@ -3504,13 +3502,13 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         range.setLastModifiedBy("DSS");
         range.setProject(getProject());
         range.setTimestamp(df.parse(fields[3]));
-        
+
         service.setLastModifiedBy("DSS");
         service.addSourceIdRange(range);
         rangeCount++;
         commitClearBegin();
       }
-      
+
     } catch (Exception e) {
       e.printStackTrace();
       fail("Unexpected exception thrown - please review stack trace.");
@@ -3518,7 +3516,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       // n/a
     }
   }
-  
+
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -3576,7 +3574,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Fix Component History Version", "Fix AdditionalRelType Inverses 2",
         "Remove Demotions", "Revise Semantic Types",
         "Fix Atom Last Release CUI", "Fix VPT and Terminologies",
-        "Fix Atom Suppressible and Obsolete", "Initialize Source Atom Id Range App",
+        "Fix Atom Suppressible and Obsolete",
+        "Initialize Source Atom Id Range App",
         "Change null treeposition Relas to blank"));
     params.add(param);
 

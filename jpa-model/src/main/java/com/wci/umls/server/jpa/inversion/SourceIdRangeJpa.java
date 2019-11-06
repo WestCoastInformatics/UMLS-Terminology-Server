@@ -198,15 +198,9 @@ public class SourceIdRangeJpa implements SourceIdRange {
         + ((beginSourceId == null) ? 0 : beginSourceId.hashCode());
     result =
         prime * result + ((endSourceId == null) ? 0 : endSourceId.hashCode());
-    result = prime * result + ((id == null) ? 0 : id.hashCode());
-    result =
-        prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
-    result = prime * result
-        + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
     result = prime * result + ((project == null) ? 0 : project.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
 
     return result;
   }
@@ -230,16 +224,6 @@ public class SourceIdRangeJpa implements SourceIdRange {
         return false;
     } else if (!endSourceId.equals(other.endSourceId))
       return false;
-    if (lastModified == null) {
-      if (other.lastModified != null)
-        return false;
-    } else if (!lastModified.equals(other.lastModified))
-      return false;
-    if (lastModifiedBy == null) {
-      if (other.lastModifiedBy != null)
-        return false;
-    } else if (!lastModifiedBy.equals(other.lastModifiedBy))
-      return false;
     if (project == null) {
       if (other.project != null)
         return false;
@@ -250,11 +234,7 @@ public class SourceIdRangeJpa implements SourceIdRange {
         return false;
     } else if (!terminology.equals(other.terminology))
       return false;
-    if (timestamp == null) {
-      if (other.timestamp != null)
-        return false;
-    } else if (!timestamp.equals(other.timestamp))
-      return false;
+
 
     return true;
   }

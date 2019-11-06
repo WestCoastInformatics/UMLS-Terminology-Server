@@ -77,7 +77,7 @@ public class EqualsHashcodeBadFieldTest extends ModelUnitSupport {
             method.contains("id == null"));
         // Assert lastModified is not used
         assertFalse(path.getFileName().toString()
-            + " has an equals method that uses 'id' ",
+            + " has an equals method that uses 'lastModified' ",
             method.contains("lastModified == null"));
         // Assert lastModified is not used
         assertFalse(path.getFileName().toString()
@@ -110,19 +110,19 @@ public class EqualsHashcodeBadFieldTest extends ModelUnitSupport {
       if (!method.isEmpty()) {
         // Assert id is not used
         assertFalse(path.getFileName().toString()
-            + " has an equals method that uses 'id' ",
+            + " has an hashcode method that uses 'id' ",
             method.contains("id == null"));
         // Assert lastModified is not used
         assertFalse(path.getFileName().toString()
-            + " has an equals method that uses 'id' ",
+            + " has an hashcode method that uses 'lastModified' ",
             method.contains("lastModified == null"));
         // Assert lastModified is not used
         assertFalse(path.getFileName().toString()
-            + " has an equals method that uses 'lastModifiedBy' ",
+            + " has an hashcode method that uses 'lastModifiedBy' ",
             method.contains("lastModifiedBy == null"));
         // Assert id is not used
         assertFalse(path.getFileName().toString()
-            + " has an equals method that uses 'timestamp' ",
+            + " has an hashcode method that uses 'timestamp' ",
             method.contains("timestamp == null"));
       }
     }
