@@ -58,17 +58,17 @@ public class InversionServiceJpa extends HistoryServiceJpa
   /* see superclass */
   @Override
   public SourceIdRange updateSourceIdRange(SourceIdRange sourceIdRange,
-    int numberOfIds, long beginId) throws Exception {
+    int numberOfIds, Long beginId) throws Exception {
     Logger.getLogger(getClass())
         .debug("Inversion Service - update sourceIdRange - " + sourceIdRange);
     // Get the max id previously assigned to any source
     final javax.persistence.Query query = manager
         .createQuery("select max(a.endSourceId) from SourceIdRangeJpa a");
     try {
-      Long beginSourceId = new Long(beginId);
+      Long beginSourceId = beginId;
       
       // if begin id not indicated (not SNOMED)
-      if (beginSourceId == 0L) {
+      if (beginSourceId == null) {
         @SuppressWarnings("unchecked")
         final List<Object> m = query.getResultList();
 
