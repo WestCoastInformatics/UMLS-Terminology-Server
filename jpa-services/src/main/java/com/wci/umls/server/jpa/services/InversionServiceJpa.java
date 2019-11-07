@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.content.SourceIdRangeList;
 import com.wci.umls.server.jpa.helpers.content.SourceIdRangeListJpa;
 import com.wci.umls.server.jpa.inversion.SourceIdRangeJpa;
@@ -74,6 +75,14 @@ public class InversionServiceJpa extends HistoryServiceJpa
 
         // create a new SourceIdRange with the previous max id incremented by one
         beginSourceId = (Long) (m.get(0)) + 1L;
+      // SNOMED case with beginSourceId indicated
+      } else {
+        @SuppressWarnings("unchecked")
+        final List<Object> m = query.getResultList();
+
+        if (beginSourceId < (Long) (m.get(0)) + 1L) {
+          throw new LocalException("Specified begin id must be greater than " + m.get(0));
+        }
       }
       sourceIdRange.setBeginSourceId(beginSourceId);
       sourceIdRange.setEndSourceId(beginSourceId + numberOfIds - 1L);
@@ -155,6 +164,14 @@ public class InversionServiceJpa extends HistoryServiceJpa
         beginSourceId = 0L;
         if (m != null && m.get(0) != null) {
           beginSourceId = (Long) (m.get(0)) + 1L;
+        }
+      // SNOMED case with beginSourceId indicated
+      } else {
+        @SuppressWarnings("unchecked")
+        final List<Object> m = query.getResultList();
+
+        if (beginSourceId < (Long) (m.get(0)) + 1L) {
+          throw new LocalException("Specified begin id must be greater than " + m.get(0));
         }
       }
       sourceIdRange.setBeginSourceId(beginSourceId);

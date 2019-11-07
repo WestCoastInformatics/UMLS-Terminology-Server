@@ -153,9 +153,13 @@ public class InversionServiceRestImpl extends RootServiceRestImpl
         long beginId = beginSourceId != null ? beginSourceId.longValue() : 0L;
         sourceIdRange = inversionService.requestSourceIdRange(project, terminology, numberOfIds, beginId);
       } catch (Exception e) {
-        throw new LocalException(
+        if (e instanceof LocalException) {
+          throw new LocalException(e.getMessage());
+        } else {
+          throw new LocalException(
             "The source id range has already been assigned for " + terminology + " with version " +
             ".  Consider the 'Submit Adjustment' option.");
+        }
       }
       return sourceIdRange;
     } catch (Exception e) {
@@ -209,7 +213,11 @@ public class InversionServiceRestImpl extends RootServiceRestImpl
       sourceIdRange = inversionService.updateSourceIdRange(sourceIdRange, numberOfIds, beginSourceId);
       return sourceIdRange;
     } catch (Exception e) {
-      handleException(e, "trying to update a source id range");
+      if (e instanceof LocalException) {
+        handleException(e, e.getMessage());
+      } else {
+        handleException(e, "trying to update a source id range");
+      }
       return null;
     } finally {
       inversionService.close();
