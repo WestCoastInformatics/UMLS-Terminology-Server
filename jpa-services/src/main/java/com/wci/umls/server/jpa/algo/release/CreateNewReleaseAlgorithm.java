@@ -159,6 +159,16 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
               + currenReleaseInfo.getVersion() + ")");
     }
 
+    // Makes sure editing is turned off before continuing
+    if(getProject().isEditingEnabled()){
+      throw new LocalException("Editing is turned on - disable before continuing insertion.");
+    }
+    
+    // Makes sure automations are turned off before continuing
+    if(getProject().isAutomationsEnabled()){
+      throw new LocalException("Automations are turned on - disable before continuing insertion.");
+    }
+    
     return result;
 
   }
