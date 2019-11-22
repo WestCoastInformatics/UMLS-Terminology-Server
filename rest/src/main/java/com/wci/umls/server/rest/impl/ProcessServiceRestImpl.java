@@ -3,11 +3,9 @@
  */
 package com.wci.umls.server.rest.impl;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.InetAddress;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -51,6 +49,7 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.helpers.PauseException;
 import com.wci.umls.server.helpers.ProcessConfigList;
 import com.wci.umls.server.helpers.ProcessExecutionList;
 import com.wci.umls.server.helpers.QueryStyle;
@@ -189,7 +188,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
 
   }
-  
+
   /* see superclass */
   @Override
   @PUT
@@ -213,7 +212,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       // Make sure processConfig was passed in
       if (process == null) {
-        throw new LocalException("Error: trying to clone a null process config");
+        throw new LocalException(
+            "Error: trying to clone a null process config");
       }
 
       // Load project
@@ -223,31 +223,32 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // Re-add project to processConfig (it does not make it intact through
       // XML)
       process.setProject(project);
-      
+
       process.setName(process.getName() + " - "
-            + ConfigUtility.DATE_YYYYMMDDHHMMSS.format(new Date()));
+          + ConfigUtility.DATE_YYYYMMDDHHMMSS.format(new Date()));
 
       // Verify that passed projectId matches ID of the processConfig's project
       verifyProject(process, projectId);
 
       ProcessConfig processCopy = new ProcessConfigJpa(process);
-          
+
       processCopy.setId(null);
       processCopy.getSteps().clear();
 
       // Add cloned processConfig
       processService.addProcessConfig(processCopy);
-      
+
       // copy steps to cloned processConfig
-      process = (ProcessConfigJpa) processService.getProcessConfig(process.getId());
+      process =
+          (ProcessConfigJpa) processService.getProcessConfig(process.getId());
 
       for (final AlgorithmConfig step : process.getSteps()) {
-          AlgorithmConfigJpa stepCopy = new AlgorithmConfigJpa(step);
-          // Clear the ids.
-          stepCopy.setId(null);
-          stepCopy.setProcess(processCopy);
-          processService.addAlgorithmConfig(stepCopy);
-          processCopy.getSteps().add(stepCopy);
+        AlgorithmConfigJpa stepCopy = new AlgorithmConfigJpa(step);
+        // Clear the ids.
+        stepCopy.setId(null);
+        stepCopy.setProcess(processCopy);
+        processService.addAlgorithmConfig(stepCopy);
+        processCopy.getSteps().add(stepCopy);
       }
 
       processService.addLogEntry(userName, projectId, process.getId(), null,
@@ -339,8 +340,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           } else if (!ConfigUtility.isEmpty(param.getValue())) {
             config.getProperties().put(param.getFieldName(), param.getValue());
           }
-        }             
-        
+        }
+
         newProcess.getSteps().add(processService.addAlgorithmConfig(config));
       }
 
@@ -1257,8 +1258,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass()).info("RESTful call (Process): /config/" + id
         + "/execute?projectId=" + projectId + " for user " + authToken);
 
-
-    
     final ProcessService processService = new ProcessServiceJpa();
 
     Long executionId = null;
@@ -2081,9 +2080,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               String server = InetAddress.getLocalHost().getHostName();
               String title = "[Terminology Server] Run Complete for Process: "
                   + processExecution.getName() + " (" + server + ")";
-              ConfigUtility.sendEmail(
-                  title, from, recipients, processService.getProcessLog(projectId,
-                      processExecutionId, null, 1000),
+              ConfigUtility.sendEmail(title, from, recipients, processService
+                  .getProcessLog(projectId, processExecutionId, null, 1000),
                   config);
             }
           }
@@ -2108,6 +2106,18 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
                   "CANCELLED " + algorithmExecution.getName());
               Logger.getLogger(getClass())
                   .info("CANCELLED " + algorithmExecution.getName());
+
+              algorithmExecution.setFinishDate(new Date());
+              processExecution.setFinishDate(new Date());
+            } else if (e instanceof PauseException) {
+
+              processService.addLogEntry(processExecution.getProject().getId(),
+                  processExecution.getLastModifiedBy(),
+                  processExecution.getTerminology(),
+                  processExecution.getVersion(),
+                  algorithmExecution.getActivityId(),
+                  processExecution.getWorkId(), "PROCESS PAUSED");
+              Logger.getLogger(getClass()).info("PROCESS PAUSED");
 
               algorithmExecution.setFinishDate(new Date());
               processExecution.setFinishDate(new Date());
@@ -2155,13 +2165,31 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               } else {
                 from = config.getProperty("mail.smtp.user");
               }
-              ConfigUtility.sendEmail(
-                  "[Terminology Server] Process Run Failed for Process: "
-                      + processExecution.getName() + " at Algorithm step: "
-                      + algorithmExecution.getName(),
-                  from, recipients, processService.getProcessLog(projectId,
-                      processExecutionId, null, 100),
-                  config);
+              if (e instanceof PauseException) {
+                // Toggle the "pause run" parameter so it won't stop the process
+                // on the next run
+                Map<String, String> properties =
+                    algorithmExecution.getProperties();
+                properties.put("pauseRun", "false");
+                algorithmExecution.setProperties(properties);
+                processService.updateAlgorithmExecution(algorithmExecution);
+
+                // Send an email notifying that the run is paused.
+                ConfigUtility.sendEmail(
+                    "[Terminology Server] Process Paused: "
+                        + processExecution.getName(),
+                    from, recipients, processService.getProcessLog(projectId,
+                        processExecutionId, null, 100),
+                    config);
+              } else {
+                ConfigUtility.sendEmail(
+                    "[Terminology Server] Process Run Failed for Process: "
+                        + processExecution.getName() + " at Algorithm step: "
+                        + algorithmExecution.getName(),
+                    from, recipients, processService.getProcessLog(projectId,
+                        processExecutionId, null, 100),
+                    config);
+              }
             } catch (Exception e2) {
               e2.printStackTrace();
             }
@@ -2218,7 +2246,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           "getting the process execution log entries", UserRole.AUTHOR);
       processService.setLastModifiedBy(userName);
 
-      return processService.getProcessLog(projectId, processExecutionId, query, 0);
+      return processService.getProcessLog(projectId, processExecutionId, query,
+          0);
     } catch (Exception e) {
       handleException(e, "trying to get the process execution log entries");
       return null;
