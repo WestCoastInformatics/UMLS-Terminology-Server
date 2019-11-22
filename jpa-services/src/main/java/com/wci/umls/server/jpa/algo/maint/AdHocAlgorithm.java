@@ -31,6 +31,8 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.helpers.KeyValuePair;
+import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.QueryType;
@@ -237,6 +239,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       changeNullTreePositionRelasToBlank();
     } else if (actionName.equals("Initialize Source Atom Id Range App")) {
       initializeSourceAtomIdRanges();
+    } else if (actionName.equals("Remove Deprecated Termgroups")) {
+      removeOldTermgroups();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -3516,6 +3520,54 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       // n/a
     }
   }
+  
+  private void removeOldTermgroups() throws Exception {
+    // 11/21/2019  Remove deprecated termgroups from precedence list
+
+    int removals = 0;
+
+    List<String> termgroupsToRemove = new ArrayList<>();
+    termgroupsToRemove.add("CVX/OP");
+    termgroupsToRemove.add("CVX/OA");
+    termgroupsToRemove.add("CTRP-SDC/PT");
+    termgroupsToRemove.add("CTRP-SDC/SY");
+    termgroupsToRemove.add("CTRP-SDC/DN");
+
+    // 
+    Query query = null;
+    for (String termgroup : termgroupsToRemove) {
+      query = getEntityManager().createQuery("select a.id from "
+        + "AtomJpa a "
+        + "where a.terminology = :source and a.termType = :termType");
+      String source = termgroup.substring(0, termgroup.indexOf('/'));
+      String termType = termgroup.substring(termgroup.indexOf('/') + 1);
+      query.setParameter("source", source);
+      query.setParameter("termType", termType);
+      List<Object> list = query.getResultList();
+      if (list.size() > 0) {
+        logError("[RemoveOldTermgroups] Error due to atoms having termgroup " + termgroup);
+        continue;
+      }
+      
+      getProject().getPrecedenceList().removeTerminologyTermType(source, termType);
+      removals++;
+    }
+
+    logInfo("[RemoveOldTermgroups] Remove deprecated termgroups from precedence list");
+
+
+    setSteps(termgroupsToRemove.size());
+
+    logInfo("[RemoveOldTermgroups] " + termgroupsToRemove.size()
+        + " Termgroups to be removed");
+
+
+    updateProgress();
+
+    logInfo("[RemoveOldTermgroups] " + removals
+        + " old termgroups successfully removed.");
+
+  }
 
   /* see superclass */
   @Override
@@ -3576,6 +3628,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Fix Atom Last Release CUI", "Fix VPT and Terminologies",
         "Fix Atom Suppressible and Obsolete",
         "Initialize Source Atom Id Range App",
+        "Remove Deprecated Termgroups",
         "Change null treeposition Relas to blank"));
     params.add(param);
 
