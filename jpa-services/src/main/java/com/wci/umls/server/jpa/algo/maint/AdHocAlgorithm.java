@@ -23,6 +23,7 @@ import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import com.wci.umls.server.AlgorithmParameter;
@@ -35,6 +36,7 @@ import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.content.SourceIdRangeList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
@@ -3524,6 +3526,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   private void removeOldTermgroups() throws Exception {
     // 11/21/2019  Remove deprecated termgroups from precedence list
 
+    
     int removals = 0;
 
     List<String> termgroupsToRemove = new ArrayList<>();
@@ -3533,7 +3536,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     termgroupsToRemove.add("CTRP-SDC/SY");
     termgroupsToRemove.add("CTRP-SDC/DN");
 
-    // 
+    termgroupsToRemove.add("AAA/BB");
+
+    // First check to make sure no atoms have the termgroups to be removed
     Query query = null;
     for (String termgroup : termgroupsToRemove) {
       query = getEntityManager().createQuery("select a.id from "
@@ -3549,7 +3554,26 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         continue;
       }
       
+      // remove termgroup from project precedence list
       getProject().getPrecedenceList().removeTerminologyTermType(source, termType);
+      
+      // remove termgroup from default precedence list
+      query =
+          manager.createQuery("SELECT p.id from PrecedenceListJpa p"
+              + " where terminology = :terminology "
+              + " and version = :version");
+      query.setParameter("terminology", "NCIMTH");
+      query.setParameter("version", "latest");
+
+      final Long precedenceListId = (Long) query.getSingleResult();
+      final PrecedenceList precedenceList = getPrecedenceList(precedenceListId);
+      // Handle lazy init
+      precedenceList.getTermTypeRankMap().size();
+      precedenceList.getTerminologyRankMap().size();
+      precedenceList.getPrecedence().getName();
+      precedenceList.removeTerminologyTermType(source, termType);
+
+      commitClearBegin();
       removals++;
     }
 
