@@ -76,7 +76,7 @@ public class RelationshipLoaderAlgorithm
    */
   protected Boolean bequeathalRels = false;
 
-  private Set<String> cachedTerminologies = new HashSet<>();
+  private Set<String> cachedTerminologyVersions = new HashSet<>();
 
   /**
    * Filename defaults to relationships.src. Only changed if this is a
@@ -597,19 +597,18 @@ public class RelationshipLoaderAlgorithm
     // There is a rare edge-case where caching performed in loading the
     // toComponent can sever the database link for the fromComponent, resulting
     // in lazyInit errors later on.
-    // To handle this, if this is the first time a particular terminology has
+    // To handle this, if this is the first time a particular
+    // terminology/version has
     // been passed into toComponent = getComponent (which would trigger a
-    // caching), reload the fromComponent to be safe
+    // commit), reload the fromComponent to be safe
 
     if (!toTermAndVersion.equals("")) {
-      if (!cachedTerminologies
-          .contains(getCachedTerminology(toTermAndVersion).getTerminology())) {
+      if (!cachedTerminologyVersions.contains(toTermAndVersion)) {
         fromComponent = getComponent(fromClassIdType, fromTermId,
             fromTermAndVersion.equals("") ? null
                 : getCachedTerminology(fromTermAndVersion).getTerminology(),
             null, unpublishable);
-        cachedTerminologies
-            .add(getCachedTerminology(toTermAndVersion).getTerminology());
+        cachedTerminologyVersions.add(toTermAndVersion);
       }
     }
 
