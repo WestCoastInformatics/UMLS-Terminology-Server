@@ -875,7 +875,32 @@ public class ReportServiceJpa extends HistoryServiceJpa
       sb.append("]");
 
       sb.append(" {");
-      sb.append(rel.getFrom().getId());
+      //sb.append(rel.getFrom().getId());
+      String baseUrl = "";
+      try {
+        baseUrl = ConfigUtility.getConfigProperties()
+            .getProperty("base.url");
+      } catch (Exception e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+      String newUrl = baseUrl + "/index.html#/content/report/CONCEPT/NCIMTH/" + rel.getFrom().getId();
+      sb.append("<a href=\"" + newUrl + "\">" + rel.getFrom().getId() + "</a>");
+      // Popout report into new window
+      // http://localhost:8080/umls-server-rest/index.html#/content/report/CONCEPT/NCIMTH/121607
+
+      /*this.popout = function(component) {
+        var currentUrl = window.location.href;
+        var baseUrl = currentUrl.substring(0, currentUrl.indexOf('#') + 1);
+        var newUrl = baseUrl + '/content/report/' + component.type + '/' + component.terminology
+          + '/' + component.id;
+        var title = 'Report-' + component.terminology + '/' + component.version + ', '
+          + component.terminologyId;
+        var newWindow = $window.open(newUrl, title, 'width=500, height=600');
+        newWindow.document.title = title;
+        newWindow.focus();
+
+      };*/
       sb.append("}");
 
       // Print relationship_level
