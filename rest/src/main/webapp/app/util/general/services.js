@@ -555,8 +555,7 @@ tsApp
           }
           for ( var key in itemsToAdd) {
             if (callbacks.hasOwnProperty(key)) {
-              utilService
-                .setError('Error constructing callbacks, name clash for ' + key, callbacks);
+              this.setError('Error constructing callbacks, name clash for ' + key, callbacks);
               return;
             }
             callbacks[key] = itemsToAdd[key];

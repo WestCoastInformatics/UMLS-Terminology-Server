@@ -12,9 +12,10 @@ tsApp.directive('relationshipsDeep', [ function() {
     templateUrl : 'app/component/relationships-deep/relationshipsDeep.html',
     controller : [
       '$scope',
+      '$window',
       'utilService',
       'contentService',
-      function($scope, utilService, contentService) {
+      function($scope, $window, utilService, contentService) {
 
         $scope.showing = true;
 
@@ -125,6 +126,18 @@ tsApp.directive('relationshipsDeep', [ function() {
           }
         });
 
+        $scope.displayConcept = function(item) {
+          var currentUrl = window.location.href;
+          var baseUrl = currentUrl.substring(0, currentUrl.indexOf('#') + 1);
+          var newUrl = baseUrl + '/content/report/' + $scope.component.type + '/' + $scope.component.terminology
+            + '/' + item.toId;
+          var title = 'Report-' + $scope.component.terminology + '/' + $scope.component.version + ', '
+            + $scope.component.terminologyId;
+          var newWindow = $window.open(newUrl, title, 'width=500, height=600');
+          newWindow.document.title = title;
+          newWindow.focus();
+        }
+        
         // end controller
       } ]
   };
