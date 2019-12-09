@@ -89,6 +89,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
   /** The steps completed. */
   private int stepsCompleted = 0;
+  
+  protected boolean requireReload;
 
   /**
    * The atom ID cache. Key = AUI; Value = atomJpa Id
@@ -719,6 +721,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
       if (count % commitCt == 0) {
         commitClearBegin();
+        requireReload=true;
       }
 
       cuiPreferredAtomConceptIdCache.put(key + terminologyVersion,

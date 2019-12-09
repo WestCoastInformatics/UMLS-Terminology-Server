@@ -594,22 +594,17 @@ public class RelationshipLoaderAlgorithm
       return;
     }
 
-    // There is a rare edge-case where caching performed in loading the
+    // There is an edge-case where caching performed in loading the
     // toComponent can sever the database link for the fromComponent, resulting
     // in lazyInit errors later on.
-    // To handle this, if this is the first time a particular
-    // terminology/version has
-    // been passed into toComponent = getComponent (which would trigger a
-    // commit), reload the fromComponent to be safe
+    // If this situation has occurred, reload the fromComponent
 
-    if (!toTermAndVersion.equals("")) {
-      if (!cachedTerminologyVersions.contains(toTermAndVersion)) {
+    if (requireReload) {
         fromComponent = getComponent(fromClassIdType, fromTermId,
             fromTermAndVersion.equals("") ? null
                 : getCachedTerminology(fromTermAndVersion).getTerminology(),
             null, unpublishable);
-        cachedTerminologyVersions.add(toTermAndVersion);
-      }
+        requireReload=false;
     }
 
     // NEW THINKING: allow a component info relationship from a SCUI/SDUI/CODE
