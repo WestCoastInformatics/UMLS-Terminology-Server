@@ -2708,6 +2708,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // insertion that duplicated existing concept_relationships from old
     // insertions.
     // Remove the old relationships.
+    // 12/10/2019 - still having same issue in MTH_2019AB. Updated to new version.
 
     logInfo(" Remove old relationships");
 
@@ -2715,7 +2716,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         + " concept_relationships cr, concepts c1, concepts c2 "
         + " where cr.from_id = c1.id " + " and cr.to_id = c2.id "
         + " AND from_id < to_id " + " and cr.terminology = 'MTH' "
-        + " and cr.terminology != '2019AA' " + " and c1.terminology = 'NCIMTH' "
+        + " and cr.terminology != '2019AB' " + " and c1.terminology = 'NCIMTH' "
         + " and c2.terminology = 'NCIMTH' "
         + " GROUP BY c1.terminologyId, c2.terminologyId HAVING COUNT(*) > 1");
 
