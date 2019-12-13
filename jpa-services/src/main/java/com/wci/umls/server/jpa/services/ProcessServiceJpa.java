@@ -52,6 +52,9 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
 
   /** The insertion algorithms map. */
   private static Map<String, String> insertionAlgorithmsMap = new HashMap<>();
+  
+  /** The inversion algorithms map. */
+  private static Map<String, String> inversionAlgorithmsMap = new HashMap<>();
 
   /** The maintenance algorithms map. */
   private static Map<String, String> maintenanceAlgorithmsMap = new HashMap<>();
@@ -75,7 +78,6 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
       config = ConfigUtility.getConfigProperties();
       final String key = "algorithm.handler";
       for (final String handlerName : config.getProperty(key).split(",")) {
-
         // Add handlers to map
         final Algorithm handlerService =
             ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
@@ -101,6 +103,21 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
     } catch (Exception e) {
       e.printStackTrace();
       insertionAlgorithmsMap = null;
+    }
+    
+    try {
+      config = ConfigUtility.getConfigProperties();
+      final String key = "inversion.algorithm.handler";
+      for (final String handlerName : config.getProperty(key).split(",")) {
+
+        // Pull algorithm from algorithm map, and add to specific algorithm-type
+        // map
+        inversionAlgorithmsMap.put(handlerName, algorithmsMap.get(handlerName));
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      inversionAlgorithmsMap = null;
     }
 
     try {
@@ -172,6 +189,8 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
     Map<String, String> algorithmsMap = null;
     if (type.equals("insertion")) {
       algorithmsMap = insertionAlgorithmsMap;
+    } else if (type.equals("inversion")) {
+      algorithmsMap = inversionAlgorithmsMap;
     } else if (type.equals("maintenance")) {
       algorithmsMap = maintenanceAlgorithmsMap;
     } else if (type.equals("release")) {
@@ -238,6 +257,11 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
     if (insertionAlgorithmsMap == null) {
       throw new Exception(
           "Insertion algorithms did not properly initialize, serious error.");
+    }
+    
+    if (inversionAlgorithmsMap == null) {
+      throw new Exception(
+          "Inversion algorithms did not properly initialize, serious error.");
     }
 
     if (maintenanceAlgorithmsMap == null) {
