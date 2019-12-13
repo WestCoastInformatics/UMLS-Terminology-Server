@@ -152,6 +152,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     if (collectionCopy) {
       definitions = new ArrayList<>(concept.getDefinitions());
       relationships = new ArrayList<>(concept.getRelationships());
+      inverseRelationships = new ArrayList<>(concept.getInverseRelationships());
       semanticTypes = new ArrayList<>(concept.getSemanticTypes());
       members = new ArrayList<>(concept.getMembers());
       componentHistories = new ArrayList<>(concept.getComponentHistory());
