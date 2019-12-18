@@ -148,18 +148,33 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
     // read in file termgroups.src
     BufferedReader in = new BufferedReader(new FileReader(new File(srcFullPath + File.separator + "termgroups.src")));
     String fileLine = "";
-    Set<String> termgroups = new HashSet<>();
+    Map<String, String> termgroupToSuppressMap = new HashMap<>();
     
     // cache termgroups
     while ((fileLine = in.readLine()) != null) {
       String[] fields = FieldedStringTokenizer.split(fileLine, "|");
-      termgroups.add(fields[0]);
+      termgroupToSuppressMap.put(fields[0], fields[2]);
     }    
+    
+    // read in file sources.src
+    in = new BufferedReader(new FileReader(new File(srcFullPath + File.separator + "sources.src")));
+    Map<String, String> sourcesToLatMap = new HashMap<>();
+    Set<String> rootSources = new HashSet<>();
+    
+    // cache sources
+    while ((fileLine = in.readLine()) != null) {
+      String[] fields = FieldedStringTokenizer.split(fileLine, "|");
+      sourcesToLatMap.put(fields[0], fields[15]);
+      rootSources.add(fields[4]);
+    }       
     
     // read in file classes_atoms.src
     in = new BufferedReader(new FileReader(new File(srcFullPath + File.separator + "classes_atoms.src")));
     ValidationResult result = new ValidationResultJpa();
     Map<String, String> lowerToNativeMap = new HashMap<>();
+    Set<String> vabCodes = new HashSet<>();
+    Set<String> rabCodes = new HashSet<>();
+    Set<String> uniqueAuiFields = new HashSet<>();
     
     // do field and line checks
     // initialize caches
@@ -199,7 +214,7 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
       
       // check for angle brackets in string field
       if (checkNames.contains("#ATOMS_4")) {
-        if (fields[8].contains("<") || fields[8].contains(">")) {
+        if (fields[8].contains("<") && fields[8].contains(">")) {
           result.addWarning(
               "ATOMS_4: String field in classes_atoms.src should not have angle brackets. "
                   + fields[8]);
@@ -208,12 +223,94 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
       
       // check for valid termgroup
       if (checkNames.contains("#ATOMS_5")) {
-        if (!termgroups.contains(fields[2]) && !fields[2].startsWith("SRC/")) {
+        if (!termgroupToSuppressMap.containsKey(fields[2]) && !fields[2].startsWith("SRC/")) {
           result.addError(
               "ATOMS_5: Termgroup in classes_atoms.src is invalid: " + fields[2]);
         }
       }
+      
+      // check code must be equal to SCUI, SDUI or SAUI unless all of them are null
+      if (checkNames.contains("#ATOMS_8")) {
+        if (!fields[9].isEmpty() && !fields[10].isEmpty() && !fields[11].isEmpty()
+            && !fields[3].equals(fields[9]) && !fields[3].equals(fields[10]) && !fields[3].equals(fields[11])) {
+          result.addError("ATOMS_8: Code must be equal to SAUI, SCUI or SDUI: " + fields[0] + ":" + fields[3]);         
+        }
+      }
 
+      // check for valid sources
+      if (checkNames.contains("#ATOMS_9")) {
+        if (!(fields[1].equals("SRC") || sourcesToLatMap.containsKey(fields[1]))) {
+          result.addError("ATOMS_9: Source must be listed in sources.src: " + fields[1]);
+        }
+      }
+      
+      // check for valid codes on SRC/VAB and SRC/VPT atoms
+      if (checkNames.contains("#ATOMS_10")) {
+        if ((fields[2].equals("SRC/VPT") || fields[2].equals("SRC/VAB"))
+            && !sourcesToLatMap.containsKey(fields[3].substring(2))) {
+          result.addError("ATOMS_10: Code field must be a valid source for SRC/VPT and SRC/VAB rows: " + fields[3].substring(2));
+        }
+      }
+      
+      // check for valid names on SRC/VAB atoms
+      if (checkNames.contains("#ATOMS_11")) {
+        if ((fields[2].equals("SRC/VAB"))
+            && !sourcesToLatMap.containsKey(fields[7])) {
+          result.addError("ATOMS_11: Name field must be a valid source for SRC/VAB rows: " + fields[7]);
+        }
+      }
+      
+      // check for valid names on SRC/RAB atoms
+      if (checkNames.contains("#ATOMS_12")) {
+        if ((fields[2].equals("SRC/RAB"))
+            && !rootSources.contains(fields[7])) {
+          result.addError("ATOMS_12: Name field must be a valid source for SRC/RAB rows: " + fields[7]);
+        }
+      }
+      
+      // check for valid codes on SRC/RAB and SRC/RPT atoms
+      if (checkNames.contains("#ATOMS_13")) {
+        if ((fields[2].equals("SRC/RPT") || fields[2].equals("SRC/RAB"))
+            && !rootSources.contains(fields[3].substring(2))) {
+          result.addError("ATOMS_13: Code field must be a valid source for SRC/RPT and SRC/RAB rows: " + fields[3].substring(2));
+        }
+      }
+      
+      // check if the LAT matches sources.src file
+      if (checkNames.contains("#ATOMS_17")) {
+        if (!fields[1].equals("SRC")) {
+          if (!(sourcesToLatMap.containsKey(fields[1])
+              && sourcesToLatMap.get(fields[1]).equals(fields[12]))) {
+            result.addError(
+                "ATOMS_17: Lat field must match language of the source: "
+                    + fields[1] + ":" + fields[12]);
+          }
+        }
+      }
+      
+
+      // check suppressibility of atom matches expected from termgroups.src file
+      if (checkNames.contains("#ATOMS_18")) {
+        if (!fields[1].equals("SRC")) {
+          String atomSuppress = fields[8];
+          String tgSuppress = termgroupToSuppressMap.get(fields[2]);
+          if (tgSuppress.equals("Y") && !atomSuppress.equals("Y")
+              && !atomSuppress.equals("O")) {
+            result.addError(
+                "ATOMS_18: Atom suppressibility must match termgroup suppressibility: "
+                    + fields[1] + ":" + fields[8]);
+          } else if (tgSuppress.equals("N") && atomSuppress.equals("Y")) {
+            result.addError(
+                "ATOMS_18: Atom suppressibility must match termgroup suppressibility: "
+                    + fields[1] + ":" + fields[8]);
+          } else if (tgSuppress.equals("Y") && !atomSuppress.equals("O")) {
+            result.addError(
+                "ATOMS_18: Atom suppressibility must match termgroup suppressibility: "
+                    + fields[1] + ":" + fields[8]);
+          }
+        }
+      }
+      
     }
     in.close();
     in = new BufferedReader(new FileReader(new File(srcFullPath + File.separator + "classes_atoms.src")));
@@ -237,6 +334,38 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
           // add it to the map
         } else {
           lowerToNativeMap.put(fields[7].toLowerCase(), fields[7]);
+        }
+      }
+      
+      // check for duplicate SRC/VAB codes
+      if (checkNames.contains("#ATOMS_14")) {
+        if (fields[2].equals("SRC/VAB") && vabCodes.contains(fields[3])) {
+          result.addError(
+              "ATOMS_14: Duplicate SRC/VAB codes: " + fields[7].toLowerCase());
+        } else if (fields[2].equals("SRC/VAB")){
+          vabCodes.add(fields[3]);
+        }
+      }
+      
+      // check for duplicate SRC/RAB codes
+      if (checkNames.contains("#ATOMS_15")) {
+        if (fields[2].equals("SRC/RAB") && rabCodes.contains(fields[3])) {
+          result.addError(
+              "ATOMS_15: Duplicate SRC/RAB codes: " + fields[7].toLowerCase());
+        } else if (fields[2].equals("SRC/RAB")){
+          rabCodes.add(fields[3]);
+        }
+      }
+      
+      // check for non-unique AUI fields
+      if (checkNames.contains("#ATOMS_16")) {
+        if (uniqueAuiFields.contains(fields[2] + "|" + fields[7] + "|" + fields[3] + "|" + 
+            fields[9] + "|" + fields[10] + "|" + fields[11])) {
+          result.addError("ATOMS_16: Duplicate AUI fields: " + fields[2] + "|" + fields[7] + "|" + fields[3] + "|" + 
+            fields[9] + "|" + fields[10] + "|" + fields[11]);
+        } else  {
+          uniqueAuiFields.add(fields[2] + "|" + fields[7] + "|" + fields[3] + "|" + 
+              fields[9] + "|" + fields[10] + "|" + fields[11]);
         }
       }
     }
@@ -306,6 +435,16 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
     validationChecks.add("#ATOMS_8");
     validationChecks.add("#ATOMS_9");
     validationChecks.add("#ATOMS_10");
+    validationChecks.add("#ATOMS_11");
+    validationChecks.add("#ATOMS_12");
+    validationChecks.add("#ATOMS_13");
+    validationChecks.add("#ATOMS_14");
+    validationChecks.add("#ATOMS_15");
+    validationChecks.add("#ATOMS_16");
+    validationChecks.add("#ATOMS_17");
+    validationChecks.add("#ATOMS_18");
+    validationChecks.add("#ATOMS_19");
+    validationChecks.add("#ATOMS_20");
     
     Collections.sort(validationChecks);
     param.setPossibleValues(validationChecks);
