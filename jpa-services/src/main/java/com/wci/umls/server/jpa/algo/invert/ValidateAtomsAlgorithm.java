@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
@@ -84,6 +85,7 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
     checkFileExist(srcFullPath, "classes_atoms.src");
     checkFileExist(srcFullPath, "sources.src");
     checkFileExist(srcFullPath, "termgroups.src");
+    checkFileExist(srcFullPath, "attributes.src");
 
     // Ensure permissions are sufficient to write files
     try {
@@ -155,6 +157,7 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
       String[] fields = FieldedStringTokenizer.split(fileLine, "|");
       termgroupToSuppressMap.put(fields[0], fields[2]);
     }    
+    in.close();
     
     // read in file sources.src
     in = new BufferedReader(new FileReader(new File(srcFullPath + File.separator + "sources.src")));
@@ -166,8 +169,20 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
       String[] fields = FieldedStringTokenizer.split(fileLine, "|");
       sourcesToLatMap.put(fields[0], fields[15]);
       rootSources.add(fields[4]);
-    }       
+    } 
+    in.close();
     
+    // read in file attributes.src
+    in = new BufferedReader(new FileReader(new File(srcFullPath + File.separator + "attributes.src")));
+    Set<String> styIntelProds = new HashSet<>();
+    
+    // cache sources
+    while ((fileLine = in.readLine()) != null) {
+      String[] fields = FieldedStringTokenizer.split(fileLine, "|");
+      if (fields[3].equals("SEMANTIC_TYPE") && fields[4].equals("Intellectual Product")) {
+        styIntelProds.add(fields[1]);
+      }
+    }       
     // read in file classes_atoms.src
     in = new BufferedReader(new FileReader(new File(srcFullPath + File.separator + "classes_atoms.src")));
     ValidationResult result = new ValidationResultJpa();
@@ -311,6 +326,25 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
         }
       }
       
+      // check for XML chars in string field
+      if (checkNames.contains("#ATOMS_21")) {
+        String str = fields[7];
+        String pattern = ".*[&#][a-zA-Z0-9]+;.*";
+        if (str.contains("quot")) {
+          if (Pattern.matches(pattern, str)  ) {
+            result.addError(
+                "ATOMS_21: String contains an XML character: " + fields[7]);
+          }    
+        }
+      }
+      
+      // check all VPT atoms have STY of Intellectual Property
+      if (checkNames.contains("#ATOMS_22")) {
+        if ((fields[2].equals("SRC/VPT") && !styIntelProds.contains(fields[0]))) {
+          result.addError("ATOMS_22: All VPT atoms have STY of Intellectual Property: " + fields[0]);
+        }
+      }     
+      
     }
     in.close();
     in = new BufferedReader(new FileReader(new File(srcFullPath + File.separator + "classes_atoms.src")));
@@ -369,6 +403,7 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
         }
       }
     }
+    in.close();
     
     // print warnings and errors to log
     if (result.getWarnings().size() > 0) {
@@ -445,6 +480,8 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
     validationChecks.add("#ATOMS_18");
     validationChecks.add("#ATOMS_19");
     validationChecks.add("#ATOMS_20");
+    validationChecks.add("#ATOMS_21");
+    validationChecks.add("#ATOMS_22");
     
     Collections.sort(validationChecks);
     param.setPossibleValues(validationChecks);

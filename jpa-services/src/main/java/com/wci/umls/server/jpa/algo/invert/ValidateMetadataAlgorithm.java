@@ -3,7 +3,9 @@
  */
 package com.wci.umls.server.jpa.algo.invert;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.nio.file.Path;
@@ -11,13 +13,16 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -74,9 +79,9 @@ public class ValidateMetadataAlgorithm extends AbstractInsertMaintReleaseAlgorit
           "Specified input directory does not exist - " + srcFullPath);
     }
 
-    checkFileExist(srcFullPath, "contexts.src");
-    checkFileExist(srcFullPath, "sources.src");
+    checkFileExist(srcFullPath, "MRDOC.RRF");
     checkFileExist(srcFullPath, "termgroups.src");
+    checkFileExist(srcFullPath, "mergefacts.src");
 
     // Ensure permissions are sufficient to write files
     try {
@@ -139,6 +144,141 @@ public class ValidateMetadataAlgorithm extends AbstractInsertMaintReleaseAlgorit
     setMolecularActionFlag(false);
     
     ValidationResult result = new ValidationResultJpa();
+    
+    // read in file attributes.src
+    BufferedReader in = new BufferedReader(new FileReader(
+        new File(srcFullPath + File.separator + "MRDOC.RRF")));
+    String fileLine = "";
+
+    Set<String> uniqueFields = new HashSet<>();
+    
+    // do field and line checks
+    // initialize caches
+    while ((fileLine = in.readLine()) != null) {
+
+      String[] fields = FieldedStringTokenizer.split(fileLine, "|");
+
+      // check each row has the correct number of fields
+      if (checkNames.contains("#META_1")) {
+        if (fields.length != 4) {
+          result.addError(
+              "META_1: incorrect number of fields in MRDOC.RRF row: "
+                  + fileLine);
+        }
+      }
+      
+      // check invalid type for dockey
+      if (checkNames.contains("#META_2")) {
+        if ((fields[2].equals("tty_class") && !fields[0].equals("TTY"))
+          || (fields[2].equals("rela_inverse") && !fields[0].equals("RELA"))) {
+          result.addError(
+              "META_2: invalid type for dockey in MRDOC.RRF: "
+                  + fileLine);
+        }
+      }
+
+      // check duplicate dockey and expl
+      if (checkNames.contains("#META_3")) {
+        if (!fields[0].equals("TTY")){
+          if (uniqueFields
+              .contains(fields[0] + "|" + fields[1] + "|" + fields[2] + "|"
+                  + fields[3])) {
+            result.addError("META_3: Duplicate dockey and expl fields in MRDOC.RRF: " + fields[0] + "|" + fields[1] + "|" + fields[2] + "|"
+                + fields[3]);
+          } else {
+            uniqueFields.add(fields[0] + "|" + fields[1] + "|" + fields[2] + "|"
+                + fields[3]);
+          }
+        }
+      }   
+      
+      // check invalid null values
+      if (checkNames.contains("#META_4")) {
+        if (fields[1].equals("")) {
+          if (fields[0].equals("RELA")) {
+            if ((fields[2].equals("rela_inverse") && fields[3].equals(""))
+                || (fields[2].equals("expanded_form")
+                    && fields[3].equals("Empty relationship attribute"))) {
+              // allowed for null rela - so ignore
+            } else {
+              result.addError(
+                  "META_4: Invalid null values in MRDOC.RRF: " + fields[0] + "|"
+                      + fields[1] + "|" + fields[2] + "|" + fields[3]);
+            }
+          } else {
+            result.addError(
+                "META_4: Invalid null values in MRDOC.RRF: " + fields[0] + "|"
+                    + fields[1] + "|" + fields[2] + "|" + fields[3]);
+          }
+        }
+        
+      }
+    }
+    in.close();
+    
+    // read in file termgroups.src
+    in = new BufferedReader(new FileReader(
+        new File(srcFullPath + File.separator + "termgroups.src")));
+    fileLine = "";
+
+    
+    // do field and line checks
+    // initialize caches
+    while ((fileLine = in.readLine()) != null) {
+
+      String[] fields = FieldedStringTokenizer.split(fileLine, "|");
+      
+      // check each row has the correct number of fields
+      if (checkNames.contains("#META_6")) {
+        if (fields.length != 6) {
+          result.addError(
+              "META_6: incorrect number of fields in termgroups.src row: "
+                  + fileLine);
+        }
+      }
+      
+      // check tty in each line must be present in the termgroup
+      if (checkNames.contains("#META_7")) {
+          if (!fields[0].endsWith("/" + fields[5])) {
+            result.addError("META_7: tty must be present in the termgroup in termgroups.src: " + fields[0] + "|" + fields[5]);
+          } 
+      }   
+         
+    }
+    in.close();
+    
+    
+    // read in file mergefacts.src
+    in = new BufferedReader(new FileReader(
+        new File(srcFullPath + File.separator + "mergefacts.src")));
+    fileLine = "";
+
+    
+    // do field and line checks
+    // initialize caches
+    while ((fileLine = in.readLine()) != null) {
+
+      String[] fields = FieldedStringTokenizer.split(fileLine, "|");
+      
+      // check each row has the correct number of fields
+      if (checkNames.contains("#META_8")) {
+        if (fields.length != 12) {
+          result.addError(
+              "META_8: incorrect number of fields in mergefacts.src row: "
+                  + fileLine);
+        }
+      }
+      
+      // check self referential mergefacts
+      if (checkNames.contains("#META_9")) {
+         if (fields[0].equals(fields[2]) && fields[8].equals(fields[10]) && fields[9].equals(fields[11])) {
+           result.addError("META_8: self referential mergefacts in mergefacts.src row: "
+               + fileLine);
+         }
+      }   
+         
+    }
+    in.close();
     
     // print warnings and errors to log
     if (result.getWarnings().size() > 0) {
