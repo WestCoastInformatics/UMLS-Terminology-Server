@@ -3,7 +3,9 @@
  */
 package com.wci.umls.server.jpa.algo.invert;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.nio.file.Path;
@@ -11,14 +13,17 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -28,6 +33,25 @@ import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
  * Implementation of an algorithm to save information before an insertion.
  */
 public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
+/*
+  # contexts.src fields
+  # 1  = source_atom_id_1
+  # 2  = relationship_name
+  # 3  = relationship_attribute
+  # 4  = source_atom_id_2
+  # 5  = source
+  # 6  = source_of_label
+  # 7  = hcd
+  # 8  = parent_treenum
+  # 9  = release_mode
+  # 10 = source_rui
+  # 11 = relationship_group
+  # 12 = sg_id_1
+  # 13 = sg_type_1
+  # 14 = sg_qualifier_1
+  # 15 = sg_id_2
+  # 16 = sg_type_2
+  # 17 = sg_qualifier_2*/
 
   private String srcFullPath;
   
@@ -76,8 +100,6 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
     }
 
     checkFileExist(srcFullPath, "contexts.src");
-    checkFileExist(srcFullPath, "sources.src");
-    checkFileExist(srcFullPath, "termgroups.src");
 
     // Ensure permissions are sufficient to write files
     try {
@@ -140,6 +162,71 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
     setMolecularActionFlag(false);
     
     ValidationResult result = new ValidationResultJpa();
+    
+    // read in file attributes.src
+    BufferedReader in = new BufferedReader(new FileReader(
+        new File(srcFullPath + File.separator + "attributes.src")));
+    String fileLine = "";
+
+    Set<String> uniqueFields = new HashSet<>();
+
+    // do field and line checks
+    // initialize caches
+    while ((fileLine = in.readLine()) != null) {
+
+      String[] fields = FieldedStringTokenizer.split(fileLine, "|");
+
+      // check each row has the correct number of fields
+      if (checkNames.contains("#CXTS_1")) {
+        if (fields.length != 17) {
+          result.addError(
+              "CXTS_1: incorrect number of fields in attributes.src row: "
+                  + fileLine);
+        }
+      }
+
+      // check for PAR with null PTR
+      if (checkNames.contains("#CXTS_2")) {
+        if (fields[1].equals("PAR") && fields[7].equals("")) {
+          result.addError("CXTS_2: PAR with null PTR in contexts.src: " + fields[1] + fields[7]);
+        }
+      }
+      
+      // check for non unique RUI fields
+      if (checkNames.contains("#CXTS_3")) {
+        if (uniqueFields.contains(
+            fields[4] + "|" + fields[1] + "|" + fields[2] + "|" + fields[11] + "|" + 
+                fields[12] + "|" + fields[13] + "|" + fields[14] + "|" + fields[15] + "|" +
+                fields[16] + "|" + fields[7]
+        )) {
+          result.addError(
+              "CXTS_3: Non unique RUI fields in contexts.src: " + fileLine);
+        } else {
+          uniqueFields.add(
+              fields[4] + "|" + fields[1] + "|" + fields[2] + "|" + fields[11] + "|" + 
+                  fields[12] + "|" + fields[13] + "|" + fields[14] + "|" + fields[15] + "|" +
+                  fields[16] + "|" + fields[7]);
+        }
+
+      }
+      
+      // check for SIB rel with non-null RELA (sab UWDA is an exception)
+      if (checkNames.contains("#CXTS_4")) {    
+        if (fields[1].equals("SIB") && !fields[4].equals("UWDA") && !fields[2].equals("")) {
+          result.addError(
+              "CXTS_4: SIB rel with non-null RELA in contexts.src: " + fileLine);
+        }
+      }
+      
+      // check VSAB ne source of label
+      if (checkNames.contains("#CXTS_5")) {    
+        if (!fields[4].equals(fields[5])) {
+          result.addError(
+              "CXTS_5: VSAB not equal to source of label in contexts.src: " + fields[4] + "|" + fields[5]);
+        }
+      }     
+    }
+    in.close();
     
     // print warnings and errors to log
     if (result.getWarnings().size() > 0) {
