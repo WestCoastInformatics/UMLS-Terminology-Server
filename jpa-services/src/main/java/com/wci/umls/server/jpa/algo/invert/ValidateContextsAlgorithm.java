@@ -13,8 +13,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
@@ -100,6 +102,9 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
     }
 
     checkFileExist(srcFullPath, "contexts.src");
+    checkFileExist(srcFullPath, "classes_atoms.src");
+    checkFileExist(srcFullPath, "sources.src");
+    checkFileExist(srcFullPath, "MRDOC.RRF");
 
     // Ensure permissions are sufficient to write files
     try {
@@ -163,10 +168,48 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
     
     ValidationResult result = new ValidationResultJpa();
     
-    // read in file attributes.src
-    BufferedReader in = new BufferedReader(new FileReader(
-        new File(srcFullPath + File.separator + "attributes.src")));
+    // read in file classes_atoms.src
+    BufferedReader in = new BufferedReader(new FileReader(new File(srcFullPath + File.separator + "classes_atoms.src")));
     String fileLine = "";
+    Set<String> sauis = new HashSet<>();
+    
+    // cache 
+    while ((fileLine = in.readLine()) != null) {
+      String[] fields = FieldedStringTokenizer.split(fileLine, "|");
+      sauis.add(fields[0]);
+    } 
+    in.close();
+    
+    // read in file sources.src
+    in = new BufferedReader(new FileReader(new File(srcFullPath + File.separator + "sources.src")));
+    Map<String, String> sourcesToLatMap = new HashMap<>();
+    Set<String> rootSources = new HashSet<>();
+    
+    // cache sources
+    while ((fileLine = in.readLine()) != null) {
+      String[] fields = FieldedStringTokenizer.split(fileLine, "|");
+      sourcesToLatMap.put(fields[0], fields[15]);
+      rootSources.add(fields[4]);
+    } 
+    in.close();
+    
+    // read in file MRDOC.RRF
+    in = new BufferedReader(new FileReader(new File(srcFullPath + File.separator + "MRDOC.RRF")));
+    Set<String> relas = new HashSet<>();
+    
+    // cache relas
+    while ((fileLine = in.readLine()) != null) {
+      String[] fields = FieldedStringTokenizer.split(fileLine, "|");
+      if (fields[0].equals("RELA")) {
+        relas.add(fields[1]);
+      }
+    } 
+    in.close();
+    
+    // read in file contexts.src
+    in = new BufferedReader(new FileReader(
+        new File(srcFullPath + File.separator + "contexts.src")));
+    fileLine = "";
 
     Set<String> uniqueFields = new HashSet<>();
 
@@ -223,6 +266,64 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
         if (!fields[4].equals(fields[5])) {
           result.addError(
               "CXTS_5: VSAB not equal to source of label in contexts.src: " + fields[4] + "|" + fields[5]);
+        }
+      }  
+      
+      // check context treepos subset of parent treepos
+      if (checkNames.contains("#CXTS_6")) {
+        if (fields[1].equals("PAR") && !fields[7].contains(fields[3])) {
+          result.addError("CXTS_6: Parent mismatch for: " + fields[3] + "|" + fields[7]);
+        }
+      }
+      
+      if (checkNames.contains("#CXTS_7")) {
+        String[] nodes = FieldedStringTokenizer.split(fields[7], ".");
+        Set<String> nodeSet = new HashSet<>();
+        Collections.addAll(nodeSet, nodes);
+        if (nodeSet.size() != nodes.length) {
+          result.addError("CXTS_7: Cycle in parent treepos: "  + fields[7]);
+        }
+        for (String node : nodes) {
+          if (!sauis.contains(node)) {
+            result.addError("CXTS_7: Invalid node in parent treepos: "  + node + ":" + fields[7]);
+          }
+        }
+      }
+      
+      // check SRC_ATOM_ID_1 not equal to SGID_1
+      if (checkNames.contains("#CXTS_8")) {
+
+        if (fields[12].equals("SRC_ATOM_ID")) {
+          if (!fields[0].equals(fields[11])) {
+            result.addError("CXTS_8: SRC_ATOM_ID_1 not equal to SGID_1: " + fields[0]
+                + ":" + fields[11]);
+          }
+        }
+
+      }
+      
+      // check SRC_ATOM_ID_2 not equal to SGID_2
+      if (checkNames.contains("#CXTS_9")) {
+
+        if (fields[15].equals("SRC_ATOM_ID")) {
+          if (!fields[3].equals(fields[14])) {
+            result.addError("CXTS_9: SRC_ATOM_ID_2 not equal to SGID_2: " + fields[3]
+                + ":" + fields[14]);
+          }
+        }
+      }
+      
+      // check if VSAB is not in sources.src file
+      if (checkNames.contains("#CXTS_10")) {
+        if (!sourcesToLatMap.containsKey(fields[4])) {
+            result.addError("CXTS_10: VSAB is not in the sources.src file: " + fields[4]);
+        }
+      }
+      
+      // check if RELA is in MRDOC.RRF file
+      if (checkNames.contains("#CXTS_11")) {
+        if (!fields[2].equals("") && !fields[2].equals("isa") && !relas.contains(fields[2])) {
+            result.addError("CXTS_11: RELA is not in the MRDOC.RRF file: " + fields[2]);
         }
       }     
     }
@@ -293,6 +394,9 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
     validationChecks.add("#CXTS_8");
     validationChecks.add("#CXTS_9");
     validationChecks.add("#CXTS_10");
+    validationChecks.add("#CXTS_11");
+    validationChecks.add("#CXTS_12");
+    validationChecks.add("#CXTS_13");
     
     Collections.sort(validationChecks);
     param.setPossibleValues(validationChecks);

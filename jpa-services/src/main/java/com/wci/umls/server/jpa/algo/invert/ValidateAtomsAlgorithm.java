@@ -183,6 +183,25 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
         styIntelProds.add(fields[1]);
       }
     }       
+    
+/*    # Fields:
+      # 1  = src_atom_id
+      # 2  = source
+      # 3  = termgroup
+      # 4  = code
+      # 5  = status
+      # 6  = tobereleased
+      # 7  = released
+      # 8  = atom_name
+      # 9  = suppressible
+      # 10 = source_aui
+      # 11 = source_cui
+      # 12 = source_dui
+      # 13 = language
+      # 14 = order_id
+      # 15 = last_release_cui
+*/
+      
     // read in file classes_atoms.src
     in = new BufferedReader(new FileReader(new File(srcFullPath + File.separator + "classes_atoms.src")));
     ValidationResult result = new ValidationResultJpa();
