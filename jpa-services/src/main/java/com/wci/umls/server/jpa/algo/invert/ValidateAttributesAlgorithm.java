@@ -183,6 +183,13 @@ public class ValidateAttributesAlgorithm
     fileLine = "";
 
     Set<String> uniqueAtuiFields = new HashSet<>();
+    
+    final int ct =
+        filterFileForCount(getSrcDirFile(), "attributes.src", null, null);
+    logInfo("  Steps: " + ct + " attribute rows to process");
+
+    // Set the number of steps to the number of lines to be processed
+    setSteps(ct);
 
     // do field and line checks
     // initialize caches
@@ -224,6 +231,24 @@ public class ValidateAttributesAlgorithm
         }
       }
 
+      // check for non-unique AUI fields
+      if (checkNames.contains("#ATTRS_4")) {
+        
+        // source|attribute_name|source_atui|sg_id|sg_type_1|sg_qualifier_1|hashcode
+        if (uniqueAtuiFields
+            .contains(fields[5] + "|" + fields[3] + "|" + fields[12] + "|"
+                + fields[1] + "|" + fields[10] + "|" + fields[11] + "|" + fields[13])) {
+          if (underErrorTallyThreashold("#ATTRS_4")) {
+            result.addError("ATTRS_4: Duplicate ATUI fields: " + fields[5] + "|"
+              + fields[3] + "|" + fields[12] + "|" + fields[1] + "|"
+              + fields[10] + "|" + fields[11] + "|" + fields[13]);
+          }
+        } else {
+          uniqueAtuiFields.add(fields[5] + "|" + fields[3] + "|" + fields[12]
+              + "|" + fields[1] + "|" + fields[10] + "|" + fields[11] + "|" + fields[13]);
+        }
+      }
+      
       // check source should be like E-* for non SRC stys.
       if (checkNames.contains("#ATTRS_5")) {
         if (!fields[1].equals("SRC") && !fields[5].equals("SRC") && fields[3].equals("SEMANTIC_TYPE")) {
@@ -312,35 +337,12 @@ public class ValidateAttributesAlgorithm
           }
         }
       }
+      // Update the progress
+      updateProgress();
     }
 
     in.close();
-    in = new BufferedReader(new FileReader(
-        new File(srcFullPath + File.separator + "attributes.src")));
 
-    while ((fileLine = in.readLine()) != null) {
-
-      String[] fields = FieldedStringTokenizer.split(fileLine, "|");
-
-      // check for non-unique AUI fields
-      if (checkNames.contains("#ATTRS_4")) {
-        
-        // source|attribute_name|source_atui|sg_id|sg_type_1|sg_qualifier_1|hashcode
-        if (uniqueAtuiFields
-            .contains(fields[5] + "|" + fields[3] + "|" + fields[12] + "|"
-                + fields[1] + "|" + fields[10] + "|" + fields[11] + "|" + fields[13])) {
-          if (underErrorTallyThreashold("#ATTRS_4")) {
-            result.addError("ATTRS_4: Duplicate ATUI fields: " + fields[5] + "|"
-              + fields[3] + "|" + fields[12] + "|" + fields[1] + "|"
-              + fields[10] + "|" + fields[11] + "|" + fields[13]);
-          }
-        } else {
-          uniqueAtuiFields.add(fields[5] + "|" + fields[3] + "|" + fields[12]
-              + "|" + fields[1] + "|" + fields[10] + "|" + fields[11] + "|" + fields[13]);
-        }
-      }
-    }
-    in.close();
 
     // print warnings and errors to log
     if (result.getWarnings().size() > 0) {

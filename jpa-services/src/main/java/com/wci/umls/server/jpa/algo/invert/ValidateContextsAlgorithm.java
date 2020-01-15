@@ -214,6 +214,13 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
     } 
     in.close();
     
+    final int ct =
+        filterFileForCount(getSrcDirFile(), "contexts.src", null, null);
+    logInfo("  Steps: " + ct + " context rows to process");
+    
+    // Set the number of steps to the number of lines to be processed
+    setSteps(ct);
+
     // read in file contexts.src
     in = new BufferedReader(new FileReader(
         new File(srcFullPath + File.separator + "contexts.src")));
@@ -356,7 +363,10 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
             result.addError("CXTS_11: RELA is not in the MRDOC.RRF file: " + fields[2]);
           }
         }
-      }     
+      }    
+      
+      // Update the progress
+      updateProgress();
     }
     in.close();
     

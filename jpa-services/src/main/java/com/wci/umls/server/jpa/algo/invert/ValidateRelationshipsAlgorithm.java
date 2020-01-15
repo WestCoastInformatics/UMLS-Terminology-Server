@@ -221,6 +221,14 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
     } 
     in.close();
     
+    final int ct =
+        filterFileForCount(getSrcDirFile(), "relationships.src", null, null);
+    logInfo("  Steps: " + ct + " relationship rows to process");
+    
+    // Set the number of steps to the number of lines to be processed
+    setSteps(ct);
+
+    
     // read in file contexts.src
     in = new BufferedReader(new FileReader(
         new File(srcFullPath + File.separator + "relationships.src")));
@@ -416,7 +424,8 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
         }
       }
       
-      
+      // Update the progress
+      updateProgress(); 
     }
     in.close();
     

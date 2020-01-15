@@ -209,6 +209,14 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
       # 15 = last_release_cui
 */
       
+    final int ct =
+        filterFileForCount(getSrcDirFile(), "classes_atoms.src", null, null);
+    logInfo("  Steps: " + ct + " atom rows to process");
+    
+    // Set the number of steps to the number of lines to be processed
+    setSteps(ct);
+
+    
     // read in file classes_atoms.src
     in = new BufferedReader(new FileReader(new File(srcFullPath + File.separator + "classes_atoms.src")));
     ValidationResult result = new ValidationResultJpa();
@@ -280,6 +288,23 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
         }
       }
       
+      // check for duplicate case-sensitive strings
+      if (checkNames.contains("#ATOMS_6")) {
+        if (lowerToNativeMap.values().contains(fields[7])) {
+          result.addWarning("ATOMS_6: Duplicate case-sensitive strings: " + fields[7]);
+
+          // check for duplicate case-insensitive strings
+        } else if (lowerToNativeMap.keySet()
+            .contains(fields[7].toLowerCase())) {
+          result.addWarning(
+              "ATOMS_6: Duplicate case-insensitive strings: " + fields[7].toLowerCase());
+
+          // add it to the map
+        } else {
+          lowerToNativeMap.put(fields[7].toLowerCase(), fields[7]);
+        }
+      }
+      
       // check code must be equal to SCUI, SDUI or SAUI unless all of them are null
       if (checkNames.contains("#ATOMS_8")) {
         if (!fields[9].isEmpty() && !fields[10].isEmpty() && !fields[11].isEmpty()
@@ -336,6 +361,46 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
           if (underErrorTallyThreashold("#ATOMS_13")) {
             result.addError("ATOMS_13: Code field must be a valid source for SRC/RPT and SRC/RAB rows: " + fields[3].substring(2));
           }
+        }
+      }
+      
+      
+      // check for duplicate SRC/VAB codes
+      if (checkNames.contains("#ATOMS_14")) {
+        if (fields[2].equals("SRC/VAB") && vabCodes.contains(fields[3])) {
+
+          if (underErrorTallyThreashold("#ATOMS_14")) {
+            result.addError(
+              "ATOMS_14: Duplicate SRC/VAB codes: " + fields[7].toLowerCase());
+          }
+        } else if (fields[2].equals("SRC/VAB")){
+          vabCodes.add(fields[3]);
+        }
+      }
+      
+      // check for duplicate SRC/RAB codes
+      if (checkNames.contains("#ATOMS_15")) {
+        if (fields[2].equals("SRC/RAB") && rabCodes.contains(fields[3])) {
+          if (underErrorTallyThreashold("#ATOMS_15")) {
+            result.addError(
+              "ATOMS_15: Duplicate SRC/RAB codes: " + fields[7].toLowerCase());
+          }
+        } else if (fields[2].equals("SRC/RAB")){
+          rabCodes.add(fields[3]);
+        }
+      }
+      
+      // check for non-unique AUI fields
+      if (checkNames.contains("#ATOMS_16")) {
+        if (uniqueAuiFields.contains(fields[2] + "|" + fields[7] + "|" + fields[3] + "|" + 
+            fields[9] + "|" + fields[10] + "|" + fields[11])) {
+          if (underErrorTallyThreashold("#ATOMS_16")) {
+            result.addError("ATOMS_16: Duplicate AUI fields: " + fields[2] + "|" + fields[7] + "|" + fields[3] + "|" + 
+              fields[9] + "|" + fields[10] + "|" + fields[11]);
+          }
+        } else  {
+          uniqueAuiFields.add(fields[2] + "|" + fields[7] + "|" + fields[3] + "|" + 
+              fields[9] + "|" + fields[10] + "|" + fields[11]);
         }
       }
       
@@ -401,73 +466,11 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
           }
         }
       }     
-      
+      // Update the progress
+      updateProgress();
     }
     in.close();
-    in = new BufferedReader(new FileReader(new File(srcFullPath + File.separator + "classes_atoms.src")));
-    
-    while ((fileLine = in.readLine()) != null) {
-      
-      
-      String[] fields = FieldedStringTokenizer.split(fileLine, "|");
 
-      // check for duplicate case-sensitive strings
-      if (checkNames.contains("#ATOMS_6")) {
-        if (lowerToNativeMap.values().contains(fields[7])) {
-          result.addWarning("ATOMS_6: Duplicate case-sensitive strings: " + fields[7]);
-
-          // check for duplicate case-insensitive strings
-        } else if (lowerToNativeMap.keySet()
-            .contains(fields[7].toLowerCase())) {
-          result.addWarning(
-              "ATOMS_6: Duplicate case-insensitive strings: " + fields[7].toLowerCase());
-
-          // add it to the map
-        } else {
-          lowerToNativeMap.put(fields[7].toLowerCase(), fields[7]);
-        }
-      }
-      
-      // check for duplicate SRC/VAB codes
-      if (checkNames.contains("#ATOMS_14")) {
-        if (fields[2].equals("SRC/VAB") && vabCodes.contains(fields[3])) {
-
-          if (underErrorTallyThreashold("#ATOMS_14")) {
-            result.addError(
-              "ATOMS_14: Duplicate SRC/VAB codes: " + fields[7].toLowerCase());
-          }
-        } else if (fields[2].equals("SRC/VAB")){
-          vabCodes.add(fields[3]);
-        }
-      }
-      
-      // check for duplicate SRC/RAB codes
-      if (checkNames.contains("#ATOMS_15")) {
-        if (fields[2].equals("SRC/RAB") && rabCodes.contains(fields[3])) {
-          if (underErrorTallyThreashold("#ATOMS_15")) {
-            result.addError(
-              "ATOMS_15: Duplicate SRC/RAB codes: " + fields[7].toLowerCase());
-          }
-        } else if (fields[2].equals("SRC/RAB")){
-          rabCodes.add(fields[3]);
-        }
-      }
-      
-      // check for non-unique AUI fields
-      if (checkNames.contains("#ATOMS_16")) {
-        if (uniqueAuiFields.contains(fields[2] + "|" + fields[7] + "|" + fields[3] + "|" + 
-            fields[9] + "|" + fields[10] + "|" + fields[11])) {
-          if (underErrorTallyThreashold("#ATOMS_16")) {
-            result.addError("ATOMS_16: Duplicate AUI fields: " + fields[2] + "|" + fields[7] + "|" + fields[3] + "|" + 
-              fields[9] + "|" + fields[10] + "|" + fields[11]);
-          }
-        } else  {
-          uniqueAuiFields.add(fields[2] + "|" + fields[7] + "|" + fields[3] + "|" + 
-              fields[9] + "|" + fields[10] + "|" + fields[11]);
-        }
-      }
-    }
-    in.close();
     
     // print warnings and errors to log
     if (result.getWarnings().size() > 0) {
