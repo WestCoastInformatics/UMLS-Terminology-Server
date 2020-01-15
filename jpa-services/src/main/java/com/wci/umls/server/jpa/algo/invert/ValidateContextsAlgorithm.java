@@ -55,10 +55,18 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
   # 16 = sg_type_2
   # 17 = sg_qualifier_2*/
 
+  /**  The src full path. */
   private String srcFullPath;
   
   /** The check names. */
   private List<String> checkNames;
+  
+  /**  The max test cases. */
+  private int maxTestCases = 50;
+  
+  /** Monitor the number of errors already logged for each of the test cases */
+  private Integer[] errorTallies = new Integer[maxTestCases];
+  
   
   /**
    * Instantiates an empty {@link ValidateAttributesAlgorithm}.
@@ -222,16 +230,20 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
       // check each row has the correct number of fields
       if (checkNames.contains("#CXTS_1")) {
         if (fields.length != 17) {
-          result.addError(
+          if (underErrorTallyThreashold("#CXTS_1")) {
+            result.addError(
               "CXTS_1: incorrect number of fields in attributes.src row: "
                   + fileLine);
+          }
         }
       }
 
       // check for PAR with null PTR
       if (checkNames.contains("#CXTS_2")) {
         if (fields[1].equals("PAR") && fields[7].equals("")) {
-          result.addError("CXTS_2: PAR with null PTR in contexts.src: " + fields[1] + fields[7]);
+          if (underErrorTallyThreashold("#CXTS_2")) {
+            result.addError("CXTS_2: PAR with null PTR in contexts.src: " + fields[1] + fields[7]);
+          }
         }
       }
       
@@ -242,8 +254,10 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
                 fields[12] + "|" + fields[13] + "|" + fields[14] + "|" + fields[15] + "|" +
                 fields[16] + "|" + fields[7]
         )) {
-          result.addError(
+          if (underErrorTallyThreashold("#CXTS_3")) {
+            result.addError(
               "CXTS_3: Non unique RUI fields in contexts.src: " + fileLine);
+          }
         } else {
           uniqueFields.add(
               fields[4] + "|" + fields[1] + "|" + fields[2] + "|" + fields[11] + "|" + 
@@ -256,36 +270,45 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
       // check for SIB rel with non-null RELA (sab UWDA is an exception)
       if (checkNames.contains("#CXTS_4")) {    
         if (fields[1].equals("SIB") && !fields[4].equals("UWDA") && !fields[2].equals("")) {
-          result.addError(
+          if (underErrorTallyThreashold("#CXTS_4")) {
+            result.addError(
               "CXTS_4: SIB rel with non-null RELA in contexts.src: " + fileLine);
+          }
         }
       }
       
       // check VSAB ne source of label
       if (checkNames.contains("#CXTS_5")) {    
         if (!fields[4].equals(fields[5])) {
-          result.addError(
+          if (underErrorTallyThreashold("#CXTS_5")) {
+            result.addError(
               "CXTS_5: VSAB not equal to source of label in contexts.src: " + fields[4] + "|" + fields[5]);
+          }
         }
       }  
       
       // check context treepos subset of parent treepos
       if (checkNames.contains("#CXTS_6")) {
         if (fields[1].equals("PAR") && !fields[7].contains(fields[3])) {
-          result.addError("CXTS_6: Parent mismatch for: " + fields[3] + "|" + fields[7]);
+          if (underErrorTallyThreashold("#CXTS_6")) {
+            result.addError("CXTS_6: Parent mismatch for: " + fields[3] + "|" + fields[7]);
+          }
         }
       }
       
       if (checkNames.contains("#CXTS_7")) {
-        String[] nodes = FieldedStringTokenizer.split(fields[7], ".");
-        Set<String> nodeSet = new HashSet<>();
-        Collections.addAll(nodeSet, nodes);
-        if (nodeSet.size() != nodes.length) {
-          result.addError("CXTS_7: Cycle in parent treepos: "  + fields[7]);
-        }
-        for (String node : nodes) {
-          if (!sauis.contains(node)) {
-            result.addError("CXTS_7: Invalid node in parent treepos: "  + node + ":" + fields[7]);
+        if (underErrorTallyThreashold("#CXTS_7")) {
+          String[] nodes = FieldedStringTokenizer.split(fields[7], ".");
+          Set<String> nodeSet = new HashSet<>();
+          Collections.addAll(nodeSet, nodes);
+          if (nodeSet.size() != nodes.length) {
+            result.addError("CXTS_7: Cycle in parent treepos: " + fields[7]);
+          }
+          for (String node : nodes) {
+            if (!sauis.contains(node)) {
+              result.addError("CXTS_7: Invalid node in parent treepos: " + node
+                  + ":" + fields[7]);
+            }
           }
         }
       }
@@ -295,8 +318,10 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
 
         if (fields[12].equals("SRC_ATOM_ID")) {
           if (!fields[0].equals(fields[11])) {
-            result.addError("CXTS_8: SRC_ATOM_ID_1 not equal to SGID_1: " + fields[0]
+            if (underErrorTallyThreashold("#CXTS_8")) {
+              result.addError("CXTS_8: SRC_ATOM_ID_1 not equal to SGID_1: " + fields[0]
                 + ":" + fields[11]);
+            }
           }
         }
 
@@ -307,8 +332,10 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
 
         if (fields[15].equals("SRC_ATOM_ID")) {
           if (!fields[3].equals(fields[14])) {
-            result.addError("CXTS_9: SRC_ATOM_ID_2 not equal to SGID_2: " + fields[3]
+            if (underErrorTallyThreashold("#CXTS_9")) {
+              result.addError("CXTS_9: SRC_ATOM_ID_2 not equal to SGID_2: " + fields[3]
                 + ":" + fields[14]);
+            }
           }
         }
       }
@@ -316,14 +343,18 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
       // check if VSAB is not in sources.src file
       if (checkNames.contains("#CXTS_10")) {
         if (!sourcesToLatMap.containsKey(fields[4])) {
+          if (underErrorTallyThreashold("#CXTS_10")) {
             result.addError("CXTS_10: VSAB is not in the sources.src file: " + fields[4]);
+          }
         }
       }
       
       // check if RELA is in MRDOC.RRF file
       if (checkNames.contains("#CXTS_11")) {
         if (!fields[2].equals("") && !fields[2].equals("isa") && !relas.contains(fields[2])) {
+          if (underErrorTallyThreashold("#CXTS_11")) {
             result.addError("CXTS_11: RELA is not in the MRDOC.RRF file: " + fields[2]);
+          }
         }
       }     
     }
@@ -404,7 +435,20 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
     
     return params;
   }
-
+  
+  // check if the number of errors logged for each test case is greater or less than 10
+  private boolean underErrorTallyThreashold(String testName) {
+    int index = Integer.parseInt(testName.substring(testName.indexOf("_") + 1));
+    Integer value = errorTallies[index];
+    if (value == null) {
+      value = 1;
+    } else {
+      value = value + 1;
+    }
+    errorTallies[index] = value;
+    return value <= 10;
+  }
+  
   @Override
   public String getDescription() {
     return "Validation checks related to contexts in the inversion files.";

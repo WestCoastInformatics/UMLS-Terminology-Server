@@ -33,10 +33,18 @@ import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
  */
 public class ValidateMetadataAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
+  /**  The src full path. */
   private String srcFullPath;
   
   /** The check names. */
   private List<String> checkNames;
+  
+  /**  The max test cases. */
+  private int maxTestCases = 50;
+  
+  /** Monitor the number of errors already logged for each of the test cases */
+  private Integer[] errorTallies = new Integer[maxTestCases];
+  
   
   /**
    * Instantiates an empty {@link ValidateMetadataAlgorithm}.
@@ -161,9 +169,11 @@ public class ValidateMetadataAlgorithm extends AbstractInsertMaintReleaseAlgorit
       // check each row has the correct number of fields
       if (checkNames.contains("#META_1")) {
         if (fields.length != 4) {
-          result.addError(
+          if (underErrorTallyThreashold("#META_1")) {
+            result.addError(
               "META_1: incorrect number of fields in MRDOC.RRF row: "
                   + fileLine);
+          }
         }
       }
       
@@ -171,9 +181,12 @@ public class ValidateMetadataAlgorithm extends AbstractInsertMaintReleaseAlgorit
       if (checkNames.contains("#META_2")) {
         if ((fields[2].equals("tty_class") && !fields[0].equals("TTY"))
           || (fields[2].equals("rela_inverse") && !fields[0].equals("RELA"))) {
-          result.addError(
+
+          if (underErrorTallyThreashold("#META_2")) {
+            result.addError(
               "META_2: invalid type for dockey in MRDOC.RRF: "
                   + fileLine);
+          }
         }
       }
 
@@ -183,8 +196,10 @@ public class ValidateMetadataAlgorithm extends AbstractInsertMaintReleaseAlgorit
           if (uniqueFields
               .contains(fields[0] + "|" + fields[1] + "|" + fields[2] + "|"
                   + fields[3])) {
-            result.addError("META_3: Duplicate dockey and expl fields in MRDOC.RRF: " + fields[0] + "|" + fields[1] + "|" + fields[2] + "|"
+            if (underErrorTallyThreashold("#META_3")) {
+              result.addError("META_3: Duplicate dockey and expl fields in MRDOC.RRF: " + fields[0] + "|" + fields[1] + "|" + fields[2] + "|"
                 + fields[3]);
+            }
           } else {
             uniqueFields.add(fields[0] + "|" + fields[1] + "|" + fields[2] + "|"
                 + fields[3]);
@@ -201,14 +216,18 @@ public class ValidateMetadataAlgorithm extends AbstractInsertMaintReleaseAlgorit
                     && fields[3].equals("Empty relationship attribute"))) {
               // allowed for null rela - so ignore
             } else {
-              result.addError(
+              if (underErrorTallyThreashold("#META_4")) {
+                result.addError(
                   "META_4: Invalid null values in MRDOC.RRF: " + fields[0] + "|"
                       + fields[1] + "|" + fields[2] + "|" + fields[3]);
+              }
             }
           } else {
-            result.addError(
+            if (underErrorTallyThreashold("#META_4")) {
+              result.addError(
                 "META_4: Invalid null values in MRDOC.RRF: " + fields[0] + "|"
                     + fields[1] + "|" + fields[2] + "|" + fields[3]);
+            }
           }
         }
         
@@ -231,16 +250,20 @@ public class ValidateMetadataAlgorithm extends AbstractInsertMaintReleaseAlgorit
       // check each row has the correct number of fields
       if (checkNames.contains("#META_6")) {
         if (fields.length != 6) {
-          result.addError(
+          if (underErrorTallyThreashold("#META_6")) {
+            result.addError(
               "META_6: incorrect number of fields in termgroups.src row: "
                   + fileLine);
+          }
         }
       }
       
       // check tty in each line must be present in the termgroup
       if (checkNames.contains("#META_7")) {
           if (!fields[0].endsWith("/" + fields[5])) {
-            result.addError("META_7: tty must be present in the termgroup in termgroups.src: " + fields[0] + "|" + fields[5]);
+            if (underErrorTallyThreashold("#META_7")) {
+              result.addError("META_7: tty must be present in the termgroup in termgroups.src: " + fields[0] + "|" + fields[5]);
+            }
           } 
       }   
          
@@ -263,17 +286,22 @@ public class ValidateMetadataAlgorithm extends AbstractInsertMaintReleaseAlgorit
       // check each row has the correct number of fields
       if (checkNames.contains("#META_8")) {
         if (fields.length != 12) {
-          result.addError(
+          if (underErrorTallyThreashold("#META_8")) {
+            result.addError(
               "META_8: incorrect number of fields in mergefacts.src row: "
                   + fileLine);
+          }
         }
       }
       
       // check self referential mergefacts
       if (checkNames.contains("#META_9")) {
          if (fields[0].equals(fields[2]) && fields[8].equals(fields[10]) && fields[9].equals(fields[11])) {
-           result.addError("META_8: self referential mergefacts in mergefacts.src row: "
+
+           if (underErrorTallyThreashold("#META_9")) {
+             result.addError("META_9: self referential mergefacts in mergefacts.src row: "
                + fileLine);
+           }
          }
       }   
          
@@ -353,6 +381,20 @@ public class ValidateMetadataAlgorithm extends AbstractInsertMaintReleaseAlgorit
     return params;
   }
 
+  
+  // check if the number of errors logged for each test case is greater or less than 10
+  private boolean underErrorTallyThreashold(String testName) {
+    int index = Integer.parseInt(testName.substring(testName.indexOf("_") + 1));
+    Integer value = errorTallies[index];
+    if (value == null) {
+      value = 1;
+    } else {
+      value = value + 1;
+    }
+    errorTallies[index] = value;
+    return value <= 10;
+  }
+  
   @Override
   public String getDescription() {
     return "Validation checks related to metadata in the inversion files.";

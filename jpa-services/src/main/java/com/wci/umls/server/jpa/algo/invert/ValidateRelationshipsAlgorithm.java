@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2019 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.invert;
 
@@ -39,6 +39,12 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
   
   /** The check names. */
   private List<String> checkNames;
+   
+  /**  The max test cases. */
+  private int maxTestCases = 50;
+  
+  /** Monitor the number of errors already logged for each of the test cases */
+  private Integer[] errorTallies = new Integer[maxTestCases];
   
   /**
    * Instantiates an empty {@link ValidateRelationshipsAlgorithm}.
@@ -130,6 +136,19 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
     }
 
   }
+  
+  // check if the number of errors logged for each test case is greater or less than 10
+  private boolean underErrorTallyThreashold(String testName) {
+    int index = Integer.parseInt(testName.substring(testName.indexOf("_") + 1));
+    Integer value = errorTallies[index];
+    if (value == null) {
+      value = 1;
+    } else {
+      value = value + 1;
+    }
+    errorTallies[index] = value;
+    return value <= 10;
+  }
 
   /**
    * Compute.
@@ -216,27 +235,33 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
       // check each row has the correct number of fields
       if (checkNames.contains("#RELS_1")) {
         if (fields.length != 18) {
-          result.addError(
+          if (underErrorTallyThreashold("#RELS_1")) {
+            result.addError(
               "RELS_1: incorrect number of fields in relationships.src row: "
                   + fileLine);
+          }
         }
       }
 
       // check VSAB equals the source of label
       if (checkNames.contains("#RELS_2")) {
         if (!fields[6].equals(fields[7])) {
-          result.addError(
+          if (underErrorTallyThreashold("#RELS_2")) {
+            result.addError(
               "RELS_2: VSAB not equal to the source of label : "
                   + fields[6] + " : " + fields[7]);
+          }
         }
       }
       
       // check self-referential relationships
       if (checkNames.contains("#RELS_3")) {
         if (fields[2].equals(fields[5]) && fields[12].equals(fields[14]) && fields[13].equals(fields[15])) {
-          result.addError(
+          if (underErrorTallyThreashold("#RELS_3")) {
+            result.addError(
               "RELS_3: check self-referential relationships : "
                   + fileLine);
+          }
         }
       }
       
@@ -254,9 +279,11 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
             fields[4].equals("ingredient_of") ||
             fields[4].equals("has_ingredient")
             )) {
-          result.addError(
+          if (underErrorTallyThreashold("#RELS_4")) {           
+            result.addError(
               "RELS_4: conflicting rel/rela RT : "
-                  + fields[3] + ":" + fields[4]);    
+                  + fields[3] + ":" + fields[4]);           
+          }
         }
         if (!fields[3].equals("NT") && (fields[4].equals("conceptual_part_of") || 
             fields[4].equals("form_of") ||
@@ -264,9 +291,11 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
             fields[4].equals("part_of") ||
             fields[4].equals("tradename_of")
             )) {
-          result.addError(
-              "RELS_4: conflicting rel/rela NT: "
-                  + fields[3] + ":" + fields[4]);    
+          if (underErrorTallyThreashold("#RELS_4")) {           
+            result.addError(
+              "RELS_4: conflicting rel/rela NT : "
+                  + fields[3] + ":" + fields[4]);           
+          } 
         }
         if (!fields[3].equals("BT") && (fields[4].equals("has_conceptual_part") || 
             fields[4].equals("has_form") ||
@@ -274,9 +303,11 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
             fields[4].equals("has_part") ||
             fields[4].equals("has_tradename")
             )) {
-          result.addError(
-              "RELS_4: conflicting rel/rela BT: "
-                  + fields[3] + ":" + fields[4]);    
+          if (underErrorTallyThreashold("#RELS_4")) {           
+            result.addError(
+              "RELS_4: conflicting rel/rela BT : "
+                  + fields[3] + ":" + fields[4]);           
+          }
         }
         
       }
@@ -300,9 +331,11 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
             .contains(id_1 + "|" + relationship_name + "|" + relationship_attribute + "|"
                 + id_2 + "|" + source + "|" + source_of_label + "|" + id_qualifier_1 + "|"
                 + id_type_2 + "|" + id_qualifier_2 + "|" + source_rui + "|" + relationship_group)) {
-          result.addError("RELS_5: Duplicate RUI fields: " + id_1 + "|" + relationship_name + "|" + relationship_attribute + "|"
+          if (underErrorTallyThreashold("#RELS_5")) {           
+            result.addError("RELS_5: Duplicate RUI fields: " + id_1 + "|" + relationship_name + "|" + relationship_attribute + "|"
               + id_2 + "|" + source + "|" + source_of_label + "|" + id_qualifier_1 + "|"
               + id_type_2 + "|" + id_qualifier_2 + "|" + source_rui + "|" + relationship_group);
+          }
         } else {
           uniqueRuiFields.add(id_1 + "|" + relationship_name + "|" + relationship_attribute + "|"
               + id_2 + "|" + source + "|" + source_of_label + "|" + id_qualifier_1 + "|"
@@ -324,9 +357,12 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
                 !fields[14].equals("SOURCE_AUI") &&
                 !fields[14].equals("SRC_ATOM_ID")
                 ))) {
-          result.addError(
+          if (underErrorTallyThreashold("#RELS_6")) {           
+            
+            result.addError(
               "RELS_6: SFO/LFO not connected to any atom : "
-                  + fields[3] + ":" + fields[12] + ":" + fields[14]);    
+                  + fields[3] + ":" + fields[12] + ":" + fields[14]);   
+          }
         }
       }
       
@@ -340,8 +376,10 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
         if ((fields[4].equals("translation_of") || fields[4].equals("version_of")) &&
             fields[6].equals("SRC") && (!fields[12].equals("CODE_SOURCE") || !fields[14].equals("CODE_SOURCE")
                 || !fields[13].equals("SRC") || !fields[15].equals("SRC"))){
-          result.addError("RELS_7: inv sgs for translation_of and version rel : "
+          if (underErrorTallyThreashold("#RELS_7")) {                       
+            result.addError("RELS_7: inv sgs for translation_of and version rel : "
               + fields[4] + ":" + fields[12] + ":" + fields[13] + ":" + fields[14]);
+          }
         }
       }
       
@@ -351,7 +389,9 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
       if (checkNames.contains("#RELS_8")) {
         if (!fields[16].startsWith("~DA") && !fields[16].equals("")) {
           if (uniqueSruis.contains(fields[16])) {
-            result.addError("RELS_8: non-unique sruis: " + fields[16]);
+            if (underErrorTallyThreashold("#RELS_8")) {                        
+              result.addError("RELS_8: non-unique sruis: " + fields[16]);
+            }
           } else {
             uniqueSruis.add(fields[16]);
           }
@@ -361,14 +401,18 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
       // check if RELA is in MRDOC.RRF file
       if (checkNames.contains("#RELS_9")) {
         if (!fields[4].equals("") &&  !relas.contains(fields[4])) {
+          if (underErrorTallyThreashold("#RELS_9")) {                       
             result.addError("RELS_9: RELA is not in the MRDOC.RRF file: " + fields[4]);
+          }
         }
       }  
       
       // check if VSAB is not in sources.src file
       if (checkNames.contains("#RELS_10")) {
         if (!fields[6].equals("SRC") && !sourcesToLatMap.containsKey(fields[6])) {
+          if (underErrorTallyThreashold("#RELS_10")) {                      
             result.addError("RELS_10: VSAB is not in the sources.src file: " + fields[6]);
+          }
         }
       }
       

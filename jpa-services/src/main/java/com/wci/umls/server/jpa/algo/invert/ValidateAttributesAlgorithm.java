@@ -39,10 +39,18 @@ import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 public class ValidateAttributesAlgorithm
     extends AbstractInsertMaintReleaseAlgorithm {
 
+  /**  The src full path. */
   private String srcFullPath;
 
   /** The check names. */
   private List<String> checkNames;
+  
+  /**  The max test cases. */
+  private int maxTestCases = 50;
+  
+  /** Monitor the number of errors already logged for each of the test cases */
+  private Integer[] errorTallies = new Integer[maxTestCases];
+  
 
   /**
    * Instantiates an empty {@link ValidateAttributesAlgorithm}.
@@ -185,9 +193,11 @@ public class ValidateAttributesAlgorithm
       // check each row has the correct number of fields
       if (checkNames.contains("#ATTRS_1")) {
         if (fields.length != 14) {
-          result.addError(
+          if (underErrorTallyThreashold("#ATTRS_1")) {
+            result.addError(
               "ATTRS_1: incorrect number of fields in attributes.src row: "
                   + fileLine);
+          }
         }
       }
 
@@ -196,8 +206,10 @@ public class ValidateAttributesAlgorithm
         String str = fields[4];
         String pattern = ".*[&#][a-zA-Z0-9]+;.*";
         if (Pattern.matches(pattern, str)) {
-          result.addWarning(
+          if (underErrorTallyThreashold("#ATTRS_2")) {
+            result.addWarning(
               "ATTRS_2: String contains an XML character: " + fields[4]);
+          }
         }
       }
 
@@ -205,8 +217,10 @@ public class ValidateAttributesAlgorithm
       if (checkNames.contains("#ATTRS_3")) {
         String status = fields[6];
         if (status.equals("N") && !fields[3].equals("SEMANTIC_TYPE")) {
-          result.addError("ATTRS_3: S level attributes cannot have 'N' status: "
+          if (underErrorTallyThreashold("#ATTRS_3")) {
+            result.addError("ATTRS_3: S level attributes cannot have 'N' status: "
               + fields[3] + ":" + fields[6]);
+          }
         }
       }
 
@@ -214,9 +228,11 @@ public class ValidateAttributesAlgorithm
       if (checkNames.contains("#ATTRS_5")) {
         if (!fields[1].equals("SRC") && !fields[5].equals("SRC") && fields[3].equals("SEMANTIC_TYPE")) {
           if (!fields[5].startsWith("E-")) {
-            result.addError(
+            if (underErrorTallyThreashold("#ATTRS_5")) {
+              result.addError(
                 "ATTRS_5: Source should be like E-* for non SRC stys: "
                     + fields[5]);
+            }
           }
         }
       }
@@ -224,8 +240,10 @@ public class ValidateAttributesAlgorithm
       // check SATUI should be null
       if (checkNames.contains("#ATTRS_6")) {
         if (!fields[12].isEmpty()) {
-          result
+          if (underErrorTallyThreashold("#ATTRS_6")) {
+            result
               .addWarning("ATTRS_6: Source ATUI should be null: " + fields[12]);
+          }
         }
       }
 
@@ -234,9 +252,11 @@ public class ValidateAttributesAlgorithm
         String str = fields[4];
         String checkedString = str.replaceAll("\\s+", " ");
         if (!str.trim().equals(str) || !checkedString.equals(str)) {
-          result.addError(
+          if (underErrorTallyThreashold("#ATTRS_7")) {
+            result.addError(
               "ATTRS_7: String has leading, trailing or duplicate white space: "
                   + fields[4]);
+          }
         }
       }
       
@@ -258,29 +278,37 @@ public class ValidateAttributesAlgorithm
         }
         
         if (fields[3].equals("SEMANTIC_TYPE") &&  !validStys.contains(atv)) {
-          result.addError(
+
+          if (underErrorTallyThreashold("#ATTRS_8")) {
+            result.addError(
               "ATTRS_8: STY attribute value is not in semantic_type table: "
                   + atv);
+          }
         }
       }   
       
       // check if STY attribute value is in semantic_type table
       if (checkNames.contains("#ATTRS_9")) {
         String sgType = fields[10];
-        if (sgType.equals("SOURCE_CUI")) {
-          if (!scuis.contains(fields[1])) {
-            result.addError("ATTRS_9: SgType indicates SOURCE_CUI, but sg_id is not in that classes_atoms field: "
-                + fields[1]);
-          } 
-        } else if (sgType.equals("SOURCE_AUI")) {
-          if (!sauis.contains(fields[1])) {
-            result.addError("ATTRS_9: SgType indicates SOURCE_AUI, but sg_id is not in that classes_atoms field: "
-                + fields[1]);
-          }
-        } else if (sgType.equals("SOURCE_DUI")) {
-          if (!sduis.contains(fields[1])) {
-            result.addError("ATTRS_9: SgType indicates SOURCE_DUI, but sg_id is not in that classes_atoms field: "
-                + fields[1]);
+        if (underErrorTallyThreashold("#ATTRS_9")) {
+          if (sgType.equals("SOURCE_CUI")) {
+            if (!scuis.contains(fields[1])) {
+              result.addError(
+                  "ATTRS_9: SgType indicates SOURCE_CUI, but sg_id is not in that classes_atoms field: "
+                      + fields[1]);
+            }
+          } else if (sgType.equals("SOURCE_AUI")) {
+            if (!sauis.contains(fields[1])) {
+              result.addError(
+                  "ATTRS_9: SgType indicates SOURCE_AUI, but sg_id is not in that classes_atoms field: "
+                      + fields[1]);
+            }
+          } else if (sgType.equals("SOURCE_DUI")) {
+            if (!sduis.contains(fields[1])) {
+              result.addError(
+                  "ATTRS_9: SgType indicates SOURCE_DUI, but sg_id is not in that classes_atoms field: "
+                      + fields[1]);
+            }
           }
         }
       }
@@ -301,9 +329,11 @@ public class ValidateAttributesAlgorithm
         if (uniqueAtuiFields
             .contains(fields[5] + "|" + fields[3] + "|" + fields[12] + "|"
                 + fields[1] + "|" + fields[10] + "|" + fields[11] + "|" + fields[13])) {
-          result.addError("ATTRS_4: Duplicate ATUI fields: " + fields[5] + "|"
+          if (underErrorTallyThreashold("#ATTRS_4")) {
+            result.addError("ATTRS_4: Duplicate ATUI fields: " + fields[5] + "|"
               + fields[3] + "|" + fields[12] + "|" + fields[1] + "|"
               + fields[10] + "|" + fields[11] + "|" + fields[13]);
+          }
         } else {
           uniqueAtuiFields.add(fields[5] + "|" + fields[3] + "|" + fields[12]
               + "|" + fields[1] + "|" + fields[10] + "|" + fields[11] + "|" + fields[13]);
@@ -385,6 +415,20 @@ public class ValidateAttributesAlgorithm
     return params;
   }
 
+  
+  // check if the number of errors logged for each test case is greater or less than 10
+  private boolean underErrorTallyThreashold(String testName) {
+    int index = Integer.parseInt(testName.substring(testName.indexOf("_") + 1));
+    Integer value = errorTallies[index];
+    if (value == null) {
+      value = 1;
+    } else {
+      value = value + 1;
+    }
+    errorTallies[index] = value;
+    return value <= 10;
+  }
+  
   @Override
   public String getDescription() {
     return "Validation checks related to attributes in the inversion files.";
