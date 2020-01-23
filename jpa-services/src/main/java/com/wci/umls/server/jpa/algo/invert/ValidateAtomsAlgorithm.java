@@ -233,13 +233,14 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
       
       // check each row has the correct number of fields
       if (checkNames.contains("#ATOMS_1")) {
-        if (fields.length != 14) {
+        if (fields.length != 15) {
           if (underErrorTallyThreashold("#ATOMS_1")) {
             result
               .addError("ATOMS_1: incorrect number of fields in classes_atoms.src row: "
                   + fileLine);
           }
         }
+
       }
       
       // check first field is an integer
@@ -255,7 +256,7 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
         }
       }
       
-      // check last field is an integer
+      // check last field is an integer (not in MTH)
       if (checkNames.contains("#ATOMS_3")) {
         try {
           Integer.parseInt(fields[13]);

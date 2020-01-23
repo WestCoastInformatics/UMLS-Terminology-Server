@@ -239,7 +239,7 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
         if (fields.length != 17) {
           if (underErrorTallyThreashold("#CXTS_1")) {
             result.addError(
-              "CXTS_1: incorrect number of fields in attributes.src row: "
+              "CXTS_1: incorrect number of fields in contexts.src row: "
                   + fileLine);
           }
         }

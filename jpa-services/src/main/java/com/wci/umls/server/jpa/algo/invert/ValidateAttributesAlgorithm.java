@@ -51,7 +51,21 @@ public class ValidateAttributesAlgorithm
   /** Monitor the number of errors already logged for each of the test cases */
   private Integer[] errorTallies = new Integer[maxTestCases];
   
-
+  // 0 source_attribute_id
+  // 1 sg_id
+  // 2 attribute_level
+  // 3 attribute_name
+  // 4 attribute_value
+  // 5 source
+  // 6 status
+  // 7 tobereleased
+  // 8 released
+  // 9 suppressible
+  // 10 sg_type_1
+  // 11 sg_qualifier_1
+  // 12 source_atui
+  // 13 hashcode
+  
   /**
    * Instantiates an empty {@link ValidateAttributesAlgorithm}.
    * @throws Exception if anything goes wrong
