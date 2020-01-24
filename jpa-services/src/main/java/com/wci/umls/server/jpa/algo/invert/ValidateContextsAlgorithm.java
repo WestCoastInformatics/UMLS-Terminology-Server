@@ -236,7 +236,7 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
 
       // check each row has the correct number of fields
       if (checkNames.contains("#CXTS_1")) {
-        if (fields.length != 17) {
+        if (fields.length != 17 && fields.length != 18) {
           if (underErrorTallyThreashold("#CXTS_1")) {
             result.addError(
               "CXTS_1: incorrect number of fields in contexts.src row: "
@@ -304,15 +304,19 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
       }
       
       if (checkNames.contains("#CXTS_7")) {
-        if (underErrorTallyThreashold("#CXTS_7")) {
-          String[] nodes = FieldedStringTokenizer.split(fields[7], ".");
-          Set<String> nodeSet = new HashSet<>();
-          Collections.addAll(nodeSet, nodes);
-          if (nodeSet.size() != nodes.length) {
+        String[] nodes = FieldedStringTokenizer.split(fields[7], ".");
+        Set<String> nodeSet = new HashSet<>();
+        Collections.addAll(nodeSet, nodes);
+        if (nodeSet.size() != nodes.length) {
+          if (underErrorTallyThreashold("#CXTS_7")) {
             result.addError("CXTS_7: Cycle in parent treepos: " + fields[7]);
           }
-          for (String node : nodes) {
-            if (!sauis.contains(node)) {
+        }
+        // skip checking the first node since the root node is not always in classes_atoms.src
+        for (int index = 1; index < nodes.length; index++) {
+          String node = nodes[index];
+          if (!sauis.contains(node)) {
+            if (underErrorTallyThreashold("#CXTS_7")) {
               result.addError("CXTS_7: Invalid node in parent treepos: " + node
                   + ":" + fields[7]);
             }
@@ -370,18 +374,46 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
     }
     in.close();
     
+    logInfo("QA REPORT");
+    logInfo("");
+    for (int index = 0; index < errorTallies.length; index++) {
+      Integer tally = errorTallies[index];
+      if (tally == null) {
+        logInfo("PASSED: CXTS_" + (index + 1));
+      }
+    }
+    
+    
+    String prevTestCase = "";
     // print warnings and errors to log
     if (result.getWarnings().size() > 0) {
-      for (String warning : result.getWarnings()) {
+      List<String> sortedWarnings = new ArrayList<>(result.getWarnings());
+      Collections.sort(sortedWarnings);
+      for (String warning : sortedWarnings) {
+        String currentTestCase = warning.substring(0, 8);
+        if (!currentTestCase.equals(prevTestCase)) {
+          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1, currentTestCase.indexOf(":")));
+          logInfo(currentTestCase + " warning count: " + errorTallies[index]);
+        }
+        prevTestCase = currentTestCase;
         logInfo(warning);
       }
     }
     if (result.getErrors().size() > 0) {
-      for (String error : result.getErrors()) {
+      List<String> sortedErrors = new ArrayList<>(result.getErrors());
+      Collections.sort(sortedErrors);
+      for (String error : sortedErrors) {
+        String currentTestCase = error.substring(0, 8);
+        if (!currentTestCase.equals(prevTestCase)) {
+          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1, currentTestCase.indexOf(":")));
+          logInfo(currentTestCase + " error count: " + errorTallies[index]);
+        }
+        prevTestCase = currentTestCase;
         logError(error);
       }
       throw new Exception(this.getName() + " Failed");
     }
+
 
     logInfo("Finished " + getName());
   }

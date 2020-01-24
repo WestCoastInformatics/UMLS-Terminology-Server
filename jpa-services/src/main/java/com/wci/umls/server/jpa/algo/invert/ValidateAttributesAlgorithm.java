@@ -13,10 +13,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
@@ -329,47 +327,78 @@ public class ValidateAttributesAlgorithm
       // check if STY attribute value is in semantic_type table
       if (checkNames.contains("#ATTRS_9")) {
         String sgType = fields[10];
-        if (underErrorTallyThreashold("#ATTRS_9")) {
-          if (sgType.equals("SOURCE_CUI")) {
-            if (!scuis.contains(fields[1])) {
+        if (sgType.equals("SOURCE_CUI")) {
+          if (!scuis.contains(fields[1])) {
+            if (underErrorTallyThreashold("#ATTRS_9")) {
               result.addError(
                   "ATTRS_9: SgType indicates SOURCE_CUI, but sg_id is not in that classes_atoms field: "
                       + fields[1]);
             }
-          } else if (sgType.equals("SOURCE_AUI")) {
-            if (!sauis.contains(fields[1])) {
+          }
+        } else if (sgType.equals("SOURCE_AUI")) {
+          if (!sauis.contains(fields[1])) {
+            if (underErrorTallyThreashold("#ATTRS_9")) {
               result.addError(
                   "ATTRS_9: SgType indicates SOURCE_AUI, but sg_id is not in that classes_atoms field: "
                       + fields[1]);
             }
-          } else if (sgType.equals("SOURCE_DUI")) {
-            if (!sduis.contains(fields[1])) {
+          }
+        } else if (sgType.equals("SOURCE_DUI")) {
+          if (!sduis.contains(fields[1])) {
+            if (underErrorTallyThreashold("#ATTRS_9")) {
               result.addError(
                   "ATTRS_9: SgType indicates SOURCE_DUI, but sg_id is not in that classes_atoms field: "
                       + fields[1]);
             }
           }
         }
+
       }
       // Update the progress
       updateProgress();
     }
 
     in.close();
+    
+    logInfo("QA REPORT");
+    logInfo("");
+    for (int index = 0; index < errorTallies.length; index++) {
+      Integer tally = errorTallies[index];
+      if (tally == null) {
+        logInfo("PASSED: ATTRS_" + (index + 1));
+      }
+    }
 
-
+    String prevTestCase = "";
     // print warnings and errors to log
     if (result.getWarnings().size() > 0) {
-      for (String warning : result.getWarnings()) {
+      List<String> sortedWarnings = new ArrayList<>(result.getWarnings());
+      Collections.sort(sortedWarnings);
+      for (String warning : sortedWarnings) {
+        String currentTestCase = warning.substring(0, 9);
+        if (!currentTestCase.equals(prevTestCase)) {
+          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1, currentTestCase.indexOf(":")));
+          logInfo(currentTestCase + " warning count: " + errorTallies[index]);
+        }
+        prevTestCase = currentTestCase;
         logInfo(warning);
       }
     }
     if (result.getErrors().size() > 0) {
-      for (String error : result.getErrors()) {
+      List<String> sortedErrors = new ArrayList<>(result.getErrors());
+      Collections.sort(sortedErrors);
+      for (String error : sortedErrors) {
+        String currentTestCase = error.substring(0, 9);
+        if (!currentTestCase.equals(prevTestCase)) {
+          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1, currentTestCase.indexOf(":")));
+          logInfo(currentTestCase + " error count: " + errorTallies[index]);
+        }
+        prevTestCase = currentTestCase;
         logError(error);
       }
       throw new Exception(this.getName() + " Failed");
     }
+
 
     logInfo("Finished " + getName());
   }

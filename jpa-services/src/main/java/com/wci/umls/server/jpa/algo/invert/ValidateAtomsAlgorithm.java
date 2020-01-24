@@ -233,7 +233,7 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
       
       // check each row has the correct number of fields
       if (checkNames.contains("#ATOMS_1")) {
-        if (fields.length != 15) {
+        if (fields.length != 14) {
           if (underErrorTallyThreashold("#ATOMS_1")) {
             result
               .addError("ATOMS_1: incorrect number of fields in classes_atoms.src row: "
@@ -292,14 +292,16 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
       // check for duplicate case-sensitive strings
       if (checkNames.contains("#ATOMS_6")) {
         if (lowerToNativeMap.values().contains(fields[7])) {
-          result.addWarning("ATOMS_6: Duplicate case-sensitive strings: " + fields[7]);
-
+          if (underErrorTallyThreashold("#ATOMS_6")) {
+            result.addWarning("ATOMS_6: Duplicate case-sensitive strings: " + fields[7]);
+          }
           // check for duplicate case-insensitive strings
         } else if (lowerToNativeMap.keySet()
             .contains(fields[7].toLowerCase())) {
-          result.addWarning(
+          if (underErrorTallyThreashold("#ATOMS_6")) {
+            result.addWarning(
               "ATOMS_6: Duplicate case-insensitive strings: " + fields[7].toLowerCase());
-
+          }
           // add it to the map
         } else {
           lowerToNativeMap.put(fields[7].toLowerCase(), fields[7]);
@@ -426,17 +428,21 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
           String atomSuppress = fields[8];
           String tgSuppress = termgroupToSuppressMap.get(fields[2]);
 
-          if (underErrorTallyThreashold("#ATOMS_18")) {
-            if (tgSuppress.equals("Y") && !atomSuppress.equals("Y")
-                && !atomSuppress.equals("O")) {
+          if (tgSuppress.equals("Y") && !atomSuppress.equals("Y")
+              && !atomSuppress.equals("O")) {
+            if (underErrorTallyThreashold("#ATOMS_18")) {
               result.addError(
                   "ATOMS_18: Atom suppressibility must match termgroup suppressibility case 1: "
                       + atomSuppress + ":" + tgSuppress + " : " + fileLine);
-            } else if (tgSuppress.equals("N") && atomSuppress.equals("Y")) {
+            }
+          } else if (tgSuppress.equals("N") && atomSuppress.equals("Y")) {
+            if (underErrorTallyThreashold("#ATOMS_18")) {
               result.addError(
                   "ATOMS_18: Atom suppressibility must match termgroup suppressibility case 2: "
                       + atomSuppress + ":" + tgSuppress + " : " + fileLine);
-            } else if (tgSuppress.equals("Y") && !atomSuppress.equals("O")) {
+            }
+          } else if (tgSuppress.equals("Y") && !atomSuppress.equals("O")) {
+            if (underErrorTallyThreashold("#ATOMS_18")) {
               result.addError(
                   "ATOMS_18: Atom suppressibility must match termgroup suppressibility: case 3 "
                       + atomSuppress + ":" + tgSuppress + " : " + fileLine);
@@ -472,15 +478,40 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
     }
     in.close();
 
+    logInfo("QA REPORT");
+    logInfo("");
+    for (int index = 0; index < errorTallies.length; index++) {
+      Integer tally = errorTallies[index];
+      if (tally == null) {
+        logInfo("PASSED: ATOMS_" + (index + 1));
+      }
+    }
     
+    String prevTestCase = "";
     // print warnings and errors to log
     if (result.getWarnings().size() > 0) {
-      for (String warning : result.getWarnings()) {
+      List<String> sortedWarnings = new ArrayList<>(result.getWarnings());
+      Collections.sort(sortedWarnings);
+      for (String warning : sortedWarnings) {
+        String currentTestCase = warning.substring(0, 9);
+        if (!currentTestCase.equals(prevTestCase)) {
+          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1, currentTestCase.indexOf(":")));
+          logInfo(currentTestCase + " warning count: " + errorTallies[index]);
+        }
+        prevTestCase = currentTestCase;
         logInfo(warning);
       }
     }
     if (result.getErrors().size() > 0) {
-      for (String error : result.getErrors()) {
+      List<String> sortedErrors = new ArrayList<>(result.getErrors());
+      Collections.sort(sortedErrors);
+      for (String error : sortedErrors) {
+        String currentTestCase = error.substring(0, 9);
+        if (!currentTestCase.equals(prevTestCase)) {
+          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1, currentTestCase.indexOf(":")));
+          logInfo(currentTestCase + " error count: " + errorTallies[index]);
+        }
+        prevTestCase = currentTestCase;
         logError(error);
       }
       throw new Exception(this.getName() + " Failed");
