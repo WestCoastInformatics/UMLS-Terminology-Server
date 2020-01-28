@@ -170,7 +170,7 @@
                   ng-click="regenerateBin(bin)"
                   title="Regenerate Bin" class="noul glyphicon glyphicon-repeat"></i>
                 &nbsp;
-                <i ng-show="stats.clusterType == 'all' && bin.enabled && hasPermissions('AutofixMidValidation') && bin.autofix != ''"
+                <i ng-show="stats.clusterType == 'all' && bin.enabled && hasPermissions('AutofixMidValidation') && bin.autofix != '' && bin.clusterCt > 0"
                   ng-click="runAutofix(bin)"
                   title="Run Autofix" class="noul glyphicon glyphicon-wrench"></i>                  
                 <i
