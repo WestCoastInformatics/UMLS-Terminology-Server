@@ -308,18 +308,46 @@ public class ValidateMetadataAlgorithm extends AbstractInsertMaintReleaseAlgorit
     }
     in.close();
     
+    logInfo("QA REPORT");
+    logInfo("");
+    for (int index = 0; index < errorTallies.length; index++) {
+      Integer tally = errorTallies[index];
+      if (tally == null) {
+        logInfo("PASSED: META_" + (index + 1));
+      }
+    }
+    
+    
+    String prevTestCase = "";
     // print warnings and errors to log
     if (result.getWarnings().size() > 0) {
-      for (String warning : result.getWarnings()) {
+      List<String> sortedWarnings = new ArrayList<>(result.getWarnings());
+      Collections.sort(sortedWarnings);
+      for (String warning : sortedWarnings) {
+        String currentTestCase = warning.substring(0, 8);
+        if (!currentTestCase.equals(prevTestCase)) {
+          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1, currentTestCase.indexOf(":")));
+          logInfo(currentTestCase + " warning count: " + errorTallies[index]);
+        }
+        prevTestCase = currentTestCase;
         logInfo(warning);
       }
     }
     if (result.getErrors().size() > 0) {
-      for (String error : result.getErrors()) {
+      List<String> sortedErrors = new ArrayList<>(result.getErrors());
+      Collections.sort(sortedErrors);
+      for (String error : sortedErrors) {
+        String currentTestCase = error.substring(0, 8);
+        if (!currentTestCase.equals(prevTestCase)) {
+          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1, currentTestCase.indexOf(":")));
+          logInfo(currentTestCase + " error count: " + errorTallies[index]);
+        }
+        prevTestCase = currentTestCase;
         logError(error);
       }
       throw new Exception(this.getName() + " Failed");
     }
+
 
     logInfo("Finished " + getName());
   }
