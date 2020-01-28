@@ -129,6 +129,10 @@ public class WorkflowBinJpa implements WorkflowBin {
   @ManyToOne(targetEntity = ProjectJpa.class, optional = false)
   private Project project;
 
+  /** The autofix. */
+  @Column(nullable = false)
+  private String autofix;  
+
   /**
    * The stats - intended only for JAXB serialization and reporting, not
    * persisted. Uses List instead of Map to make serialization easier.
@@ -166,6 +170,7 @@ public class WorkflowBinJpa implements WorkflowBin {
     required = bin.isRequired();
     creationTime = bin.getCreationTime();
     clusterCt = bin.getClusterCt();
+    autofix = bin.getAutofix();
     project = bin.getProject();
     stats = new ArrayList<>(bin.getStats());
     if (collectionCopy) {
@@ -458,6 +463,19 @@ public class WorkflowBinJpa implements WorkflowBin {
     this.stats = stats;
   }
 
+  /* see superclass */
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getAutofix() {
+    return autofix;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAutofix(String autofix) {
+    this.autofix = autofix;
+  }      
+  
   /* see superclass */
   @Override
   public int hashCode() {

@@ -615,6 +615,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     bin.setTerminologyId("");
     bin.setTimestamp(new Date());
     bin.setType(definition.getWorkflowConfig().getType());
+    bin.setAutofix(definition.getAutofix());
     addWorkflowBin(bin);
 
     // Bail if the definition is not enabled

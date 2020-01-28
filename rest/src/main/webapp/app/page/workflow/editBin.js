@@ -4,12 +4,13 @@ tsApp.controller('BinModalCtrl', [
   '$uibModalInstance',
   'utilService',
   'workflowService',
+  'processService',
   'selected',
   'lists',
   'user',
   'bin',
   'action',
-  function($scope, $uibModalInstance, utilService, workflowService, selected, lists, user, bin,
+  function($scope, $uibModalInstance, utilService, workflowService, processService, selected, lists, user, bin,
     action) {
     console.debug("configure BinModalCtrl", bin, action);
 
@@ -32,20 +33,41 @@ tsApp.controller('BinModalCtrl', [
     $scope.messages = [];
     $scope.allowSave = true;
     $scope.testSampleResults = [];
+    $scope.autofixAlgorithms = [];
+    $scope.selectedAutofixAlgorithm = {};
 
+    // Get the autofix algorithms
+    processService.getAlgorithmsForType($scope.project.id,
+      'autofix').then(
+    // Success
+    function(data) {
+    	$scope.autofixAlgorithms.push({key:'', value:''});
+      for (var i = 0; i < data.keyValuePairs.length; i++) {
+    	  $scope.autofixAlgorithms.push(data.keyValuePairs[i]);
+      }
+      $scope.autofixAlgorithms.sort(utilService.sortBy('value'));
+      $scope.selectedAutofixAlgorithm = $scope.autofixAlgorithms[0];
+    });    
+    
     if ($scope.action == 'Edit' || $scope.action == 'Clone') {
       workflowService.getWorkflowBinDefinition($scope.project.id, bin.name, $scope.config.type)
         .then(
         // Success
         function(data) {
           $scope.definition = data;
+          for (var i = 0; i < $scope.autofixAlgorithms.length; i++) {
+              if($scope.autofixAlgorithms[i].key == data.autofix){
+                  $scope.selectedAutofixAlgorithm = $scope.autofixAlgorithms[i];
+                  break;
+              }
+            }
           $scope.allowSave = true;
         });
     } else {
       $scope.definition.editable = true;
       $scope.allowSave = false;
     }
-
+    
     // Formatter for SQL
     $scope.getSql = function(sql) {
       if (sql) {
@@ -98,6 +120,10 @@ tsApp.controller('BinModalCtrl', [
       });
     }
 
+    $scope.changeAutofixType = function() {
+    	$scope.definition.autofix=$scope.selectedAutofixAlgorithm.key;
+    }
+    
     // Update bin definition
     $scope.submitDefinition = function(bin, definition) {
 

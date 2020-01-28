@@ -1233,6 +1233,28 @@ tsApp.service('workflowService', [
       return deferred.promise;
     };
 
+    // run autofix
+    this.runAutofix = function(projectId, id, autofix) {
+      console.debug('create autofix process', projectId, id, autofix);
+      var deferred = $q.defer();
+
+      gpService.increment('Creating autofixing process...');
+      var url = workflowUrl + '/bin/' + id + '/autofix?projectId=' + projectId;
+      $http.post(url, '').then(
+      // success
+      function(response) {
+        console.debug('  autofix process creation successful ', gpService.getGlassPane().counter);
+        gpService.decrement('Creating autofixing process...');
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };    
+    
     // Export checklist
     this.exportChecklist = function(projectId, id, name) {
       console.debug('exportChecklist', projectId, id, name);

@@ -87,6 +87,16 @@
           </select>
         </td>
       </tr>
+      <tr ng-show="config.type == 'MID_VALIDATION' || config.type == 'MID_VALIDATION_OTHER'">
+        <td>
+          <b>Autofix algorithm</b>
+        </td>
+        <td>
+          <select ng-model="selectedAutofixAlgorithm"
+            ng-change="changeAutofixType()"
+            ng-options="item.value for item in autofixAlgorithms"></select>
+        </td>
+      </tr>      
     </table>
     <!-- Errors -->
     <div errors="errors"></div>

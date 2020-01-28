@@ -53,7 +53,7 @@ tsApp
           algorithms : [],
           projects : [],
           projectRoles : [],
-          processTypes : [ 'Insertion', 'Inversion', 'Maintenance', 'Release', 'Report' ],
+          processTypes : [ 'Insertion', 'Inversion', 'Maintenance', 'Release', 'Report', 'Autofix' ],
           algorithmConfigTypes : [],
           modes : [ 'Config', 'Execution' ]
         }

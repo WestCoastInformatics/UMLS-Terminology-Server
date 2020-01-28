@@ -572,18 +572,34 @@ tsApp.controller('WorkflowCtrl', [
       console.debug('saveAccordionStatus', $scope.groups);
       $scope.user.userPreferences.properties['workflowGroups'] = JSON.stringify($scope.groups);
       securityService.updateUserPreferences($scope.user.userPreferences);
-    }
+    };
 
     // Indicate whether user has permission
     $scope.hasPermissions = function(action) {
       return securityService.hasPermissions(action);
-    }
+    };
 
     // Export a workflow config
     $scope.exportWorkflow = function() {
       workflowService.exportWorkflow($scope.selected.project.id, $scope.selected.config.id);
-    }
+    };
 
+    // Run autofix on a bin
+    $scope.runAutofix = function(bin) {
+      console.log('Creating autofix process for bin');     	
+      workflowService.runAutofix($scope.selected.project.id, bin.id, bin.autofix).then(
+    	      // Success
+    	      function(data) {
+    	        // Go to process page, autofix section
+    	          securityService.saveProperty($scope.user.userPreferences, 'processType',
+    	          'Autofix');
+    	          securityService.saveProperty($scope.user.userPreferences, 'processMode',
+                  'Config');
+    	    	  tabService.setSelectedTabByLabel('Process');
+    	      });
+    };
+
+    
     //
     // MODALS
     //

@@ -100,6 +100,10 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
   @JoinColumn(nullable = false, name = "workflowConfig_id")
   private WorkflowConfig workflowConfig;
 
+  /** The autofix. */
+  @Column(nullable = false)
+  private String autofix;  
+  
   /**
    * Instantiates a new workflow bin definition jpa.
    */
@@ -125,6 +129,7 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
     enabled = def.isEnabled();
     required = def.isRequired();
     workflowConfig = def.getWorkflowConfig();
+    autofix = def.getAutofix();
   }
 
   /* see superclass */
@@ -302,6 +307,19 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
     workflowConfig.setId(id);
   }
 
+  /* see superclass */
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getAutofix() {
+    return autofix;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAutofix(String autofix) {
+    this.autofix = autofix;
+  }    
+  
   /* see superclass */
   @Override
   public int hashCode() {

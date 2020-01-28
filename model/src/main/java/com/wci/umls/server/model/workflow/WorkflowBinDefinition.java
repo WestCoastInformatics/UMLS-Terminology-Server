@@ -125,4 +125,17 @@ public interface WorkflowBinDefinition extends HasLastModified {
    */
   public void setEnabled(boolean enabled);
 
+  /**
+   * Returns the autofix algorithm name.
+   *
+   * @return the autofix algorithm name
+   */
+  public String getAutofix();
+
+  /**
+   * Sets the autofix algorithm name
+   *
+   * @param autofix the autofix algorithm name
+   */
+  void setAutofix(String autofix);
 }

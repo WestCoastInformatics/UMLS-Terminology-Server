@@ -82,7 +82,7 @@ public class WorkflowConfigJpa implements WorkflowConfig {
   /** The mutually exclusive. */
   @Column(nullable = false)
   private boolean mutuallyExclusive;
-
+  
   /** The admin config. */
   @Column(nullable = false)
   private boolean adminConfig;
@@ -212,7 +212,7 @@ public class WorkflowConfigJpa implements WorkflowConfig {
   public void setType(String type) {
     this.type = type;
   }
-
+  
   /* see superclass */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override

@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
@@ -40,6 +41,9 @@ import org.apache.lucene.queryparser.classic.QueryParserBase;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
+import com.wci.umls.server.AlgorithmConfig;
+import com.wci.umls.server.ProcessConfig;
+import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
@@ -62,7 +66,10 @@ import com.wci.umls.server.helpers.WorkflowBinList;
 import com.wci.umls.server.helpers.WorkflowConfigList;
 import com.wci.umls.server.helpers.WorkflowEpochList;
 import com.wci.umls.server.helpers.WorklistList;
+import com.wci.umls.server.jpa.AlgorithmConfigJpa;
 import com.wci.umls.server.jpa.ComponentInfoJpa;
+import com.wci.umls.server.jpa.ProcessConfigJpa;
+import com.wci.umls.server.jpa.ProcessExecutionJpa;
 import com.wci.umls.server.jpa.actions.ChangeEventJpa;
 import com.wci.umls.server.jpa.algo.insert.RepartitionAlgorithm;
 import com.wci.umls.server.jpa.algo.maint.MatrixInitializerAlgorithm;
@@ -3770,4 +3777,94 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
     }
 
   }
+  
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/bin/{id}/autofix")
+  @ApiOperation(value = "Autofix bin", notes = "Autofix bin")
+  public void autofixBin(
+    @ApiParam(value = "Project id, e.g. 1",
+        required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Workflow bin id, e.g. 5", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Authorization token, e.g. 'guest'",
+        required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info("RESTful call (Workflow): /bin/" + id + "/autofix ");
+
+    // Only one user can autofix a bin at a time
+    synchronized (lock) {
+
+      final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
+      final ProcessServiceJpa processService = new ProcessServiceJpa();
+      processService.setLastModifiedBy(authToken);
+      
+      try {
+        final String userName = authorizeProject(workflowService, projectId, securityService,
+            authToken, "trying to autofix a bin", UserRole.AUTHOR);
+        workflowService.setLastModifiedBy(userName);
+
+        // Read relevant workflow objects
+        final WorkflowBin bin = workflowService.getWorkflowBin(id);
+        verifyProject(bin, projectId);
+        final Project project = workflowService.getProject(projectId);
+        if (!project.isEditingEnabled()) {
+          throw new LocalException("Editing is disabled on project: " + project.getName());
+        }
+
+        //Create autofix process
+        ProcessConfig processConfig = new ProcessConfigJpa();
+        processConfig.setDescription("Autofix Process for '" + bin.getName() + "' - " + ConfigUtility.DATE_YYYYMMDDHHMMSS.format(new Date()));
+        processConfig.setFeedbackEmail(null);
+        processConfig.setName("Autofix Process for '" + bin.getName() + "' - " + ConfigUtility.DATE_YYYYMMDDHHMMSS.format(new Date()));
+        processConfig.setProject(project);
+        processConfig.setTerminology("");
+        processConfig.setVersion("");
+        processConfig.setTimestamp(new Date());
+        processConfig.setType("Autofix");
+        processConfig.setInputPath("");
+        processConfig = processService.addProcessConfig(processConfig);
+
+        //Create autofix algorithm
+        AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
+        algoConfig.setAlgorithmKey(bin.getAutofix());
+        algoConfig.setDescription("Autofix Algorithm: " + bin.getAutofix());
+        algoConfig.setEnabled(true);
+        algoConfig.setName("Autofix Algorithm: " + bin.getAutofix());
+        algoConfig.setProcess(processConfig);
+        algoConfig.setProject(project);
+        algoConfig.setTimestamp(new Date());
+        // Add algorithm and insert as step into process
+        algoConfig = processService.addAlgorithmConfig(algoConfig);
+
+        processConfig.getSteps().add(algoConfig);
+        processService.updateProcessConfig(processConfig);
+        
+        //TODO Execute algorithm?  Or go to process page so they can execute algorithm themselves?      
+        
+        workflowService.addLogEntry(userName, projectId, id, null, null,
+            "AUTOFIX BIN - " + id + ", " + bin.getName());
+
+        // websocket - n/a
+
+        return;
+
+      } catch (Exception e) {
+        try {
+          workflowService.rollback();
+        } catch (Exception e2) {
+          // n/a - if this fails, it's already rolled back
+        }
+        handleException(e, "trying to autofix a bin");
+      } finally {
+        workflowService.close();
+        processService.close();
+        securityService.close();
+      }
+      return;
+    }
+  }
+  
+  
 }
