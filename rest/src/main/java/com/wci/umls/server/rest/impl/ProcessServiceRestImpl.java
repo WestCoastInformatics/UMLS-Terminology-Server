@@ -1216,7 +1216,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @GET
-  @Path("/algo/{type:insertion|inversion|maintenance|release|report}")
+  @Path("/algo/{type:insertion|inversion|maintenance|release|report|autofix}")
   @ApiOperation(value = "Get all algorithms", notes = "Gets the algorithms for the specified type", response = KeyValuePairList.class)
   public KeyValuePairList getAlgorithmsForType(
     @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,

@@ -209,4 +209,18 @@ public interface WorkflowBin extends HasLastModified, HasProject {
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
   public boolean isEnabled();
+
+  /**
+   * Returns the autofix algorithm name.
+   *
+   * @return the autofix algorithm name
+   */
+  public String getAutofix();
+
+  /**
+   * Sets the autofix algorithm name
+   *
+   * @param autofix the autofix algorithm name
+   */
+  void setAutofix(String autofix);  
 }

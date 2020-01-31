@@ -187,6 +187,7 @@ public class WorkflowBinJpaUnitTest extends ModelUnitSupport {
     tester.include("required");
     tester.include("creationTime");
     tester.include("clusterCt");
+    tester.include("autofix");
 
     assertTrue(tester.testNotNullFields());
   }
@@ -216,6 +217,7 @@ public class WorkflowBinJpaUnitTest extends ModelUnitSupport {
     tester.include("terminology");
     tester.include("version");
     tester.include("projectId");
+    tester.include("autofix");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
   }

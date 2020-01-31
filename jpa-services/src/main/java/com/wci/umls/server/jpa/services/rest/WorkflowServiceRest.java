@@ -1,5 +1,5 @@
 /*
- *    Copyright 2017 West Coast Informatics, LLC
+ *    Copyright 2019 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.rest;
 
@@ -674,11 +674,11 @@ public interface WorkflowServiceRest {
    * @param type the type
    * @param style the style
    * @param authToken the auth token
-   * @return 
+   * @return
    * @throws Exception the exception
    */
-  public SearchResultList testQuery(Long projectId, String query, QueryType type,
-    QueryStyle style, String authToken) throws Exception;
+  public SearchResultList testQuery(Long projectId, String query,
+    QueryType type, QueryStyle style, String authToken) throws Exception;
 
   /**
    * Import checklist.
@@ -793,6 +793,17 @@ public interface WorkflowServiceRest {
    * @throws Exception the exception
    */
   public WorkflowEpochList getWorkflowEpochs(Long projectId, String authToken)
+    throws Exception;
+
+  /**
+   * Autofix bin.
+   *
+   * @param projectId the project id
+   * @param id the id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void autofixBin(Long projectId, Long id, String authToken)
     throws Exception;
 
 }

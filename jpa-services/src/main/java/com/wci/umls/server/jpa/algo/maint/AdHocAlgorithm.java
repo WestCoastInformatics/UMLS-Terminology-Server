@@ -23,7 +23,6 @@ import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import com.wci.umls.server.AlgorithmParameter;
@@ -32,18 +31,17 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
-import com.wci.umls.server.helpers.KeyValuePair;
-import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.QueryType;
-import com.wci.umls.server.helpers.content.SourceIdRangeList;
+import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.algo.action.AddAtomMolecularAction;
+import com.wci.umls.server.jpa.algo.action.AddRelationshipMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddSemanticTypeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RedoMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RemoveSemanticTypeMolecularAction;
@@ -2708,7 +2706,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // insertion that duplicated existing concept_relationships from old
     // insertions.
     // Remove the old relationships.
-    // 12/10/2019 - still having same issue in MTH_2019AB. Updated to new version.
+    // 12/10/2019 - still having same issue in MTH_2019AB. Updated to new
+    // version.
 
     logInfo(" Remove old relationships");
 
@@ -3523,11 +3522,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       // n/a
     }
   }
-  
-  private void removeOldTermgroups() throws Exception {
-    // 11/21/2019  Remove deprecated termgroups from precedence list
 
-    
+  private void removeOldTermgroups() throws Exception {
+    // 11/21/2019 Remove deprecated termgroups from precedence list
+
     int removals = 0;
 
     List<String> termgroupsToRemove = new ArrayList<>();
@@ -3542,27 +3540,26 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // First check to make sure no atoms have the termgroups to be removed
     Query query = null;
     for (String termgroup : termgroupsToRemove) {
-      query = getEntityManager().createQuery("select a.id from "
-        + "AtomJpa a "
-        + "where a.terminology = :source and a.termType = :termType");
+      query = getEntityManager().createQuery("select a.id from " + "AtomJpa a "
+          + "where a.terminology = :source and a.termType = :termType");
       String source = termgroup.substring(0, termgroup.indexOf('/'));
       String termType = termgroup.substring(termgroup.indexOf('/') + 1);
       query.setParameter("source", source);
       query.setParameter("termType", termType);
       List<Object> list = query.getResultList();
       if (list.size() > 0) {
-        logError("[RemoveOldTermgroups] Error due to atoms having termgroup " + termgroup);
+        logError("[RemoveOldTermgroups] Error due to atoms having termgroup "
+            + termgroup);
         continue;
       }
-      
+
       // remove termgroup from project precedence list
-      getProject().getPrecedenceList().removeTerminologyTermType(source, termType);
-      
+      getProject().getPrecedenceList().removeTerminologyTermType(source,
+          termType);
+
       // remove termgroup from default precedence list
-      query =
-          manager.createQuery("SELECT p.id from PrecedenceListJpa p"
-              + " where terminology = :terminology "
-              + " and version = :version");
+      query = manager.createQuery("SELECT p.id from PrecedenceListJpa p"
+          + " where terminology = :terminology " + " and version = :version");
       query.setParameter("terminology", "NCIMTH");
       query.setParameter("version", "latest");
 
@@ -3578,14 +3575,13 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       removals++;
     }
 
-    logInfo("[RemoveOldTermgroups] Remove deprecated termgroups from precedence list");
-
+    logInfo(
+        "[RemoveOldTermgroups] Remove deprecated termgroups from precedence list");
 
     setSteps(termgroupsToRemove.size());
 
     logInfo("[RemoveOldTermgroups] " + termgroupsToRemove.size()
         + " Termgroups to be removed");
-
 
     updateProgress();
 
@@ -3652,8 +3648,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Remove Demotions", "Revise Semantic Types",
         "Fix Atom Last Release CUI", "Fix VPT and Terminologies",
         "Fix Atom Suppressible and Obsolete",
-        "Initialize Source Atom Id Range App",
-        "Remove Deprecated Termgroups",
+        "Initialize Source Atom Id Range App", "Remove Deprecated Termgroups",
         "Change null treeposition Relas to blank"));
     params.add(param);
 

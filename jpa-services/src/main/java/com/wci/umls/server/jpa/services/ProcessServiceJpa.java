@@ -65,6 +65,9 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
   /** The report algorithms map. */
   private static Map<String, String> reportAlgorithmsMap = new HashMap<>();
 
+  /** The autofix algorithms map. */
+  private static Map<String, String> autofixAlgorithmsMap = new HashMap<>();
+
   static {
     init();
   }
@@ -162,6 +165,21 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
       e.printStackTrace();
       reportAlgorithmsMap = null;
     }
+    
+    try {
+      config = ConfigUtility.getConfigProperties();
+      final String key = "autofix.algorithm.handler";
+      for (final String handlerName : config.getProperty(key).split(",")) {
+
+        // Pull algorithm from algorithm map, and add to specific algorithm-type
+        // map
+        autofixAlgorithmsMap.put(handlerName, algorithmsMap.get(handlerName));
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      autofixAlgorithmsMap = null;
+    }    
+    
   }
 
   /**
@@ -197,6 +215,8 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
       algorithmsMap = releaseAlgorithmsMap;
     } else if (type.equals("report")) {
       algorithmsMap = reportAlgorithmsMap;
+    } else if (type.equals("autofix")) {
+      algorithmsMap = autofixAlgorithmsMap;
     } else {
       throw new Exception("invalid type - " + type);
     }
@@ -278,6 +298,11 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
       throw new Exception(
           "Report algorithms did not properly initialize, serious error.");
     }
+    
+    if (autofixAlgorithmsMap == null) {
+      throw new Exception(
+          "Autofix algorithms did not properly initialize, serious error.");
+    }    
   }
 
   /* see superclass */
