@@ -46,6 +46,9 @@ public class ValidateAttributesAlgorithm
   /**  The max test cases. */
   private int maxTestCases = 50;
   
+  /**  The validation checks. */
+  private List<String> validationChecks;
+  
   /** Monitor the number of errors already logged for each of the test cases */
   private Integer[] errorTallies = new Integer[maxTestCases];
   
@@ -362,10 +365,10 @@ public class ValidateAttributesAlgorithm
     
     logInfo("QA REPORT");
     logInfo("");
-    for (int index = 0; index < errorTallies.length; index++) {
+    for (int index = 1; index <= validationChecks.size(); index++) {
       Integer tally = errorTallies[index];
       if (tally == null) {
-        logInfo("PASSED: ATTRS_" + (index + 1));
+        logInfo("PASSED: ATTRS_" + (index));
       }
     }
 
@@ -441,7 +444,7 @@ public class ValidateAttributesAlgorithm
         "checkNames", "The names of the validation checks to run",
         "e.g. #ATTRS_1", 200, AlgorithmParameter.Type.MULTI, "");
 
-    List<String> validationChecks = new ArrayList<>();
+    validationChecks = new ArrayList<>();
     validationChecks.add("#ATTRS_1");
     validationChecks.add("#ATTRS_2");
     validationChecks.add("#ATTRS_3");

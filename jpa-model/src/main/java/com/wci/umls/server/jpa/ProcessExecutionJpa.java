@@ -79,6 +79,11 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   /** The input path. */
   @Column(nullable = true)
   private String inputPath;
+  
+  /** The log path. */
+  @Column(nullable = true)
+  private String logPath;
+
 
   /** Has the algorithm had a warning fired during its execution. */
   @Column(nullable = false)
@@ -118,6 +123,7 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
     steps = new ArrayList<>(exec.getSteps());
     type = exec.getType();
     inputPath = exec.getInputPath();
+    logPath = exec.getLogPath();
     executionInfo = new HashMap<>(exec.getExecutionInfo());
     warning = exec.isWarning();
   }
@@ -134,6 +140,7 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
     processConfigId = config.getId();
     type = config.getType();
     inputPath = config.getInputPath();
+    logPath = config.getLogPath();
   }
 
   /* see superclass */
@@ -331,5 +338,15 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
         + ", steps=" + steps + ", workId=" + workId + ", processConfigId="
         + processConfigId + ", type=" + type + "] " + super.toString();
 
+  }
+
+  @Override
+  public String getLogPath() {
+    return logPath;
+  }
+
+  @Override
+  public void setLogPath(String logPath) {
+    this.logPath = logPath;
   }
 }

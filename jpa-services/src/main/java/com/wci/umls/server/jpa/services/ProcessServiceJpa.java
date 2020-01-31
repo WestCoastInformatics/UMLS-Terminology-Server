@@ -726,17 +726,17 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
     throws Exception {
 
     // Check the input directories
-    String srcFullPath =
+    String logFullPath =
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + File.separator + processExecution.getInputPath();
+            + File.separator + processExecution.getLogPath();
 
     // If input directory is completely empty, don't throw an error (some
     // processes are fine to run without input directory specified)
-    if (ConfigUtility.isEmpty(srcFullPath)) {
+    if (ConfigUtility.isEmpty(logFullPath)) {
       return;
     }
 
-    final File saveLocation = new File(srcFullPath);
+    final File saveLocation = new File(logFullPath);
     if (!saveLocation.exists()) {
       // bail if location doesn't exist
       return;
@@ -748,7 +748,7 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
     // Create and populate the log
     final String runDate =
         new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-    final File outputFile = new File(srcFullPath, "process."
+    final File outputFile = new File(logFullPath, "process."
         + processExecution.getProcessConfigId() + "." + runDate + ".log");
 
     final PrintWriter out = new PrintWriter(new FileWriter(outputFile));

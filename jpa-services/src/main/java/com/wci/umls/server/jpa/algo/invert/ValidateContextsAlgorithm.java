@@ -64,6 +64,9 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
   /**  The max test cases. */
   private int maxTestCases = 50;
   
+  /**  The validation checks. */
+  private List<String> validationChecks;
+  
   /** Monitor the number of errors already logged for each of the test cases */
   private Integer[] errorTallies = new Integer[maxTestCases];
   
@@ -376,10 +379,10 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
     
     logInfo("QA REPORT");
     logInfo("");
-    for (int index = 0; index < errorTallies.length; index++) {
+    for (int index = 1; index <= validationChecks.size(); index++) {
       Integer tally = errorTallies[index];
       if (tally == null) {
-        logInfo("PASSED: CXTS_" + (index + 1));
+        logInfo("PASSED: CXTS_" + (index));
       }
     }
     
@@ -456,7 +459,7 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
         "The names of the validation checks to run", "e.g. #CXTS_1", 200,
         AlgorithmParameter.Type.MULTI, "");
 
-    List<String> validationChecks = new ArrayList<>();
+    validationChecks = new ArrayList<>();
     validationChecks.add("#CXTS_1");
     validationChecks.add("#CXTS_2");
     validationChecks.add("#CXTS_3");

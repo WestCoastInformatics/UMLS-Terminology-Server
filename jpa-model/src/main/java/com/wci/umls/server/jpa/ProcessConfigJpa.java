@@ -50,6 +50,10 @@ public class ProcessConfigJpa extends AbstractProcessInfo<AlgorithmConfig>
   /** The input path. */
   @Column(nullable = true)
   private String inputPath;
+  
+  /** The log path. */
+  @Column(nullable = true)
+  private String logPath;
 
   /**
    * Instantiates an empty {@link ProcessConfigJpa}.
@@ -68,6 +72,7 @@ public class ProcessConfigJpa extends AbstractProcessInfo<AlgorithmConfig>
     steps = new ArrayList<>(config.getSteps());
     type = config.getType();
     inputPath = config.getInputPath();
+    logPath = config.getLogPath();
   }
 
   /* see superclass */
@@ -113,5 +118,17 @@ public class ProcessConfigJpa extends AbstractProcessInfo<AlgorithmConfig>
   public String toString() {
     return "ProcessConfigJpa [steps=" + steps + ", type=" + type + "] "
         + super.toString();
+  }
+
+  /* see superclass */
+  @Override
+  public String getLogPath() {
+    return logPath;
+  }
+
+  /* see superclass */
+  @Override
+  public void setLogPath(String logPath) {
+    this.logPath = logPath;
   }
 }

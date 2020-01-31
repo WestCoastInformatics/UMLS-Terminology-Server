@@ -41,12 +41,11 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
   /** The check names. */
   private List<String> checkNames;
   
-  /**  The max test cases. */
-  private int maxTestCases = 50;
+  /**  The validation checks. */
+  private List<String> validationChecks;
   
-  /** Monitor the number of errors already logged for each of the test cases */
-  private Integer[] errorTallies = new Integer[maxTestCases];
-  
+  /**  The test cases. */
+  private List<TestCase> testCases;
   
   /**
    * Instantiates an empty {@link ValidateAtomsAlgorithm}.
@@ -106,7 +105,7 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
       outputFile.delete();
     } catch (Exception e) {
       throw new LocalException("Unable to write files to " + srcFullPath
-          + " - update permissions before continuing validation.");
+          + " - update permissions before continuing validation.  Consider this command: chown :tomcata " + srcFullPath);
     }
 
     // Makes sure editing is turned off before continuing
@@ -235,178 +234,177 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
       if (checkNames.contains("#ATOMS_1")) {
         if (fields.length != 14) {
           if (underErrorTallyThreashold("#ATOMS_1")) {
-            result
-              .addError("ATOMS_1: incorrect number of fields in classes_atoms.src row: "
-                  + fileLine);
+            result.addError("ATOMS_1:" + fileLine);
           }
         }
 
       }
-      
+
       // check first field is an integer
       if (checkNames.contains("#ATOMS_2")) {
         try {
           Integer.parseInt(fields[0]);
         } catch (Exception e) {
           if (underErrorTallyThreashold("#ATOMS_2")) {
-            result
-              .addError("ATOMS_2: First field in classes_atoms.src must be an integer. "
-                  + fields[0]);
+            result.addError("ATOMS_2:" + fields[0]);
           }
         }
       }
-      
+
       // check last field is an integer (not in MTH)
       if (checkNames.contains("#ATOMS_3")) {
         try {
           Integer.parseInt(fields[13]);
         } catch (Exception e) {
           if (underErrorTallyThreashold("#ATOMS_3")) {
-            result.addError("ATOMS_3: Last field in classes_atoms.src must be an integer. "
-              + fields[0]);
+            result.addError("ATOMS_3:" + fields[0]);
           }
         }
       }
-      
+
       // check for angle brackets in string field
       if (checkNames.contains("#ATOMS_4")) {
         if (fields[8].contains("<") && fields[8].contains(">")) {
           if (underErrorTallyThreashold("#ATOMS_4")) {
-            result.addWarning(
-              "ATOMS_4: String field in classes_atoms.src should not have angle brackets. "
-                  + fields[8]);
+            result.addWarning("ATOMS_4:" + fields[8]);
           }
         }
       }
-      
+
       // check for valid termgroup
       if (checkNames.contains("#ATOMS_5")) {
-        if (!termgroupToSuppressMap.containsKey(fields[2]) && !fields[2].startsWith("SRC/")) {
+        if (!termgroupToSuppressMap.containsKey(fields[2])
+            && !fields[2].startsWith("SRC/")) {
           if (underErrorTallyThreashold("#ATOMS_5")) {
-            result.addError(
-              "ATOMS_5: Termgroup in classes_atoms.src is invalid: " + fields[2]);
+            result.addError("ATOMS_5:" + fields[2]);
           }
         }
       }
-      
+
       // check for duplicate case-sensitive strings
-      if (checkNames.contains("#ATOMS_6")) {
+      if (checkNames.contains("#ATOMS_6") || checkNames.contains("#ATOMS_7")) {
         if (lowerToNativeMap.values().contains(fields[7])) {
           if (underErrorTallyThreashold("#ATOMS_6")) {
-            result.addWarning("ATOMS_6: Duplicate case-sensitive strings: " + fields[7]);
+            result.addWarning("ATOMS_6:" + fields[7]);
           }
           // check for duplicate case-insensitive strings
         } else if (lowerToNativeMap.keySet()
             .contains(fields[7].toLowerCase())) {
-          if (underErrorTallyThreashold("#ATOMS_6")) {
+          if (underErrorTallyThreashold("#ATOMS_7")) {
             result.addWarning(
-              "ATOMS_6: Duplicate case-insensitive strings: " + fields[7].toLowerCase());
+                "ATOMS_7:" + fields[7].toLowerCase());
           }
           // add it to the map
         } else {
           lowerToNativeMap.put(fields[7].toLowerCase(), fields[7]);
         }
       }
-      
-      // check code must be equal to SCUI, SDUI or SAUI unless all of them are null
+
+      // check code must be equal to SCUI, SDUI or SAUI unless all of them are
+      // null
       if (checkNames.contains("#ATOMS_8")) {
-        if (!fields[9].isEmpty() && !fields[10].isEmpty() && !fields[11].isEmpty()
-            && !fields[3].equals(fields[9]) && !fields[3].equals(fields[10]) && !fields[3].equals(fields[11])) {
+        if (!fields[9].isEmpty() && !fields[10].isEmpty()
+            && !fields[11].isEmpty() && !fields[3].equals(fields[9])
+            && !fields[3].equals(fields[10]) && !fields[3].equals(fields[11])) {
           if (underErrorTallyThreashold("#ATOMS_8")) {
-            result.addError("ATOMS_8: Code must be equal to SAUI, SCUI or SDUI: " + fields[0] + ":" + fields[3]);         
+            result.addError(
+                "ATOMS_8:" + fields[0] + ":" + fields[3]);
           }
         }
       }
 
       // check for valid sources
       if (checkNames.contains("#ATOMS_9")) {
-        if (!(fields[1].equals("SRC") || sourcesToLatMap.containsKey(fields[1]))) {
+        if (!(fields[1].equals("SRC")
+            || sourcesToLatMap.containsKey(fields[1]))) {
           if (underErrorTallyThreashold("#ATOMS_9")) {
-            result.addError("ATOMS_9: Source must be listed in sources.src: " + fields[1]);
+            result.addError("ATOMS_9:" + fields[1]);
           }
         }
       }
-      
+
       // check for valid codes on SRC/VAB and SRC/VPT atoms
       if (checkNames.contains("#ATOMS_10")) {
         if ((fields[2].equals("SRC/VPT") || fields[2].equals("SRC/VAB"))
             && !sourcesToLatMap.containsKey(fields[3].substring(2))) {
           if (underErrorTallyThreashold("#ATOMS_10")) {
-            result.addError("ATOMS_10: Code field must be a valid source for SRC/VPT and SRC/VAB rows: " + fields[3].substring(2));
+            result
+                .addError("ATOMS_10:" + fields[3].substring(2));
           }
         }
       }
-      
+
       // check for valid names on SRC/VAB atoms
       if (checkNames.contains("#ATOMS_11")) {
         if ((fields[2].equals("SRC/VAB"))
             && !sourcesToLatMap.containsKey(fields[7])) {
           if (underErrorTallyThreashold("#ATOMS_11")) {
-            result.addError("ATOMS_11: Name field must be a valid source for SRC/VAB rows: " + fields[7]);
+            result.addError("ATOMS_11:" + fields[7]);
           }
         }
       }
-      
+
       // check for valid names on SRC/RAB atoms
       if (checkNames.contains("#ATOMS_12")) {
-        if ((fields[2].equals("SRC/RAB"))
-            && !rootSources.contains(fields[7])) {
+        if ((fields[2].equals("SRC/RAB")) && !rootSources.contains(fields[7])) {
           if (underErrorTallyThreashold("#ATOMS_12")) {
-            result.addError("ATOMS_12: Name field must be a valid source for SRC/RAB rows: " + fields[7]);
+            result.addError("ATOMS_12:" + fields[7]);
           }
         }
       }
-      
+
       // check for valid codes on SRC/RAB and SRC/RPT atoms
       if (checkNames.contains("#ATOMS_13")) {
         if ((fields[2].equals("SRC/RPT") || fields[2].equals("SRC/RAB"))
             && !rootSources.contains(fields[3].substring(2))) {
           if (underErrorTallyThreashold("#ATOMS_13")) {
-            result.addError("ATOMS_13: Code field must be a valid source for SRC/RPT and SRC/RAB rows: " + fields[3].substring(2));
+            result
+                .addError("ATOMS_13:" + fields[3].substring(2));
           }
         }
       }
-      
-      
+
       // check for duplicate SRC/VAB codes
       if (checkNames.contains("#ATOMS_14")) {
         if (fields[2].equals("SRC/VAB") && vabCodes.contains(fields[3])) {
 
           if (underErrorTallyThreashold("#ATOMS_14")) {
             result.addError(
-              "ATOMS_14: Duplicate SRC/VAB codes: " + fields[7].toLowerCase());
+                "ATOMS_14:" + fields[7].toLowerCase());
           }
-        } else if (fields[2].equals("SRC/VAB")){
+        } else if (fields[2].equals("SRC/VAB")) {
           vabCodes.add(fields[3]);
         }
       }
-      
+
       // check for duplicate SRC/RAB codes
       if (checkNames.contains("#ATOMS_15")) {
         if (fields[2].equals("SRC/RAB") && rabCodes.contains(fields[3])) {
           if (underErrorTallyThreashold("#ATOMS_15")) {
             result.addError(
-              "ATOMS_15: Duplicate SRC/RAB codes: " + fields[7].toLowerCase());
+                "ATOMS_15:" + fields[7].toLowerCase());
           }
-        } else if (fields[2].equals("SRC/RAB")){
+        } else if (fields[2].equals("SRC/RAB")) {
           rabCodes.add(fields[3]);
         }
       }
-      
+
       // check for non-unique AUI fields
       if (checkNames.contains("#ATOMS_16")) {
-        if (uniqueAuiFields.contains(fields[2] + "|" + fields[7] + "|" + fields[3] + "|" + 
-            fields[9] + "|" + fields[10] + "|" + fields[11])) {
+        if (uniqueAuiFields
+            .contains(fields[2] + "|" + fields[7] + "|" + fields[3] + "|"
+                + fields[9] + "|" + fields[10] + "|" + fields[11])) {
           if (underErrorTallyThreashold("#ATOMS_16")) {
-            result.addError("ATOMS_16: Duplicate AUI fields: " + fields[2] + "|" + fields[7] + "|" + fields[3] + "|" + 
-              fields[9] + "|" + fields[10] + "|" + fields[11]);
+            result.addError("ATOMS_16:" + fields[2] + "|"
+                + fields[7] + "|" + fields[3] + "|" + fields[9] + "|"
+                + fields[10] + "|" + fields[11]);
           }
-        } else  {
-          uniqueAuiFields.add(fields[2] + "|" + fields[7] + "|" + fields[3] + "|" + 
-              fields[9] + "|" + fields[10] + "|" + fields[11]);
+        } else {
+          uniqueAuiFields.add(fields[2] + "|" + fields[7] + "|" + fields[3]
+              + "|" + fields[9] + "|" + fields[10] + "|" + fields[11]);
         }
       }
-      
+
       // check if the LAT matches sources.src file
       if (checkNames.contains("#ATOMS_17")) {
         if (!fields[1].equals("SRC")) {
@@ -414,13 +412,11 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
               && sourcesToLatMap.get(fields[1]).equals(fields[12]))) {
             if (underErrorTallyThreashold("#ATOMS_17")) {
               result.addError(
-                "ATOMS_17: Lat field must match language of the source: "
-                    + fields[1] + ":" + fields[12]);
+                  "ATOMS_17:" + fields[1] + ":" + fields[12]);
             }
           }
         }
       }
-      
 
       // check suppressibility of atom matches expected from termgroups.src file
       if (checkNames.contains("#ATOMS_18")) {
@@ -431,85 +427,89 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
           if (tgSuppress.equals("Y") && !atomSuppress.equals("Y")
               && !atomSuppress.equals("O")) {
             if (underErrorTallyThreashold("#ATOMS_18")) {
-              result.addError(
-                  "ATOMS_18: Atom suppressibility must match termgroup suppressibility case 1: "
-                      + atomSuppress + ":" + tgSuppress + " : " + fileLine);
+              result.addError("ATOMS_18:" + atomSuppress + ":"
+                  + tgSuppress + " : " + fileLine);
             }
           } else if (tgSuppress.equals("N") && atomSuppress.equals("Y")) {
             if (underErrorTallyThreashold("#ATOMS_18")) {
-              result.addError(
-                  "ATOMS_18: Atom suppressibility must match termgroup suppressibility case 2: "
-                      + atomSuppress + ":" + tgSuppress + " : " + fileLine);
+              result.addError("ATOMS_18:" + atomSuppress + ":"
+                  + tgSuppress + " : " + fileLine);
             }
           } else if (tgSuppress.equals("Y") && !atomSuppress.equals("O")) {
             if (underErrorTallyThreashold("#ATOMS_18")) {
-              result.addError(
-                  "ATOMS_18: Atom suppressibility must match termgroup suppressibility: case 3 "
-                      + atomSuppress + ":" + tgSuppress + " : " + fileLine);
+              result.addError("ATOMS_18:" + atomSuppress + ":"
+                  + tgSuppress + " : " + fileLine);
             }
           }
         }
       }
-      
+
       // check for XML chars in string field
-      if (checkNames.contains("#ATOMS_21")) {
+      if (checkNames.contains("#ATOMS_19")) {
         String str = fields[7];
         String pattern = ".*[&#][a-zA-Z0-9]+;.*";
         if (str.contains("quot")) {
-          if (Pattern.matches(pattern, str)  ) {
-            if (underErrorTallyThreashold("#ATOMS_21")) {
-              result.addError(
-                "ATOMS_21: String contains an XML character: " + fields[7]);
+          if (Pattern.matches(pattern, str)) {
+            if (underErrorTallyThreashold("#ATOMS_19")) {
+              result.addError("ATOMS_19:" + fields[7]);
             }
-          }    
-        }
-      }
-      
-      // check all VPT atoms have STY of Intellectual Property
-      if (checkNames.contains("#ATOMS_22")) {
-        if ((fields[2].equals("SRC/VPT") && !styIntelProds.contains(fields[0]))) {
-          if (underErrorTallyThreashold("#ATOMS_22")) {
-            result.addError("ATOMS_22: All VPT atoms have STY of Intellectual Property: " + fields[0]);
           }
         }
-      }     
+      }
+
+      // check all VPT atoms have STY of Intellectual Property
+      if (checkNames.contains("#ATOMS_20")) {
+        if ((fields[2].equals("SRC/VPT")
+            && !styIntelProds.contains(fields[0]))) {
+          if (underErrorTallyThreashold("#ATOMS_20")) {
+            result.addError("ATOMS_20:" + fields[0]);
+          }
+        }
+      }   
       // Update the progress
       updateProgress();
     }
     in.close();
 
+    logInfo("");
     logInfo("QA REPORT");
     logInfo("");
-    for (int index = 0; index < errorTallies.length; index++) {
-      Integer tally = errorTallies[index];
-      if (tally == null) {
-        logInfo("PASSED: ATOMS_" + (index + 1));
+    for (int index = 0; index < testCases.size(); index++) {
+      TestCase tc = testCases.get(index);
+      if (tc.getErrorCt() == 0) {
+        logInfo("PASSED: " + tc.getShortName() + " " + tc.getName());
       }
     }
     
     String prevTestCase = "";
     // print warnings and errors to log
     if (result.getWarnings().size() > 0) {
+      logInfo("");
+      logInfo("WARNINGS");
+      logInfo("");
       List<String> sortedWarnings = new ArrayList<>(result.getWarnings());
       Collections.sort(sortedWarnings);
       for (String warning : sortedWarnings) {
-        String currentTestCase = warning.substring(0, 9);
+        String currentTestCase = warning.substring(0, 8);
         if (!currentTestCase.equals(prevTestCase)) {
           int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1, currentTestCase.indexOf(":")));
-          logInfo(currentTestCase + " warning count: " + errorTallies[index]);
+          logInfo(currentTestCase + " warning count: " + testCases.get(index - 1).getErrorCt() + " : " + testCases.get(index - 1).getFailureMsg());
         }
         prevTestCase = currentTestCase;
         logInfo(warning);
       }
     }
     if (result.getErrors().size() > 0) {
+      logInfo("");
+      logInfo("ERRORS");
+      logInfo("");
       List<String> sortedErrors = new ArrayList<>(result.getErrors());
       Collections.sort(sortedErrors);
       for (String error : sortedErrors) {
         String currentTestCase = error.substring(0, 9);
         if (!currentTestCase.equals(prevTestCase)) {
           int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1, currentTestCase.indexOf(":")));
-          logInfo(currentTestCase + " error count: " + errorTallies[index]);
+          logInfo(currentTestCase + " error count: " + testCases.get(index - 1).getErrorCt());
         }
         prevTestCase = currentTestCase;
         logError(error);
@@ -546,6 +546,61 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
       checkNames =
           Arrays.asList(String.valueOf(p.getProperty("checkNames")).split(";"));
     }
+    testCases = new ArrayList<>();
+    testCases.add(new TestCase("#ATOMS_1",
+        "check each row has the correct number of fields",
+        "incorrect number of fields in classes_atoms.src row"));
+    testCases.add(new TestCase("#ATOMS_2", "check first field is an integer",
+        "First field in classes_atoms.src must be an integer."));
+    testCases.add(
+        new TestCase("#ATOMS_3", "check last field is an integer (not in MTH)",
+            "Last field in classes_atoms.src must be an integer."));
+    testCases.add(new TestCase("#ATOMS_4",
+        "check for angle brackets in string field",
+        "String field in classes_atoms.src should not have angle brackets."));
+    testCases.add(new TestCase("#ATOMS_5", "check for valid termgroup",
+        "Termgroup in classes_atoms.src is invalid."));
+    testCases.add(
+        new TestCase("#ATOMS_6", "check for duplicate case-sensitive strings",
+            "Duplicate case-sensitive strings."));
+    testCases.add(
+        new TestCase("#ATOMS_7", "check for duplicate case-insensitive strings",
+            "Duplicate case-insensitive strings."));
+    testCases.add(new TestCase("#ATOMS_8",
+        "check code must be equal to SCUI, SDUI or SAUI unless all of them are null",
+        "Code must be equal to SAUI, SCUI or SDUI."));
+    testCases.add(new TestCase("#ATOMS_9", "check for valid sources",
+        "Source must be listed in sources.src"));
+    testCases.add(new TestCase("#ATOMS_10",
+        "check for valid codes on SRC/VAB and SRC/VPT atoms",
+        "Code field must be a valid source for SRC/VPT and SRC/VAB rows"));
+    testCases
+        .add(new TestCase("#ATOMS_11", "check for valid names on SRC/VAB atoms",
+            "Name field must be a valid source for SRC/VAB rows"));
+    testCases
+        .add(new TestCase("#ATOMS_12", "check for valid names on SRC/RAB atoms",
+            "Name field must be a valid source for SRC/RAB rows"));
+    testCases.add(new TestCase("#ATOMS_13",
+        "check for valid codes on SRC/RAB and SRC/RPT atoms",
+        "Code field must be a valid source for SRC/RPT and SRC/RAB rows"));
+    testCases.add(new TestCase("#ATOMS_14", "check for duplicate SRC/VAB codes",
+        "Duplicate SRC/VAB codes"));
+    testCases.add(new TestCase("#ATOMS_15", "check for duplicate SRC/RAB codes",
+        "Duplicate SRC/RAB codes"));
+    testCases.add(new TestCase("#ATOMS_16", "check for non-unique AUI fields",
+        "Duplicate AUI fields"));
+    testCases.add(
+        new TestCase("#ATOMS_17", "check if the LAT matches sources.src file",
+            "Lat field must match language of the source"));
+    testCases.add(new TestCase("#ATOMS_18",
+        "check suppressibility of atom matches expected from termgroups.src file",
+        "Atom suppressibility must match termgroup suppressibility"));
+    testCases
+        .add(new TestCase("#ATOMS_19", "check for XML chars in string field",
+            "String contains an XML character"));
+    testCases.add(new TestCase("#ATOMS_20",
+        "check all VPT atoms have STY of Intellectual Property",
+        "All VPT atoms have STY of Intellectual Property"));
   }
 
   /* see superclass */
@@ -558,7 +613,7 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
         "The names of the validation checks to run", "e.g. #ATOMS_1", 200,
         AlgorithmParameter.Type.MULTI, "");
 
-    List<String> validationChecks = new ArrayList<>();
+    validationChecks = new ArrayList<>();
     validationChecks.add("#ATOMS_1");
     validationChecks.add("#ATOMS_2");
     validationChecks.add("#ATOMS_3");
@@ -581,7 +636,9 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
     validationChecks.add("#ATOMS_20");
     validationChecks.add("#ATOMS_21");
     validationChecks.add("#ATOMS_22");
-    
+
+
+
     Collections.sort(validationChecks);
     param.setPossibleValues(validationChecks);
     params.add(param);
@@ -593,14 +650,20 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
   // check if the number of errors logged for each test case is greater or less than 10
   private boolean underErrorTallyThreashold(String testName) {
     int index = Integer.parseInt(testName.substring(testName.indexOf("_") + 1));
-    Integer value = errorTallies[index];
-    if (value == null) {
+    TestCase l_case = testCases.get(index -1 );
+    int value = l_case.getErrorCt();
+    if (value == 0) {
       value = 1;
     } else {
       value = value + 1;
     }
-    errorTallies[index] = value;
+    l_case.setErrorCt(value);
     return value <= 10;
+  }
+  
+  private String getErrorMessage(String testName) {
+    TestCase tc =  testCases.get(Integer.parseInt(testName.substring(testName.indexOf("_") + 1)) -1);
+    return tc.getShortName() + ": " + tc.getFailureMsg() + " : " ;
   }
   
   @Override

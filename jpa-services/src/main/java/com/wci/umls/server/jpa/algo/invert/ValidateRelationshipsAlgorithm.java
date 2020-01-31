@@ -43,6 +43,9 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
   /**  The max test cases. */
   private int maxTestCases = 50;
   
+  /**  The validation checks. */
+  private List<String> validationChecks;
+  
   /** Monitor the number of errors already logged for each of the test cases */
   private Integer[] errorTallies = new Integer[maxTestCases];
   
@@ -431,10 +434,10 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
     
     logInfo("QA REPORT");
     logInfo("");
-    for (int index = 0; index < errorTallies.length; index++) {
+    for (int index = 1; index <= validationChecks.size(); index++) {
       Integer tally = errorTallies[index];
       if (tally == null) {
-        logInfo("PASSED: RELS_" + (index + 1));
+        logInfo("PASSED: RELS_" + (index));
       }
     }
     
@@ -510,7 +513,7 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
         "The names of the validation checks to run", "e.g. #RELS_1", 200,
         AlgorithmParameter.Type.MULTI, "");
 
-    List<String> validationChecks = new ArrayList<>();
+    validationChecks = new ArrayList<>();
     validationChecks.add("#RELS_1");
     validationChecks.add("#RELS_2");
     validationChecks.add("#RELS_3");
