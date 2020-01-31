@@ -23,7 +23,6 @@ import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import com.wci.umls.server.AlgorithmParameter;
@@ -32,18 +31,17 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
-import com.wci.umls.server.helpers.KeyValuePair;
-import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.QueryType;
-import com.wci.umls.server.helpers.content.SourceIdRangeList;
+import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.algo.action.AddAtomMolecularAction;
+import com.wci.umls.server.jpa.algo.action.AddRelationshipMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddSemanticTypeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RedoMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RemoveSemanticTypeMolecularAction;
@@ -243,6 +241,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       initializeSourceAtomIdRanges();
     } else if (actionName.equals("Remove Deprecated Termgroups")) {
       removeOldTermgroups();
+    } else if (actionName.equals("Create XR Relationships for cluster")) {
+      createXRRelationshipsForCluster();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -2708,7 +2708,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // insertion that duplicated existing concept_relationships from old
     // insertions.
     // Remove the old relationships.
-    // 12/10/2019 - still having same issue in MTH_2019AB. Updated to new version.
+    // 12/10/2019 - still having same issue in MTH_2019AB. Updated to new
+    // version.
 
     logInfo(" Remove old relationships");
 
@@ -3523,11 +3524,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       // n/a
     }
   }
-  
-  private void removeOldTermgroups() throws Exception {
-    // 11/21/2019  Remove deprecated termgroups from precedence list
 
-    
+  private void removeOldTermgroups() throws Exception {
+    // 11/21/2019 Remove deprecated termgroups from precedence list
+
     int removals = 0;
 
     List<String> termgroupsToRemove = new ArrayList<>();
@@ -3542,27 +3542,26 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // First check to make sure no atoms have the termgroups to be removed
     Query query = null;
     for (String termgroup : termgroupsToRemove) {
-      query = getEntityManager().createQuery("select a.id from "
-        + "AtomJpa a "
-        + "where a.terminology = :source and a.termType = :termType");
+      query = getEntityManager().createQuery("select a.id from " + "AtomJpa a "
+          + "where a.terminology = :source and a.termType = :termType");
       String source = termgroup.substring(0, termgroup.indexOf('/'));
       String termType = termgroup.substring(termgroup.indexOf('/') + 1);
       query.setParameter("source", source);
       query.setParameter("termType", termType);
       List<Object> list = query.getResultList();
       if (list.size() > 0) {
-        logError("[RemoveOldTermgroups] Error due to atoms having termgroup " + termgroup);
+        logError("[RemoveOldTermgroups] Error due to atoms having termgroup "
+            + termgroup);
         continue;
       }
-      
+
       // remove termgroup from project precedence list
-      getProject().getPrecedenceList().removeTerminologyTermType(source, termType);
-      
+      getProject().getPrecedenceList().removeTerminologyTermType(source,
+          termType);
+
       // remove termgroup from default precedence list
-      query =
-          manager.createQuery("SELECT p.id from PrecedenceListJpa p"
-              + " where terminology = :terminology "
-              + " and version = :version");
+      query = manager.createQuery("SELECT p.id from PrecedenceListJpa p"
+          + " where terminology = :terminology " + " and version = :version");
       query.setParameter("terminology", "NCIMTH");
       query.setParameter("version", "latest");
 
@@ -3578,20 +3577,203 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       removals++;
     }
 
-    logInfo("[RemoveOldTermgroups] Remove deprecated termgroups from precedence list");
-
+    logInfo(
+        "[RemoveOldTermgroups] Remove deprecated termgroups from precedence list");
 
     setSteps(termgroupsToRemove.size());
 
     logInfo("[RemoveOldTermgroups] " + termgroupsToRemove.size()
         + " Termgroups to be removed");
 
-
     updateProgress();
 
     logInfo("[RemoveOldTermgroups] " + removals
         + " old termgroups successfully removed.");
 
+  }
+
+  private void createXRRelationshipsForCluster() throws Exception {
+    // 01/29/2020 User requested ability to programmatically create XR
+    // relationships between all concepts in a cluster.
+    logInfo(" Create XR Relationships For Cluster");
+
+    int relationshipsCreated = 0;
+
+    // TEST VARIABLES
+    final String worklistName = "wrk19b_ambig_no_rel_default_003";
+    final Long clusterId = 197L;
+
+    // REAL VARIABLES
+    // final String worklistName = "wrk19b_ambig_no_rel_default_004";
+    // final Long clusterId = 33L;
+
+    try {
+
+      // Find the specified worklist
+      PfsParameter pfs = new PfsParameterJpa();
+      pfs.setQueryRestriction(worklistName);
+      WorklistList worklistList =
+          this.findWorklists(this.getProject(), null, pfs);
+
+      // There can be only one
+      if (worklistList.getTotalCount() != 1) {
+        throw new Exception("Expecting a single worklist, but search returned "
+            + worklistList.getTotalCount());
+      }
+
+      Worklist worklist = worklistList.getObjects().get(0);
+
+      logInfo("[CreateXRRelationshipsForCluster] Worklist loaded: "
+          + worklist.getName());
+
+      // Get the specified cluster
+      List<TrackingRecord> trackingRecords = worklist.getTrackingRecords();
+
+      TrackingRecord trackingRecord = null;
+      for (TrackingRecord record : trackingRecords) {
+        if (record.getClusterId().equals(clusterId)) {
+          trackingRecord = record;
+          break;
+        }
+      }
+
+      // Throw error if null tracking record
+      if (trackingRecord == null) {
+        throw new Exception("No tracking record found for worklist="
+            + worklist.getName() + " and cluster=" + clusterId);
+      }
+
+      // Get NCIMTH concepts for tracking record's atoms
+      Query query = getEntityManager()
+          .createQuery("select c.id from ConceptJpa c join c.atoms a "
+              + "where c.terminology=:projectTerminology and c.version=:projectVersion and a.id in (:atomIds)");
+      query.setParameter("projectTerminology", getProject().getTerminology());
+      query.setParameter("projectVersion", getProject().getVersion());
+      query.setParameter("atomIds", trackingRecord.getComponentIds());
+
+      Set<Concept> concepts = new HashSet<>();
+
+      List<Object> results = query.getResultList();
+      for (final Object result : results) {
+        final Concept concept =
+            this.getConcept(Long.valueOf(result.toString()));
+        concepts.add(concept);
+      }
+
+      // Throw error if concepts empty
+      if (concepts.size() == 0) {
+        throw new Exception(
+            "No NCIMTH concepts associated with this tracking record.");
+      }
+
+      // Set the number of steps to the number of possible pairs (n * (n-1))
+      setSteps(concepts.size() * (concepts.size() - 1));
+
+      // Create XR relationships between all the NCIMTH concepts, IFF there
+      // isn't already a relationship between them.
+      for (Concept fromConcept : concepts) {
+        for (Concept toConcept : concepts) {
+          // Don't create self-referential relationships
+          if (fromConcept.getId().equals(toConcept.getId())) {
+            continue;
+          }
+          
+          // Refresh to and from concepts (they may have been modified by a
+          // previous step, and the actions need accurate lastModified
+          // time-stamps)
+          fromConcept = getConcept(fromConcept.getId());
+          toConcept = getConcept(toConcept.getId());          
+          
+          // Don't create XR relationships if a concept-relationship already
+          // exists
+          boolean relAlreadyExists = false;
+          for (ConceptRelationship relationship : fromConcept
+              .getRelationships()) {
+            if (relationship.getTo().getId().equals(toConcept.getId())) {
+              relAlreadyExists = true;
+              break;
+            }
+          }
+          if (relAlreadyExists) {
+            updateProgress();
+            continue;
+          }
+
+          // Instantiate services
+          final AddRelationshipMolecularAction action =
+              new AddRelationshipMolecularAction();
+          ConceptRelationship relationship = new ConceptRelationshipJpa();
+          try {
+
+            // XR relationships are unpublishable
+            relationship.setPublished(false);
+            relationship.setPublishable(false);
+            relationship
+                .setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+
+            relationship.setTerminology("NCIMTH");
+            relationship.setVersion("latest");
+            relationship.setFrom(fromConcept);
+            relationship.setTo(toConcept);
+            relationship.setRelationshipType("XR");
+            relationship.setAdditionalRelationshipType("");
+            relationship.setTerminologyId("");
+
+            // Set defaults for a concept level relationship
+            relationship.setStated(true);
+            relationship.setInferred(true);
+            relationship.setSuppressible(false);
+            relationship.setObsolete(false);
+            relationship.setGroup("");
+
+            // Configure the action
+            action.setProject(getProject());
+            action.setActivityId("createXRRelationshipsForCluster");
+            action.setConceptId(relationship.getFrom().getId());
+            action.setConceptId2(relationship.getTo().getId());
+            action.setLastModifiedBy("admin");
+            action.setLastModified(
+                relationship.getFrom().getLastModified().getTime());
+            action.setOverrideWarnings(true);
+            action.setTransactionPerOperation(false);
+            action.setMolecularActionFlag(true);
+            action.setChangeStatusFlag(true);
+
+            action.setRelationship(relationship);
+
+            // Perform the action
+            final ValidationResult validationResult =
+                action.performMolecularAction(action, "admin", true, false);
+
+            // If the action failed, bail out now.
+            if (!validationResult.isValid()) {
+              logError("Unexpected problem - " + validationResult);
+            }
+
+            // Otherwise, increment the successful add-atom count
+            relationshipsCreated++;
+
+          } catch (Exception e) {
+            e.printStackTrace();
+            fail("Unexpected exception thrown - please review stack trace.");
+          } finally {
+            action.close();
+          }
+
+          updateProgress();
+          commitClearBegin();
+        }
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+      // n/a
+    }
+
+    logInfo("Created " + relationshipsCreated + " XR relationships.");
+    logInfo("Finished " + getName());
   }
 
   /* see superclass */
@@ -3652,9 +3834,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Remove Demotions", "Revise Semantic Types",
         "Fix Atom Last Release CUI", "Fix VPT and Terminologies",
         "Fix Atom Suppressible and Obsolete",
-        "Initialize Source Atom Id Range App",
-        "Remove Deprecated Termgroups",
-        "Change null treeposition Relas to blank"));
+        "Initialize Source Atom Id Range App", "Remove Deprecated Termgroups",
+        "Change null treeposition Relas to blank",
+        "Create XR Relationships for cluster"));
     params.add(param);
 
     return params;
