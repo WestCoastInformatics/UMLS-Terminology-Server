@@ -241,8 +241,6 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       initializeSourceAtomIdRanges();
     } else if (actionName.equals("Remove Deprecated Termgroups")) {
       removeOldTermgroups();
-    } else if (actionName.equals("Create XR Relationships for cluster")) {
-      createXRRelationshipsForCluster();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -3592,190 +3590,6 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   }
 
-  private void createXRRelationshipsForCluster() throws Exception {
-    // 01/29/2020 User requested ability to programmatically create XR
-    // relationships between all concepts in a cluster.
-    logInfo(" Create XR Relationships For Cluster");
-
-    int relationshipsCreated = 0;
-
-    // TEST VARIABLES
-    final String worklistName = "wrk19b_ambig_no_rel_default_003";
-    final Long clusterId = 197L;
-
-    // REAL VARIABLES
-    // final String worklistName = "wrk19b_ambig_no_rel_default_004";
-    // final Long clusterId = 33L;
-
-    try {
-
-      // Find the specified worklist
-      PfsParameter pfs = new PfsParameterJpa();
-      pfs.setQueryRestriction(worklistName);
-      WorklistList worklistList =
-          this.findWorklists(this.getProject(), null, pfs);
-
-      // There can be only one
-      if (worklistList.getTotalCount() != 1) {
-        throw new Exception("Expecting a single worklist, but search returned "
-            + worklistList.getTotalCount());
-      }
-
-      Worklist worklist = worklistList.getObjects().get(0);
-
-      logInfo("[CreateXRRelationshipsForCluster] Worklist loaded: "
-          + worklist.getName());
-
-      // Get the specified cluster
-      List<TrackingRecord> trackingRecords = worklist.getTrackingRecords();
-
-      TrackingRecord trackingRecord = null;
-      for (TrackingRecord record : trackingRecords) {
-        if (record.getClusterId().equals(clusterId)) {
-          trackingRecord = record;
-          break;
-        }
-      }
-
-      // Throw error if null tracking record
-      if (trackingRecord == null) {
-        throw new Exception("No tracking record found for worklist="
-            + worklist.getName() + " and cluster=" + clusterId);
-      }
-
-      // Get NCIMTH concepts for tracking record's atoms
-      Query query = getEntityManager()
-          .createQuery("select c.id from ConceptJpa c join c.atoms a "
-              + "where c.terminology=:projectTerminology and c.version=:projectVersion and a.id in (:atomIds)");
-      query.setParameter("projectTerminology", getProject().getTerminology());
-      query.setParameter("projectVersion", getProject().getVersion());
-      query.setParameter("atomIds", trackingRecord.getComponentIds());
-
-      Set<Concept> concepts = new HashSet<>();
-
-      List<Object> results = query.getResultList();
-      for (final Object result : results) {
-        final Concept concept =
-            this.getConcept(Long.valueOf(result.toString()));
-        concepts.add(concept);
-      }
-
-      // Throw error if concepts empty
-      if (concepts.size() == 0) {
-        throw new Exception(
-            "No NCIMTH concepts associated with this tracking record.");
-      }
-
-      // Set the number of steps to the number of possible pairs (n * (n-1))
-      setSteps(concepts.size() * (concepts.size() - 1));
-
-      // Create XR relationships between all the NCIMTH concepts, IFF there
-      // isn't already a relationship between them.
-      for (Concept fromConcept : concepts) {
-        for (Concept toConcept : concepts) {
-          // Don't create self-referential relationships
-          if (fromConcept.getId().equals(toConcept.getId())) {
-            continue;
-          }
-          
-          // Refresh to and from concepts (they may have been modified by a
-          // previous step, and the actions need accurate lastModified
-          // time-stamps)
-          fromConcept = getConcept(fromConcept.getId());
-          toConcept = getConcept(toConcept.getId());          
-          
-          // Don't create XR relationships if a concept-relationship already
-          // exists
-          boolean relAlreadyExists = false;
-          for (ConceptRelationship relationship : fromConcept
-              .getRelationships()) {
-            if (relationship.getTo().getId().equals(toConcept.getId())) {
-              relAlreadyExists = true;
-              break;
-            }
-          }
-          if (relAlreadyExists) {
-            updateProgress();
-            continue;
-          }
-
-          // Instantiate services
-          final AddRelationshipMolecularAction action =
-              new AddRelationshipMolecularAction();
-          ConceptRelationship relationship = new ConceptRelationshipJpa();
-          try {
-
-            // XR relationships are unpublishable
-            relationship.setPublished(false);
-            relationship.setPublishable(false);
-            relationship
-                .setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-
-            relationship.setTerminology("NCIMTH");
-            relationship.setVersion("latest");
-            relationship.setFrom(fromConcept);
-            relationship.setTo(toConcept);
-            relationship.setRelationshipType("XR");
-            relationship.setAdditionalRelationshipType("");
-            relationship.setTerminologyId("");
-
-            // Set defaults for a concept level relationship
-            relationship.setStated(true);
-            relationship.setInferred(true);
-            relationship.setSuppressible(false);
-            relationship.setObsolete(false);
-            relationship.setGroup("");
-
-            // Configure the action
-            action.setProject(getProject());
-            action.setActivityId("createXRRelationshipsForCluster");
-            action.setConceptId(relationship.getFrom().getId());
-            action.setConceptId2(relationship.getTo().getId());
-            action.setLastModifiedBy("admin");
-            action.setLastModified(
-                relationship.getFrom().getLastModified().getTime());
-            action.setOverrideWarnings(true);
-            action.setTransactionPerOperation(false);
-            action.setMolecularActionFlag(true);
-            action.setChangeStatusFlag(true);
-
-            action.setRelationship(relationship);
-
-            // Perform the action
-            final ValidationResult validationResult =
-                action.performMolecularAction(action, "admin", true, false);
-
-            // If the action failed, bail out now.
-            if (!validationResult.isValid()) {
-              logError("Unexpected problem - " + validationResult);
-            }
-
-            // Otherwise, increment the successful add-atom count
-            relationshipsCreated++;
-
-          } catch (Exception e) {
-            e.printStackTrace();
-            fail("Unexpected exception thrown - please review stack trace.");
-          } finally {
-            action.close();
-          }
-
-          updateProgress();
-          commitClearBegin();
-        }
-      }
-
-    } catch (Exception e) {
-      e.printStackTrace();
-      fail("Unexpected exception thrown - please review stack trace.");
-    } finally {
-      // n/a
-    }
-
-    logInfo("Created " + relationshipsCreated + " XR relationships.");
-    logInfo("Finished " + getName());
-  }
-
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -3835,8 +3649,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Fix Atom Last Release CUI", "Fix VPT and Terminologies",
         "Fix Atom Suppressible and Obsolete",
         "Initialize Source Atom Id Range App", "Remove Deprecated Termgroups",
-        "Change null treeposition Relas to blank",
-        "Create XR Relationships for cluster"));
+        "Change null treeposition Relas to blank"));
     params.add(param);
 
     return params;
