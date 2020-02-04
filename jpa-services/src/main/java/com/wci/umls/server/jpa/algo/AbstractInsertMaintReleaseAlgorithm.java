@@ -1659,6 +1659,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     return version;
   }
 
+
+  
   /**
    * Log warning to console and the database.
    *
@@ -1666,7 +1668,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    * @param warningGroup the warning group
    * @throws Exception the exception
    */
-  public void logWarn(String message, String warningGroup) throws Exception {
+  public void logWarn(String message, String warningGroup, String indent) throws Exception {
     // Initialize or increment warning count for this particular warning group
     if (!warningCounts.containsKey(warningGroup)) {
       warningCounts.put(warningGroup, 0);
@@ -1677,13 +1679,13 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     // If we have fired less than 100 of this type of warning, send the warning
     // as-is
     if (warningCounts.get(warningGroup) <= 100) {
-      logWarn(message);
+      logWarn(message, indent);
     }
     // If we have fired 100 of this type of warning, send a message that we
     // won't be firing any more of this type
     else if (warningCounts.get(warningGroup) == 101) {
       logWarn("Limit of 100 " + warningGroup
-          + " warnings has been reached. No further warnings will be displayed in the log.");
+          + " warnings has been reached. No further warnings will be displayed in the log.", indent);
     } else {
       // Otherwise do nothing
     }

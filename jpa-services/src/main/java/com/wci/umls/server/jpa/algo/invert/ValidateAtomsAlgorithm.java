@@ -477,7 +477,7 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
     for (int index = 0; index < testCases.size(); index++) {
       TestCase tc = testCases.get(index);
       if (tc.getErrorCt() == 0) {
-        logInfo("PASSED: " + tc.getShortName() + " " + tc.getName());
+        logInfo("  PASSED: " + tc.getShortName() + " " + tc.getName());
       }
     }
     
@@ -486,33 +486,33 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
     if (result.getWarnings().size() > 0) {
       logInfo("");
       logInfo("WARNINGS");
-      logInfo("");
       List<String> sortedWarnings = new ArrayList<>(result.getWarnings());
       Collections.sort(sortedWarnings);
       for (String warning : sortedWarnings) {
-        String currentTestCase = warning.substring(0, 8);
+        String currentTestCase = warning.substring(0, warning.indexOf(":"));
         if (!currentTestCase.equals(prevTestCase)) {
-          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1, currentTestCase.indexOf(":")));
+          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1));
+          logInfo("");
           logInfo(currentTestCase + " warning count: " + testCases.get(index - 1).getErrorCt() + " : " + testCases.get(index - 1).getFailureMsg());
         }
         prevTestCase = currentTestCase;
-        logInfo(warning);
+        logWarn(warning, "", "  ");
       }
     }
     if (result.getErrors().size() > 0) {
       logInfo("");
       logInfo("ERRORS");
-      logInfo("");
       List<String> sortedErrors = new ArrayList<>(result.getErrors());
       Collections.sort(sortedErrors);
       for (String error : sortedErrors) {
-        String currentTestCase = error.substring(0, 9);
+        String currentTestCase = error.substring(0, error.indexOf(':'));
         if (!currentTestCase.equals(prevTestCase)) {
-          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1, currentTestCase.indexOf(":")));
-          logInfo(currentTestCase + " error count: " + testCases.get(index - 1).getErrorCt());
+          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1));
+          logInfo("");
+          logInfo(currentTestCase + " error count: " + testCases.get(index - 1).getErrorCt() + " : " + testCases.get(index - 1).getFailureMsg());
         }
         prevTestCase = currentTestCase;
-        logError(error);
+        logError(error, "  ");
       }
       throw new Exception(this.getName() + " Failed");
     }
@@ -547,58 +547,58 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
           Arrays.asList(String.valueOf(p.getProperty("checkNames")).split(";"));
     }
     testCases = new ArrayList<>();
-    testCases.add(new TestCase("#ATOMS_1",
+    testCases.add(new TestCase("ATOMS_1",
         "check each row has the correct number of fields",
         "incorrect number of fields in classes_atoms.src row"));
-    testCases.add(new TestCase("#ATOMS_2", "check first field is an integer",
+    testCases.add(new TestCase("ATOMS_2", "check first field is an integer",
         "First field in classes_atoms.src must be an integer."));
     testCases.add(
-        new TestCase("#ATOMS_3", "check last field is an integer (not in MTH)",
+        new TestCase("ATOMS_3", "check last field is an integer (not in MTH)",
             "Last field in classes_atoms.src must be an integer."));
-    testCases.add(new TestCase("#ATOMS_4",
+    testCases.add(new TestCase("ATOMS_4",
         "check for angle brackets in string field",
         "String field in classes_atoms.src should not have angle brackets."));
-    testCases.add(new TestCase("#ATOMS_5", "check for valid termgroup",
+    testCases.add(new TestCase("ATOMS_5", "check for valid termgroup",
         "Termgroup in classes_atoms.src is invalid."));
     testCases.add(
-        new TestCase("#ATOMS_6", "check for duplicate case-sensitive strings",
+        new TestCase("ATOMS_6", "check for duplicate case-sensitive strings",
             "Duplicate case-sensitive strings."));
     testCases.add(
-        new TestCase("#ATOMS_7", "check for duplicate case-insensitive strings",
+        new TestCase("ATOMS_7", "check for duplicate case-insensitive strings",
             "Duplicate case-insensitive strings."));
-    testCases.add(new TestCase("#ATOMS_8",
+    testCases.add(new TestCase("ATOMS_8",
         "check code must be equal to SCUI, SDUI or SAUI unless all of them are null",
         "Code must be equal to SAUI, SCUI or SDUI."));
-    testCases.add(new TestCase("#ATOMS_9", "check for valid sources",
+    testCases.add(new TestCase("ATOMS_9", "check for valid sources",
         "Source must be listed in sources.src"));
-    testCases.add(new TestCase("#ATOMS_10",
+    testCases.add(new TestCase("ATOMS_10",
         "check for valid codes on SRC/VAB and SRC/VPT atoms",
         "Code field must be a valid source for SRC/VPT and SRC/VAB rows"));
     testCases
-        .add(new TestCase("#ATOMS_11", "check for valid names on SRC/VAB atoms",
+        .add(new TestCase("ATOMS_11", "check for valid names on SRC/VAB atoms",
             "Name field must be a valid source for SRC/VAB rows"));
     testCases
-        .add(new TestCase("#ATOMS_12", "check for valid names on SRC/RAB atoms",
+        .add(new TestCase("ATOMS_12", "check for valid names on SRC/RAB atoms",
             "Name field must be a valid source for SRC/RAB rows"));
-    testCases.add(new TestCase("#ATOMS_13",
+    testCases.add(new TestCase("ATOMS_13",
         "check for valid codes on SRC/RAB and SRC/RPT atoms",
         "Code field must be a valid source for SRC/RPT and SRC/RAB rows"));
-    testCases.add(new TestCase("#ATOMS_14", "check for duplicate SRC/VAB codes",
+    testCases.add(new TestCase("ATOMS_14", "check for duplicate SRC/VAB codes",
         "Duplicate SRC/VAB codes"));
-    testCases.add(new TestCase("#ATOMS_15", "check for duplicate SRC/RAB codes",
+    testCases.add(new TestCase("ATOMS_15", "check for duplicate SRC/RAB codes",
         "Duplicate SRC/RAB codes"));
-    testCases.add(new TestCase("#ATOMS_16", "check for non-unique AUI fields",
+    testCases.add(new TestCase("ATOMS_16", "check for non-unique AUI fields",
         "Duplicate AUI fields"));
     testCases.add(
-        new TestCase("#ATOMS_17", "check if the LAT matches sources.src file",
+        new TestCase("ATOMS_17", "check if the LAT matches sources.src file",
             "Lat field must match language of the source"));
-    testCases.add(new TestCase("#ATOMS_18",
+    testCases.add(new TestCase("ATOMS_18",
         "check suppressibility of atom matches expected from termgroups.src file",
         "Atom suppressibility must match termgroup suppressibility"));
     testCases
-        .add(new TestCase("#ATOMS_19", "check for XML chars in string field",
+        .add(new TestCase("ATOMS_19", "check for XML chars in string field",
             "String contains an XML character"));
-    testCases.add(new TestCase("#ATOMS_20",
+    testCases.add(new TestCase("ATOMS_20",
         "check all VPT atoms have STY of Intellectual Property",
         "All VPT atoms have STY of Intellectual Property"));
   }
