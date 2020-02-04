@@ -514,6 +514,8 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
         prevTestCase = currentTestCase;
         logError(error, "  ");
       }
+
+      logInfo("");
       throw new Exception(this.getName() + " Failed");
     }
 

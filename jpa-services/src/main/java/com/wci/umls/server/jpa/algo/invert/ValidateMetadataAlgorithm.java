@@ -39,16 +39,13 @@ public class ValidateMetadataAlgorithm extends AbstractInsertMaintReleaseAlgorit
   /** The check names. */
   private List<String> checkNames;
   
-  /**  The max test cases. */
-  private int maxTestCases = 50;
+  /**  The test cases. */
+  private List<TestCase> testCases;
   
   /**  The validation checks. */
   private List<String> validationChecks;
   
-  /** Monitor the number of errors already logged for each of the test cases */
-  private Integer[] errorTallies = new Integer[maxTestCases];
-  
-  
+
   /**
    * Instantiates an empty {@link ValidateMetadataAlgorithm}.
    * @throws Exception if anything goes wrong
@@ -173,43 +170,39 @@ public class ValidateMetadataAlgorithm extends AbstractInsertMaintReleaseAlgorit
       if (checkNames.contains("#META_1")) {
         if (fields.length != 4) {
           if (underErrorTallyThreashold("#META_1")) {
-            result.addError(
-              "META_1: incorrect number of fields in MRDOC.RRF row: "
-                  + fileLine);
+            result.addError("META_1:" + fileLine);
           }
         }
       }
-      
+
       // check invalid type for dockey
       if (checkNames.contains("#META_2")) {
         if ((fields[2].equals("tty_class") && !fields[0].equals("TTY"))
-          || (fields[2].equals("rela_inverse") && !fields[0].equals("RELA"))) {
+            || (fields[2].equals("rela_inverse")
+                && !fields[0].equals("RELA"))) {
 
           if (underErrorTallyThreashold("#META_2")) {
-            result.addError(
-              "META_2: invalid type for dockey in MRDOC.RRF: "
-                  + fileLine);
+            result.addError("META_2:" + fileLine);
           }
         }
       }
 
       // check duplicate dockey and expl
       if (checkNames.contains("#META_3")) {
-        if (!fields[0].equals("TTY")){
-          if (uniqueFields
-              .contains(fields[0] + "|" + fields[1] + "|" + fields[2] + "|"
-                  + fields[3])) {
+        if (!fields[0].equals("TTY")) {
+          if (uniqueFields.contains(fields[0] + "|" + fields[1] + "|"
+              + fields[2] + "|" + fields[3])) {
             if (underErrorTallyThreashold("#META_3")) {
-              result.addError("META_3: Duplicate dockey and expl fields in MRDOC.RRF: " + fields[0] + "|" + fields[1] + "|" + fields[2] + "|"
-                + fields[3]);
+              result.addError("META_3:" + fields[0] + "|" + fields[1] + "|"
+                  + fields[2] + "|" + fields[3]);
             }
           } else {
             uniqueFields.add(fields[0] + "|" + fields[1] + "|" + fields[2] + "|"
                 + fields[3]);
           }
         }
-      }   
-      
+      }
+
       // check invalid null values
       if (checkNames.contains("#META_4")) {
         if (fields[1].equals("")) {
@@ -220,137 +213,134 @@ public class ValidateMetadataAlgorithm extends AbstractInsertMaintReleaseAlgorit
               // allowed for null rela - so ignore
             } else {
               if (underErrorTallyThreashold("#META_4")) {
-                result.addError(
-                  "META_4: Invalid null values in MRDOC.RRF: " + fields[0] + "|"
-                      + fields[1] + "|" + fields[2] + "|" + fields[3]);
+                result.addError("META_4:" + fields[0] + "|" + fields[1] + "|"
+                    + fields[2] + "|" + fields[3]);
               }
             }
           } else {
             if (underErrorTallyThreashold("#META_4")) {
-              result.addError(
-                "META_4: Invalid null values in MRDOC.RRF: " + fields[0] + "|"
-                    + fields[1] + "|" + fields[2] + "|" + fields[3]);
+              result.addError("META_4:" + fields[0] + "|" + fields[1] + "|"
+                  + fields[2] + "|" + fields[3]);
             }
           }
         }
-        
+
       }
     }
     in.close();
-    
+
     // read in file termgroups.src
     in = new BufferedReader(new FileReader(
         new File(srcFullPath + File.separator + "termgroups.src")));
     fileLine = "";
 
-    
     // do field and line checks
     // initialize caches
     while ((fileLine = in.readLine()) != null) {
 
       String[] fields = FieldedStringTokenizer.split(fileLine, "|");
-      
+
       // check each row has the correct number of fields
       if (checkNames.contains("#META_6")) {
         if (fields.length != 6) {
           if (underErrorTallyThreashold("#META_6")) {
-            result.addError(
-              "META_6: incorrect number of fields in termgroups.src row: "
-                  + fileLine);
+            result.addError("META_6:" + fileLine);
           }
         }
       }
-      
+
       // check tty in each line must be present in the termgroup
       if (checkNames.contains("#META_7")) {
-          if (!fields[0].endsWith("/" + fields[5])) {
-            if (underErrorTallyThreashold("#META_7")) {
-              result.addError("META_7: tty must be present in the termgroup in termgroups.src: " + fields[0] + "|" + fields[5]);
-            }
-          } 
-      }   
-         
+        if (!fields[0].endsWith("/" + fields[5])) {
+          if (underErrorTallyThreashold("#META_7")) {
+            result.addError("META_7:" + fields[0] + "|" + fields[5]);
+          }
+        }
+      }
+
     }
     in.close();
-    
-    
+
     // read in file mergefacts.src
     in = new BufferedReader(new FileReader(
         new File(srcFullPath + File.separator + "mergefacts.src")));
     fileLine = "";
 
-    
     // do field and line checks
     // initialize caches
     while ((fileLine = in.readLine()) != null) {
 
       String[] fields = FieldedStringTokenizer.split(fileLine, "|");
-      
+
       // check each row has the correct number of fields
       if (checkNames.contains("#META_8")) {
         if (fields.length != 12) {
           if (underErrorTallyThreashold("#META_8")) {
-            result.addError(
-              "META_8: incorrect number of fields in mergefacts.src row: "
-                  + fileLine);
+            result.addError("META_8:" + fileLine);
           }
         }
       }
-      
+
       // check self referential mergefacts
       if (checkNames.contains("#META_9")) {
-         if (fields[0].equals(fields[2]) && fields[8].equals(fields[10]) && fields[9].equals(fields[11])) {
+        if (fields[0].equals(fields[2]) && fields[8].equals(fields[10])
+            && fields[9].equals(fields[11])) {
 
-           if (underErrorTallyThreashold("#META_9")) {
-             result.addError("META_9: self referential mergefacts in mergefacts.src row: "
-               + fileLine);
-           }
-         }
-      }   
-         
+          if (underErrorTallyThreashold("#META_9")) {
+            result.addError("META_9:" + fileLine);
+          }
+        }
+      }
+
     }
     in.close();
     
+    logInfo("");
     logInfo("QA REPORT");
     logInfo("");
-    for (int index = 1; index <= validationChecks.size(); index++) {
-      Integer tally = errorTallies[index];
-      if (tally == null) {
-        logInfo("PASSED: META_" + (index + 1));
+    for (int index = 0; index < testCases.size(); index++) {
+      TestCase tc = testCases.get(index);
+      if (tc.getErrorCt() == 0) {
+        logInfo("  PASSED: " + tc.getShortName() + " " + tc.getName());
       }
     }
-    
     
     String prevTestCase = "";
     // print warnings and errors to log
     if (result.getWarnings().size() > 0) {
+      logInfo("");
+      logInfo("WARNINGS");
       List<String> sortedWarnings = new ArrayList<>(result.getWarnings());
       Collections.sort(sortedWarnings);
       for (String warning : sortedWarnings) {
-        String currentTestCase = warning.substring(0, 8);
+        String currentTestCase = warning.substring(0, warning.indexOf(":"));
         if (!currentTestCase.equals(prevTestCase)) {
-          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1, currentTestCase.indexOf(":")));
-          logInfo(currentTestCase + " warning count: " + errorTallies[index]);
+          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1));
+          logInfo("");
+          logInfo(currentTestCase + " warning count: " + testCases.get(index - 1).getErrorCt() + " : " + testCases.get(index - 1).getFailureMsg());
         }
         prevTestCase = currentTestCase;
-        logInfo(warning);
+        logWarn(warning, "", "  ");
       }
     }
     if (result.getErrors().size() > 0) {
+      logInfo("");
+      logInfo("ERRORS");
       List<String> sortedErrors = new ArrayList<>(result.getErrors());
       Collections.sort(sortedErrors);
       for (String error : sortedErrors) {
-        String currentTestCase = error.substring(0, 8);
+        String currentTestCase = error.substring(0, error.indexOf(':'));
         if (!currentTestCase.equals(prevTestCase)) {
-          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1, currentTestCase.indexOf(":")));
-          logInfo(currentTestCase + " error count: " + errorTallies[index]);
+          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1));
+          logInfo("");
+          logInfo(currentTestCase + " error count: " + testCases.get(index - 1).getErrorCt() + " : " + testCases.get(index - 1).getFailureMsg());
         }
         prevTestCase = currentTestCase;
-        logError(error);
+        logError(error, "  ");
       }
+      logInfo("");
       throw new Exception(this.getName() + " Failed");
     }
-
 
     logInfo("Finished " + getName());
   }
@@ -381,6 +371,33 @@ public class ValidateMetadataAlgorithm extends AbstractInsertMaintReleaseAlgorit
       checkNames =
           Arrays.asList(String.valueOf(p.getProperty("checkNames")).split(";"));
     }
+    testCases = new ArrayList<>();
+    testCases.add(new TestCase("META_1",
+        "check each row has the correct number of fields",
+        "incorrect number of fields in MRDOC.RRF row"));
+    testCases.add(new TestCase("META_2",
+        "check invalid type for dockey",
+        "invalid type for dockey in MRDOC.RRF"));
+    testCases.add(new TestCase("META_3",
+        "check duplicate dockey and expl",
+        "Duplicate dockey and expl fields in MRDOC.RRF"));
+    testCases.add(new TestCase("META_4",
+        "check invalid null values",
+        "Invalid null values in MRDOC.RRF"));
+    
+    testCases.add(new TestCase("META_6",
+        "check each row has the correct number of fields",
+        "incorrect number of fields in termgroups.src row"));
+    testCases.add(new TestCase("META_7",
+        "check tty in each line must be present in the termgroup",
+        "tty must be present in the termgroup in termgroups.src"));
+    testCases.add(new TestCase("META_8",
+        "check each row has the correct number of fields",
+        "incorrect number of fields in mergefacts.src row"));
+    testCases.add(new TestCase("META_9",
+        "check self referential mergefacts",
+        "self referential mergefacts in mergefacts.src row"));
+
   }
 
   /* see superclass */
@@ -403,7 +420,6 @@ public class ValidateMetadataAlgorithm extends AbstractInsertMaintReleaseAlgorit
     validationChecks.add("#META_7");
     validationChecks.add("#META_8");
     validationChecks.add("#META_9");
-    validationChecks.add("#META_10");
     
     Collections.sort(validationChecks);
     param.setPossibleValues(validationChecks);
@@ -416,13 +432,14 @@ public class ValidateMetadataAlgorithm extends AbstractInsertMaintReleaseAlgorit
   // check if the number of errors logged for each test case is greater or less than 10
   private boolean underErrorTallyThreashold(String testName) {
     int index = Integer.parseInt(testName.substring(testName.indexOf("_") + 1));
-    Integer value = errorTallies[index];
-    if (value == null) {
+    TestCase l_case = testCases.get(index -1 );
+    int value = l_case.getErrorCt();
+    if (value == 0) {
       value = 1;
     } else {
       value = value + 1;
     }
-    errorTallies[index] = value;
+    l_case.setErrorCt(value);
     return value <= 10;
   }
   

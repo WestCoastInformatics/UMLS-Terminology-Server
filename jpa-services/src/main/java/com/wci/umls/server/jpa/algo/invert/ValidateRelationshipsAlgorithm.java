@@ -40,15 +40,12 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
   /** The check names. */
   private List<String> checkNames;
    
-  /**  The max test cases. */
-  private int maxTestCases = 50;
+  /**  The test cases. */
+  private List<TestCase> testCases;
   
   /**  The validation checks. */
   private List<String> validationChecks;
-  
-  /** Monitor the number of errors already logged for each of the test cases */
-  private Integer[] errorTallies = new Integer[maxTestCases];
-  
+ 
   /**
    * Instantiates an empty {@link ValidateRelationshipsAlgorithm}.
    * @throws Exception if anything goes wrong
@@ -143,13 +140,14 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
   // check if the number of errors logged for each test case is greater or less than 10
   private boolean underErrorTallyThreashold(String testName) {
     int index = Integer.parseInt(testName.substring(testName.indexOf("_") + 1));
-    Integer value = errorTallies[index];
-    if (value == null) {
+    TestCase l_case = testCases.get(index -1 );
+    int value = l_case.getErrorCt();
+    if (value == 0) {
       value = 1;
     } else {
       value = value + 1;
     }
-    errorTallies[index] = value;
+    l_case.setErrorCt(value);
     return value <= 10;
   }
 
@@ -247,9 +245,7 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
       if (checkNames.contains("#RELS_1")) {
         if (fields.length != 18) {
           if (underErrorTallyThreashold("#RELS_1")) {
-            result.addError(
-              "RELS_1: incorrect number of fields in relationships.src row: "
-                  + fileLine);
+            result.addError("RELS_1:" + fileLine);
           }
         }
       }
@@ -258,71 +254,59 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
       if (checkNames.contains("#RELS_2")) {
         if (!fields[6].equals(fields[7])) {
           if (underErrorTallyThreashold("#RELS_2")) {
-            result.addError(
-              "RELS_2: VSAB not equal to the source of label : "
-                  + fields[6] + " : " + fields[7]);
+            result.addError("RELS_2:" + fields[6] + " : " + fields[7]);
           }
         }
       }
-      
+
       // check self-referential relationships
       if (checkNames.contains("#RELS_3")) {
-        if (fields[2].equals(fields[5]) && fields[12].equals(fields[14]) && fields[13].equals(fields[15])) {
+        if (fields[2].equals(fields[5]) && fields[12].equals(fields[14])
+            && fields[13].equals(fields[15])) {
           if (underErrorTallyThreashold("#RELS_3")) {
-            result.addError(
-              "RELS_3: check self-referential relationships : "
-                  + fileLine);
+            result.addError("RELS_3:" + fileLine);
           }
         }
       }
-      
+
       // check conflicting rel/rela
       if (checkNames.contains("#RELS_4")) {
-        //String pat3 = "^(associated_with|consists_of|constitutes|contains|contained_in|ingredient_of|has_ingredient)$";
-        //String pat3b = "^(conceptual_part_of|form_of|isa|part_of|tradname_of)$";
-        //String pat3c = "^(has_conceptual_part|has_form|inverse_isa|has_part|has_tradname)$";
+        // String pat3 =
+        // "^(associated_with|consists_of|constitutes|contains|contained_in|ingredient_of|has_ingredient)$";
+        // String pat3b =
+        // "^(conceptual_part_of|form_of|isa|part_of|tradname_of)$";
+        // String pat3c =
+        // "^(has_conceptual_part|has_form|inverse_isa|has_part|has_tradname)$";
 
-        if (!fields[3].equals("RT") && (fields[4].equals("associated_with") || 
-            fields[4].equals("consists_of") ||
-            fields[4].equals("constitutes") ||
-            fields[4].equals("contains") ||
-            fields[4].equals("contained_in") ||
-            fields[4].equals("ingredient_of") ||
-            fields[4].equals("has_ingredient")
-            )) {
-          if (underErrorTallyThreashold("#RELS_4")) {           
-            result.addError(
-              "RELS_4: conflicting rel/rela RT : "
-                  + fields[3] + ":" + fields[4]);           
+        if (!fields[3].equals("RT") && (fields[4].equals("associated_with")
+            || fields[4].equals("consists_of")
+            || fields[4].equals("constitutes") || fields[4].equals("contains")
+            || fields[4].equals("contained_in")
+            || fields[4].equals("ingredient_of")
+            || fields[4].equals("has_ingredient"))) {
+          if (underErrorTallyThreashold("#RELS_4")) {
+            result.addError("RELS_4:" + fields[3] + ":" + fields[4]);
           }
         }
-        if (!fields[3].equals("NT") && (fields[4].equals("conceptual_part_of") || 
-            fields[4].equals("form_of") ||
-            fields[4].equals("isa") ||
-            fields[4].equals("part_of") ||
-            fields[4].equals("tradename_of")
-            )) {
-          if (underErrorTallyThreashold("#RELS_4")) {           
-            result.addError(
-              "RELS_4: conflicting rel/rela NT : "
-                  + fields[3] + ":" + fields[4]);           
-          } 
-        }
-        if (!fields[3].equals("BT") && (fields[4].equals("has_conceptual_part") || 
-            fields[4].equals("has_form") ||
-            fields[4].equals("inverse_isa") ||
-            fields[4].equals("has_part") ||
-            fields[4].equals("has_tradename")
-            )) {
-          if (underErrorTallyThreashold("#RELS_4")) {           
-            result.addError(
-              "RELS_4: conflicting rel/rela BT : "
-                  + fields[3] + ":" + fields[4]);           
+        if (!fields[3].equals("NT") && (fields[4].equals("conceptual_part_of")
+            || fields[4].equals("form_of") || fields[4].equals("isa")
+            || fields[4].equals("part_of")
+            || fields[4].equals("tradename_of"))) {
+          if (underErrorTallyThreashold("#RELS_4")) {
+            result.addError("RELS_4:" + fields[3] + ":" + fields[4]);
           }
         }
-        
+        if (!fields[3].equals("BT") && (fields[4].equals("has_conceptual_part")
+            || fields[4].equals("has_form") || fields[4].equals("inverse_isa")
+            || fields[4].equals("has_part")
+            || fields[4].equals("has_tradename"))) {
+          if (underErrorTallyThreashold("#RELS_4")) {
+            result.addError("RELS_4:" + fields[3] + ":" + fields[4]);
+          }
+        }
+
       }
-      
+
       // check rui fields are unique
       if (checkNames.contains("#RELS_5")) {
 
@@ -337,71 +321,77 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
         String id_qualifier_2 = fields[15];
         String source_rui = fields[16];
         String relationship_group = fields[17];
-        
-        if (uniqueRuiFields
-            .contains(id_1 + "|" + relationship_name + "|" + relationship_attribute + "|"
-                + id_2 + "|" + source + "|" + source_of_label + "|" + id_qualifier_1 + "|"
-                + id_type_2 + "|" + id_qualifier_2 + "|" + source_rui + "|" + relationship_group)) {
-          if (underErrorTallyThreashold("#RELS_5")) {           
-            result.addError("RELS_5: Duplicate RUI fields: " + id_1 + "|" + relationship_name + "|" + relationship_attribute + "|"
-              + id_2 + "|" + source + "|" + source_of_label + "|" + id_qualifier_1 + "|"
-              + id_type_2 + "|" + id_qualifier_2 + "|" + source_rui + "|" + relationship_group);
+
+        if (uniqueRuiFields.contains(id_1 + "|" + relationship_name + "|"
+            + relationship_attribute + "|" + id_2 + "|" + source + "|"
+            + source_of_label + "|" + id_qualifier_1 + "|" + id_type_2 + "|"
+            + id_qualifier_2 + "|" + source_rui + "|" + relationship_group)) {
+          if (underErrorTallyThreashold("#RELS_5")) {
+            result.addError("RELS_5:" + id_1 + "|" + relationship_name + "|"
+                + relationship_attribute + "|" + id_2 + "|" + source + "|"
+                + source_of_label + "|" + id_qualifier_1 + "|" + id_type_2 + "|"
+                + id_qualifier_2 + "|" + source_rui + "|" + relationship_group);
           }
         } else {
-          uniqueRuiFields.add(id_1 + "|" + relationship_name + "|" + relationship_attribute + "|"
-              + id_2 + "|" + source + "|" + source_of_label + "|" + id_qualifier_1 + "|"
-              + id_type_2 + "|" + id_qualifier_2 + "|" + source_rui + "|" + relationship_group);
+          uniqueRuiFields.add(id_1 + "|" + relationship_name + "|"
+              + relationship_attribute + "|" + id_2 + "|" + source + "|"
+              + source_of_label + "|" + id_qualifier_1 + "|" + id_type_2 + "|"
+              + id_qualifier_2 + "|" + source_rui + "|" + relationship_group);
         }
       }
-      
+
       // check SFO/LFO not connected to any atom
-     /* if ($IL[4] eq 'SFO/LFO'
-          && ($IL[13] !~ /$pat5/ || $IL[15] !~ /$pat5/)
-          my $pat5 = qr{^(ROOT_SOURCE_AUI|SOURCE_AUI|SRC_ATOM_ID)$};*/
+      /*
+       * if ($IL[4] eq 'SFO/LFO' && ($IL[13] !~ /$pat5/ || $IL[15] !~ /$pat5/)
+       * my $pat5 = qr{^(ROOT_SOURCE_AUI|SOURCE_AUI|SRC_ATOM_ID)$};
+       */
       if (checkNames.contains("#RELS_6")) {
 
-        if (fields[3].equals("SFO/LFO") && ((!fields[12].equals("ROOT_SOURCE_AUI") && 
-            !fields[12].equals("SOURCE_AUI") &&
-            !fields[12].equals("SRC_ATOM_ID")
-            ) ||
-            (!fields[14].equals("ROOT_SOURCE_AUI") && 
-                !fields[14].equals("SOURCE_AUI") &&
-                !fields[14].equals("SRC_ATOM_ID")
-                ))) {
-          if (underErrorTallyThreashold("#RELS_6")) {           
-            
+        if (fields[3].equals("SFO/LFO")
+            && ((!fields[12].equals("ROOT_SOURCE_AUI")
+                && !fields[12].equals("SOURCE_AUI")
+                && !fields[12].equals("SRC_ATOM_ID"))
+                || (!fields[14].equals("ROOT_SOURCE_AUI")
+                    && !fields[14].equals("SOURCE_AUI") && !fields[14]
+                        .equals("SRC_ATOM_ID")))) {
+          if (underErrorTallyThreashold("#RELS_6")) {
+
             result.addError(
-              "RELS_6: SFO/LFO not connected to any atom : "
-                  + fields[3] + ":" + fields[12] + ":" + fields[14]);   
+                "RELS_6:" + fields[3] + ":" + fields[12] + ":" + fields[14]);
           }
         }
       }
-      
+
       // check inv sgs for translation_of and version rel
-      /*      if ($IL[5] =~ /$pat8/ && $IL[7] eq 'SRC'
-          && ($IL[13] ne 'CODE_SOURCE' || $IL[15] ne 'CODE_SOURCE'
-              || $IL[14] ne 'SRC' || $IL[16] ne 'SRC')
-          my $pat8 = qr{^(translation_of|version_of)$};*/
+      /*
+       * if ($IL[5] =~ /$pat8/ && $IL[7] eq 'SRC' && ($IL[13] ne 'CODE_SOURCE'
+       * || $IL[15] ne 'CODE_SOURCE' || $IL[14] ne 'SRC' || $IL[16] ne 'SRC') my
+       * $pat8 = qr{^(translation_of|version_of)$};
+       */
       if (checkNames.contains("#RELS_7")) {
 
-        if ((fields[4].equals("translation_of") || fields[4].equals("version_of")) &&
-            fields[6].equals("SRC") && (!fields[12].equals("CODE_SOURCE") || !fields[14].equals("CODE_SOURCE")
-                || !fields[13].equals("SRC") || !fields[15].equals("SRC"))){
-          if (underErrorTallyThreashold("#RELS_7")) {                       
-            result.addError("RELS_7: inv sgs for translation_of and version rel : "
-              + fields[4] + ":" + fields[12] + ":" + fields[13] + ":" + fields[14]);
+        if ((fields[4].equals("translation_of")
+            || fields[4].equals("version_of"))
+            && fields[6].equals("SRC")
+            && (!fields[12].equals("CODE_SOURCE")
+                || !fields[14].equals("CODE_SOURCE")
+                || !fields[13].equals("SRC") || !fields[15].equals("SRC"))) {
+          if (underErrorTallyThreashold("#RELS_7")) {
+            result.addError("RELS_7:" + fields[4] + ":" + fields[12] + ":"
+                + fields[13] + ":" + fields[14]);
           }
         }
       }
-      
+
       // check for non unique sruis
-      /*if ("$IL[17]" !~ /^~DA/) {
-        if (defined($unqSRuis{"$IL[17]"})) {*/
+      /*
+       * if ("$IL[17]" !~ /^~DA/) { if (defined($unqSRuis{"$IL[17]"})) {
+       */
       if (checkNames.contains("#RELS_8")) {
         if (!fields[16].startsWith("~DA") && !fields[16].equals("")) {
           if (uniqueSruis.contains(fields[16])) {
-            if (underErrorTallyThreashold("#RELS_8")) {                        
-              result.addError("RELS_8: non-unique sruis: " + fields[16]);
+            if (underErrorTallyThreashold("#RELS_8")) {
+              result.addError("RELS_8:" + fields[16]);
             }
           } else {
             uniqueSruis.add(fields[16]);
@@ -411,18 +401,19 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
 
       // check if RELA is in MRDOC.RRF file
       if (checkNames.contains("#RELS_9")) {
-        if (!fields[4].equals("") &&  !relas.contains(fields[4])) {
-          if (underErrorTallyThreashold("#RELS_9")) {                       
-            result.addError("RELS_9: RELA is not in the MRDOC.RRF file: " + fields[4]);
+        if (!fields[4].equals("") && !relas.contains(fields[4])) {
+          if (underErrorTallyThreashold("#RELS_9")) {
+            result.addError("RELS_9:" + fields[4]);
           }
         }
-      }  
-      
+      }
+
       // check if VSAB is not in sources.src file
       if (checkNames.contains("#RELS_10")) {
-        if (!fields[6].equals("SRC") && !sourcesToLatMap.containsKey(fields[6])) {
-          if (underErrorTallyThreashold("#RELS_10")) {                      
-            result.addError("RELS_10: VSAB is not in the sources.src file: " + fields[6]);
+        if (!fields[6].equals("SRC")
+            && !sourcesToLatMap.containsKey(fields[6])) {
+          if (underErrorTallyThreashold("#RELS_10")) {
+            result.addError("RELS_10:" + fields[6]);
           }
         }
       }
@@ -432,45 +423,52 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
     }
     in.close();
     
+    logInfo("");
     logInfo("QA REPORT");
     logInfo("");
-    for (int index = 1; index <= validationChecks.size(); index++) {
-      Integer tally = errorTallies[index];
-      if (tally == null) {
-        logInfo("PASSED: RELS_" + (index));
+    for (int index = 0; index < testCases.size(); index++) {
+      TestCase tc = testCases.get(index);
+      if (tc.getErrorCt() == 0) {
+        logInfo("  PASSED: " + tc.getShortName() + " " + tc.getName());
       }
     }
     
     String prevTestCase = "";
     // print warnings and errors to log
     if (result.getWarnings().size() > 0) {
+      logInfo("");
+      logInfo("WARNINGS");
       List<String> sortedWarnings = new ArrayList<>(result.getWarnings());
       Collections.sort(sortedWarnings);
       for (String warning : sortedWarnings) {
-        String currentTestCase = warning.substring(0, 8);
+        String currentTestCase = warning.substring(0, warning.indexOf(":"));
         if (!currentTestCase.equals(prevTestCase)) {
-          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1, currentTestCase.indexOf(":")));
-          logInfo(currentTestCase + " warning count: " + errorTallies[index]);
+          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1));
+          logInfo("");
+          logInfo(currentTestCase + " warning count: " + testCases.get(index - 1).getErrorCt() + " : " + testCases.get(index - 1).getFailureMsg());
         }
         prevTestCase = currentTestCase;
-        logInfo(warning);
+        logWarn(warning, "", "  ");
       }
     }
     if (result.getErrors().size() > 0) {
+      logInfo("");
+      logInfo("ERRORS");
       List<String> sortedErrors = new ArrayList<>(result.getErrors());
       Collections.sort(sortedErrors);
       for (String error : sortedErrors) {
-        String currentTestCase = error.substring(0, 8);
+        String currentTestCase = error.substring(0, error.indexOf(':'));
         if (!currentTestCase.equals(prevTestCase)) {
-          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1, currentTestCase.indexOf(":")));
-          logInfo(currentTestCase + " error count: " + errorTallies[index]);
+          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1));
+          logInfo("");
+          logInfo(currentTestCase + " error count: " + testCases.get(index - 1).getErrorCt() + " : " + testCases.get(index - 1).getFailureMsg());
         }
         prevTestCase = currentTestCase;
-        logError(error);
+        logError(error, "  ");
       }
+      logInfo("");
       throw new Exception(this.getName() + " Failed");
     }
-
 
     logInfo("Finished " + getName());
   }
@@ -501,6 +499,38 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
       checkNames =
           Arrays.asList(String.valueOf(p.getProperty("checkNames")).split(";"));
     }
+    testCases = new ArrayList<>();
+    testCases.add(new TestCase("RELS_1",
+        "check each row has the correct number of fields",
+        "incorrect number of fields in relationships.src row"));
+    testCases.add(new TestCase("RELS_2",
+        "check VSAB equals the source of label",
+        "VSAB not equal to the source of label"));
+    testCases.add(new TestCase("RELS_3",
+        "check self-referential relationships",
+        "self-referential relationship"));
+    testCases.add(new TestCase("RELS_4",
+        "check conflicting rel/rela",
+        "conflicting rel/rela"));
+    testCases.add(new TestCase("RELS_5",
+        "check rui fields are unique",
+        "Duplicate RUI fields"));
+    testCases.add(new TestCase("RELS_6",
+        "check SFO/LFO not connected to any atom",
+        "SFO/LFO not connected to any atom"));
+    testCases.add(new TestCase("RELS_7",
+        "check inv sgs for translation_of and version rel",
+        "inv sgs for translation_of and version rel"));
+    testCases.add(new TestCase("RELS_8",
+        "check for non unique sruis",
+        "non-unique sruis"));
+    testCases.add(new TestCase("RELS_9",
+        "check if RELA is in MRDOC.RRF file",
+        "RELA is not in the MRDOC.RRF file"));
+    testCases.add(new TestCase("RELS_10",
+        "check if VSAB is not in sources.src file",
+        "VSAB is not in the sources.src file"));
+ 
   }
 
   /* see superclass */

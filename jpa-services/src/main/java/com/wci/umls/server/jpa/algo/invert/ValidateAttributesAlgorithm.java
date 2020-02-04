@@ -42,15 +42,13 @@ public class ValidateAttributesAlgorithm
 
   /** The check names. */
   private List<String> checkNames;
-  
-  /**  The max test cases. */
-  private int maxTestCases = 50;
-  
+ 
   /**  The validation checks. */
   private List<String> validationChecks;
   
-  /** Monitor the number of errors already logged for each of the test cases */
-  private Integer[] errorTallies = new Integer[maxTestCases];
+  /**  The test cases. */
+  private List<TestCase> testCases;
+  
   
   // 0 source_attribute_id
   // 1 sg_id
@@ -216,9 +214,7 @@ public class ValidateAttributesAlgorithm
       if (checkNames.contains("#ATTRS_1")) {
         if (fields.length != 14) {
           if (underErrorTallyThreashold("#ATTRS_1")) {
-            result.addError(
-              "ATTRS_1: incorrect number of fields in attributes.src row: "
-                  + fileLine);
+            result.addError("ATTRS_1:" + fileLine);
           }
         }
       }
@@ -229,8 +225,7 @@ public class ValidateAttributesAlgorithm
         String pattern = ".*[&#][a-zA-Z0-9]+;.*";
         if (Pattern.matches(pattern, str)) {
           if (underErrorTallyThreashold("#ATTRS_2")) {
-            result.addWarning(
-              "ATTRS_2: String contains an XML character: " + fields[4]);
+            result.addWarning("ATTRS_2:" + fields[4]);
           }
         }
       }
@@ -240,38 +235,37 @@ public class ValidateAttributesAlgorithm
         String status = fields[6];
         if (status.equals("N") && !fields[3].equals("SEMANTIC_TYPE")) {
           if (underErrorTallyThreashold("#ATTRS_3")) {
-            result.addError("ATTRS_3: S level attributes cannot have 'N' status: "
-              + fields[3] + ":" + fields[6]);
+            result.addError("ATTRS_3:" + fields[3] + ":" + fields[6]);
           }
         }
       }
 
       // check for non-unique AUI fields
       if (checkNames.contains("#ATTRS_4")) {
-        
+
         // source|attribute_name|source_atui|sg_id|sg_type_1|sg_qualifier_1|hashcode
-        if (uniqueAtuiFields
-            .contains(fields[5] + "|" + fields[3] + "|" + fields[12] + "|"
-                + fields[1] + "|" + fields[10] + "|" + fields[11] + "|" + fields[13])) {
+        if (uniqueAtuiFields.contains(
+            fields[5] + "|" + fields[3] + "|" + fields[12] + "|" + fields[1]
+                + "|" + fields[10] + "|" + fields[11] + "|" + fields[13])) {
           if (underErrorTallyThreashold("#ATTRS_4")) {
-            result.addError("ATTRS_4: Duplicate ATUI fields: " + fields[5] + "|"
-              + fields[3] + "|" + fields[12] + "|" + fields[1] + "|"
-              + fields[10] + "|" + fields[11] + "|" + fields[13]);
+            result.addError("ATTRS_4:" + fields[5] + "|" + fields[3] + "|"
+                + fields[12] + "|" + fields[1] + "|" + fields[10] + "|"
+                + fields[11] + "|" + fields[13]);
           }
         } else {
-          uniqueAtuiFields.add(fields[5] + "|" + fields[3] + "|" + fields[12]
-              + "|" + fields[1] + "|" + fields[10] + "|" + fields[11] + "|" + fields[13]);
+          uniqueAtuiFields.add(
+              fields[5] + "|" + fields[3] + "|" + fields[12] + "|" + fields[1]
+                  + "|" + fields[10] + "|" + fields[11] + "|" + fields[13]);
         }
       }
-      
+
       // check source should be like E-* for non SRC stys.
       if (checkNames.contains("#ATTRS_5")) {
-        if (!fields[1].equals("SRC") && !fields[5].equals("SRC") && fields[3].equals("SEMANTIC_TYPE")) {
+        if (!fields[1].equals("SRC") && !fields[5].equals("SRC")
+            && fields[3].equals("SEMANTIC_TYPE")) {
           if (!fields[5].startsWith("E-")) {
             if (underErrorTallyThreashold("#ATTRS_5")) {
-              result.addError(
-                "ATTRS_5: Source should be like E-* for non SRC stys: "
-                    + fields[5]);
+              result.addError("ATTRS_5:" + fields[5]);
             }
           }
         }
@@ -281,8 +275,7 @@ public class ValidateAttributesAlgorithm
       if (checkNames.contains("#ATTRS_6")) {
         if (!fields[12].isEmpty()) {
           if (underErrorTallyThreashold("#ATTRS_6")) {
-            result
-              .addWarning("ATTRS_6: Source ATUI should be null: " + fields[12]);
+            result.addWarning("ATTRS_6:" + fields[12]);
           }
         }
       }
@@ -293,19 +286,17 @@ public class ValidateAttributesAlgorithm
         String checkedString = str.replaceAll("\\s+", " ");
         if (!str.trim().equals(str) || !checkedString.equals(str)) {
           if (underErrorTallyThreashold("#ATTRS_7")) {
-            result.addError(
-              "ATTRS_7: String has leading, trailing or duplicate white space: "
-                  + fields[4]);
+            result.addError("ATTRS_7:" + fields[4]);
           }
         }
       }
-      
+
       // check if STY attribute value is in semantic_type table
       if (checkNames.contains("#ATTRS_8")) {
         String atv = fields[4];
-        
-        final Query query = manager
-            .createQuery("select a.expandedForm from SemanticTypeJpa a "
+
+        final Query query =
+            manager.createQuery("select a.expandedForm from SemanticTypeJpa a "
                 + "where a.terminology = :terminology "
                 + "  and a.version = :version");
         query.setParameter("terminology", getProcess().getTerminology());
@@ -316,92 +307,103 @@ public class ValidateAttributesAlgorithm
         for (Object entry : list) {
           validStys.add(entry.toString());
         }
-        
-        if (fields[3].equals("SEMANTIC_TYPE") &&  !validStys.contains(atv)) {
+
+        if (fields[3].equals("SEMANTIC_TYPE") && !validStys.contains(atv)) {
 
           if (underErrorTallyThreashold("#ATTRS_8")) {
-            result.addError(
-              "ATTRS_8: STY attribute value is not in semantic_type table: "
-                  + atv);
+            result.addError("ATTRS_8:" + atv);
           }
         }
-      }   
-      
+      }
+
       // check if STY attribute value is in semantic_type table
       if (checkNames.contains("#ATTRS_9")) {
         String sgType = fields[10];
         if (sgType.equals("SOURCE_CUI")) {
           if (!scuis.contains(fields[1])) {
             if (underErrorTallyThreashold("#ATTRS_9")) {
-              result.addError(
-                  "ATTRS_9: SgType indicates SOURCE_CUI, but sg_id is not in that classes_atoms field: "
-                      + fields[1]);
-            }
-          }
-        } else if (sgType.equals("SOURCE_AUI")) {
-          if (!sauis.contains(fields[1])) {
-            if (underErrorTallyThreashold("#ATTRS_9")) {
-              result.addError(
-                  "ATTRS_9: SgType indicates SOURCE_AUI, but sg_id is not in that classes_atoms field: "
-                      + fields[1]);
-            }
-          }
-        } else if (sgType.equals("SOURCE_DUI")) {
-          if (!sduis.contains(fields[1])) {
-            if (underErrorTallyThreashold("#ATTRS_9")) {
-              result.addError(
-                  "ATTRS_9: SgType indicates SOURCE_DUI, but sg_id is not in that classes_atoms field: "
-                      + fields[1]);
+              result.addError("ATTRS_9:" + fields[1]);
             }
           }
         }
-
       }
+
+      // check if STY attribute value is in semantic_type table
+      if (checkNames.contains("#ATTRS_10")) {
+        String sgType = fields[10];
+        if (sgType.equals("SOURCE_AUI")) {
+          if (!scuis.contains(fields[1])) {
+            if (underErrorTallyThreashold("#ATTRS_10")) {
+              result.addError("ATTRS_10:" + fields[1]);
+            }
+          }
+        }
+      }
+
+      // check if STY attribute value is in semantic_type table
+      if (checkNames.contains("#ATTRS_11")) {
+        String sgType = fields[10];
+        if (sgType.equals("SOURCE_DUI")) {
+          if (!scuis.contains(fields[1])) {
+            if (underErrorTallyThreashold("#ATTRS_11")) {
+              result.addError("ATTRS_11:" + fields[1]);
+            }
+          }
+        }
+      }
+
       // Update the progress
       updateProgress();
     }
 
     in.close();
-    
+
+    logInfo("");
     logInfo("QA REPORT");
     logInfo("");
-    for (int index = 1; index <= validationChecks.size(); index++) {
-      Integer tally = errorTallies[index];
-      if (tally == null) {
-        logInfo("PASSED: ATTRS_" + (index));
+    for (int index = 0; index < testCases.size(); index++) {
+      TestCase tc = testCases.get(index);
+      if (tc.getErrorCt() == 0) {
+        logInfo("  PASSED: " + tc.getShortName() + " " + tc.getName());
       }
     }
-
+    
     String prevTestCase = "";
     // print warnings and errors to log
     if (result.getWarnings().size() > 0) {
+      logInfo("");
+      logInfo("WARNINGS");
       List<String> sortedWarnings = new ArrayList<>(result.getWarnings());
       Collections.sort(sortedWarnings);
       for (String warning : sortedWarnings) {
-        String currentTestCase = warning.substring(0, 9);
+        String currentTestCase = warning.substring(0, warning.indexOf(":"));
         if (!currentTestCase.equals(prevTestCase)) {
-          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1, currentTestCase.indexOf(":")));
-          logInfo(currentTestCase + " warning count: " + errorTallies[index]);
+          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1));
+          logInfo("");
+          logInfo(currentTestCase + " warning count: " + testCases.get(index - 1).getErrorCt() + " : " + testCases.get(index - 1).getFailureMsg());
         }
         prevTestCase = currentTestCase;
-        logInfo(warning);
+        logWarn(warning, "", "  ");
       }
     }
     if (result.getErrors().size() > 0) {
+      logInfo("");
+      logInfo("ERRORS");
       List<String> sortedErrors = new ArrayList<>(result.getErrors());
       Collections.sort(sortedErrors);
       for (String error : sortedErrors) {
-        String currentTestCase = error.substring(0, 9);
+        String currentTestCase = error.substring(0, error.indexOf(':'));
         if (!currentTestCase.equals(prevTestCase)) {
-          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1, currentTestCase.indexOf(":")));
-          logInfo(currentTestCase + " error count: " + errorTallies[index]);
+          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1));
+          logInfo("");
+          logInfo(currentTestCase + " error count: " + testCases.get(index - 1).getErrorCt() + " : " + testCases.get(index - 1).getFailureMsg());
         }
         prevTestCase = currentTestCase;
-        logError(error);
+        logError(error, "  ");
       }
+      logInfo("");
       throw new Exception(this.getName() + " Failed");
     }
-
 
     logInfo("Finished " + getName());
   }
@@ -432,6 +434,40 @@ public class ValidateAttributesAlgorithm
       checkNames =
           Arrays.asList(String.valueOf(p.getProperty("checkNames")).split(";"));
     }
+    testCases = new ArrayList<>();
+    testCases.add(new TestCase("ATTRS_1",
+        "check each row has the correct number of fields",
+        "incorrect number of fields in attributes.src row"));
+    testCases.add(new TestCase("ATTRS_2",
+        "check for XML chars in string field",
+        "String contains an XML character"));
+    testCases.add(new TestCase("ATTRS_3",
+        "check S level attributes cannot have 'N' status",
+        "S level attributes cannot have 'N' status"));
+    testCases.add(new TestCase("ATTRS_4",
+        "check for non-unique AUI fields",
+        "Duplicate ATUI fields"));
+    testCases.add(new TestCase("ATTRS_5",
+        "check source should be like E-* for non SRC stys.",
+        "Source should be like E-* for non SRC stys"));
+    testCases.add(new TestCase("ATTRS_6",
+        "check SATUI should be null",
+        "Source ATUI should be null"));
+    testCases.add(new TestCase("ATTRS_7",
+        "check for leading, trailing and duplicate white space in attributes",
+        "String has leading, trailing or duplicate white space"));
+    testCases.add(new TestCase("ATTRS_8",
+        "check if STY attribute value is in semantic_type table",
+        "STY attribute value is not in semantic_type table"));
+    testCases.add(new TestCase("ATTRS_9",
+        "check if STY attribute value is in semantic_type table",
+        "SgType indicates SOURCE_CUI, but sg_id is not in that classes_atoms field"));
+    testCases.add(new TestCase("ATTRS_10",
+        "check if STY attribute value is in semantic_type table",
+        "SgType indicates SOURCE_AUI, but sg_id is not in that classes_atoms field"));
+    testCases.add(new TestCase("ATTRS_11",
+        "check if STY attribute value is in semantic_type table",
+        "SgType indicates SOURCE_DUI, but sg_id is not in that classes_atoms field"));
   }
 
   /* see superclass */
@@ -455,6 +491,7 @@ public class ValidateAttributesAlgorithm
     validationChecks.add("#ATTRS_8");
     validationChecks.add("#ATTRS_9");
     validationChecks.add("#ATTRS_10");
+    validationChecks.add("#ATTRS_11");
 
     Collections.sort(validationChecks);
     param.setPossibleValues(validationChecks);
@@ -467,13 +504,14 @@ public class ValidateAttributesAlgorithm
   // check if the number of errors logged for each test case is greater or less than 10
   private boolean underErrorTallyThreashold(String testName) {
     int index = Integer.parseInt(testName.substring(testName.indexOf("_") + 1));
-    Integer value = errorTallies[index];
-    if (value == null) {
+    TestCase l_case = testCases.get(index -1 );
+    int value = l_case.getErrorCt();
+    if (value == 0) {
       value = 1;
     } else {
       value = value + 1;
     }
-    errorTallies[index] = value;
+    l_case.setErrorCt(value);
     return value <= 10;
   }
   

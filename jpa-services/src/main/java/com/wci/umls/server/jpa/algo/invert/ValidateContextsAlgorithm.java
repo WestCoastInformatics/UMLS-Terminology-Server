@@ -61,16 +61,13 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
   /** The check names. */
   private List<String> checkNames;
   
-  /**  The max test cases. */
-  private int maxTestCases = 50;
-  
   /**  The validation checks. */
   private List<String> validationChecks;
   
-  /** Monitor the number of errors already logged for each of the test cases */
-  private Integer[] errorTallies = new Integer[maxTestCases];
+  /**  The test cases. */
+  private List<TestCase> testCases;
   
-  
+
   /**
    * Instantiates an empty {@link ValidateAttributesAlgorithm}.
    * @throws Exception if anything goes wrong
@@ -242,7 +239,7 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
         if (fields.length != 17 && fields.length != 18) {
           if (underErrorTallyThreashold("#CXTS_1")) {
             result.addError(
-              "CXTS_1: incorrect number of fields in contexts.src row: "
+              "CXTS_1:"
                   + fileLine);
           }
         }
@@ -252,7 +249,7 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
       if (checkNames.contains("#CXTS_2")) {
         if (fields[1].equals("PAR") && fields[7].equals("")) {
           if (underErrorTallyThreashold("#CXTS_2")) {
-            result.addError("CXTS_2: PAR with null PTR in contexts.src: " + fields[1] + fields[7]);
+            result.addError("CXTS_2:" + fields[1] + fields[7]);
           }
         }
       }
@@ -266,7 +263,7 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
         )) {
           if (underErrorTallyThreashold("#CXTS_3")) {
             result.addError(
-              "CXTS_3: Non unique RUI fields in contexts.src: " + fileLine);
+              "CXTS_3:" + fileLine);
           }
         } else {
           uniqueFields.add(
@@ -282,7 +279,7 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
         if (fields[1].equals("SIB") && !fields[4].equals("UWDA") && !fields[2].equals("")) {
           if (underErrorTallyThreashold("#CXTS_4")) {
             result.addError(
-              "CXTS_4: SIB rel with non-null RELA in contexts.src: " + fileLine);
+              "CXTS_4:" + fileLine);
           }
         }
       }
@@ -292,7 +289,7 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
         if (!fields[4].equals(fields[5])) {
           if (underErrorTallyThreashold("#CXTS_5")) {
             result.addError(
-              "CXTS_5: VSAB not equal to source of label in contexts.src: " + fields[4] + "|" + fields[5]);
+              "CXTS_5:" + fields[4] + "|" + fields[5]);
           }
         }
       }  
@@ -301,7 +298,7 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
       if (checkNames.contains("#CXTS_6")) {
         if (fields[1].equals("PAR") && !fields[7].contains(fields[3])) {
           if (underErrorTallyThreashold("#CXTS_6")) {
-            result.addError("CXTS_6: Parent mismatch for: " + fields[3] + "|" + fields[7]);
+            result.addError("CXTS_6:" + fields[3] + "|" + fields[7]);
           }
         }
       }
@@ -312,7 +309,7 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
         Collections.addAll(nodeSet, nodes);
         if (nodeSet.size() != nodes.length) {
           if (underErrorTallyThreashold("#CXTS_7")) {
-            result.addError("CXTS_7: Cycle in parent treepos: " + fields[7]);
+            result.addError("CXTS_7:" + fields[7]);
           }
         }
         // skip checking the first node since the root node is not always in classes_atoms.src
@@ -320,7 +317,7 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
           String node = nodes[index];
           if (!sauis.contains(node)) {
             if (underErrorTallyThreashold("#CXTS_7")) {
-              result.addError("CXTS_7: Invalid node in parent treepos: " + node
+              result.addError("CXTS_7:" + node
                   + ":" + fields[7]);
             }
           }
@@ -333,7 +330,7 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
         if (fields[12].equals("SRC_ATOM_ID")) {
           if (!fields[0].equals(fields[11])) {
             if (underErrorTallyThreashold("#CXTS_8")) {
-              result.addError("CXTS_8: SRC_ATOM_ID_1 not equal to SGID_1: " + fields[0]
+              result.addError("CXTS_8:" + fields[0]
                 + ":" + fields[11]);
             }
           }
@@ -347,7 +344,7 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
         if (fields[15].equals("SRC_ATOM_ID")) {
           if (!fields[3].equals(fields[14])) {
             if (underErrorTallyThreashold("#CXTS_9")) {
-              result.addError("CXTS_9: SRC_ATOM_ID_2 not equal to SGID_2: " + fields[3]
+              result.addError("CXTS_9:" + fields[3]
                 + ":" + fields[14]);
             }
           }
@@ -358,7 +355,7 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
       if (checkNames.contains("#CXTS_10")) {
         if (!sourcesToLatMap.containsKey(fields[4])) {
           if (underErrorTallyThreashold("#CXTS_10")) {
-            result.addError("CXTS_10: VSAB is not in the sources.src file: " + fields[4]);
+            result.addError("CXTS_10:" + fields[4]);
           }
         }
       }
@@ -367,7 +364,7 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
       if (checkNames.contains("#CXTS_11")) {
         if (!fields[2].equals("") && !fields[2].equals("isa") && !relas.contains(fields[2])) {
           if (underErrorTallyThreashold("#CXTS_11")) {
-            result.addError("CXTS_11: RELA is not in the MRDOC.RRF file: " + fields[2]);
+            result.addError("CXTS_11:" + fields[2]);
           }
         }
       }    
@@ -377,46 +374,53 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
     }
     in.close();
     
+    logInfo("");
     logInfo("QA REPORT");
     logInfo("");
-    for (int index = 1; index <= validationChecks.size(); index++) {
-      Integer tally = errorTallies[index];
-      if (tally == null) {
-        logInfo("PASSED: CXTS_" + (index));
+    for (int index = 0; index < testCases.size(); index++) {
+      TestCase tc = testCases.get(index);
+      if (tc.getErrorCt() == 0) {
+        logInfo("  PASSED: " + tc.getShortName() + " " + tc.getName());
       }
     }
-    
     
     String prevTestCase = "";
     // print warnings and errors to log
     if (result.getWarnings().size() > 0) {
+      logInfo("");
+      logInfo("WARNINGS");
       List<String> sortedWarnings = new ArrayList<>(result.getWarnings());
       Collections.sort(sortedWarnings);
       for (String warning : sortedWarnings) {
-        String currentTestCase = warning.substring(0, 8);
+        String currentTestCase = warning.substring(0, warning.indexOf(":"));
         if (!currentTestCase.equals(prevTestCase)) {
-          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1, currentTestCase.indexOf(":")));
-          logInfo(currentTestCase + " warning count: " + errorTallies[index]);
+          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1));
+          logInfo("");
+          logInfo(currentTestCase + " warning count: " + testCases.get(index - 1).getErrorCt() + " : " + testCases.get(index - 1).getFailureMsg());
         }
         prevTestCase = currentTestCase;
-        logInfo(warning);
+        logWarn(warning, "", "  ");
       }
     }
     if (result.getErrors().size() > 0) {
+      logInfo("");
+      logInfo("ERRORS");
       List<String> sortedErrors = new ArrayList<>(result.getErrors());
       Collections.sort(sortedErrors);
       for (String error : sortedErrors) {
-        String currentTestCase = error.substring(0, 8);
+        String currentTestCase = error.substring(0, error.indexOf(':'));
         if (!currentTestCase.equals(prevTestCase)) {
-          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1, currentTestCase.indexOf(":")));
-          logInfo(currentTestCase + " error count: " + errorTallies[index]);
+          int index = Integer.parseInt(currentTestCase.substring(currentTestCase.indexOf("_") + 1));
+          logInfo("");
+          logInfo(currentTestCase + " error count: " + testCases.get(index - 1).getErrorCt() + " : " + testCases.get(index - 1).getFailureMsg());
         }
         prevTestCase = currentTestCase;
-        logError(error);
+        logError(error, "  ");
       }
+
+      logInfo("");
       throw new Exception(this.getName() + " Failed");
     }
-
 
     logInfo("Finished " + getName());
   }
@@ -447,6 +451,41 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
       checkNames =
           Arrays.asList(String.valueOf(p.getProperty("checkNames")).split(";"));
     }
+    testCases = new ArrayList<>();
+    testCases.add(new TestCase("CXTS_1",
+        "check each row has the correct number of fields",
+        "incorrect number of fields in contexts.src row"));
+    testCases.add(new TestCase("CXTS_2",
+        "check for PAR with null PTR",
+        "PAR with null PTR in contexts.src"));
+    testCases.add(new TestCase("CXTS_3",
+        "check for non unique RUI fields",
+        "Non unique RUI fields in contexts.src"));
+    testCases.add(new TestCase("CXTS_4",
+        "check for SIB rel with non-null RELA (sab UWDA is an exception)",
+        "SIB rel with non-null RELA in contexts.src"));
+    testCases.add(new TestCase("CXTS_5",
+        "check VSAB ne source of label",
+        "VSAB not equal to source of label in contexts.src"));
+    testCases.add(new TestCase("CXTS_6",
+        "check context treepos subset of parent treepos",
+        "Parent mismatch for"));
+    testCases.add(new TestCase("CXTS_7",
+        "check for cycle or invalid node in parent treepos",
+        "Cycle or invalid node in parent treepos"));
+    testCases.add(new TestCase("CXTS_8",
+        "check SRC_ATOM_ID_1 not equal to SGID_1",
+        "SRC_ATOM_ID_1 not equal to SGID_1"));
+    testCases.add(new TestCase("CXTS_9",
+        "check SRC_ATOM_ID_2 not equal to SGID_2",
+        "SRC_ATOM_ID_2 not equal to SGID_2"));
+    testCases.add(new TestCase("CXTS_10",
+        "check if VSAB is not in sources.src file",
+        "VSAB is not in the sources.src file"));
+    testCases.add(new TestCase("CXTS_11",
+        "check if RELA is in MRDOC.RRF file",
+        "RELA is not in the MRDOC.RRF file"));    
+
   }
 
   /* see superclass */
@@ -471,8 +510,6 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
     validationChecks.add("#CXTS_9");
     validationChecks.add("#CXTS_10");
     validationChecks.add("#CXTS_11");
-    validationChecks.add("#CXTS_12");
-    validationChecks.add("#CXTS_13");
     
     Collections.sort(validationChecks);
     param.setPossibleValues(validationChecks);
@@ -484,13 +521,14 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
   // check if the number of errors logged for each test case is greater or less than 10
   private boolean underErrorTallyThreashold(String testName) {
     int index = Integer.parseInt(testName.substring(testName.indexOf("_") + 1));
-    Integer value = errorTallies[index];
-    if (value == null) {
+    TestCase l_case = testCases.get(index -1 );
+    int value = l_case.getErrorCt();
+    if (value == 0) {
       value = 1;
     } else {
       value = value + 1;
     }
-    errorTallies[index] = value;
+    l_case.setErrorCt(value);
     return value <= 10;
   }
   
