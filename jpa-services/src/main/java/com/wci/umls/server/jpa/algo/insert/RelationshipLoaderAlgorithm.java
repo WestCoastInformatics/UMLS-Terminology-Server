@@ -258,7 +258,7 @@ public class RelationshipLoaderAlgorithm
               getCachedTerminology(fromTermAndVersion);
           if (terminology == null) {
             logWarn("Terminology not found: " + fromTermAndVersion + ".",
-                "Relationship Loader: Terminology not found");
+                "Relationship Loader: Terminology not found", "");
             continue;
           }
 

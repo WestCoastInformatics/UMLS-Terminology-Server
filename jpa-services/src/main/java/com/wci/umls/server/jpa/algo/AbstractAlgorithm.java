@@ -115,6 +115,12 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
     Logger.getLogger(getClass()).info(message);
   }
 
+  /**
+   * Log warning to console and the database.
+   *
+   * @param message the message
+   * @throws Exception the exception
+   */
   public void logWarn(String message) throws Exception {
     logWarn(message, "");
   }
@@ -123,6 +129,7 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
    * Log warning to console and the database.
    *
    * @param message the message
+   * @param indent the indent
    * @throws Exception the exception
    */
   public void logWarn(String message, String indent) throws Exception {

@@ -193,7 +193,7 @@ public class AttributeLoaderAlgorithm
               getCachedTerminology(terminologyAndVersion);
           if (terminology == null) {
             logWarn("WARNING - terminology not found: " + terminologyAndVersion
-                + ".", "Attribute Loader: Terminology not found");
+                + ".", "Attribute Loader: Terminology not found", "");
             continue;
           }
 

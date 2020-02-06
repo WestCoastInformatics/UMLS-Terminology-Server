@@ -1454,7 +1454,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     String warningGroup) throws Exception {
     logWarn(
         warningMessage + " Could not process the following line:\n\t" + line,
-        warningGroup);
+        warningGroup, "");
     updateProgress();
   }
 
@@ -1666,6 +1666,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    *
    * @param message the message
    * @param warningGroup the warning group
+   * @param indent the indent
    * @throws Exception the exception
    */
   public void logWarn(String message, String warningGroup, String indent) throws Exception {

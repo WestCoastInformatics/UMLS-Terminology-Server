@@ -320,7 +320,7 @@ public class ValidateMetadataAlgorithm extends AbstractInsertMaintReleaseAlgorit
           logInfo(currentTestCase + " warning count: " + testCases.get(index - 1).getErrorCt() + " : " + testCases.get(index - 1).getFailureMsg());
         }
         prevTestCase = currentTestCase;
-        logWarn(warning, "", "  ");
+        logWarn(warning, "  ");
       }
     }
     if (result.getErrors().size() > 0) {
