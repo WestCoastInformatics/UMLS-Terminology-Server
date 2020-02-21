@@ -19,7 +19,6 @@ tsApp.controller('EditRelationshipModalCtrl', [
     // Scope vars
     $scope.selected = selected;
     $scope.replaceRelationship = replaceRelationship;
-    $scope.sLevelRelatedConceptIds = [];
     $scope.lists = lists;
     $scope.user = user;
     $scope.action = action;
@@ -68,19 +67,6 @@ tsApp.controller('EditRelationshipModalCtrl', [
       if ($scope.toConcepts.length == 1) {
         $scope.toConcept = $scope.toConcepts[0];
       }
-      
-      // Lookup all existing relationships from the selected concept
-      contentService.findRelationshipsForQuery($scope.selected.component, "", null).then(
-          // Success
-          function(data) {
-        	  var existingRelationships = data.relationships;
-        	  for(var i = 0; i < existingRelationships.length; i++){
-        		  if(existingRelationships[i].terminology != existingRelationships[i].fromTerminology){
-        			  $scope.sLevelRelatedConceptIds.push(existingRelationships[i].toId);
-        		  }
-        		  
-        	  }
-          });
       
       // if replacing, only keep that one relationship
       if($scope.replaceRelationship){
@@ -132,13 +118,6 @@ tsApp.controller('EditRelationshipModalCtrl', [
 
     }
 
-    $scope.existingSLevelRelationship = function existingSLevelRelationship(id){
-    	if($scope.sLevelRelatedConceptIds.includes(id)){
-    		return true;
-    	}
-    	return false;
-    }
-    
     $scope.toggleSelection = function toggleSelection(concept) {
       // is currently selected
       if ($scope.selectedToConcepts[concept.id]) {
