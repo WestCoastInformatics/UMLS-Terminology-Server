@@ -41,7 +41,8 @@
             <tr ng-repeat="concept in toConcepts">
               <td ng-click="toggleSelection(concept)">
               <input type="checkbox" title="Select/Deselect Concept"
-                    ng-checked="isRowSelected(concept)" value="{{selectedToConcepts[concept.id]}}" ></input>
+                    ng-checked="isRowSelected(concept)" value="{{selectedToConcepts[concept.id]}}" 
+                    ng-disabled="existingSLevelRelationship(concept.id)"></input>
               </td>
               <td class="col-md-2 col-xs-2">{{concept.id}}</td>
               <td class="col-md-5 col-xs-5">{{concept.name}}</td>
