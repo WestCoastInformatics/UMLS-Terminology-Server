@@ -1560,7 +1560,7 @@ public abstract class RootServiceJpa implements RootService {
     // Perform post-action maintenance on affected concept(s)
     // DO this in a separate transaction - maybe some issues with
     if (performMaintanence) {
-      action.postActionMaintenance();
+      action.postActionMaintenance(batchMode);
     }
 
     // no errors/warnings at this point.

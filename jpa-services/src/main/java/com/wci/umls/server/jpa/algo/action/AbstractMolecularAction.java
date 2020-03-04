@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2019 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.action;
 
@@ -631,9 +631,10 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
   /**
    * Post action maintenance.
    *
+   * @param batchMode the batch mode
    * @throws Exception the exception
    */
-  public void postActionMaintenance() throws Exception {
+  public void postActionMaintenance(boolean batchMode) throws Exception {
 
     final Set<Concept> concepts = new HashSet<>();
     if (getConcept() != null) {
@@ -652,8 +653,10 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     }
 
     // Start a new action that doesn't create molecular/atomic actions
-    beginTransaction();
-    setMolecularActionFlag(false);
+    if (!batchMode) {
+      beginTransaction();
+      setMolecularActionFlag(false);
+    }
 
     // Only concepts that exist and contain atoms will need to go through this
     // process
@@ -696,7 +699,10 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
         updateConcept(c);
       }
     }
-    commit();
+
+    if (!batchMode) {
+      commit();
+    }
   }
 
   /* see superclass */
