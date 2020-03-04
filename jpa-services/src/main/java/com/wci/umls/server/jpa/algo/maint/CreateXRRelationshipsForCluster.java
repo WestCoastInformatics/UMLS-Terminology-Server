@@ -24,6 +24,7 @@ import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.algo.action.AddRelationshipMolecularAction;
+import com.wci.umls.server.jpa.algo.action.UpdateConceptMolecularAction;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.content.Concept;
@@ -249,7 +250,7 @@ public class CreateXRRelationshipsForCluster
 
             // Perform the action
             final ValidationResult validationResult =
-                action.performMolecularAction(action, "admin", true, false);
+                action.performMolecularAction(action, "admin", false, false);
 
             // If the action failed, bail out now.
             if (!validationResult.isValid()) {
@@ -274,6 +275,48 @@ public class CreateXRRelationshipsForCluster
           updateProgress();
           commitClearBegin();
         }
+      }
+
+      // Perform post-action maintenance on each concept (do things this way
+      // because if post maintenance is done within add Relationships, it gets
+      // called multiple times for each concept)
+      final UpdateConceptMolecularAction action =
+          new UpdateConceptMolecularAction();
+      // Action will be performed in batch mode, so begin the transaction now.
+      action.setTransactionPerOperation(false);
+      action.beginTransaction();
+      try {
+
+        for (final Concept concept : concepts) {
+
+          final Concept rereadconcept = getConcept(concept.getId());
+
+          // Configure the conceptUpdate molecular action
+          action.setProject(getProject());
+          action.setConceptId(rereadconcept.getId());
+          action.setConceptId2(null);
+          action.setLastModifiedBy("admin");
+          action.setLastModified(rereadconcept.getLastModified().getTime());
+          action.setOverrideWarnings(true);
+          action.setTransactionPerOperation(false);
+          action.setMolecularActionFlag(true);
+          action.setChangeStatusFlag(true);
+          action.setPublishable(rereadconcept.isPublishable());
+          action.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+
+          final ValidationResult result =
+              performMolecularAction(action, getLastModifiedBy(), true, true);
+          if (!result.isValid()) {
+            throw new Exception("Invalid action - " + result);
+          }
+        }
+
+        action.commitClearBegin();
+
+      } catch (Exception e) {
+        action.rollback();
+      } finally {
+        action.close();
       }
 
     } catch (Exception e) {
