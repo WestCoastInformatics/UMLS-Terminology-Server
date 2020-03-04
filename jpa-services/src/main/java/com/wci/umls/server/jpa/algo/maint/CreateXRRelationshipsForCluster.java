@@ -6,8 +6,10 @@ package com.wci.umls.server.jpa.algo.maint;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
@@ -148,8 +150,23 @@ public class CreateXRRelationshipsForCluster
             "No NCIMTH concepts associated with this tracking record.");
       }
 
-      // Set the number of steps to the number of possible pairs (n * (n-1))
-      setSteps(concepts.size() * (concepts.size() - 1));
+      // Set the number of steps to the number of possible pairs (n * (n-1)) / 2
+      setSteps(concepts.size() * (concepts.size() - 1) / 2);
+
+      // Track which concept-pairs have already been processed, to avoid
+      // unnecessary re-work
+      final Set<String> processedConceptPairs = new HashSet<>();
+
+      // Cache which concepts are already related
+      final Map<Long, Set<Long>> existingRelationships = new HashMap<>();
+
+      for (Concept concept : concepts) {
+        existingRelationships.put(concept.getId(), new HashSet<>());
+        for (ConceptRelationship relationship : concept.getRelationships()) {
+          existingRelationships.get(concept.getId())
+              .add(relationship.getTo().getId());
+        }
+      }
 
       // Create XR relationships between all the NCIMTH concepts, IFF there
       // isn't already a relationship between them.
@@ -160,6 +177,21 @@ public class CreateXRRelationshipsForCluster
             continue;
           }
 
+          // Don't re-process concepts that have already been looked at
+          if (processedConceptPairs
+              .contains(fromConcept.getId() + "|" + toConcept.getId())
+              || processedConceptPairs
+                  .contains(toConcept.getId() + "|" + fromConcept.getId())) {
+            continue;
+          }
+
+          // Add these concepts to the already-processed list (in both
+          // directions)
+          processedConceptPairs
+              .add(fromConcept.getId() + "|" + toConcept.getId());
+          processedConceptPairs
+              .add(toConcept.getId() + "|" + fromConcept.getId());
+
           // Refresh to and from concepts (they may have been modified by a
           // previous step, and the actions need accurate lastModified
           // time-stamps)
@@ -168,15 +200,8 @@ public class CreateXRRelationshipsForCluster
 
           // Don't create XR relationships if a concept-relationship already
           // exists
-          boolean relAlreadyExists = false;
-          for (ConceptRelationship relationship : fromConcept
-              .getRelationships()) {
-            if (relationship.getTo().getId().equals(toConcept.getId())) {
-              relAlreadyExists = true;
-              break;
-            }
-          }
-          if (relAlreadyExists) {
+          if (existingRelationships.get(fromConcept.getId())
+              .contains(toConcept.getId())) {
             updateProgress();
             continue;
           }
@@ -231,8 +256,13 @@ public class CreateXRRelationshipsForCluster
               logError("Unexpected problem - " + validationResult);
             }
 
-            // Otherwise, increment the successful add-atom count
+            // Otherwise, increment the successful add-atom count, and add the
+            // concept ids to the relationship cache
             relationshipsCreated++;
+            existingRelationships.get(fromConcept.getId())
+                .add(toConcept.getId());
+            existingRelationships.get(toConcept.getId())
+                .add(fromConcept.getId());
 
           } catch (Exception e) {
             e.printStackTrace();
@@ -322,8 +352,7 @@ public class CreateXRRelationshipsForCluster
     params.add(param);
 
     param = new AlgorithmParameterJpa("Cluster Number", "clusterNumber",
-        "Cluster Number", "e.g. 37", 10, AlgorithmParameter.Type.INTEGER,
-        "50");
+        "Cluster Number", "e.g. 37", 10, AlgorithmParameter.Type.INTEGER, "50");
     params.add(param);
 
     return params;
