@@ -3226,6 +3226,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // atoms, and so some didn't have their last release CUI updated
     // (atom.getConceptTerminologyIds().get('NCIMTH'))
     // Load the 201904 MRCONSO, and update unpublishable atoms' last release CUI
+    // 3/9/2020 This is still an issue, so update AdHoc to have version be variable
 
     logInfo(" Fix atom last release CUI");
 
@@ -3234,7 +3235,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     try {
 
       logInfo(
-          "[FixAtomLastReleaseCUI] Loading the AUI/CUI map for 201904 MRCONSO");
+          "[FixAtomLastReleaseCUI] Loading the AUI/CUI map for " + getProcess().getVersion() + " MRCONSO");
 
       Map<String, String> auiCuiMap = new HashMap<>();
 
@@ -3262,7 +3263,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       }
 
       logInfo(
-          "[FixAtomLastReleaseCUI] Finsihed loading the AUI/CUI map for 201904 MRCONSO");
+          "[FixAtomLastReleaseCUI] Finsihed loading the AUI/CUI map for " + getProcess().getVersion() + " MRCONSO");
 
       Query query = getEntityManager()
           .createNativeQuery(" select id from atoms where publishable=false");
