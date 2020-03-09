@@ -142,7 +142,7 @@ public class StampingAlgorithm extends AbstractAlgorithm {
               int authorCount = worklist.getAuthors().size();
               String mostRecentAuthor =
                   worklist.getAuthors().get(authorCount - 1);
-              action.setLastModifiedBy("E-" + mostRecentAuthor);
+              action.setLastModifiedBy("S-" + mostRecentAuthor);
             }
             action.setLastModified(concept.getLastModified().getTime());
             action.setOverrideWarnings(true);
