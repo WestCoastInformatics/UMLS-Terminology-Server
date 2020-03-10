@@ -239,6 +239,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       initializeSourceAtomIdRanges();
     } else if (actionName.equals("Remove Deprecated Termgroups")) {
       removeOldTermgroups();
+    } else if (actionName.equals("Fix overlapping bequeathal rels")) {
+      fixOverlappingBRORels();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -3659,7 +3661,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Fix Atom Last Release CUI", "Fix VPT and Terminologies",
         "Fix Atom Suppressible and Obsolete",
         "Initialize Source Atom Id Range App", "Remove Deprecated Termgroups",
-        "Change null treeposition Relas to blank"));
+        "Change null treeposition Relas to blank",
+        "Fix overlapping bequeathal rels"));
     params.add(param);
 
     return params;
@@ -3752,6 +3755,91 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     // Add the checklist
     final Checklist newChecklist = addChecklist(checklist);
+  }
+
+  private void fixOverlappingBRORels() throws Exception {
+    // 3/10/2020 - BRO relationships were created on top of existing C-level
+    // relationships.
+    // If the old relationship was already a bequeathal rel (BRN, BRB), remove
+    // the BRO relationship
+    // If the old relationships was not a bequeathal rel (RO, RN, RB), remove
+    // the old relationship
+
+    logInfo(" Fix Overlapping BRO Relationships");
+
+    Query query = getEntityManager().createNativeQuery(
+        "select r.to_id conceptId1, r.from_id conceptId2 from concept_relationships r where terminology = 'NCIMTH' group by r.to_id, r.from_id having count(*)>1");
+    
+    logInfo("[FixOverlappingBRORelationships] Loading "
+        + "Concept id pairs that have overlapping BRO relationships between them");
+
+    List<Object[]> results = query.getResultList();
+    setSteps(results.size());
+    logInfo("[FixOverlappingBRORelationships] " + results.size()
+        + " Concept id pairs loaded");
+
+    for (final Object[] entry : results) {
+
+      final Concept fromConcept =
+          getConcept(Long.parseLong(entry[0].toString()));
+      final Concept toConcept = getConcept(Long.parseLong(entry[1].toString()));
+
+      // Find the overlapping relationships between the two concepts
+      final List<ConceptRelationship> overlappingRelationships =
+          new ArrayList<>();
+
+      for (ConceptRelationship relationship : fromConcept.getRelationships()) {
+        if (relationship.getTo().getId().equals(toConcept.getId())) {
+          overlappingRelationships.add(relationship);
+        }
+      }
+
+      if (overlappingRelationships.size() < 2) {
+        throw new Exception(
+            "Unexpectedly unable to find multiple relationships between concepts "
+                + fromConcept.getId() + ", and " + toConcept.getId());
+      }
+
+      // This fix assumes exactly 2 relationships between concepts. Any more,
+      // and it will need to be handled separately.
+      if (overlappingRelationships.size() > 2) {
+        updateProgress();
+        continue;
+      }
+
+      // Identify which was the original relationship, and which is the new
+      // relationship
+      ConceptRelationship originalRelationship = null;
+      ConceptRelationship newRelationship = null;
+
+      if (overlappingRelationships.get(0).getTimestamp()
+          .before(overlappingRelationships.get(1).getTimestamp())) {
+        originalRelationship = overlappingRelationships.get(0);
+        newRelationship = overlappingRelationships.get(1);
+      } else {
+        originalRelationship = overlappingRelationships.get(1);
+        newRelationship = overlappingRelationships.get(0);
+      }
+
+      // If the original relationship was a bequeathal relationship, remove the
+      // new relationship
+      if (originalRelationship.getRelationshipType().startsWith("B")) {
+        fromConcept.getRelationships().remove(newRelationship);
+        updateConcept(fromConcept);
+        removeRelationship(newRelationship.getId(), newRelationship.getClass());
+      } else {
+        // Otherwise, remove the original relationship
+        fromConcept.getRelationships().remove(originalRelationship);
+        updateConcept(fromConcept);
+        removeRelationship(originalRelationship.getId(),
+            originalRelationship.getClass());
+      }
+
+      updateProgress();
+    }
+
+    logInfo("Finished " + getName());
+
   }
 
 }
