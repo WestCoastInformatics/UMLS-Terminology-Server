@@ -168,10 +168,10 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
           msg.append("    " + result).append("\r\n");
         }
         if (errors.get(key).size() > 9) {
-          msg.append("    ... ");
+          msg.append("    ... ").append("\r\n");
           // the true count is not known because setMaxResults(10) is used.
         }
-
+        msg.append("\r\n");
       }
       logInfo("  SEND EMAIL");
       
