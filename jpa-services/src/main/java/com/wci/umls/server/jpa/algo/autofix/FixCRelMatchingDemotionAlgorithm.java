@@ -101,8 +101,8 @@ public class FixCRelMatchingDemotionAlgorithm
       final Set<String> processedAtomPairs = new HashSet<>();
 
       for (final Object[] entry : results) {
-        final Long fromAtomId = (Long) entry[0];
-        final Long toAtomId = (Long) entry[1];
+        final Long fromAtomId = Long.parseLong(entry[0].toString());
+        final Long toAtomId = Long.parseLong(entry[1].toString());
 
         if (processedAtomPairs.contains(fromAtomId + "|" + toAtomId)) {
           updateProgress();
