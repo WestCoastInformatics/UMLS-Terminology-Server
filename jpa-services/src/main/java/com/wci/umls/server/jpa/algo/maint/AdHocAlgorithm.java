@@ -35,13 +35,11 @@ import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.QueryType;
-import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.algo.action.AddAtomMolecularAction;
-import com.wci.umls.server.jpa.algo.action.AddRelationshipMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddSemanticTypeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RedoMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RemoveSemanticTypeMolecularAction;
@@ -3226,7 +3224,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // atoms, and so some didn't have their last release CUI updated
     // (atom.getConceptTerminologyIds().get('NCIMTH'))
     // Load the 201904 MRCONSO, and update unpublishable atoms' last release CUI
-    // 3/9/2020 This is still an issue, so update AdHoc to have version be variable
+    // 3/9/2020 This is still an issue, so update AdHoc to have version be
+    // variable
 
     logInfo(" Fix atom last release CUI");
 
@@ -3234,8 +3233,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     try {
 
-      logInfo(
-          "[FixAtomLastReleaseCUI] Loading the AUI/CUI map for " + getProcess().getVersion() + " MRCONSO");
+      logInfo("[FixAtomLastReleaseCUI] Loading the AUI/CUI map for "
+          + getProcess().getVersion() + " MRCONSO");
 
       Map<String, String> auiCuiMap = new HashMap<>();
 
@@ -3262,8 +3261,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       }
 
-      logInfo(
-          "[FixAtomLastReleaseCUI] Finsihed loading the AUI/CUI map for " + getProcess().getVersion() + " MRCONSO");
+      logInfo("[FixAtomLastReleaseCUI] Finsihed loading the AUI/CUI map for "
+          + getProcess().getVersion() + " MRCONSO");
 
       Query query = getEntityManager()
           .createNativeQuery(" select id from atoms where publishable=false");
@@ -3291,6 +3290,16 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             && atom.getTermType().equals("PN")
             && !ConfigUtility.isEmpty(atom.getConceptTerminologyIds()
                 .get(getProject().getTerminology()))) {
+          atom.getConceptTerminologyIds().remove(getProject().getTerminology());
+          updateAtom(atom);
+          updatedAtomCount++;
+        }
+        // Additional edge case: PDQ_2016_07_31 to NCI_YYYY_MM mapping atoms
+        // were unpublishable for the last release, but didn't have their
+        // lastReleaseCUI cleared out by ProdMidCleanup. Clear it out now.
+        else if (!auiCuiMap.containsKey(atomAUI)
+            && atom.getTerminology().equals("PDQ")
+            && atom.getTermType().equals("XM") && !atom.isPublishable()) {
           atom.getConceptTerminologyIds().remove(getProject().getTerminology());
           updateAtom(atom);
           updatedAtomCount++;
