@@ -100,7 +100,9 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
     final UmlsIdentifierAssignmentHandler handler =
         (UmlsIdentifierAssignmentHandler) getIdentifierAssignmentHandler(
             getProject().getTerminology());
-
+    handler.setTransactionPerOperation(false);
+    handler.beginTransaction();
+    
     // Assign CUIs:
     // Rank all atoms
 
@@ -135,7 +137,7 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
       atomRankMap.put(id, rank);
       atomConceptMap.put(atom.getId(), conceptId);
       atomIds.add(atom.getId());
-      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);    
     }
 
     // Sort all atoms
@@ -193,11 +195,12 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
         prevProgress = progress;
       }
 
-      logAndCommit(objectCt, RootService.logCt, RootService.commitCt);
+      logAndCommit(objectCt, RootService.logCt, RootService.commitCt);    
     }
     commitClearBegin();
 
     // Go through concepts without assignments and assign new concepts
+    int conceptCt = 0;
     for (final Long conceptId : new HashSet<>(atomConceptMap.values())) {
       
       
@@ -219,9 +222,14 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
       concept.setTerminologyId(tid);
       
       updateConcept(concept);
+      if(++conceptCt % RootService.commitCt == 0){
+        handler.commitClearBegin();
+      }        
     }
+    commitClearBegin();
     updateProgress();
-
+    handler.commit();
+    handler.close();
   }
 
   /**
@@ -232,7 +240,9 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
   private void assignRuis() throws Exception {
     final IdentifierAssignmentHandler handler =
         getIdentifierAssignmentHandler(getProject().getTerminology());
-
+    handler.setTransactionPerOperation(false);
+    handler.beginTransaction();
+    
     // Assign RUIs to concept relationships
 
     // Cache metadata
@@ -287,9 +297,14 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
         prevProgress = progress;
       }
       logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+      if(objectCt % RootService.commitCt == 0){
+        handler.commitClearBegin();
+      }      
     }
     commitClearBegin();
     updateProgress();
+    handler.commit();
+    handler.close();    
   }
 
   /**
@@ -302,6 +317,8 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
     // get handler
     final IdentifierAssignmentHandler handler =
         getIdentifierAssignmentHandler(getProject().getTerminology());
+    handler.setTransactionPerOperation(false);
+    handler.beginTransaction();
 
     // Assign ATUIs for semantic types
     final javax.persistence.Query query = manager.createQuery(
@@ -345,9 +362,14 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
         prevProgress = progress;
       }
       logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+      if(objectCt % RootService.commitCt == 0){
+        handler.commitClearBegin();
+      }
     }
     commitClearBegin();
     updateProgress();
+    handler.commit();
+    handler.close();
   }
 
   /* see superclass */
