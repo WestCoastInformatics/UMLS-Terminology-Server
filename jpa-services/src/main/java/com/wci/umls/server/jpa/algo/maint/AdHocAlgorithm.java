@@ -241,6 +241,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       removeOldTermgroups();
     } else if (actionName.equals("Fix overlapping bequeathal rels")) {
       fixOverlappingBRORels();
+    } else if (actionName.equals("Fix NCBI VPT atom")) {
+      fixNCBIVPT();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -2035,6 +2037,37 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
   }
 
+  private void fixNCBIVPT() throws Exception {
+    // 03/20/2020 Inconsistencies between VPT and terminology names came in with
+    // MTH_2019AB, and were caught by the 202003 release.
+    logInfo(" Fix NCBI VPT name");
+
+    int updatedTerminologies = 0;
+    int updatedVPTs = 0;
+
+    try {
+
+      setSteps(1);
+
+      Atom atom = getAtom(11881919L);
+      atom.setName("NCBI Taxonomy, 2019_05_08");
+      updateAtom(atom);
+      updatedVPTs++;
+      updateProgress();
+
+      commitClearBegin();
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+      // n/a
+    }
+
+    logInfo("Updated " + updatedVPTs + " VPT names.");
+    logInfo("Finished " + getName());
+  }
+
   private void fixRHTAtoms() throws Exception {
     // 9/20/2018 Issues identified where RHT atoms had terminology of 'NCIMTH',
     // instead of 'SRC'.
@@ -3662,7 +3695,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Fix Atom Suppressible and Obsolete",
         "Initialize Source Atom Id Range App", "Remove Deprecated Termgroups",
         "Change null treeposition Relas to blank",
-        "Fix overlapping bequeathal rels"));
+        "Fix overlapping bequeathal rels","Fix NCBI VPT atom"));
     params.add(param);
 
     return params;
@@ -3769,7 +3802,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     Query query = getEntityManager().createNativeQuery(
         "select r.to_id conceptId1, r.from_id conceptId2 from concept_relationships r where terminology = 'NCIMTH' group by r.to_id, r.from_id having count(*)>1");
-    
+
     logInfo("[FixOverlappingBRORelationships] Loading "
         + "Concept id pairs that have overlapping BRO relationships between them");
 
