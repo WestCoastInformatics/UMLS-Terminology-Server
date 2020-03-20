@@ -248,9 +248,11 @@ public class WriteRrfHistoryFilesAlgorithm
 
     // Look for bequeathal rels or historical component history info among
     // unpublishable concepts
+    // 2020/03/20, NM-63: added "|| '|'" to terminologyId sort to handle variable
+    // length CL-CUIs
     final List<Long> conceptIds = executeSingleComponentIdQuery(
         "select c.id from ConceptJpa c where c.publishable = false "
-            + "and c.terminology = :terminology order by c.terminologyId",
+            + "and c.terminology = :terminology order by c.terminologyId || '|'",
         QueryType.JPQL, getDefaultQueryParams(getProject()), ConceptJpa.class,
         false);
 

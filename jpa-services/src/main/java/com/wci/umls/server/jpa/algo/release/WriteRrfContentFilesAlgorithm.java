@@ -20,7 +20,6 @@ import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
 
-import com.mchange.v1.util.MapUtils;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ComponentInfo;
@@ -173,11 +172,13 @@ public class WriteRrfContentFilesAlgorithm
     commitClearBegin();
 
     // Collect all concepts
+    // 2020/03/20, NM-63: added "|| '|'" to terminologyId sort to handle variable
+    // length CL-CUIs
     final List<Long> conceptIds = executeSingleComponentIdQuery(
         "select distinct c.id from ConceptJpa c join c.atoms a "
             + "where c.terminology = :terminology "
             + "  and c.version = :version and a.publishable = true "
-            + "  and c.publishable = true order by c.terminologyId",
+            + "  and c.publishable = true order by c.terminologyId || '|'",
         QueryType.JPQL, getDefaultQueryParams(getProject()), ConceptJpa.class,
         false);
     commitClearBegin();
@@ -1601,15 +1602,17 @@ public class WriteRrfContentFilesAlgorithm
       key = atomContentsMap.get(a.getId()).getAui()
           + getProject().getTerminology() + a.getType();
       List<ComponentInfoRelationship> comInfoRels = new ArrayList<>();
-      if (getComponentInfoRels(key) != null && !getComponentInfoRels(key).isEmpty()) {
+      if (getComponentInfoRels(key) != null
+          && !getComponentInfoRels(key).isEmpty()) {
         comInfoRels.addAll(getComponentInfoRels(key));
-      }      
+      }
       key = atomContentsMap.get(a.getId()).getSrcAui()
           + getProject().getTerminology() + a.getType();
-      if (getComponentInfoRels(key) != null && !getComponentInfoRels(key).isEmpty()) {
+      if (getComponentInfoRels(key) != null
+          && !getComponentInfoRels(key).isEmpty()) {
         comInfoRels.addAll(getComponentInfoRels(key));
-      }      
-     
+      }
+
       for (final ComponentInfoRelationship rel : comInfoRels) {
         if (!rel.isPublishable()) {
           continue;
@@ -2104,7 +2107,7 @@ public class WriteRrfContentFilesAlgorithm
             sb.append(treepos.getTerminologyId()).append("|");
             sb.append("|");
           }
-          
+
           sb.append("\n");
           lines.add(sb.toString());
         }
@@ -2874,7 +2877,8 @@ public class WriteRrfContentFilesAlgorithm
 
         // Descriptor relationship attributes (RUIs)
         if (ruiAttributeTerminologies.contains(sdui.getTerminology())) {
-          for (final DescriptorRelationship rel : sdui.getInverseRelationships()) {
+          for (final DescriptorRelationship rel : sdui
+              .getInverseRelationships()) {
             if (!rel.isPublishable()) {
               continue;
             }
@@ -2916,6 +2920,7 @@ public class WriteRrfContentFilesAlgorithm
     Collections.sort(lines);
     return lines;
   }
+
   /**
    * Write ambig.
    *
