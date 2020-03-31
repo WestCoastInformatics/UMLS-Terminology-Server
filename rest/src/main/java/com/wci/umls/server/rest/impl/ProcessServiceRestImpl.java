@@ -576,9 +576,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // For each of the process' algorithms, populate the parameters based on
       // its properties' values.
       for (final AlgorithmConfig algo : process.getSteps()) {
-        //TEMP
-        Logger.getLogger(getClass()).info("  Algo = " + algo);
-        
         instance = processService.getAlgorithmInstance(algo.getAlgorithmKey());
         instance.setProject(processService.getProject(projectId));
         algo.setParameters(instance.getParameters());
