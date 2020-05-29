@@ -179,6 +179,10 @@ public class SemanticTypeLoaderAlgorithm
         // Get the concept associated with the loaded atom
         final Concept concept = getConcept(atomConceptMap.get(atom.getId()));
 
+        if(concept == null) {
+          logWarnAndUpdate(line, "Warning - cannot identify a concept for atom=" + atom.getId());
+        }
+        
         // If concept has a semantic type already matching this value, move on
         // otherwise add a new semantic type.
         boolean componentContainsSty = false;
