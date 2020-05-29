@@ -180,7 +180,8 @@ public class SemanticTypeLoaderAlgorithm
         final Concept concept = getConcept(atomConceptMap.get(atom.getId()));
 
         if(concept == null) {
-          logWarnAndUpdate(line, "Warning - cannot identify a concept for atom=" + atom.getId());
+          logWarnAndUpdate(line, "Warning - atom " + atom.getId() + " is not assigned to any concept.");
+          continue;
         }
         
         // If concept has a semantic type already matching this value, move on
