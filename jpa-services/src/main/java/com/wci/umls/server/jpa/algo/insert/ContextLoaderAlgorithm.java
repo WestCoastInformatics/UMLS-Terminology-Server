@@ -267,6 +267,9 @@ public class ContextLoaderAlgorithm
     Exception e) {
       logError("Unexpected problem - " + e.getMessage());
       throw e;
+    } finally {
+      // Clear the caches to free up memory
+      clearCaches();
     }
 
   }
