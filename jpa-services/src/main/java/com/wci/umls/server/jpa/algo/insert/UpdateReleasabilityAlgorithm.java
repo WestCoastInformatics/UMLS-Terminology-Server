@@ -49,6 +49,18 @@ public class UpdateReleasabilityAlgorithm
     extends AbstractInsertMaintReleaseAlgorithm {
 
   /**
+   * The retire flag
+   * 
+   * If false, getReferencedTermionlogies is getting all current terminologies
+   * referenced in sources.src, and contents from older versions of these
+   * terminologies get set to unpublishable.
+   * 
+   * If true, this is being called from RetireTerminology, and contents from the 
+   * specified version of this terminology gets set to unpublishable
+   */
+  private Boolean retire = false;
+
+  /**
    * Instantiates an empty {@link UpdateReleasabilityAlgorithm}.
    * @throws Exception if anything goes wrong
    */
@@ -132,14 +144,16 @@ public class UpdateReleasabilityAlgorithm
       // Find all of the old version component ids
       for (Class clazz : classList) {
         String query = "SELECT c.id " + "FROM " + clazz.getSimpleName() + " c "
-            + "WHERE c.publishable=true and (c.terminology=:terminology AND NOT c.version=:version)";
+            + "WHERE c.publishable=true and (c.terminology=:terminology "
+            + (retire ? "AND c.version=:version" : "AND NOT c.version=:version") + ")";
 
         // Make sure all of the terminologies in sources.src are included in the
         // query
         for (Terminology referencedTerminology : referencedTerminologies) {
-          query += " OR (c.terminology='"
-              + referencedTerminology.getTerminology() + "' AND NOT c.version='"
-              + referencedTerminology.getVersion() + "')";
+          query +=
+              " OR (c.terminology='" + referencedTerminology.getTerminology()
+                  + (retire ? "' AND c.version='" : "' AND NOT c.version='")
+                      + referencedTerminology.getVersion() + "')";
         }
 
         // Perform a QueryActionAlgorithm using the class and query
@@ -195,10 +209,10 @@ public class UpdateReleasabilityAlgorithm
       }
 
       // Now mark all non-current SRC atoms as unpublishable.
-     String query = "SELECT a.id " + "FROM AtomJpa a, TerminologyJpa t "
-         + "WHERE a.terminology='SRC' AND a.publishable=true AND t.current = false AND " +
-         "(a.codeId=CONCAT('V-',t.terminology,'_',t.version) OR " +
-         "a.codeId=CONCAT('V-',t.terminology,t.version))";
+      String query = "SELECT a.id " + "FROM AtomJpa a, TerminologyJpa t "
+          + "WHERE a.terminology='SRC' AND a.publishable=true AND t.current = false AND "
+          + "(a.codeId=CONCAT('V-',t.terminology,'_',t.version) OR "
+          + "a.codeId=CONCAT('V-',t.terminology,t.version))";
 
       // Perform a QueryActionAlgorithm using the class and query
       QueryActionAlgorithm queryAction = new QueryActionAlgorithm();
@@ -248,7 +262,7 @@ public class UpdateReleasabilityAlgorithm
         // Close algorithm for each loop
         queryAction.close();
       }
-      
+
       // Also mark non-current SRC codes as unpublishable.
       query = "SELECT a.id " + "FROM CodeJpa a, TerminologyJpa t "
           + "WHERE a.terminology='SRC' AND a.publishable=true AND t.current = false AND a.terminologyId=CONCAT('V-',t.terminology,'_',t.version)";
@@ -300,8 +314,8 @@ public class UpdateReleasabilityAlgorithm
       } finally {
         // Close algorithm for each loop
         queryAction.close();
-      }      
-      
+      }
+
       // Finally, there is a special case where SRC-owned relationships
       // may need to be marked unpublishable, and they won't get caught by the
       // above queries. Handle here.
@@ -356,7 +370,7 @@ public class UpdateReleasabilityAlgorithm
         // Close algorithm for each loop
         queryAction.close();
       }
-      
+
       query = "SELECT a.id " + "FROM CodeRelationshipJpa a "
           + "WHERE a.terminology='SRC' AND a.publishable=true AND (a.from.publishable=false OR a.to.publishable=false)";
 
@@ -407,7 +421,7 @@ public class UpdateReleasabilityAlgorithm
       } finally {
         // Close algorithm for each loop
         queryAction.close();
-      }      
+      }
 
       logInfo("Finished " + getName());
 
@@ -457,4 +471,9 @@ public class UpdateReleasabilityAlgorithm
   public String getDescription() {
     return "Marks old version terminologies as unreleasable.";
   }
+
+  public void setRetire(Boolean retire) {
+    this.retire = retire;
+  }
+
 }
