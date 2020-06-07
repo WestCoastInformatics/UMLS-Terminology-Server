@@ -143,18 +143,21 @@ public class UpdateReleasabilityAlgorithm
 
       // Find all of the old version component ids
       for (Class clazz : classList) {
+               
         String query = "SELECT c.id " + "FROM " + clazz.getSimpleName() + " c "
-            + "WHERE c.publishable=true and (c.terminology=:terminology "
-            + (retire ? "AND c.version=:version" : "AND NOT c.version=:version") + ")";
+            + "WHERE c.publishable=true AND ((c.terminology=:terminology "
+            + "AND NOT c.version=:version)";
 
         // Make sure all of the terminologies in sources.src are included in the
         // query
         for (Terminology referencedTerminology : referencedTerminologies) {
-          query +=
+          query += 
               " OR (c.terminology='" + referencedTerminology.getTerminology()
                   + (retire ? "' AND c.version='" : "' AND NOT c.version='")
                       + referencedTerminology.getVersion() + "')";
         }
+        
+        query += ")";
 
         // Perform a QueryActionAlgorithm using the class and query
         final QueryActionAlgorithm queryAction = new QueryActionAlgorithm();
