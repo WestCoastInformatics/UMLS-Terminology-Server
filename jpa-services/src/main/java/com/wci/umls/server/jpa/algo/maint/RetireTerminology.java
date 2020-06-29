@@ -109,8 +109,8 @@ public class RetireTerminology extends UpdateReleasabilityAlgorithm {
       // non-versioned SRC atoms to unpublishable (this is not handled by the
       // underlying UpdateReleasabilityAlgorithm compute)
       String query = "SELECT a.id " + "FROM AtomJpa a, TerminologyJpa t "
-          + "WHERE a.terminology='SRC' AND a.publishable=true AND t.current = false AND "
-          + "a.codeId=CONCAT('V-',t.terminology)";
+          + "WHERE a.terminology='SRC' AND a.publishable=true AND t.terminology = '"
+          + terminology + "' AND " + "a.codeId=CONCAT('V-',t.terminology)";
 
       // Perform a QueryActionAlgorithm using the class and query
       QueryActionAlgorithm queryAction = new QueryActionAlgorithm();
@@ -163,7 +163,8 @@ public class RetireTerminology extends UpdateReleasabilityAlgorithm {
 
       // Also mark non-current, non-versioned SRC codes as unpublishable.
       query = "SELECT a.id " + "FROM CodeJpa a, TerminologyJpa t "
-          + "WHERE a.terminology='SRC' AND a.publishable=true AND t.current = false AND a.terminologyId=CONCAT('V-',t.terminology)";
+          + "WHERE a.terminology='SRC' AND a.publishable=true AND t.current = false AND t.terminology='"
+          + terminology + "' AND a.terminologyId=CONCAT('V-',t.terminology)";
 
       // Perform a QueryActionAlgorithm using the class and query
       queryAction = new QueryActionAlgorithm();
