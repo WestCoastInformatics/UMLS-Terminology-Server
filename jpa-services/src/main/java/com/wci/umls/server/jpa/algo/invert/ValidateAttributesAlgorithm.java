@@ -110,26 +110,6 @@ public class ValidateAttributesAlgorithm
     checkFileExist(srcFullPath, "attributes.src");
     checkFileExist(srcFullPath, "classes_atoms.src");
 
-    // Ensure permissions are sufficient to write files
-    try {
-      final File outputFile = new File(srcFullPath, "testFile.txt");
-
-      final PrintWriter out = new PrintWriter(new FileWriter(outputFile));
-      out.print("Test");
-      out.close();
-
-      // Remove test file
-      outputFile.delete();
-    } catch (Exception e) {
-      throw new LocalException("Unable to write files to " + srcFullPath
-          + " - update permissions before continuing validation.");
-    }
-
-    // Makes sure editing is turned off before continuing
-    /*
-     * if(getProject().isEditingEnabled()){ throw new LocalException(
-     * "Editing is turned on - disable before continuing insertion."); }
-     */
 
     // Makes sure automations are turned off before continuing
     if (getProject().isAutomationsEnabled()) {

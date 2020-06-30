@@ -92,26 +92,6 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
     checkFileExist(srcFullPath, "sources.src");
     checkFileExist(srcFullPath, "termgroups.src");
     checkFileExist(srcFullPath, "attributes.src");
-
-    // Ensure permissions are sufficient to write files
-    try {
-      final File outputFile = new File(srcFullPath, "testFile.txt");
-
-      final PrintWriter out = new PrintWriter(new FileWriter(outputFile));
-      out.print("Test");
-      out.close();
-
-      // Remove test file
-      outputFile.delete();
-    } catch (Exception e) {
-      throw new LocalException("Unable to write files to " + srcFullPath
-          + " - update permissions before continuing validation.  Consider this command: chown :tomcata " + srcFullPath);
-    }
-
-    // Makes sure editing is turned off before continuing
-    /*if(getProject().isEditingEnabled()){
-      throw new LocalException("Editing is turned on - disable before continuing insertion.");
-    }*/
     
     // Makes sure automations are turned off before continuing
     if(getProject().isAutomationsEnabled()){
