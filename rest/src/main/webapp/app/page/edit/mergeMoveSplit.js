@@ -26,7 +26,7 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
     $scope.copy = false;
     $scope.overrideWarnings = false;
     $scope.selectedRelationshipType = 'RO';
-    $scope.acceptedRelationshipTypeStrings = [ 'RO', 'RB', 'RN', 'RQ', 'XR' ];
+    $scope.acceptedRelationshipTypeStrings = [ 'RO', 'RB', 'RN', 'XR' ];
     $scope.acceptedRelationshipTypes = [ {
       'key' : '',
       'value' : '(none)'
