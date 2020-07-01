@@ -360,7 +360,7 @@ public class ValidateContextsAlgorithm extends AbstractInsertMaintReleaseAlgorit
     logInfo("");
     for (int index = 0; index < testCases.size(); index++) {
       TestCase tc = testCases.get(index);
-      if (tc.getErrorCt() == 0) {
+      if (tc.getErrorCt() == 0 && checkNames.contains("#" + tc.getShortName())) {
         logInfo("  PASSED: " + tc.getShortName() + " " + tc.getName());
       }
     }
