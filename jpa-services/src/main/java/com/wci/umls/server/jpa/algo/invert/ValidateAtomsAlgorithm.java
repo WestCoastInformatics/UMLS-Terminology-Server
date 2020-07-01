@@ -415,7 +415,7 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
               result.addError("ATOMS_18:" + atomSuppress + ":"
                   + tgSuppress + " : " + fileLine);
             }
-          } else if (tgSuppress.equals("Y") && !atomSuppress.equals("O")) {
+          } else if (tgSuppress.equals("O") && !atomSuppress.equals("O")) {
             if (underErrorTallyThreashold("#ATOMS_18")) {
               result.addError("ATOMS_18:" + atomSuppress + ":"
                   + tgSuppress + " : " + fileLine);
