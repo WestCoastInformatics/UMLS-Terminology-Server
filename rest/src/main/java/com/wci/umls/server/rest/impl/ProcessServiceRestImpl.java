@@ -2005,8 +2005,19 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
             else {
 
-              // Execute algorithm
-              algorithm.compute();
+              try {
+                // Execute algorithm
+                algorithm.compute();
+                // algorithm has finished
+                algorithmExecution.setFinishDate(new Date());
+              } catch (Exception e) {
+                if (!e.getMessage().contains("quiet fail")) {
+                  throw e;
+                } else {
+                  algorithmExecution.setFailDate(new Date());
+                  algorithmExecution.setFinishDate(null);
+                }
+              }
 
               // Commit any changes the algorithm wants to make
               algorithm.commit();
@@ -2017,8 +2028,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               lookupPeProgressMap.put(processExecution.getId(),
                   (int) ((100 * ++stepCt) / enabledSteps));
 
-              // algorithm has finished
-              algorithmExecution.setFinishDate(new Date());
+              
+              
               processService.updateAlgorithmExecution(algorithmExecution);
 
               // Update the process execution (in case anything has been done

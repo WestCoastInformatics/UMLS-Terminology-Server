@@ -382,7 +382,7 @@ public class ValidateAttributesAlgorithm
         logError(error, "  ");
       }
       logInfo("");
-      throw new Exception(this.getName() + " Failed");
+      throw new Exception(this.getName() + " quiet fail");
     }
 
     logInfo("Finished " + getName());
