@@ -215,6 +215,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixDuplicateConcepts();
     } else if (actionName.equals("Fix Null RUIs")) {
       fixNullRUIs();
+    } else if (actionName.equals("Remove old MTH relationships")) {
+      removeOldMTHRelationships();
     } else if (actionName.equals("Remove old relationships")) {
       removeOldRelationships();
     } else if (actionName.equals("Assign Missing STY ATUIs")) {
@@ -223,6 +225,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixComponentHistoryVersion();
     } else if (actionName.equals("Fix AdditionalRelType Inverses 2")) {
       fixAdditionalRelTypeInverses2();
+    } else if (actionName.equals("Fix AdditionalRelType Inverses 3")) {
+      fixAdditionalRelTypeInverses3();
     } else if (actionName.equals("Remove Demotions")) {
       removeDemotions();
     } else if (actionName.equals("Revise Semantic Types")) {
@@ -2734,7 +2738,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   }
 
-  private void removeOldRelationships() throws Exception {
+  private void removeOldMTHRelationships() throws Exception {
     // 12/15/2018 concept_relationships were created by MTH_2018AB test
     // insertion that duplicated existing concept_relationships from old
     // insertions.
@@ -2744,13 +2748,43 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // 05/28/2020 - still having same issue in MTH_2020AA. Updated to new
     // version.
 
-    logInfo(" Remove old relationships");
+    logInfo(" Remove old MTH relationships");
 
     Query query = getEntityManager().createNativeQuery("select cr.id from "
         + " concept_relationships cr, concepts c1, concepts c2 "
         + " where cr.from_id = c1.id " + " and cr.to_id = c2.id "
         + " AND from_id < to_id " + " and cr.terminology = 'MTH' "
         + " and cr.terminology != '2020AA' " + " and c1.terminology = 'NCIMTH' "
+        + " and c2.terminology = 'NCIMTH' "
+        + " GROUP BY c1.terminologyId, c2.terminologyId HAVING COUNT(*) > 1");
+
+    logInfo("[RemoveOldMTHRelationships] Loading "
+        + "ConceptRelationship ids for old relationships that now have duplicates caused by the MTH 2018AB insertion");
+
+    List<Object> list = query.getResultList();
+    setSteps(list.size());
+    logInfo("[RemoveOldMTHRelationships] " + list.size()
+        + " ConceptRelationship ids loaded");
+
+    for (final Object entry : list) {
+      final Long id = Long.valueOf(entry.toString());
+      removeRelationship(id, ConceptRelationshipJpa.class);
+      updateProgress();
+    }
+
+    logInfo("Finished " + getName());
+
+  }
+
+  private void removeOldRelationships() throws Exception {
+    // 07/24/2020 duplicate bequeathal concept rels with older ones getting removed
+
+    logInfo(" Remove old relationships");
+
+    Query query = getEntityManager().createNativeQuery("select cr.id from "
+        + " concept_relationships cr, concepts c1, concepts c2 "
+        + " where cr.from_id = c1.id " + " and cr.to_id = c2.id "
+        + " AND from_id < to_id  " + " and c1.terminology = 'NCIMTH' "
         + " and c2.terminology = 'NCIMTH' "
         + " GROUP BY c1.terminologyId, c2.terminologyId HAVING COUNT(*) > 1");
 
@@ -3004,6 +3038,42 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
   }
 
+  private void fixAdditionalRelTypeInverses3() throws Exception {
+    // 7/24/2020 fix concept_relationships that have old inverse_has_units rela
+    
+    logInfo(" Fix Additional Rel Type Inverses 3");
+
+    int updatedRelationships = 0;
+
+    try {
+ 
+      // update atom_relationships from 'gives_rise_to' to 'develops_into'
+      Query query = getEntityManager().createNativeQuery(
+          "select id from concept_relationships where additionalRelationshipType = 'inverse_has_units'");
+
+      List<Object> ids = query.getResultList();
+
+      for (final Object result : ids) {
+        final Relationship<?, ?> rel =
+            (AtomRelationship) getRelationship(Long.valueOf(result.toString()),
+                AtomRelationshipJpa.class);
+        rel.setAdditionalRelationshipType("units_of");
+        updateRelationship(rel);
+        updatedRelationships++;
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+      // n/a
+    }
+
+    logInfo("Updated " + updatedRelationships + " relationships updated 3.");
+    logInfo("Finished " + getName());
+  }
+  
+  
   private void removeDemotions() throws Exception {
     // 3/22/2019 Clean up demotions that should have been removed during concept
     // approval.
@@ -3690,8 +3760,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Fix RHT Atoms", "Fix MDR Descriptors",
         "Clear Worklists and Checklists",
         "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts",
-        "Fix Null RUIs", "Remove old relationships", "Assign Missing STY ATUIs",
-        "Fix Component History Version", "Fix AdditionalRelType Inverses 2",
+        "Fix Null RUIs", "Remove old MTH relationships", "Remove old relationships", "Assign Missing STY ATUIs",
+        "Fix Component History Version", "Fix AdditionalRelType Inverses 2", "Fix AdditionalRelType Inverses 3",
         "Remove Demotions", "Revise Semantic Types",
         "Fix Atom Last Release CUI", "Fix VPT and Terminologies",
         "Fix Atom Suppressible and Obsolete",
