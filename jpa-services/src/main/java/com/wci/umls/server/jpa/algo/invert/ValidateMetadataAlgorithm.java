@@ -90,26 +90,6 @@ public class ValidateMetadataAlgorithm extends AbstractInsertMaintReleaseAlgorit
     checkFileExist(srcFullPath, "MRDOC.RRF");
     checkFileExist(srcFullPath, "termgroups.src");
     checkFileExist(srcFullPath, "mergefacts.src");
-
-    // Ensure permissions are sufficient to write files
-    try {
-      final File outputFile = new File(srcFullPath, "testFile.txt");
-
-      final PrintWriter out = new PrintWriter(new FileWriter(outputFile));
-      out.print("Test");
-      out.close();
-
-      // Remove test file
-      outputFile.delete();
-    } catch (Exception e) {
-      throw new LocalException("Unable to write files to " + srcFullPath
-          + " - update permissions before continuing validation.");
-    }
-
-    // Makes sure editing is turned off before continuing
-    /*if(getProject().isEditingEnabled()){
-      throw new LocalException("Editing is turned on - disable before continuing insertion.");
-    }*/
     
     // Makes sure automations are turned off before continuing
     if(getProject().isAutomationsEnabled()){
@@ -300,7 +280,7 @@ public class ValidateMetadataAlgorithm extends AbstractInsertMaintReleaseAlgorit
     logInfo("");
     for (int index = 0; index < testCases.size(); index++) {
       TestCase tc = testCases.get(index);
-      if (tc.getErrorCt() == 0) {
+      if (tc.getErrorCt() == 0 && checkNames.contains("#" + tc.getShortName())) {
         logInfo("  PASSED: " + tc.getShortName() + " " + tc.getName());
       }
     }
@@ -339,7 +319,7 @@ public class ValidateMetadataAlgorithm extends AbstractInsertMaintReleaseAlgorit
         logError(error, "  ");
       }
       logInfo("");
-      throw new Exception(this.getName() + " Failed");
+      throw new Exception(this.getName() + " quiet fail");
     }
 
     logInfo("Finished " + getName());
