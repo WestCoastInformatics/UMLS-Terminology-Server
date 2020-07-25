@@ -3055,8 +3055,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       for (final Object result : ids) {
         final Relationship<?, ?> rel =
-            (AtomRelationship) getRelationship(Long.valueOf(result.toString()),
-                AtomRelationshipJpa.class);
+            (ConceptRelationship) getRelationship(Long.valueOf(result.toString()),
+                ConceptRelationshipJpa.class);
         rel.setAdditionalRelationshipType("units_of");
         updateRelationship(rel);
         updatedRelationships++;
