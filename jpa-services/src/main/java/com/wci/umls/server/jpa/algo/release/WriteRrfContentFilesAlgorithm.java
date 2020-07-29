@@ -193,7 +193,7 @@ public class WriteRrfContentFilesAlgorithm
 
     // Parallelize output
     final Thread[] threads = new Thread[3];
-    final Exception[] exceptions = new Exception[3];
+    final Exception[] exceptions = new Exception[4];
 
     Thread t = new Thread(new Runnable() {
       @Override
@@ -328,7 +328,7 @@ public class WriteRrfContentFilesAlgorithm
 
         } catch (Exception e) {
           Logger.getLogger(getClass()).error(e.getMessage(), e);
-          exceptions[0] = e;
+          exceptions[2] = e;
         } finally {
           writerMap.get("MRSAT.RRF").close();
           try {
@@ -373,7 +373,7 @@ public class WriteRrfContentFilesAlgorithm
       }
     } catch (Exception e) {
       Logger.getLogger(getClass()).error(e.getMessage(), e);
-      exceptions[2] = e;
+      exceptions[3] = e;
     } finally {
       // Close final writers
       writerMap.get("MRCONSO.RRF").close();

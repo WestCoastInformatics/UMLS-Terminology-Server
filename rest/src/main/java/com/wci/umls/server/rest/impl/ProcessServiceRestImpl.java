@@ -2011,7 +2011,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
                 // algorithm has finished
                 algorithmExecution.setFinishDate(new Date());
               } catch (Exception e) {
-                if (!e.getMessage().contains("quiet fail")) {
+                if (e != null && e.getMessage() != null && 
+                    !e.getMessage().contains("quiet fail")) {
                   throw e;
                 } else {
                   algorithmExecution.setFailDate(new Date());
