@@ -49,11 +49,14 @@ import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.AtomTreePositionJpa;
+import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
 import com.wci.umls.server.jpa.content.ComponentHistoryJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
+import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
+import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.inversion.SourceIdRangeJpa;
@@ -68,10 +71,8 @@ import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.AtomSubsetMember;
-import com.wci.umls.server.model.content.AtomTreePosition;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
-import com.wci.umls.server.model.content.CodeTreePosition;
 import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.ComponentInfoRelationship;
 import com.wci.umls.server.model.content.Concept;
@@ -80,7 +81,6 @@ import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.ConceptTreePosition;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
-import com.wci.umls.server.model.content.DescriptorTreePosition;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.inversion.SourceIdRange;
@@ -256,8 +256,6 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       throw new Exception("Valid Action Name not specified.");
     }
 
-    
-    
     commitClearBegin();
 
     logInfo("  project = " + getProject().getId());
@@ -2784,7 +2782,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   }
 
   private void removeOldRelationships() throws Exception {
-    // 07/24/2020 duplicate bequeathal concept rels with older ones getting removed
+    // 07/24/2020 duplicate bequeathal concept rels with older ones getting
+    // removed
 
     logInfo(" Remove old relationships");
 
@@ -3047,13 +3046,13 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   private void fixAdditionalRelTypeInverses3() throws Exception {
     // 7/24/2020 fix concept_relationships that have old inverse_has_units rela
-    
+
     logInfo(" Fix Additional Rel Type Inverses 3");
 
     int updatedRelationships = 0;
 
     try {
- 
+
       // update atom_relationships from 'gives_rise_to' to 'develops_into'
       Query query = getEntityManager().createNativeQuery(
           "select id from concept_relationships where additionalRelationshipType = 'inverse_has_units'");
@@ -3061,9 +3060,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       List<Object> ids = query.getResultList();
 
       for (final Object result : ids) {
-        final Relationship<?, ?> rel =
-            (ConceptRelationship) getRelationship(Long.valueOf(result.toString()),
-                ConceptRelationshipJpa.class);
+        final Relationship<?, ?> rel = (ConceptRelationship) getRelationship(
+            Long.valueOf(result.toString()), ConceptRelationshipJpa.class);
         rel.setAdditionalRelationshipType("units_of");
         updateRelationship(rel);
         updatedRelationships++;
@@ -3079,8 +3077,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Updated " + updatedRelationships + " relationships updated 3.");
     logInfo("Finished " + getName());
   }
-  
-  
+
   private void removeDemotions() throws Exception {
     // 3/22/2019 Clean up demotions that should have been removed during concept
     // approval.
@@ -3767,14 +3764,16 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Fix RHT Atoms", "Fix MDR Descriptors",
         "Clear Worklists and Checklists",
         "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts",
-        "Fix Null RUIs", "Remove old MTH relationships", "Remove old relationships", "Assign Missing STY ATUIs",
-        "Fix Component History Version", "Fix AdditionalRelType Inverses 2", "Fix AdditionalRelType Inverses 3",
-        "Remove Demotions", "Revise Semantic Types",
-        "Fix Atom Last Release CUI", "Fix VPT and Terminologies",
-        "Fix Atom Suppressible and Obsolete",
+        "Fix Null RUIs", "Remove old MTH relationships",
+        "Remove old relationships", "Assign Missing STY ATUIs",
+        "Fix Component History Version", "Fix AdditionalRelType Inverses 2",
+        "Fix AdditionalRelType Inverses 3", "Remove Demotions",
+        "Revise Semantic Types", "Fix Atom Last Release CUI",
+        "Fix VPT and Terminologies", "Fix Atom Suppressible and Obsolete",
         "Initialize Source Atom Id Range App", "Remove Deprecated Termgroups",
         "Change null treeposition Relas to blank",
-        "Fix overlapping bequeathal rels","Fix NCBI VPT atom","Inactivate old tree positions"));
+        "Fix overlapping bequeathal rels", "Fix NCBI VPT atom",
+        "Inactivate old tree positions"));
     params.add(param);
 
     return params;
@@ -3964,7 +3963,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       logInfo("  Making old version atom tree positions unpublishable");
 
       // Mark all non-current atom tree positions as unpublishable.
-      String query = "SELECT a.id " + "FROM AtomTreePositionJpa a, TerminologyJpa t "
+      String query = "SELECT a.id "
+          + "FROM AtomTreePositionJpa a, TerminologyJpa t "
           + "WHERE a.terminology=t.terminology AND a.version=t.version AND a.publishable=true AND t.current = false";
 
       // Perform a QueryActionAlgorithm using the class and query
@@ -3979,7 +3979,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         queryAction.setWorkId(getWorkId());
         queryAction.setActivityId(getActivityId());
 
-        queryAction.setObjectTypeClass(AtomTreePosition.class);
+        queryAction.setObjectTypeClass(AtomTreePositionJpa.class);
         queryAction.setAction("Make Unpublishable");
         queryAction.setQueryType(QueryType.JPQL);
         queryAction.setQuery(query);
@@ -4016,11 +4016,11 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         queryAction.close();
       }
 
-      
       logInfo("  Making old version concept tree positions unpublishable");
 
       // Mark all non-current concept tree positions as unpublishable.
-      query = "SELECT a.id " + "FROM ConceptTreePositionJpa a, TerminologyJpa t "
+      query = "SELECT a.id "
+          + "FROM ConceptTreePositionJpa a, TerminologyJpa t "
           + "WHERE a.terminology=t.terminology AND a.version=t.version AND a.publishable=true AND t.current = false";
 
       // Perform a QueryActionAlgorithm using the class and query
@@ -4035,7 +4035,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         queryAction.setWorkId(getWorkId());
         queryAction.setActivityId(getActivityId());
 
-        queryAction.setObjectTypeClass(ConceptTreePosition.class);
+        queryAction.setObjectTypeClass(ConceptTreePositionJpa.class);
         queryAction.setAction("Make Unpublishable");
         queryAction.setQueryType(QueryType.JPQL);
         queryAction.setQuery(query);
@@ -4072,7 +4072,6 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         queryAction.close();
       }
 
-      
       logInfo("  Making old version code tree positions unpublishable");
 
       // Mark all non-current code tree positions as unpublishable.
@@ -4091,7 +4090,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         queryAction.setWorkId(getWorkId());
         queryAction.setActivityId(getActivityId());
 
-        queryAction.setObjectTypeClass(CodeTreePosition.class);
+        queryAction.setObjectTypeClass(CodeTreePositionJpa.class);
         queryAction.setAction("Make Unpublishable");
         queryAction.setQueryType(QueryType.JPQL);
         queryAction.setQuery(query);
@@ -4128,11 +4127,11 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         queryAction.close();
       }
 
-      
       logInfo("  Making old version descriptor tree positions unpublishable");
 
       // Mark all non-current atom tree positions as unpublishable.
-      query = "SELECT a.id " + "FROM DescriptorTreePositionJpa a, TerminologyJpa t "
+      query = "SELECT a.id "
+          + "FROM DescriptorTreePositionJpa a, TerminologyJpa t "
           + "WHERE a.terminology=t.terminology AND a.version=t.version AND a.publishable=true AND t.current = false";
 
       // Perform a QueryActionAlgorithm using the class and query
@@ -4147,7 +4146,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         queryAction.setWorkId(getWorkId());
         queryAction.setActivityId(getActivityId());
 
-        queryAction.setObjectTypeClass(DescriptorTreePosition.class);
+        queryAction.setObjectTypeClass(DescriptorTreePositionJpa.class);
         queryAction.setAction("Make Unpublishable");
         queryAction.setQueryType(QueryType.JPQL);
         queryAction.setQuery(query);
@@ -4183,8 +4182,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         // Close algorithm for each loop
         queryAction.close();
       }
-      
-      
+
       logInfo("Finished " + getName());
 
     } catch (
@@ -4195,6 +4193,5 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     }
 
   }
-  
-  
+
 }

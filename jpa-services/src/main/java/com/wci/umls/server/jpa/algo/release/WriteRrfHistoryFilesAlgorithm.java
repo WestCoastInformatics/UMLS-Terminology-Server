@@ -1,5 +1,5 @@
 /*
- *    Copyright 2017 West Coast Informatics, LLC
+ *    Copyright 2019 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.release;
 
@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -60,6 +61,8 @@ public class WriteRrfHistoryFilesAlgorithm
   /** The history. */
   private ConceptHistory history = new ConceptHistory();
 
+  private Map<String, Boolean> bequeathalToLiveCUIs = new HashMap<>();
+
   /**
    * Instantiates an empty {@link WriteRrfHistoryFilesAlgorithm}.
    *
@@ -83,7 +86,7 @@ public class WriteRrfHistoryFilesAlgorithm
   public void compute() throws Exception {
     logInfo("Starting " + getName());
     fireProgressEvent(0, "Starting");
-
+    
     setSteps(7);
     openWriters();
 
@@ -116,7 +119,7 @@ public class WriteRrfHistoryFilesAlgorithm
     updateProgress();
 
     logInfo("  Write MRAUI.RRF");
-    writeMraui();
+    // writeMraui();
     updateProgress();
 
     // This also populates the "ConceptHistory" object
@@ -125,11 +128,11 @@ public class WriteRrfHistoryFilesAlgorithm
     updateProgress();
 
     logInfo("  Write NCI code file");
-    writeNciCodeCuiMap();
+    // writeNciCodeCuiMap();
     updateProgress();
 
     logInfo("  Write NCIMETA history file");
-    writeNciMetaHistory(previousCuis, currentCuis);
+    // writeNciMetaHistory(previousCuis, currentCuis);
     updateProgress();
 
     closeWriters();
@@ -178,7 +181,7 @@ public class WriteRrfHistoryFilesAlgorithm
   @SuppressWarnings("unchecked")
   private void writeMrcui(Set<String> previousCuis, Set<String> currentCuis)
     throws Exception {
-
+    
     // 0 CUI1
     // 1 VER
     // 2 REL
@@ -196,8 +199,7 @@ public class WriteRrfHistoryFilesAlgorithm
         manager.createQuery("select distinct value(cid), c.terminologyId  "
             + "from ConceptJpa c join c.atoms a join a.conceptTerminologyIds cid "
             + "where c.terminology = :terminology and c.version = :version "
-            + "and c.publishable = true "
-            + "and key(cid) = :terminology");
+            + "and c.publishable = true " + "and key(cid) = :terminology");
     query.setParameter("terminology", getProject().getTerminology());
     query.setParameter("version", getProject().getVersion());
     final List<Object[]> results = query.getResultList();
@@ -248,11 +250,13 @@ public class WriteRrfHistoryFilesAlgorithm
 
     // Look for bequeathal rels or historical component history info among
     // unpublishable concepts
-    // 2020/03/20, NM-63: added "|| '|'" to terminologyId sort to handle variable
+    // 2020/03/20, NM-63: added "|| '|'" to terminologyId sort to handle
+    // variable
     // length CL-CUIs
     final List<Long> conceptIds = executeSingleComponentIdQuery(
         "select c.id from ConceptJpa c where c.publishable = false "
-            + "and c.terminology = :terminology order by c.terminologyId || '|'",
+            + "and c.terminology = :terminology "
+            + "order by c.terminologyId || '|' ",
         QueryType.JPQL, getDefaultQueryParams(getProject()), ConceptJpa.class,
         false);
 
@@ -285,7 +289,6 @@ public class WriteRrfHistoryFilesAlgorithm
             history.addBequeathal(c.getTerminologyId(),
                 getProcess().getVersion(), bequeathalRel.getRelationshipType(),
                 bequeathalRel.getTo().getTerminologyId(), currentCuis);
-
           }
         }
       }
@@ -308,9 +311,9 @@ public class WriteRrfHistoryFilesAlgorithm
             }
 
             else {
-              history.addBequeathal(c.getTerminologyId(), ch.getAssociatedRelease(),
-                  ch.getRelationshipType(), ch.getReferencedTerminologyId(),
-                  currentCuis);
+              history.addBequeathal(c.getTerminologyId(),
+                  ch.getAssociatedRelease(), ch.getRelationshipType(),
+                  ch.getReferencedTerminologyId(), currentCuis);
 
             }
 
@@ -321,13 +324,20 @@ public class WriteRrfHistoryFilesAlgorithm
       logAndCommit(objectCt++, RootService.logCt, RootService.commitCt);
     }
 
+    // For all concepts that are bequeathed to only dead cuis, add DEL entries
+    for (String cui : bequeathalToLiveCUIs.keySet()) {
+      if (bequeathalToLiveCUIs.get(cui) == false) {
+        history.addDeleted(cui, getProcess().getVersion());
+      }
+    }
+
     //
     // Go through all built up concept history
     //
     logInfo("  Historical CUIs = " + history.getTerminologyIds().size());
     int ct = 0;
     for (final String cui : history.getTerminologyIds()) {
-
+      
       // Get facts
       final Set<ComponentHistory> facts =
           history.getFacts(cui, previousCuis, currentCuis);
@@ -558,7 +568,8 @@ public class WriteRrfHistoryFilesAlgorithm
     query.setParameter("terminology", getProject().getTerminology());
     query.setParameter("version", getProject().getVersion());
     final List<Object[]> results = query.getResultList();
-    final ComputePreferredNameHandler handler = getComputePreferredNameHandler(getProject().getTerminology());
+    final ComputePreferredNameHandler handler =
+        getComputePreferredNameHandler(getProject().getTerminology());
     final PrecedenceList precedenceList = getPrecedenceList(
         getProject().getTerminology(), getProject().getVersion());
 
@@ -684,15 +695,16 @@ public class WriteRrfHistoryFilesAlgorithm
             if (atomLastReleaseCuis != null) {
               final String lastReleaseProjectCui =
                   atomLastReleaseCuis.get(getProject().getTerminology());
-              if (lastReleaseProjectCui != null && lastReleaseProjectCui.equals(cui)) {
+              if (lastReleaseProjectCui != null
+                  && lastReleaseProjectCui.equals(cui)) {
                 atoms.add(atom);
               }
             }
           }
-//           atoms.addAll(concept.getAtoms().stream()
-//           .filter(a -> a.getConceptTerminologyIds()
-//           .get(getProject().getTerminology()).equals(cui))
-//           .collect(Collectors.toSet()));
+          // atoms.addAll(concept.getAtoms().stream()
+          // .filter(a -> a.getConceptTerminologyIds()
+          // .get(getProject().getTerminology()).equals(cui))
+          // .collect(Collectors.toSet()));
         }
         String oldConceptName = null;
         if (atoms.size() == 0) {
@@ -912,7 +924,8 @@ public class WriteRrfHistoryFilesAlgorithm
       // shouldn't happen
       if (releases.size() > 1) {
         throw new Exception(
-            "Unexpected facts for CUI = " + cui + ", from multiple releases = " + releases + ". Here are the facts: " + facts);
+            "Unexpected facts for CUI = " + cui + ", from multiple releases = "
+                + releases + ". Here are the facts: " + facts);
       }
 
       // Handle simpler cases
@@ -1086,11 +1099,16 @@ public class WriteRrfHistoryFilesAlgorithm
      * @param release the version
      * @param rel the rel
      * @param cui2 the cui 2
+     * @param currentCuis the current cuis
      * @throws Exception the exception
      */
     public void addBequeathal(String cui, String release, String rel,
       String cui2, Set<String> currentCuis) throws Exception {
+      if (bequeathalToLiveCUIs.get(cui) == null) {
+        bequeathalToLiveCUIs.put(cui, false);
+      }
       if (currentCuis.contains(cui2)) {
+        bequeathalToLiveCUIs.put(cui, true);
         final ComponentHistory history = new ComponentHistoryJpa();
         history.setTerminologyId(cui);
         history.setAssociatedRelease(release);
