@@ -26,17 +26,21 @@ import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
+import com.wci.umls.server.jpa.content.AtomTreePositionJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
+import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
+import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
 import com.wci.umls.server.jpa.content.DefinitionJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
+import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.MappingJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
@@ -55,7 +59,7 @@ public class UpdateReleasabilityAlgorithm
    * referenced in sources.src, and contents from older versions of these
    * terminologies get set to unpublishable.
    * 
-   * If true, this is being called from RetireTerminology, and contents from the 
+   * If true, this is being called from RetireTerminology, and contents from the
    * specified version of this terminology gets set to unpublishable
    */
   private Boolean retire = false;
@@ -127,15 +131,17 @@ public class UpdateReleasabilityAlgorithm
       Set<Terminology> referencedTerminologies = new HashSet<>();
       referencedTerminologies = getReferencedTerminologies();
 
-      final List<Class> classList = new ArrayList<>(Arrays.asList(AtomJpa.class,
-          AtomRelationshipJpa.class, AtomSubsetJpa.class,
-          AtomSubsetMemberJpa.class, AttributeJpa.class, CodeJpa.class,
-          CodeRelationshipJpa.class, ComponentInfoRelationshipJpa.class,
-          ConceptJpa.class, ConceptRelationshipJpa.class,
-          ConceptSubsetJpa.class, ConceptSubsetMemberJpa.class,
-          DefinitionJpa.class, DescriptorJpa.class,
-          DescriptorRelationshipJpa.class, MappingJpa.class, MapSetJpa.class,
-          SemanticTypeComponentJpa.class));
+      final List<Class> classList = new ArrayList<>(
+          Arrays.asList(AtomJpa.class, AtomRelationshipJpa.class,
+              AtomSubsetJpa.class, AtomSubsetMemberJpa.class,
+              AttributeJpa.class, CodeJpa.class, CodeRelationshipJpa.class,
+              ComponentInfoRelationshipJpa.class, ConceptJpa.class,
+              ConceptRelationshipJpa.class, ConceptSubsetJpa.class,
+              ConceptSubsetMemberJpa.class, DefinitionJpa.class,
+              DescriptorJpa.class, DescriptorRelationshipJpa.class,
+              MappingJpa.class, MapSetJpa.class, SemanticTypeComponentJpa.class,
+              AtomTreePositionJpa.class, CodeTreePositionJpa.class,
+              ConceptTreePositionJpa.class, DescriptorTreePositionJpa.class));
 
       // Each class will be counted as its own step for this algorithm's
       // progress
@@ -143,7 +149,7 @@ public class UpdateReleasabilityAlgorithm
 
       // Find all of the old version component ids
       for (Class clazz : classList) {
-               
+
         String query = "SELECT c.id " + "FROM " + clazz.getSimpleName() + " c "
             + "WHERE c.publishable=true AND ((c.terminology=:terminology "
             + "AND NOT c.version=:version)";
@@ -151,12 +157,12 @@ public class UpdateReleasabilityAlgorithm
         // Make sure all of the terminologies in sources.src are included in the
         // query
         for (Terminology referencedTerminology : referencedTerminologies) {
-          query += 
+          query +=
               " OR (c.terminology='" + referencedTerminology.getTerminology()
                   + (retire ? "' AND c.version='" : "' AND NOT c.version='")
-                      + referencedTerminology.getVersion() + "')";
+                  + referencedTerminology.getVersion() + "')";
         }
-        
+
         query += ")";
 
         // Perform a QueryActionAlgorithm using the class and query

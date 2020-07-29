@@ -2041,6 +2041,10 @@ public class WriteRrfContentFilesAlgorithm
         // Find tree positions for this atom
         for (final AtomTreePosition treepos : atom.getTreePositions()) {
 
+          if(!treepos.isPublishable()){
+            continue;
+          }
+          
           final StringBuilder ptr = new StringBuilder(200);
           String paui = null;
           String root = null;
@@ -2121,6 +2125,10 @@ public class WriteRrfContentFilesAlgorithm
             .getConcept(atomContentsMap.get(atom.getId()).getConceptId());
         for (final ConceptTreePosition treepos : scui.getTreePositions()) {
 
+          if(!treepos.isPublishable()){
+            continue;
+          }          
+          
           final StringBuilder ptr = new StringBuilder(200);
           String paui = null;
           String root = null;
@@ -2202,6 +2210,10 @@ public class WriteRrfContentFilesAlgorithm
         final Descriptor sdui = service
             .getDescriptor(atomContentsMap.get(atom.getId()).getDescriptorId());
         for (final DescriptorTreePosition treepos : sdui.getTreePositions()) {
+
+          if(!treepos.isPublishable()){
+            continue;
+          }          
 
           final StringBuilder ptr = new StringBuilder(200);
           String paui = null;
@@ -2287,6 +2299,10 @@ public class WriteRrfContentFilesAlgorithm
         final Code code =
             service.getCode(atomContentsMap.get(atom.getId()).getCodeId());
         for (final CodeTreePosition treepos : code.getTreePositions()) {
+
+          if(!treepos.isPublishable()){
+            continue;
+          }          
 
           final StringBuilder ptr = new StringBuilder(200);
           String paui = null;

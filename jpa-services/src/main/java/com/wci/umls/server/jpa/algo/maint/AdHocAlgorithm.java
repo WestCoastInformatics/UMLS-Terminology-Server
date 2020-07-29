@@ -68,8 +68,10 @@ import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.AtomSubsetMember;
+import com.wci.umls.server.model.content.AtomTreePosition;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.model.content.CodeTreePosition;
 import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.ComponentInfoRelationship;
 import com.wci.umls.server.model.content.Concept;
@@ -78,6 +80,7 @@ import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.ConceptTreePosition;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.model.content.DescriptorTreePosition;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.inversion.SourceIdRange;
@@ -247,10 +250,14 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixOverlappingBRORels();
     } else if (actionName.equals("Fix NCBI VPT atom")) {
       fixNCBIVPT();
+    } else if (actionName.equals("Inactivate old tree positions")) {
+      inactivateOldTreePositions();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
 
+    
+    
     commitClearBegin();
 
     logInfo("  project = " + getProject().getId());
@@ -3767,7 +3774,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Fix Atom Suppressible and Obsolete",
         "Initialize Source Atom Id Range App", "Remove Deprecated Termgroups",
         "Change null treeposition Relas to blank",
-        "Fix overlapping bequeathal rels","Fix NCBI VPT atom"));
+        "Fix overlapping bequeathal rels","Fix NCBI VPT atom","Inactivate old tree positions"));
     params.add(param);
 
     return params;
@@ -3947,4 +3954,247 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   }
 
+  private void inactivateOldTreePositions() throws Exception {
+    // 7/29/2030 Bug identified where old tree positions were
+    // not getting caught by UpdateReleasibility.
+    // Set them to publishable = false.
+
+    try {
+
+      logInfo("  Making old version atom tree positions unpublishable");
+
+      // Mark all non-current atom tree positions as unpublishable.
+      String query = "SELECT a.id " + "FROM AtomTreePositionJpa a, TerminologyJpa t "
+          + "WHERE a.terminology=t.terminology AND a.version=t.version AND a.publishable=true AND t.current = false";
+
+      // Perform a QueryActionAlgorithm using the class and query
+      QueryActionAlgorithm queryAction = new QueryActionAlgorithm();
+      try {
+        queryAction.setLastModifiedBy(getLastModifiedBy());
+        queryAction.setLastModifiedFlag(isLastModifiedFlag());
+        queryAction.setProcess(getProcess());
+        queryAction.setProject(getProject());
+        queryAction.setTerminology(getTerminology());
+        queryAction.setVersion(getVersion());
+        queryAction.setWorkId(getWorkId());
+        queryAction.setActivityId(getActivityId());
+
+        queryAction.setObjectTypeClass(AtomTreePosition.class);
+        queryAction.setAction("Make Unpublishable");
+        queryAction.setQueryType(QueryType.JPQL);
+        queryAction.setQuery(query);
+
+        queryAction.setTransactionPerOperation(false);
+        queryAction.beginTransaction();
+
+        //
+        // Check prerequisites
+        //
+        ValidationResult validationResult = queryAction.checkPreconditions();
+        // if prerequisites fail, return validation result
+        if (!validationResult.getErrors().isEmpty()
+            || (!validationResult.getWarnings().isEmpty())) {
+          // rollback -- unlocks the concept and closes transaction
+          queryAction.rollback();
+        }
+        assertTrue(validationResult.getErrors().isEmpty());
+
+        //
+        // Perform the algorithm
+        //
+        queryAction.compute();
+
+        // Commit the algorithm.
+        queryAction.commit();
+
+      } catch (Exception e) {
+        queryAction.rollback();
+        e.printStackTrace();
+        fail("Unexpected exception thrown - please review stack trace.");
+      } finally {
+        // Close algorithm for each loop
+        queryAction.close();
+      }
+
+      
+      logInfo("  Making old version concept tree positions unpublishable");
+
+      // Mark all non-current concept tree positions as unpublishable.
+      query = "SELECT a.id " + "FROM ConceptTreePositionJpa a, TerminologyJpa t "
+          + "WHERE a.terminology=t.terminology AND a.version=t.version AND a.publishable=true AND t.current = false";
+
+      // Perform a QueryActionAlgorithm using the class and query
+      queryAction = new QueryActionAlgorithm();
+      try {
+        queryAction.setLastModifiedBy(getLastModifiedBy());
+        queryAction.setLastModifiedFlag(isLastModifiedFlag());
+        queryAction.setProcess(getProcess());
+        queryAction.setProject(getProject());
+        queryAction.setTerminology(getTerminology());
+        queryAction.setVersion(getVersion());
+        queryAction.setWorkId(getWorkId());
+        queryAction.setActivityId(getActivityId());
+
+        queryAction.setObjectTypeClass(ConceptTreePosition.class);
+        queryAction.setAction("Make Unpublishable");
+        queryAction.setQueryType(QueryType.JPQL);
+        queryAction.setQuery(query);
+
+        queryAction.setTransactionPerOperation(false);
+        queryAction.beginTransaction();
+
+        //
+        // Check prerequisites
+        //
+        ValidationResult validationResult = queryAction.checkPreconditions();
+        // if prerequisites fail, return validation result
+        if (!validationResult.getErrors().isEmpty()
+            || (!validationResult.getWarnings().isEmpty())) {
+          // rollback -- unlocks the concept and closes transaction
+          queryAction.rollback();
+        }
+        assertTrue(validationResult.getErrors().isEmpty());
+
+        //
+        // Perform the algorithm
+        //
+        queryAction.compute();
+
+        // Commit the algorithm.
+        queryAction.commit();
+
+      } catch (Exception e) {
+        queryAction.rollback();
+        e.printStackTrace();
+        fail("Unexpected exception thrown - please review stack trace.");
+      } finally {
+        // Close algorithm for each loop
+        queryAction.close();
+      }
+
+      
+      logInfo("  Making old version code tree positions unpublishable");
+
+      // Mark all non-current code tree positions as unpublishable.
+      query = "SELECT a.id " + "FROM CodeTreePositionJpa a, TerminologyJpa t "
+          + "WHERE a.terminology=t.terminology AND a.version=t.version AND a.publishable=true AND t.current = false";
+
+      // Perform a QueryActionAlgorithm using the class and query
+      queryAction = new QueryActionAlgorithm();
+      try {
+        queryAction.setLastModifiedBy(getLastModifiedBy());
+        queryAction.setLastModifiedFlag(isLastModifiedFlag());
+        queryAction.setProcess(getProcess());
+        queryAction.setProject(getProject());
+        queryAction.setTerminology(getTerminology());
+        queryAction.setVersion(getVersion());
+        queryAction.setWorkId(getWorkId());
+        queryAction.setActivityId(getActivityId());
+
+        queryAction.setObjectTypeClass(CodeTreePosition.class);
+        queryAction.setAction("Make Unpublishable");
+        queryAction.setQueryType(QueryType.JPQL);
+        queryAction.setQuery(query);
+
+        queryAction.setTransactionPerOperation(false);
+        queryAction.beginTransaction();
+
+        //
+        // Check prerequisites
+        //
+        ValidationResult validationResult = queryAction.checkPreconditions();
+        // if prerequisites fail, return validation result
+        if (!validationResult.getErrors().isEmpty()
+            || (!validationResult.getWarnings().isEmpty())) {
+          // rollback -- unlocks the concept and closes transaction
+          queryAction.rollback();
+        }
+        assertTrue(validationResult.getErrors().isEmpty());
+
+        //
+        // Perform the algorithm
+        //
+        queryAction.compute();
+
+        // Commit the algorithm.
+        queryAction.commit();
+
+      } catch (Exception e) {
+        queryAction.rollback();
+        e.printStackTrace();
+        fail("Unexpected exception thrown - please review stack trace.");
+      } finally {
+        // Close algorithm for each loop
+        queryAction.close();
+      }
+
+      
+      logInfo("  Making old version descriptor tree positions unpublishable");
+
+      // Mark all non-current atom tree positions as unpublishable.
+      query = "SELECT a.id " + "FROM DescriptorTreePositionJpa a, TerminologyJpa t "
+          + "WHERE a.terminology=t.terminology AND a.version=t.version AND a.publishable=true AND t.current = false";
+
+      // Perform a QueryActionAlgorithm using the class and query
+      queryAction = new QueryActionAlgorithm();
+      try {
+        queryAction.setLastModifiedBy(getLastModifiedBy());
+        queryAction.setLastModifiedFlag(isLastModifiedFlag());
+        queryAction.setProcess(getProcess());
+        queryAction.setProject(getProject());
+        queryAction.setTerminology(getTerminology());
+        queryAction.setVersion(getVersion());
+        queryAction.setWorkId(getWorkId());
+        queryAction.setActivityId(getActivityId());
+
+        queryAction.setObjectTypeClass(DescriptorTreePosition.class);
+        queryAction.setAction("Make Unpublishable");
+        queryAction.setQueryType(QueryType.JPQL);
+        queryAction.setQuery(query);
+
+        queryAction.setTransactionPerOperation(false);
+        queryAction.beginTransaction();
+
+        //
+        // Check prerequisites
+        //
+        ValidationResult validationResult = queryAction.checkPreconditions();
+        // if prerequisites fail, return validation result
+        if (!validationResult.getErrors().isEmpty()
+            || (!validationResult.getWarnings().isEmpty())) {
+          // rollback -- unlocks the concept and closes transaction
+          queryAction.rollback();
+        }
+        assertTrue(validationResult.getErrors().isEmpty());
+
+        //
+        // Perform the algorithm
+        //
+        queryAction.compute();
+
+        // Commit the algorithm.
+        queryAction.commit();
+
+      } catch (Exception e) {
+        queryAction.rollback();
+        e.printStackTrace();
+        fail("Unexpected exception thrown - please review stack trace.");
+      } finally {
+        // Close algorithm for each loop
+        queryAction.close();
+      }
+      
+      
+      logInfo("Finished " + getName());
+
+    } catch (
+
+    Exception e) {
+      logError("Unexpected problem - " + e.getMessage());
+      throw e;
+    }
+
+  }
+  
+  
 }
