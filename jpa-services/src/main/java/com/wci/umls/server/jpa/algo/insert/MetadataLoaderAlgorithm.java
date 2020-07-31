@@ -496,17 +496,7 @@ public class MetadataLoaderAlgorithm
         final Terminology term = new TerminologyJpa();
         term.setCitation(new CitationJpa(fields[16]));
         term.setCurrent(true);
-
-        // Preferred Name version suffix is different depending on terminology's
-        // family
-        String versionSuffix = null;
-        if (fields[6].equals("MDR")) {
-          versionSuffix = ", " + fields[5].replace("_", ".");
-        } else {
-          versionSuffix = ", " + fields[5];
-        }
-
-        term.setPreferredName(fields[7] + versionSuffix);
+        term.setPreferredName(fields[7] + ", " + fields[5]);
         term.setTerminology(fields[4]);
         term.setVersion(computeVersion(fields[0], fields[4]));
         term.setDescriptionLogicTerminology(false);
