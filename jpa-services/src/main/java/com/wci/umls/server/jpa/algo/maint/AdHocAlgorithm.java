@@ -252,6 +252,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixNCBIVPT();
     } else if (actionName.equals("Inactivate old tree positions")) {
       inactivateOldTreePositions();
+    } else if (actionName.equals("Fix Duplicate CUIs")) {
+      fixDuplicateCUIs();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -2527,7 +2529,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     try {
 
-      // Identify all relationship identities that have duplicates
+      // Identify all concepts that have duplicate CUIs
       // REAL QUERY
       Query query = getEntityManager().createNativeQuery(
           "select id from concepts where terminology='NCIMTH' group by "
@@ -2601,6 +2603,91 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         updateConcept(namedConceptToKeep);
         updateProgress();
       }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+
+    }
+
+    logInfo("Finished " + getName());
+
+  }
+
+  private void fixDuplicateCUIs() throws Exception {
+    // 7/31/2020 when CUIs went from 8-9 characters, many concepts were assigned
+    // CUIs that already existed.
+    // Find all duplicate CUIs, and reset the CUIs on the newer concept (the one
+    // with the higher conceptId).
+
+    logInfo(" Fix duplicate CUIs");
+
+    List<String> duplicateCUIs = new ArrayList<>();
+
+    try {
+
+      // Identify all concepts that have duplicate CUIs
+      Query query = getEntityManager().createNativeQuery(
+          "select terminologyId from concepts where terminology='NCIMTH' group by "
+              + "terminologyId having count(*) > 1");
+
+      logInfo("[FixDuplicateCUIs] Identifying duplicate CUIs");
+
+      List<Object> list = query.getResultList();
+
+      for (final Object entry : list) {
+        duplicateCUIs.add(entry.toString());
+      }
+
+      setSteps(duplicateCUIs.size());
+
+      int successfulUpdates = 0;
+
+      logInfo("[FixDuplicateCUIs] " + duplicateCUIs.size()
+          + " CUI duplicates identified");
+
+      for (final String cui : duplicateCUIs) {
+        query = getEntityManager().createNativeQuery(
+            "select id from concepts where terminologyId = :terminologyId");
+        query.setParameter("terminologyId", cui);
+
+        list = query.getResultList();
+
+        // There should only ever be 2 concepts with the same CUI. If not, this
+        // method needs to be rewritten.
+        if (list.size() != 2) {
+          throw new Exception("ERROR: " + list.size()
+              + " concepts all have the same CUI: " + cui);
+        }
+
+        List<Long> conceptIdsWithSameCUI = new ArrayList<>();
+        Long conceptIdToUpdate = null;
+
+        for (final Object entry : list) {
+          conceptIdsWithSameCUI.add(Long.valueOf(entry.toString()));
+        }
+
+        // Identify the newer concept Id
+        if (conceptIdsWithSameCUI.get(0) < conceptIdsWithSameCUI.get(1)) {
+          conceptIdToUpdate = conceptIdsWithSameCUI.get(1);
+        } else {
+          conceptIdToUpdate = conceptIdsWithSameCUI.get(0);
+        }
+
+        // Reset the new concept's terminologyId to its conceptId.
+        final Concept concept = getConcept(conceptIdToUpdate);
+        concept.setTerminologyId(concept.getId().toString());
+        updateConcept(concept);
+
+        updateProgress();
+        successfulUpdates++;
+      }
+
+      logInfo("[FixDuplicateCUIs] " + successfulUpdates
+          + " duplicate CUIs removed from newer concept.");
+
+      commitClearBegin();
+
     } catch (Exception e) {
       e.printStackTrace();
       fail("Unexpected exception thrown - please review stack trace.");
@@ -3773,7 +3860,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Initialize Source Atom Id Range App", "Remove Deprecated Termgroups",
         "Change null treeposition Relas to blank",
         "Fix overlapping bequeathal rels", "Fix NCBI VPT atom",
-        "Inactivate old tree positions"));
+        "Inactivate old tree positions", "Fix Duplicate CUIs"));
     params.add(param);
 
     return params;
