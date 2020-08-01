@@ -5,11 +5,9 @@ package com.wci.umls.server.jpa.algo.insert;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.UUID;
 
 import com.wci.umls.server.AlgorithmParameter;
@@ -32,7 +30,6 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.StringClass;
-import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.RootService;
@@ -84,12 +81,12 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     if (!getSrcDirFile().exists()) {
       throw new Exception("Specified input directory does not exist");
     }
-    
-    // Get valid terminologies first
-    final String query = "SELECT term.terminology, term.version from TerminologyJpa term";
 
-    javax.persistence.Query jpaQuery =
-      getEntityManager().createQuery(query);
+    // Get valid terminologies first
+    final String query =
+        "SELECT term.terminology, term.version from TerminologyJpa term";
+
+    javax.persistence.Query jpaQuery = getEntityManager().createQuery(query);
 
     final List<Object[]> list = jpaQuery.getResultList();
 
@@ -102,19 +99,21 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     //
     // Validate Terminology Names
     //
-    List<String> srcLines = loadFileIntoStringList(getSrcDirFile(), "classes_atoms.src",
-        "(.*)SRC/V(.*)", null, null);
+    List<String> srcLines = loadFileIntoStringList(getSrcDirFile(),
+        "classes_atoms.src", "(.*)SRC/V(.*)", null, null);
 
     String fields[] = new String[14];
-    
+
     // Check each of the source lines
     for (String line : srcLines) {
       FieldedStringTokenizer.split(line, "|", 14, fields);
       if (!possibleCodeIds.contains(fields[3])) {
         validationResult.addError(
-            "ERROR: classes_atoms.src references a SRC atom with a codeId " + fields[3] + " that doesn't match the format or terminology content available.");
+            "ERROR: classes_atoms.src references a SRC atom with a codeId "
+                + fields[3]
+                + " that doesn't match the format or terminology content available.");
       }
- 
+
     }
 
     return validationResult;
@@ -324,24 +323,15 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             oldAtomChanged = true;
           }
 
-          // If this loaded Atom is not exactly the same as the new Atom:
-          if (!oldAtom.equals(newAtom)) {
-
-            // Update obsolete and suppresible.
-            // If the old version of the atom is suppresible, and its term type
-            // is not, keep the old atom's suppresibility. Otherwise, use the
-            // new Atom's suppresible value.
-            final TermType atomTty = getCachedTermType(oldAtom.getTermType());
-            if (oldAtom.isSuppressible() != newAtom.isSuppressible()
-                && !(oldAtom.isSuppressible() && !atomTty.isSuppressible())) {
-              oldAtom.setSuppressible(newAtom.isSuppressible());
-              oldAtomChanged = true;
-            }
-            if (oldAtom.isObsolete() != newAtom.isObsolete()
-                && !(oldAtom.isObsolete() && !atomTty.isObsolete())) {
-              oldAtom.setObsolete(newAtom.isObsolete());
-              oldAtomChanged = true;
-            }
+          // Update suppresible
+          if (oldAtom.isSuppressible() != newAtom.isSuppressible()) {
+            oldAtom.setSuppressible(newAtom.isSuppressible());
+            oldAtomChanged = true;
+          }
+          // Update obsolete
+          if (oldAtom.isObsolete() != newAtom.isObsolete()) {
+            oldAtom.setObsolete(newAtom.isObsolete());
+            oldAtomChanged = true;
           }
 
           if (oldAtomChanged) {
