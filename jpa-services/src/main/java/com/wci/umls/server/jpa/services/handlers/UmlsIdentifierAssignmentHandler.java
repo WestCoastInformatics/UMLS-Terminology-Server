@@ -228,18 +228,19 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
         conceptId = conceptId2 != null ? conceptId2 : conceptId;
       } catch (NoResultException e) {
         conceptId = 0L;
-      } finally {
-        service.close();
-      }
+      } 
+      
       // Set the maxConceptId
       maxConceptId = conceptId;
-
+      
       // Try looking up concept with CUI = CUIprefix + (maxConceptId + 1), to
       // ensure that maxConceptId is truly the max
       final Concept testConcept =
           service.getConcept(prefixMap.get("CUI") + (maxConceptId + 1),
               concept.getTerminology(), concept.getVersion(), Branch.ROOT);
 
+      service.close();
+      
       if (testConcept != null) {
         throw new Exception("max CUI lookup failure: " + prefixMap.get("CUI")
             + maxConceptId + " is not the maximum CUI");
