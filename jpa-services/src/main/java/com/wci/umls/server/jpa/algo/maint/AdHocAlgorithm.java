@@ -1851,7 +1851,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   private void fixSnomedFamily() throws Exception {
     // 9/12/2018 Snomed family should be SNOMEDCT_US, not SNOMED.
-    // 8/23/2019 Added fix for CCS_10 source family, not CCS.
+    // 8/23/2019 Added fix for CCS_10 source family being CCS, not CCS_10.
+    // 8/2/2020 Added fix for CCSR_10 source family being CCS, not CCS_10
     logInfo(" Fix Snomed Family");
 
     RootTerminology rootTerminology = getRootTerminology("SNOMEDCT_US");
@@ -1859,6 +1860,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     updateRootTerminology(rootTerminology);
 
     rootTerminology = getRootTerminology("CCS_10");
+    rootTerminology.setFamily("CCS_10");
+    updateRootTerminology(rootTerminology);
+    
+    rootTerminology = getRootTerminology("CCSR_10");
     rootTerminology.setFamily("CCS_10");
     updateRootTerminology(rootTerminology);
 
