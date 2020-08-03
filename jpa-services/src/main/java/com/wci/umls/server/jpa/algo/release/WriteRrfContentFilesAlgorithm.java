@@ -168,6 +168,15 @@ public class WriteRrfContentFilesAlgorithm
     // open print writers
     openWriters();
 
+    // Write AMBIG files
+    writeAmbig();
+    
+    commitClearBegin();
+    
+    // Close Ambig writers
+    writerMap.get("AMBIGSUI.RRF").close();
+    writerMap.get("AMBIGLUI.RRF").close();
+
     prepareMaps();
     commitClearBegin();
 
@@ -182,15 +191,8 @@ public class WriteRrfContentFilesAlgorithm
         QueryType.JPQL, getDefaultQueryParams(getProject()), ConceptJpa.class,
         false);
     commitClearBegin();
-    setSteps(conceptIds.size());
-
-    // Write AMBIG files
-    writeAmbig();
-
-    // Close Ambig writers
-    writerMap.get("AMBIGSUI.RRF").close();
-    writerMap.get("AMBIGLUI.RRF").close();
-
+    setSteps(conceptIds.size());    
+    
     // Parallelize output
     final Thread[] threads = new Thread[3];
     final Exception[] exceptions = new Exception[4];
@@ -2945,14 +2947,17 @@ public class WriteRrfContentFilesAlgorithm
   @SuppressWarnings("unchecked")
   private void writeAmbig() throws Exception {
     // Find ambig SUIs, write them out.
+    // 2020/08/03, NM-87: added "|| '|'" to terminologyId sort to handle variable
+    // length CL-CUIs
+
     logInfo("  Write AMBIGSUI.RRF");
     Query query = manager
-        .createQuery("select distinct a.stringClassId, c.terminologyId from "
+        .createQuery("select distinct a.stringClassId, c.terminologyId, c.terminologyId || '|' from "
             + "ConceptJpa c join c.atoms a, ConceptJpa c2 join c2.atoms a2 "
             + "where c.id != c2.id and a.stringClassId = a2.stringClassId"
             + "  and c.terminology = :terminology and c2.terminology = :terminology"
             + "  and c.version = :version and c2.version = :version"
-            + "  and a.publishable = true and a2.publishable = true order by 1,2");
+            + "  and a.publishable = true and a2.publishable = true order by 1,3");
     query.setParameter("terminology", getProject().getTerminology());
     query.setParameter("version", getProject().getVersion());
     List<Object[]> results = query.getResultList();
@@ -2962,15 +2967,18 @@ public class WriteRrfContentFilesAlgorithm
     }
 
     // Find ambig LUIs, write them out.
+    // 2020/08/03, NM-87: added "|| '|'" to terminologyId sort to handle variable
+    // length CL-CUIs
+    
     logInfo("  Write AMBIGLUI.RRF");
     query = manager
-        .createQuery("select distinct a.lexicalClassId, c.terminologyId from "
+        .createQuery("select distinct a.lexicalClassId, c.terminologyId, c.terminologyId || '|' from "
             + "ConceptJpa c join c.atoms a, ConceptJpa c2 join c2.atoms a2 "
             + "where c.id != c2.id"
             + "  and a.lexicalClassId = a2.lexicalClassId"
             + "  and c.terminology = :terminology and c2.terminology = :terminology"
             + "  and c.version = :version and c2.version = :version"
-            + "  and a.publishable = true and a2.publishable = true order by 1,2");
+            + "  and a.publishable = true and a2.publishable = true order by 1,3");
     query.setParameter("terminology", getProject().getTerminology());
     query.setParameter("version", getProject().getVersion());
     results = query.getResultList();
