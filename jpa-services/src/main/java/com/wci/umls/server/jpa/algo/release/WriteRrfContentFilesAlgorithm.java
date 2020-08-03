@@ -177,226 +177,226 @@ public class WriteRrfContentFilesAlgorithm
     writerMap.get("AMBIGSUI.RRF").close();
     writerMap.get("AMBIGLUI.RRF").close();
 
-    prepareMaps();
-    commitClearBegin();
-
-    // Collect all concepts
-    // 2020/03/20, NM-63: added "|| '|'" to terminologyId sort to handle variable
-    // length CL-CUIs
-    final List<Long> conceptIds = executeSingleComponentIdQuery(
-        "select distinct c.id from ConceptJpa c join c.atoms a "
-            + "where c.terminology = :terminology "
-            + "  and c.version = :version and a.publishable = true "
-            + "  and c.publishable = true order by c.terminologyId || '|'",
-        QueryType.JPQL, getDefaultQueryParams(getProject()), ConceptJpa.class,
-        false);
-    commitClearBegin();
-    setSteps(conceptIds.size());    
-    
-    // Parallelize output
-    final Thread[] threads = new Thread[3];
-    final Exception[] exceptions = new Exception[4];
-
-    Thread t = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        WriteRrfContentFilesAlgorithm service = null;
-        try {
-          service = new WriteRrfContentFilesAlgorithm();
-          service.setTransactionPerOperation(false);
-          service.beginTransaction();
-
-          service.setProject(getProject());
-          service.setProcess(getProcess());
-
-          int ct = 0;
-          for (final Long conceptId : conceptIds) {
-            final Concept c = service.getConcept(conceptId);
-
-            String prev = "";
-            for (final String line : writeMrrel(c, service)) {
-              if (!line.equals(prev)) {
-                writerMap.get("MRREL.RRF").print(line);
-              }
-              prev = line;
-            }
-
-            if (ct++ % 1000 == 0) {
-              checkCancel();
-              service.commitClearBegin();
-            }
-          }
-          service.commit();
-          service.close();
-          Logger.getLogger(getClass()).info("After MRREL completes.");
-
-        } catch (Exception e) {
-          Logger.getLogger(getClass()).error(e.getMessage(), e);
-          exceptions[0] = e;
-        } finally {
-          writerMap.get("MRREL.RRF").close();
-          try {
-            service.close();
-          } catch (Exception e) {
-            exceptions[0] = e;
-          }
-        }
-      }
-    });
-    threads[0] = t;
-    t.start();
-
-    t = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        WriteRrfContentFilesAlgorithm service = null;
-        try {
-          service = new WriteRrfContentFilesAlgorithm();
-          service.setTransactionPerOperation(false);
-          service.beginTransaction();
-
-          service.setProject(getProject());
-          service.setProcess(getProcess());
-
-          int ct = 0;
-          for (final Long conceptId : conceptIds) {
-            final Concept c = service.getConcept(conceptId);
-
-            String prev = "";
-            for (final String line : writeMrhier(c, service)) {
-              if (!line.equals(prev)) {
-                writerMap.get("MRHIER.RRF").print(line);
-              }
-              prev = line;
-            }
-
-            if (ct++ % RootService.commitCt == 0) {
-              checkCancel();
-              service.commitClearBegin();
-            }
-          }
-          service.commit();
-          service.close();
-          Logger.getLogger(getClass()).info("After MRHIER completes.");
-
-        } catch (Exception e) {
-          Logger.getLogger(getClass()).error(e.getMessage(), e);
-          exceptions[1] = e;
-        } finally {
-          writerMap.get("MRHIER.RRF").close();
-          try {
-            service.close();
-          } catch (Exception e) {
-            exceptions[1] = e;
-          }
-        }
-      }
-    });
-    threads[1] = t;
-    t.start();
-
-    t = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        WriteRrfContentFilesAlgorithm service = null;
-        try {
-          service = new WriteRrfContentFilesAlgorithm();
-          service.setTransactionPerOperation(false);
-          service.beginTransaction();
-
-          service.setProject(getProject());
-          service.setProcess(getProcess());
-
-          int ct = 0;
-          for (final Long conceptId : conceptIds) {
-            final Concept c = service.getConcept(conceptId);
-
-            String prev = null;
-            for (final String line : writeMrsat(c, service)) {
-              if (!line.equals(prev)) {
-                writerMap.get("MRSAT.RRF").print(line);
-              }
-              prev = line;
-            }
-            writerMap.get("MRSAT.RRF").flush();
-            if (ct++ % 100 == 0) {
-              checkCancel();
-              service.commitClearBegin();
-            }
-          }
-          service.commit();
-          service.close();
-          Logger.getLogger(getClass()).info("After MRSAT completes.");
-
-        } catch (Exception e) {
-          Logger.getLogger(getClass()).error(e.getMessage(), e);
-          exceptions[2] = e;
-        } finally {
-          writerMap.get("MRSAT.RRF").close();
-          try {
-            service.close();
-          } catch (Exception e) {
-            exceptions[2] = e;
-          }
-        }
-      }
-    });
-    threads[2] = t;
-    t.start();
-
-    // Start writing other files
-    try {
-      for (final Long conceptId : conceptIds) {
-        final Concept c = getConcept(conceptId);
-        String prev = "";
-        for (final String line : writeMrconso(c)) {
-          if (!line.equals(prev)) {
-            writerMap.get("MRCONSO.RRF").print(line);
-          }
-          prev = line;
-        }
-
-        prev = "";
-        for (final String line : writeMrdef(c)) {
-          if (!line.equals(prev)) {
-            writerMap.get("MRDEF.RRF").print(line);
-          }
-          prev = line;
-        }
-
-        prev = "";
-        for (final String line : writeMrsty(c)) {
-          if (!line.equals(prev)) {
-            writerMap.get("MRSTY.RRF").print(line);
-          }
-          prev = line;
-        }
-        updateProgress();
-      }
-    } catch (Exception e) {
-      Logger.getLogger(getClass()).error(e.getMessage(), e);
-      exceptions[3] = e;
-    } finally {
-      // Close final writers
-      writerMap.get("MRCONSO.RRF").close();
-      writerMap.get("MRDEF.RRF").close();
-      writerMap.get("MRSTY.RRF").close();
-    }
-
-    // Wait for threads
-    for (final Thread thread : threads) {
-      thread.join();
-    }
-
-    // close print writers (if any are still open)
-    closeWriters();
-
-    // Report exceptions
-    for (final Exception e : exceptions) {
-      if (e != null) {
-        throw e;
-      }
-    }
+//    prepareMaps();
+//    commitClearBegin();
+//
+//    // Collect all concepts
+//    // 2020/03/20, NM-63: added "|| '|'" to terminologyId sort to handle variable
+//    // length CL-CUIs
+//    final List<Long> conceptIds = executeSingleComponentIdQuery(
+//        "select distinct c.id from ConceptJpa c join c.atoms a "
+//            + "where c.terminology = :terminology "
+//            + "  and c.version = :version and a.publishable = true "
+//            + "  and c.publishable = true order by c.terminologyId || '|'",
+//        QueryType.JPQL, getDefaultQueryParams(getProject()), ConceptJpa.class,
+//        false);
+//    commitClearBegin();
+//    setSteps(conceptIds.size());    
+//    
+//    // Parallelize output
+//    final Thread[] threads = new Thread[3];
+//    final Exception[] exceptions = new Exception[4];
+//
+//    Thread t = new Thread(new Runnable() {
+//      @Override
+//      public void run() {
+//        WriteRrfContentFilesAlgorithm service = null;
+//        try {
+//          service = new WriteRrfContentFilesAlgorithm();
+//          service.setTransactionPerOperation(false);
+//          service.beginTransaction();
+//
+//          service.setProject(getProject());
+//          service.setProcess(getProcess());
+//
+//          int ct = 0;
+//          for (final Long conceptId : conceptIds) {
+//            final Concept c = service.getConcept(conceptId);
+//
+//            String prev = "";
+//            for (final String line : writeMrrel(c, service)) {
+//              if (!line.equals(prev)) {
+//                writerMap.get("MRREL.RRF").print(line);
+//              }
+//              prev = line;
+//            }
+//
+//            if (ct++ % 1000 == 0) {
+//              checkCancel();
+//              service.commitClearBegin();
+//            }
+//          }
+//          service.commit();
+//          service.close();
+//          Logger.getLogger(getClass()).info("After MRREL completes.");
+//
+//        } catch (Exception e) {
+//          Logger.getLogger(getClass()).error(e.getMessage(), e);
+//          exceptions[0] = e;
+//        } finally {
+//          writerMap.get("MRREL.RRF").close();
+//          try {
+//            service.close();
+//          } catch (Exception e) {
+//            exceptions[0] = e;
+//          }
+//        }
+//      }
+//    });
+//    threads[0] = t;
+//    t.start();
+//
+//    t = new Thread(new Runnable() {
+//      @Override
+//      public void run() {
+//        WriteRrfContentFilesAlgorithm service = null;
+//        try {
+//          service = new WriteRrfContentFilesAlgorithm();
+//          service.setTransactionPerOperation(false);
+//          service.beginTransaction();
+//
+//          service.setProject(getProject());
+//          service.setProcess(getProcess());
+//
+//          int ct = 0;
+//          for (final Long conceptId : conceptIds) {
+//            final Concept c = service.getConcept(conceptId);
+//
+//            String prev = "";
+//            for (final String line : writeMrhier(c, service)) {
+//              if (!line.equals(prev)) {
+//                writerMap.get("MRHIER.RRF").print(line);
+//              }
+//              prev = line;
+//            }
+//
+//            if (ct++ % RootService.commitCt == 0) {
+//              checkCancel();
+//              service.commitClearBegin();
+//            }
+//          }
+//          service.commit();
+//          service.close();
+//          Logger.getLogger(getClass()).info("After MRHIER completes.");
+//
+//        } catch (Exception e) {
+//          Logger.getLogger(getClass()).error(e.getMessage(), e);
+//          exceptions[1] = e;
+//        } finally {
+//          writerMap.get("MRHIER.RRF").close();
+//          try {
+//            service.close();
+//          } catch (Exception e) {
+//            exceptions[1] = e;
+//          }
+//        }
+//      }
+//    });
+//    threads[1] = t;
+//    t.start();
+//
+//    t = new Thread(new Runnable() {
+//      @Override
+//      public void run() {
+//        WriteRrfContentFilesAlgorithm service = null;
+//        try {
+//          service = new WriteRrfContentFilesAlgorithm();
+//          service.setTransactionPerOperation(false);
+//          service.beginTransaction();
+//
+//          service.setProject(getProject());
+//          service.setProcess(getProcess());
+//
+//          int ct = 0;
+//          for (final Long conceptId : conceptIds) {
+//            final Concept c = service.getConcept(conceptId);
+//
+//            String prev = null;
+//            for (final String line : writeMrsat(c, service)) {
+//              if (!line.equals(prev)) {
+//                writerMap.get("MRSAT.RRF").print(line);
+//              }
+//              prev = line;
+//            }
+//            writerMap.get("MRSAT.RRF").flush();
+//            if (ct++ % 100 == 0) {
+//              checkCancel();
+//              service.commitClearBegin();
+//            }
+//          }
+//          service.commit();
+//          service.close();
+//          Logger.getLogger(getClass()).info("After MRSAT completes.");
+//
+//        } catch (Exception e) {
+//          Logger.getLogger(getClass()).error(e.getMessage(), e);
+//          exceptions[2] = e;
+//        } finally {
+//          writerMap.get("MRSAT.RRF").close();
+//          try {
+//            service.close();
+//          } catch (Exception e) {
+//            exceptions[2] = e;
+//          }
+//        }
+//      }
+//    });
+//    threads[2] = t;
+//    t.start();
+//
+//    // Start writing other files
+//    try {
+//      for (final Long conceptId : conceptIds) {
+//        final Concept c = getConcept(conceptId);
+//        String prev = "";
+//        for (final String line : writeMrconso(c)) {
+//          if (!line.equals(prev)) {
+//            writerMap.get("MRCONSO.RRF").print(line);
+//          }
+//          prev = line;
+//        }
+//
+//        prev = "";
+//        for (final String line : writeMrdef(c)) {
+//          if (!line.equals(prev)) {
+//            writerMap.get("MRDEF.RRF").print(line);
+//          }
+//          prev = line;
+//        }
+//
+//        prev = "";
+//        for (final String line : writeMrsty(c)) {
+//          if (!line.equals(prev)) {
+//            writerMap.get("MRSTY.RRF").print(line);
+//          }
+//          prev = line;
+//        }
+//        updateProgress();
+//      }
+//    } catch (Exception e) {
+//      Logger.getLogger(getClass()).error(e.getMessage(), e);
+//      exceptions[3] = e;
+//    } finally {
+//      // Close final writers
+//      writerMap.get("MRCONSO.RRF").close();
+//      writerMap.get("MRDEF.RRF").close();
+//      writerMap.get("MRSTY.RRF").close();
+//    }
+//
+//    // Wait for threads
+//    for (final Thread thread : threads) {
+//      thread.join();
+//    }
+//
+//    // close print writers (if any are still open)
+//    closeWriters();
+//
+//    // Report exceptions
+//    for (final Exception e : exceptions) {
+//      if (e != null) {
+//        throw e;
+//      }
+//    }
 
     fireProgressEvent(100, "Finished");
     logInfo("Finished " + getName());
