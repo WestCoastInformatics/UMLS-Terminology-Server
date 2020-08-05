@@ -119,7 +119,7 @@ public class WriteRrfHistoryFilesAlgorithm
     updateProgress();
 
     logInfo("  Write MRAUI.RRF");
-    // writeMraui();
+    writeMraui();
     updateProgress();
 
     // This also populates the "ConceptHistory" object
@@ -128,11 +128,11 @@ public class WriteRrfHistoryFilesAlgorithm
     updateProgress();
 
     logInfo("  Write NCI code file");
-    // writeNciCodeCuiMap();
+    writeNciCodeCuiMap();
     updateProgress();
 
     logInfo("  Write NCIMETA history file");
-    // writeNciMetaHistory(previousCuis, currentCuis);
+    writeNciMetaHistory(previousCuis, currentCuis);
     updateProgress();
 
     closeWriters();
