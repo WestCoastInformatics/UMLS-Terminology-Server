@@ -1,4 +1,6 @@
-
+/*
+ *    Copyright 2020 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.services.rest;
 
 import com.wci.umls.server.helpers.KeyValuePairLists;
