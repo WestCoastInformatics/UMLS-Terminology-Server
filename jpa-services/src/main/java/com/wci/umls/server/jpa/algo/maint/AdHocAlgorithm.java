@@ -94,6 +94,7 @@ import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.services.InversionService;
+import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.UmlsIdentityService;
 import com.wci.umls.server.services.WorkflowService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
@@ -254,10 +255,14 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       inactivateOldTreePositions();
     } else if (actionName.equals("Fix Duplicate CUIs")) {
       fixDuplicateCUIs();
+    } else if (actionName.equals("Remove Old CCS_10 AtomRelationships")) {
+      removeOldCCS10AtomRelationships();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
 
+    
+    
     commitClearBegin();
 
     logInfo("  project = " + getProject().getId());
@@ -1862,7 +1867,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     rootTerminology = getRootTerminology("CCS_10");
     rootTerminology.setFamily("CCS_10");
     updateRootTerminology(rootTerminology);
-    
+
     rootTerminology = getRootTerminology("CCSR_10");
     rootTerminology.setFamily("CCS_10");
     updateRootTerminology(rootTerminology);
@@ -3865,7 +3870,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Initialize Source Atom Id Range App", "Remove Deprecated Termgroups",
         "Change null treeposition Relas to blank",
         "Fix overlapping bequeathal rels", "Fix NCBI VPT atom",
-        "Inactivate old tree positions", "Fix Duplicate CUIs"));
+        "Inactivate old tree positions", "Fix Duplicate CUIs","Remove Old CCS_10 AtomRelationships"));
     params.add(param);
 
     return params;
@@ -4275,6 +4280,53 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         queryAction.close();
       }
 
+      logInfo("Finished " + getName());
+
+    } catch (
+
+    Exception e) {
+      logError("Unexpected problem - " + e.getMessage());
+      throw e;
+    }
+
+  }
+
+  private void removeOldCCS10AtomRelationships() throws Exception {
+    // 8/10/2020 Unpublishable CCS_10 2018 atom_relationships are attached to
+    // CCS_10 2019 atoms, and is slowing ProdMidCleanup to a standstil.
+    // Remove these atom_relationships directly, then restart ProdMidCleanup.
+
+    try {
+
+      logInfo("  Remove old CCS_10 Atom Relationships");
+
+      final String terminology = "CCS_10";
+      final String version = "2018";
+      
+      // remove terminology atom relationships
+          logInfo("  Remove " + terminology + "/" + version  + " atom relationships");
+      Query query = manager.createQuery(
+          "SELECT a.id FROM AtomRelationshipJpa a WHERE terminology = :terminology "
+              + " AND version = :version");
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      
+      
+      setSteps(query.getResultList().size());
+      
+      for (final Long id : (List<Long>) query.getResultList()) {
+        AtomRelationship atomRelationship =
+            (AtomRelationshipJpa) getRelationship(id, AtomRelationshipJpa.class);
+        Atom fromAtom = getAtom(atomRelationship.getFrom().getId());
+
+        fromAtom.getRelationships().remove(atomRelationship);
+        updateAtom(fromAtom);
+
+        removeRelationship(atomRelationship.getId(), AtomRelationshipJpa.class);
+
+        updateProgress();
+      }
+          
       logInfo("Finished " + getName());
 
     } catch (
