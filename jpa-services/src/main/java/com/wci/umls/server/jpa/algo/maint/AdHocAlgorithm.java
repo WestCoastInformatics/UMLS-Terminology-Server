@@ -94,7 +94,6 @@ import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.services.InversionService;
-import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.UmlsIdentityService;
 import com.wci.umls.server.services.WorkflowService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
@@ -257,12 +256,12 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixDuplicateCUIs();
     } else if (actionName.equals("Remove Old CCS_10 AtomRelationships")) {
       removeOldCCS10AtomRelationships();
+    } else if (actionName.equals("Remove Old MTHHH Tree Positions")) {
+      removeOldMTHHHTreePositions();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
 
-    
-    
     commitClearBegin();
 
     logInfo("  project = " + getProject().getId());
@@ -3870,7 +3869,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Initialize Source Atom Id Range App", "Remove Deprecated Termgroups",
         "Change null treeposition Relas to blank",
         "Fix overlapping bequeathal rels", "Fix NCBI VPT atom",
-        "Inactivate old tree positions", "Fix Duplicate CUIs","Remove Old CCS_10 AtomRelationships"));
+        "Inactivate old tree positions", "Fix Duplicate CUIs",
+        "Remove Old CCS_10 AtomRelationships","Remove Old MTHHH Tree Positions"));
     params.add(param);
 
     return params;
@@ -4302,21 +4302,22 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       final String terminology = "CCS_10";
       final String version = "2018";
-      
+
       // remove terminology atom relationships
-          logInfo("  Remove " + terminology + "/" + version  + " atom relationships");
+      logInfo(
+          "  Remove " + terminology + "/" + version + " atom relationships");
       Query query = manager.createQuery(
           "SELECT a.id FROM AtomRelationshipJpa a WHERE terminology = :terminology "
               + " AND version = :version");
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
-      
-      
+
       setSteps(query.getResultList().size());
-      
+
       for (final Long id : (List<Long>) query.getResultList()) {
         AtomRelationship atomRelationship =
-            (AtomRelationshipJpa) getRelationship(id, AtomRelationshipJpa.class);
+            (AtomRelationshipJpa) getRelationship(id,
+                AtomRelationshipJpa.class);
         Atom fromAtom = getAtom(atomRelationship.getFrom().getId());
 
         fromAtom.getRelationships().remove(atomRelationship);
@@ -4326,7 +4327,42 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
         updateProgress();
       }
-          
+
+      logInfo("Finished " + getName());
+
+    } catch (
+
+    Exception e) {
+      logError("Unexpected problem - " + e.getMessage());
+      throw e;
+    }
+
+  }
+
+  private void removeOldMTHHHTreePositions() throws Exception {
+    // 8/10/2020 Tree positions from retired terminology MTHHH are causing
+    // failures in ProdMidCleanup
+
+    try {
+
+      logInfo("  Remove old MTHHH Atom Tree Positions");
+
+      final String terminology = "MTHHH";
+
+      // remove the atom tree positions
+      Query query = manager.createQuery(
+          "SELECT a.id FROM AtomTreePositionJpa a WHERE terminology = :terminology "
+              + " AND version = :version");
+      query.setParameter("terminology", terminology);
+
+      setSteps(query.getResultList().size());
+
+      for (final Long id : (List<Long>) query.getResultList()) {
+        removeTreePosition(id, AtomTreePositionJpa.class);
+        updateProgress();
+      }
+      commitClearBegin();
+
       logInfo("Finished " + getName());
 
     } catch (
