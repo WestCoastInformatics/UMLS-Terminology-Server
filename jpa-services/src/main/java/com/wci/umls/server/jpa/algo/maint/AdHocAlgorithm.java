@@ -4351,8 +4351,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       // remove the atom tree positions
       Query query = manager.createQuery(
-          "SELECT a.id FROM AtomTreePositionJpa a WHERE terminology = :terminology "
-              + " AND version = :version");
+          "SELECT a.id FROM AtomTreePositionJpa a WHERE terminology = :terminology ");
       query.setParameter("terminology", terminology);
 
       setSteps(query.getResultList().size());
