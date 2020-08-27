@@ -71,6 +71,7 @@ set old_mrsty=$prev_released_dir/MRSTY.RRF
 set old_mrxw=$prev_released_dir/MRXW
 set old_mrxnw=$prev_released_dir/MRXNW_ENG.RRF
 set old_mrxns=$prev_released_dir/MRXNS_ENG.RRF
+set old_mraui=$prev_released_dir/MRAUI.RRF
 
 set notMini = 1
 if (`cat $mrhier | wc -l` > 1000) {
@@ -92,12 +93,20 @@ else if ($target == "MRAUI") then
         echo "ERROR: required file $mrdoc cannot be found"
 		exit 1
     endif
+    if (`cat $dir/nci_code_cui_map_* | wc -l` < 2) {
+	    echo "ERROR: required file $dir/nci_code_cui_map_* cannot be found or is empty"
+		exit 1
+    endif
+    if (`cat $dir/NCIMEME_* | wc -l` < 2) {
+	    echo "ERROR: required file $dir/NCIMEME_* cannot be found or is empty"
+		exit 1
+    endif
 
     #
     #   Verify field formats
     #
     echo "    Verify field formats: $mraui"
-    perl -ne 'print unless /^A\d{7,8}\|C.\d{6}\|\d\d\d\d..\|[^\|]*\|[^\|]*\|[^\|]+\|A\d{7,8}\|C.\d{6}\|[YN]\|/;' $mraui >! MRAUI.badfields.$$
+    perl -ne 'print unless /^A\d{7,8}\|C.\d{6,7}\|\d\d\d\d..\|[^\|]*\|[^\|]*\|[^\|]+\|A\d{7,8}\|C.\d{6,7}\|[YN]\|/;' $mraui >! MRAUI.badfields.$$
     set cnt = `cat MRAUI.badfields.$$ | wc -l`
     if ($cnt != 0) then
         echo "ERROR: The following rows have bad field formats"
@@ -180,9 +189,8 @@ else if ($target == "MRAUI") then
     #
     echo "    Verify file size"
     if (`cat $mraui | wc -l` < `cat $old_mraui | wc -l`) then
-        echo "ERROR: MRAUI must have larger byte count than previous version MRAUI"
+        echo "WARNING: MRAUI has smaller byte count than previous version MRAUI"
     endif
-
 
 else if ($target == "AMBIG") then
 
@@ -215,8 +223,8 @@ else if ($target == "AMBIG") then
     #   Verify field formats
     #
     echo "    Verify field formats: $ambig_sui"
-    perl -ne 'print unless /^S\d{7,8}\|(,{0,1}C.\d{6})+\|/;' $ambig_sui >! AMBIG.badfields.$$
-    #perl -ne 'print unless /^S\d{7}\|C.\d{6}\|/;' $ambig_sui >! AMBIG.badfields.$$
+    perl -ne 'print unless /^S\d{7,8}\|(,{0,1}C.\d{6,7})+\|/;' $ambig_sui >! AMBIG.badfields.$$
+    #perl -ne 'print unless /^S\d{7}\|C.\d{6,7}\|/;' $ambig_sui >! AMBIG.badfields.$$
     set cnt = `cat AMBIG.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -228,8 +236,8 @@ else if ($target == "AMBIG") then
     #   Verify field formats
     #
     echo "    Verify field formats: $ambig_lui"
-    perl -ne 'print unless /^L\d{7}\|(,{0,1}C.\d{6})+\|/;' $ambig_lui >! AMBIG.badfields.$$
-    #perl -ne 'print unless /^L\d{7}\|C.\d{6}\|/;' $ambig_lui >! AMBIG.badfields.$$
+    perl -ne 'print unless /^L\d{7}\|(,{0,1}C.\d{6,7})+\|/;' $ambig_lui >! AMBIG.badfields.$$
+    #perl -ne 'print unless /^L\d{7}\|C.\d{6,7}\|/;' $ambig_lui >! AMBIG.badfields.$$
     set cnt = `cat AMBIG.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -283,7 +291,7 @@ else if ($target == "AMBIG") then
     #
     echo "    Verify file size"
     if (`cat $ambig_sui | wc -l` < `cat $old_ambig_sui | wc -l`) then
-        echo "ERROR: AMBIGSUI must have larger byte count than previous version AMBIGSUI"
+        echo "WARNING: AMBIGSUI has smaller byte count than previous version AMBIGSUI"
     endif
     
     #
@@ -332,7 +340,7 @@ else if ($target == "AMBIG") then
     #
     echo "    Verify file size"
     if (`cat $ambig_lui | wc -l` < `cat $old_ambig_lui | wc -l`) then
-        echo "ERROR: AMBIGLUI must have larger byte count than previous version AMBIGLUI"
+        echo "WARNING: AMBIGLUI has smaller byte count than previous version AMBIGLUI"
     endif
 
 else if ($target == "MRHIST") then
@@ -363,7 +371,7 @@ else if ($target == "MRHIST") then
     #
     echo "    Verify field formats"
 if ($mode != "submission") then
-    perl -ne 'print unless /^C.\d{6}\|[^\|]+\|[^\|]*\|[^\|]+\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|\d*\|/;' $mrhist >! MRHIST.badfields.$$
+    perl -ne 'print unless /^C.\d{6,7}\|[^\|]+\|[^\|]*\|[^\|]+\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|\d*\|/;' $mrhist >! MRHIST.badfields.$$
     set cnt = `cat MRHIST.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -471,9 +479,9 @@ else if ($target == "MRMAP") then
     #  MAPRULE,MAPRES,MAPTYPE,MAPATN,MAPATV,CVF
     #
     echo "    Verify field formats"
-perl -ne '@_ = split /\|/; print unless /^C.\d{6}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*\|[^\|]*\|[^\|]+\|[^\|]*\|[^\|]+\|[^\|]+\|.*\|\d*\|/; if ($_[12] ne "XR") { print unless ($_[14] =~ /.+/ && $_[16] =~ /.+/ && $_[17] =~ /.+/); } ' $mrmap >! MRMAP.badfields.$$
+perl -ne '@_ = split /\|/; print unless /^C.\d{6,7}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*\|[^\|]*\|[^\|]+\|[^\|]*\|[^\|]+\|[^\|]+\|.*\|\d*\|/; if ($_[12] ne "XR") { print unless ($_[14] =~ /.+/ && $_[16] =~ /.+/ && $_[17] =~ /.+/); } ' $mrmap >! MRMAP.badfields.$$
     #note: this is added to address the SNOMEDCT_US mapping to empty code, may be removed later: begin
-    perl -ne '@_ = split /\|/; print unless /^C.\d{6}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*\|[^\|]*\|[^\|]+\|[^\|]*\|[^\|]+\|[^\|]+\|.*\|\d*\|/; ' MRMAP.badfields.$$ >! tmp.MRMAP.badfields.$$
+    perl -ne '@_ = split /\|/; print unless /^C.\d{6,7}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*\|[^\|]*\|[^\|]+\|[^\|]*\|[^\|]+\|[^\|]+\|.*\|\d*\|/; ' MRMAP.badfields.$$ >! tmp.MRMAP.badfields.$$
     awk -F\| '$2!="SNOMEDCT_US"&&$15=="100051"{print}' MRMAP.badfields.$$ >> tmp.MRMAP.badfields.$$
     sort -u tmp.MRMAP.badfields.$$ >! MRMAP.badfields.$$
     rm -f tmp.MRMAP.badfields.$$
@@ -731,7 +739,7 @@ else if ($target == "MRCONSO") then
 if ($mode == "submission") then
     checkfields.pl $mrconso
 else
-    perl -ne 'print unless /^C.\d{6}\|[^\|]*\|[^\|]*\|L\d{7}\|[^\|]*\|S\d{7,8}\|.\|A\d{7,8}\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]+\|[^\|]+\|[0-9]\|[YNEO]\|\d*\|/;' $mrconso >! MRCONSO.badfields.$$
+    perl -ne 'print unless /^C.\d{6,7}\|[^\|]*\|[^\|]*\|L\d{7}\|[^\|]*\|S\d{7,8}\|.\|A\d{7,8}\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]+\|[^\|]+\|[0-9]\|[YNEO]\|\d*\|/;' $mrconso >! MRCONSO.badfields.$$
     set cnt = `cat MRCONSO.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -1212,7 +1220,7 @@ else if ($target == "MRCUI") then
     #   Verify field formats
     #
     echo "    Verify field formats: $mrcui"
-    perl -ne 'print unless /^C.\d{6}\|\d{4}..\|[^\|]*\|[^\|]*\||[^\|]*\|C.\d{6}\|[YN]?\|/;' $mrcui >! MRCUI.badfields.$$
+    perl -ne 'print unless /^C.\d{6,7}\|\d{4}..\|[^\|]*\|[^\|]*\||[^\|]*\|C.\d{6,7}\|[YN]?\|/;' $mrcui >! MRCUI.badfields.$$
     set cnt = `cat MRCUI.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -1374,7 +1382,7 @@ else if ($target == "MRCUI") then
     #   Verify field formats
     #
     echo "    Verify field formats: $deleted_cui"
-    perl -ne 'print unless /^C.\d{6}\|[^\|]*\|/;' $deleted_cui >! DELETED_CUI.badfields.$$
+    perl -ne 'print unless /^C.\d{6,7}\|[^\|]*\|/;' $deleted_cui >! DELETED_CUI.badfields.$$
     set cnt = `cat DELETED_CUI.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -1481,7 +1489,7 @@ else if ($target == "MRCUI") then
     #   Verify field formats
     #
     echo "    Verify field formats: $merged_cui"
-    perl -ne 'print unless /^C.\d{6}\|C.\d{6}\|/;' $merged_cui >! MERGED_CUI.badfields.$$
+    perl -ne 'print unless /^C.\d{6,7}\|C.\d{6,7}\|/;' $merged_cui >! MERGED_CUI.badfields.$$
     set cnt = `cat MERGED_CUI.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -1606,7 +1614,7 @@ else if ($target == "MRHIER") then
     #   Verify field formats
     #
     echo "    Verify field formats"
-    perl -ne 'print unless /^C.\d{6}\|A\d{7,8}\|\d+\|(A\d{7,8})?\|[^\|]*\|[^\|]*\|(\.{0,1}A\d{7,8})*\|[^\|]*\|\d*\|/;' $mrhier >! MRHIER.badfields.$$
+    perl -ne 'print unless /^C.\d{6,7}\|A\d{7,8}\|\d+\|(A\d{7,8})?\|[^\|]*\|[^\|]*\|(\.{0,1}A\d{7,8})*\|[^\|]*\|\d*\|/;' $mrhier >! MRHIER.badfields.$$
     set cnt = `cat MRHIER.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -1751,7 +1759,7 @@ else if ($target == "MRDEF") then
     #   Verify field formats
     #
     echo "    Verify field formats"
-    perl -ne 'print unless /^C.\d{6}\|A\d{7,8}\|AT\d{8,9}\|[^\|]*\|[^\|]*\|[^\|]+\|[YNEO]\|\d*\|/;' $mrdef >! MRDEF.badfields.$$
+    perl -ne 'print unless /^C.\d{6,7}\|A\d{7,8}\|AT\d{8,9}\|[^\|]*\|[^\|]*\|[^\|]+\|[YNEO]\|\d*\|/;' $mrdef >! MRDEF.badfields.$$
     set cnt = `cat MRDEF.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -2245,7 +2253,7 @@ else if ($target == "MRREL") then
     #   Verify field formats
     #
     echo "    Verify field formats"
-    perl -ne 'print unless /^C.\d{6}\|(?:A\d{7,8})*\|[^\|]*\|[^\|]*\|C.\d{6}\|(?:A\d{7,8})*\|[^\|]*\|[^\|]*\|R\d{8,9}\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|[YN]*\|[YNEO]\|\d*\|/;' $mrrel >! MRREL.badfields.$$
+    perl -ne 'print unless /^C.\d{6,7}\|(?:A\d{7,8})*\|[^\|]*\|[^\|]*\|C.\d{6,7}\|(?:A\d{7,8})*\|[^\|]*\|[^\|]*\|R\d{8,9}\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|[YN]*\|[YNEO]\|\d*\|/;' $mrrel >! MRREL.badfields.$$
     set cnt = `cat MRREL.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -2361,7 +2369,8 @@ else if ($target == "MRREL") then
     #
     echo "    Verify CUI1 in MRCONSO.CUI"
     cut -d\| -f1 $mrconso | sort -u >! MRCONSO.uis.c.$$
-    set ct=`join -v 1 -t\| -j1 1 -j2 1 $mrrel MRCONSO.uis.c.$$ | wc -l`
+    cut -d\| -f1 $mrrel | sort -u >! MRREL.c1.$$
+    set ct=`join -v 1 -t\| -j1 1 -j2 1 MRREL.c1.$$ MRCONSO.uis.c.$$ | wc -l`
     if ($ct != 0) then
         echo "ERROR: CUI1 in MRREL not in MRCONSO.CUI"
 	join -v 1 -t\| -j1 1 -j2 1 -o 1.1 $mrrel MRCONSO.uis.c.$$ | head -10 | sed 's/^/  /'
@@ -2507,7 +2516,7 @@ else if ($target == "MRSAB") then
     endif
 
     echo "    Verify field formats"
-    perl -ne '@_ = split/\|/; next unless $_[0]; print unless /^C.\d{6}\|C.\d{6}\|[^\|]+\|[^\|]+\|[^\|]+\|[^\|]+\|[^\|]*\|(?:\d{4}_\d{2}_\d{2})*\|(?:\d{4}_\d{2}_\d{2})*\|(?:\d{4}..[^\|]*)*\|(?:\d{4}..[^\|]*)*\|[^\|]*\|[^\|]*\|[0-3]\|\d*\|\d*\|(?:FULL(?:-(?:MULTIPLE|NOSIB)*)?)?\|(?:,{0,1}[A-Z]{2,})*\|(?:,{0,1}[a-zA-Z0-9]+)*|[^\|]*\|[^\|]*\|[YN]\|[YN]\|[^\|]+\|[^\|]*\|/;' $mrsab >! MRSAB.badfields.$$
+    perl -ne '@_ = split/\|/; next unless $_[0]; print unless /^C.\d{6,7}\|C.\d{6,7}\|[^\|]+\|[^\|]+\|[^\|]+\|[^\|]+\|[^\|]*\|(?:\d{4}_\d{2}_\d{2})*\|(?:\d{4}_\d{2}_\d{2})*\|(?:\d{4}..[^\|]*)*\|(?:\d{4}..[^\|]*)*\|[^\|]*\|[^\|]*\|[0-3]\|\d*\|\d*\|(?:FULL(?:-(?:MULTIPLE|NOSIB)*)?)?\|(?:,{0,1}[A-Z]{2,})*\|(?:,{0,1}[a-zA-Z0-9]+)*|[^\|]*\|[^\|]*\|[YN]\|[YN]\|[^\|]+\|[^\|]*\|/;' $mrsab >! MRSAB.badfields.$$
     set cnt = `cat MRSAB.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -2642,7 +2651,7 @@ else if ($target == "MRSAT") then
     #
     echo "    Verify field formats"
 if ($mode != "submission") then
-    perl -ne 'print unless /^C.\d{6}\|(L\d{7})*\|(S\d{7,8})?\|([AR]\d{7,9})?\|[^\|]*\|[^\|]*\|AT\d{8,9}\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|[YNEO]\|\d*\|/;' $mrsat >! MRSAT.badfields.$$
+    perl -ne 'print unless /^C.\d{6,7}\|(L\d{7})*\|(S\d{7,8})?\|([AR]\d{7,9})?\|[^\|]*\|[^\|]*\|AT\d{8,9}\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|[YNEO]\|\d*\|/;' $mrsat >! MRSAT.badfields.$$
     set cnt = `cat MRSAT.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -2761,10 +2770,10 @@ endif
     echo "    Verify CUI in MRCONSO.CUI where SUI=''"
     perl -ne '@_ = split /\|/; print "$_[0]\n" unless $_[2]' $mrsat |\
        sort -u >! mrsat.tmp1.$$
-    set ct=`join -t\| -j 1 -v 1 mrsat.tmp1.$$ MRCONSO.uis.cls.$$ | wc -l`
+    set ct=`join -t\| -j 1 -v 1 mrsat.tmp1.$$ MRCONSO.uis.c.$$ | wc -l`
     if ($ct != 0) then
         echo "ERROR: There are CUIs in MRSAT not in MRCONSO"
-	join -t\| -j 1 -v 1 mrsat.tmp1.$$ MRCONSO.uis.cls.$$ | head -10 | sed 's/^/  /'
+	join -t\| -j 1 -v 1 mrsat.tmp1.$$ MRCONSO.uis.c.$$ | head -10 | sed 's/^/  /'
     endif
     rm -f mrsat.tmp1.$$
 
@@ -2896,7 +2905,7 @@ else if ($target == "MRSTY") then
     #   Verify field formats
     #
     echo "    Verify field formats"
-    perl -ne 'print unless /^C.\d{6}\|T\d{3}\|[A-Z][\d\.]*\|[A-Za-z]+[^\|]*\|AT\d{8,9}\|\d*\|/;' $mrsty >! MRSTY.badfields.$$
+    perl -ne 'print unless /^C.\d{6,7}\|T\d{3}\|[A-Z][\d\.]*\|[A-Za-z]+[^\|]*\|AT\d{8,9}\|\d*\|/;' $mrsty >! MRSTY.badfields.$$
     set cnt = `cat MRSTY.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -2984,7 +2993,7 @@ else if ($target == "MRSTY") then
         echo "ERROR: CUIs in MRCONSO not in MRSTY"
 	comm -13 MRSTY.uis.c.$$ MRCONSO.uis.c.$$ | head -10 | sed 's/^/  /'
     endif
-    rm -f MRSTY.uis.c.$$ MRCONSO.uis.c.$$
+    rm -f MRSTY.uis.c.$$ MRCONSO.uis.c.$$ MRREL.c1.$$
 
     #
     #   Verify ATUI unique
@@ -3115,7 +3124,7 @@ else if ($target == "MRX") then
     #   Verify field formats
     #
     echo "    Verify field formats: $mrxns"
-    perl -ne 'print unless /^[^\|]*\|[^\|]+\|C.\d{6}\|L\d{7}\|S\d{7,8}\|/;' $mrxns >! MRX.badfields.$$
+    perl -ne 'print unless /^[^\|]*\|[^\|]+\|C.\d{6,7}\|L\d{7}\|S\d{7,8}\|/;' $mrxns >! MRX.badfields.$$
     set cnt = `cat MRX.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -3140,7 +3149,7 @@ else if ($target == "MRX") then
     #   Verify field formats
     #
     echo "    Verify field formats: $mrxnw"
-    perl -ne 'print unless /^[^\|]*\|[^\|]+\|C.\d{6}\|L\d{7}\|S\d{7,8}\|/;' $mrxnw >! MRX.badfields.$$
+    perl -ne 'print unless /^[^\|]*\|[^\|]+\|C.\d{6,7}\|L\d{7}\|S\d{7,8}\|/;' $mrxnw >! MRX.badfields.$$
     set cnt = `cat MRX.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -3165,7 +3174,7 @@ else if ($target == "MRX") then
     #
     foreach f (`cat mrx.lats.$$`)
 	echo "    Verify field formats: ${mrxw}_$f"
-	perl -ne 'print unless /^[^\|]*\|[^\|]+\|C.\d{6}\|L\d{7}\|S\d{7,8}\|/;' ${mrxw}_$f.RRF >! MRX.badfields.$$
+	perl -ne 'print unless /^[^\|]*\|[^\|]+\|C.\d{6,7}\|L\d{7}\|S\d{7,8}\|/;' ${mrxw}_$f.RRF >! MRX.badfields.$$
 	set cnt = `cat MRX.badfields.$$ | wc -l`
 	if ($cnt != 0) then
 	    echo "ERROR: The following rows have bad field formats"
