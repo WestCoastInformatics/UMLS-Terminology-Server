@@ -93,14 +93,17 @@ else if ($target == "MRAUI") then
         echo "ERROR: required file $mrdoc cannot be found"
 		exit 1
     endif
-    if (`cat $dir/nci_code_cui_map_* | wc -l` < 2) {
-	    echo "ERROR: required file $dir/nci_code_cui_map_* cannot be found or is empty"
-		exit 1
+    set codeCuiMap=$dir/nci_code_cui_map_*.dat
+    if (`cat $codeCuiMap | wc -l` < 2) then
+        echo "ERROR: required file $codeCuiMap cannot be found or is empty"
+        exit 1
     endif
-    if (`cat $dir/NCIMEME_* | wc -l` < 2) {
-	    echo "ERROR: required file $dir/NCIMEME_* cannot be found or is empty"
-		exit 1
+    set NCIMEMEFile=$dir/NCIMEME_*.txt
+    if (`cat $NCIMEMEFile | wc -l` < 2) then
+        echo "ERROR: required file $NCIMEMEFile cannot be found or is empty"
+        exit 1
     endif
+
 
     #
     #   Verify field formats
