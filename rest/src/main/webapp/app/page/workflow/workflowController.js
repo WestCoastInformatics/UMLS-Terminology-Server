@@ -156,6 +156,14 @@ tsApp.controller('WorkflowCtrl', [
       if ($scope.selected.config) {
         $scope.getBins($scope.selected.project.id, $scope.selected.config, $scope.selected.bin);
       }
+      $scope.user.userPreferences.properties['workflowConfigType'] = $scope.selected.config.type;
+      securityService.updateUserPreferences($scope.user.userPreferences);
+      
+      // when config type is switched, reset bin paging back to page 1
+      $scope.resetBinPaging();
+      $scope.user.userPreferences.properties['workflowBinPaging'] = JSON
+      .stringify($scope.paging['bins']);
+      securityService.updateUserPreferences($scope.user.userPreferences);
     }
 
     // Retrieve all bins with project and type
@@ -178,7 +186,16 @@ tsApp.controller('WorkflowCtrl', [
               $scope.selectBin(filtered[0]);
             }
           }
-          $scope.resetBinPaging();
+          var paging = $scope.paging['bins'];
+          
+          //if (recoverPreferences){
+            paging = JSON.parse($scope.user.userPreferences.properties['workflowBinPaging']);
+            angular.copy(paging, $scope.paging['bins']);
+            $scope.paging['bins'].callbacks = {
+              getPagedList : getPagedBins
+            };
+          //} 
+          //$scope.resetBinPaging();
           $scope.getPagedBins();
         });
       }
@@ -393,12 +410,18 @@ tsApp.controller('WorkflowCtrl', [
         // Select the MUTUALLY_EXCLUSIVE config if available.
         // If not, select the first config in the list.
         var selectConfig = $scope.lists.configs[0];
+        var userSelectedConfig = $scope.user.userPreferences.properties['workflowConfigType'];
         for (var i = 0; i < $scope.lists.configs.length; i++) {
           if ($scope.lists.configs[i].type == 'MUTUALLY_EXCLUSIVE') {
             selectConfig = $scope.lists.configs[i];
           }
+          if ($scope.lists.configs[i].type == userSelectedConfig) {
+            selectConfig = $scope.lists.configs[i];
+            break;
+          }
         }
         $scope.setConfig(selectConfig);
+        
       });
     };
 
@@ -421,6 +444,9 @@ tsApp.controller('WorkflowCtrl', [
         $scope.paging['records'].filter = '';
       }
       getPagedList();
+      $scope.user.userPreferences.properties['workflowBinPaging'] = JSON
+      .stringify($scope.paging['bins']);
+      securityService.updateUserPreferences($scope.user.userPreferences);
     };
 
     // This needs to be a function so it can be scoped properly for the
