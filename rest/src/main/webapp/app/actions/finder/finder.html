@@ -1,6 +1,7 @@
 <span class="nobreak">
-  <input type="number" placeholder="enter concept id" size="15" ng-model="lookupText"
-    ng-model-options="{ debounce: 3000 }" ng-change="lookupComponent(lookupText)" >
+  <input type="number" placeholder="enter concept id" size="15" ng-model="lookupText" >
+  <button ng-click="lookupComponent(lookupText)" title="Search"
+    class="btn btn-xs btn-primary">Search</button>
   <button ng-click="openFinderModal()" title="Find concept"
     class="btn btn-xs btn-primary">Finder</button>
 </span>
