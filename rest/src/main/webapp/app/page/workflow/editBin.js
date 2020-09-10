@@ -2,6 +2,7 @@
 tsApp.controller('BinModalCtrl', [
   '$scope',
   '$uibModalInstance',
+  '$interval',
   'utilService',
   'workflowService',
   'processService',
@@ -10,7 +11,7 @@ tsApp.controller('BinModalCtrl', [
   'user',
   'bin',
   'action',
-  function($scope, $uibModalInstance, utilService, workflowService, processService, selected, lists, user, bin,
+  function($scope, $uibModalInstance, $interval, utilService, workflowService, processService, selected, lists, user, bin,
     action) {
     console.debug("configure BinModalCtrl", bin, action);
 
@@ -35,6 +36,8 @@ tsApp.controller('BinModalCtrl', [
     $scope.testSampleResults = [];
     $scope.autofixAlgorithms = [];
     $scope.selectedAutofixAlgorithm = {};
+    $scope.lookupInterval = null;
+    $scope.user = user;
 
     // Get the autofix algorithms
     processService.getAlgorithmsForType($scope.project.id,
@@ -102,6 +105,10 @@ tsApp.controller('BinModalCtrl', [
         $scope.config.queryStyle).then(
       // success
       function(data) {
+        // Once the test query is finished processing 
+        // stop the lookup
+        $interval.cancel($scope.lookupInterval);
+        $scope.lookupInterval = null;
         
         $scope.queryTotalCount = data.totalCount;
         $scope.testSampleResults = [];
@@ -118,6 +125,33 @@ tsApp.controller('BinModalCtrl', [
         $scope.testSampleResults = [];
         utilService.handleDialogError($scope.errors, data);
       });
+      
+      $scope.startProcessProgressLookup = function(process) { 
+        // Start if not already running
+        if (!$scope.lookupInterval) {
+          $scope.lookupInterval = $interval(function() {
+            $scope.refreshProcessProgress(process);
+          }, 2000);
+        }
+      } 
+      
+      $scope.startProcessProgressLookup('test-query-' + $scope.user.name);
+      
+   
+      // Refresh Process progress
+      $scope.refreshProcessProgress = function(process) {
+                         
+        workflowService.getProcessProgress(process, $scope.project.id).then(
+        // Success
+        function(data) {
+          
+          // Once refset is finished processing (i.e. process progress returns false), 
+          // stop the lookup and get the validation results
+          if(data === false){
+            $interval.cancel($scope.lookupInterval);
+            $scope.lookupInterval = null;
+          }
+        })};
     }
 
     $scope.changeAutofixType = function() {

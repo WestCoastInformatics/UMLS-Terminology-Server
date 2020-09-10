@@ -5,6 +5,7 @@ tsApp.controller('WorkflowCtrl', [
   '$location',
   '$uibModal',
   '$window',
+  '$interval',
   'utilService',
   'websocketService',
   'tabService',
@@ -14,7 +15,7 @@ tsApp.controller('WorkflowCtrl', [
   'metadataService',
   'workflowService',
   'reportService',
-  function($scope, $http, $location, $uibModal, $window, utilService, websocketService, tabService,
+  function($scope, $http, $location, $uibModal, $window, $interval, utilService, websocketService, tabService,
     configureService, securityService, projectService, metadataService, workflowService,
     reportService) {
     console.debug("configure WorkflowCtrl");
@@ -28,6 +29,11 @@ tsApp.controller('WorkflowCtrl', [
     tabService.setSelectedTabByLabel('Workflow');
 
     $scope.pageSizes = utilService.getPageSizes();
+    
+    // Progress tracking
+    $scope.lookupInterval = null;
+    $scope.binsInProcessProgress = [];
+    $scope.binsProcessCompleted = [];
 
     // Selected variables
     $scope.selected = {
@@ -498,29 +504,66 @@ tsApp.controller('WorkflowCtrl', [
     // Regenerate single bin
     $scope.regenerateBin = function(bin) {
       
-    if (!$scope.selected.project.editingEnabled) {
-      window.alert("Bin cannot be regenerated while editing is disabled.");
-      return;
-    }
-    	// Get confirmation before regenerating
-   		 var	 regenerate = confirm('This bin took ' + bin.creationTime/1000 + ' seconds to process last time it was run. \n\n Are you sure you want to regenerate now?');
+      if (!$scope.selected.project.editingEnabled) {
+        window.alert("Bin cannot be regenerated while editing is disabled.");
+        return;
+      }
+    	  // Get confirmation before regenerating
+   		   var	 regenerate = confirm('This bin took ' + bin.creationTime/1000 + ' seconds to process last time it was run. \n\n Are you sure you want to regenerate now?');
    		 
-   		 if (regenerate == true && bin.creationTime/1000 > 30) {
-   		   regenerate = confirm('DO NOT refresh your screen during bin regeneration. \n\n No other operations will be allowed until the bin is complete. \n\n Are you ready to continue?');
-   		 }
-    if (regenerate == true) {
-    		// send both id and name
+   		   if (regenerate == true && bin.creationTime/1000 > 30) {
+   		     regenerate = confirm('DO NOT refresh your screen during bin regeneration. \n\n No other operations will be allowed until the bin is complete. \n\n Are you ready to continue?');
+   		   }
+      if (regenerate == true) {
+      		    // send both id and name
     	      workflowService.regenerateBin($scope.selected.project.id, bin.id, bin.name,
     	    	        $scope.selected.config.type).then(
     	    	      // Success
     	    	      function(data) {
     	    	        $scope.getBins($scope.selected.project.id, $scope.selected.config, bin);
+    	    	        // Once the bin is finished processing 
+                // stop the lookup
+                $interval.cancel($scope.lookupInterval);
+                $scope.lookupInterval = null;
     	    	      });
-    	}
+    	      
+    	      
+    	      $scope.startProcessProgressLookup = function(process) { 
+            // Start if not already running
+            if (!$scope.lookupInterval) {
+              $scope.lookupInterval = $interval(function() {
+                $scope.refreshProcessProgress(process);
+              }, 2000);
+            }
+          } 
+    	      
+    	      $scope.startProcessProgressLookup(bin.name);
+    	      
+    	   
+          // Refresh Process progress
+          $scope.refreshProcessProgress = function(process) {
+                             
+            workflowService.getProcessProgress(process, $scope.selected.project.id).then(
+            // Success
+            function(data) {
+              
+              // Once bin is finished processing (i.e. process progress returns false), 
+              // stop the lookup
+              if(data === false){
+                $interval.cancel($scope.lookupInterval);
+                $scope.lookupInterval = null;
+              }
+            })};
+    	  }
     };
 
     // Regenerate bins
     $scope.regenerateBins = function() {
+
+      // Clear out process progress lists
+      $scope.binsInProcessProgress = [];
+      $scope.binsProcessCompleted = [];
+      
       workflowService.clearBins($scope.selected.project.id, $scope.selected.config.type).then(
         // Success
         function(data) {
@@ -530,8 +573,62 @@ tsApp.controller('WorkflowCtrl', [
               function(data) {
                 $scope.getBins($scope.selected.project.id, $scope.selected.config,
                   $scope.selected.bin);
+                  
               });
-        });
+          // Start lookup for process progress
+          $scope.startProcessProgressLookup = function(binNames) {
+            
+              // Start if not already running
+              if (!$scope.lookupInterval) {
+                $scope.lookupInterval = $interval(function() {
+                  $scope.refreshProcessProgress(binNames);
+                }, 2000);
+              }
+          }   
+          var binNames = [];
+          for (var i = 0; i < $scope.lists.bins.length; i++) {
+            binNames.push($scope.lists.bins[i].name); 
+          }
+          $scope.startProcessProgressLookup(binNames);
+          
+          // Refresh Process progress
+          $scope.refreshProcessProgress = function(binNames) {
+                             
+            workflowService.getBulkProcessProgress($scope.selected.project.id, binNames).then(
+            // Success
+            function(data) {
+              var binsStillInProgress = [];
+              for(var i=0; i <  data.strings.length; i++){
+                binsStillInProgress.push(data.strings[i]);
+              }
+              
+              var completed = binNames.length - binsStillInProgress.length;
+              workflowService.updateGlassPaneMessage('Regenerating bins...  ' + 
+                completed + ' out of ' + binNames.length + ' completed.');
+              
+              // Any time a bin finishes processing, update in-progress and completed lists
+              if($scope.binsInProcessProgress.length !== binsStillInProgress.length){
+                for(var i=0; i < $scope.binsInProcessProgress.length; i++){
+                  if(!binsStillInProgress.includes($scope.binsInProcessProgress[i])){
+                    $scope.binsProcessCompleted.push($scope.binsInProcessProgress[i]);
+                    
+                  }
+                }
+                
+                $scope.binsInProcessProgress = binsStillInProgress;
+              }
+              
+              // Once all bins are finished processing (i.e. the in-progress list comes back empty), 
+              // stop the lookup and get the validation results
+              if(data.strings.length === 0){
+                $interval.cancel($scope.lookupInterval);
+                $scope.lookupInterval = null;
+                workflowService.updateGlassPaneMessage(null);
+                
+              } 
+            });
+          }
+      });
     };
 
     // Recompute concept status

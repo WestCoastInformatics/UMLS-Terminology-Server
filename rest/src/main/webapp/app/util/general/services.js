@@ -620,5 +620,20 @@ tsApp.service('gpService', [ '$timeout', function($timeout) {
       }, 100);
     }
   };
+  
+  // replaces the current glass pane message
+  this.replaceMessage = function(message) {
+    if (message) {
+      var index = glassPane.messages.length;
+      if (index && index !== -1) {
+        glassPane.messages.splice(index - 1, 1, message);
+      }  
+    } else {
+      var index = glassPane.messages.length;
+      if (index && index !== -1) {
+        glassPane.messages.splice(index - 1, 1);
+      }  
+    }
+  };
 
 } ]);
