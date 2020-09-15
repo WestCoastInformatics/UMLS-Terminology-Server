@@ -1065,16 +1065,16 @@ tsApp.service('workflowService', [
       $http.post(url, '').then(
       // success
       function(response) {
-        // if this times out and fails, progress monitoring will keep it running
-        // and end gracefully
-        //console.debug('  successful regenerate bin ', gpService.getGlassPane().counter);
-        //gpService.decrement('Regenerating bin...');
-        //deferred.resolve(response.data);
+        console.debug('  successful regenerate bin ', gpService.getGlassPane().counter);
+        gpService.decrement('Regenerating bin...');
+        deferred.resolve(response.data);
       },
       // error
       function(response) {
-        utilService.handleError(response);
-        deferred.reject(response.data);
+        // if this times out and fails, progress monitoring will keep it running
+        // and end gracefully
+        //utilService.handleError(response);
+        //deferred.reject(response.data);
       });
       return deferred.promise;
     };

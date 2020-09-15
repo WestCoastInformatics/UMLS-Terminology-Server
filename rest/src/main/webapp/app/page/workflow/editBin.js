@@ -124,7 +124,6 @@ tsApp.controller('BinModalCtrl', [
         $scope.queryTotalCount = 0;
         $scope.testSampleResults = [];
         utilService.handleDialogError($scope.errors, data);
-        workflowService.decrementGlassPane();
       });
       
       $scope.startProcessProgressLookup = function(process) { 
@@ -151,6 +150,8 @@ tsApp.controller('BinModalCtrl', [
           if(data === false){
             $interval.cancel($scope.lookupInterval);
             $scope.lookupInterval = null;
+
+            workflowService.decrementGlassPane();
           }
         })};
     }

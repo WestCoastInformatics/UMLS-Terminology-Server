@@ -553,6 +553,7 @@ tsApp.controller('WorkflowCtrl', [
                 $interval.cancel($scope.lookupInterval);
                 $scope.lookupInterval = null;
                 workflowService.decrementGlassPane();
+                $scope.getBins($scope.selected.project.id, $scope.selected.config, bin);
               }
             })};
     	  }
