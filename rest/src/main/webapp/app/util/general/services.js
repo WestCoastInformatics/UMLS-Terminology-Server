@@ -611,7 +611,9 @@ tsApp.service('gpService', [ '$timeout', function($timeout) {
         glassPane.messages.splice(index, 1);
       }
     }
-    glassPane.counter--;
+    if (glassPane.counter >= 1) {
+      glassPane.counter--;
+    }
     if (glassPane.counter == 0) {
       $timeout(function() {
         if (glassPane.counter == 0) {

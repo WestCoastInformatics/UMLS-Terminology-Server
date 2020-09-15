@@ -1065,9 +1065,11 @@ tsApp.service('workflowService', [
       $http.post(url, '').then(
       // success
       function(response) {
-        console.debug('  successful regenerate bin ', gpService.getGlassPane().counter);
-        gpService.decrement('Regenerating bin...');
-        deferred.resolve(response.data);
+        // if this times out and fails, progress monitoring will keep it running
+        // and end gracefully
+        //console.debug('  successful regenerate bin ', gpService.getGlassPane().counter);
+        //gpService.decrement('Regenerating bin...');
+        //deferred.resolve(response.data);
       },
       // error
       function(response) {
@@ -1096,14 +1098,21 @@ tsApp.service('workflowService', [
         },
         // error
         function(response) {
-          utilService.handleError(response);
-          gpService.decrement('Regenerating bins...  DO NOT refresh browser.');
-          deferred.reject(response.data);
+          // if this times out and fails, progress monitoring will keep it running
+          // and end gracefully
+          //utilService.handleError(response);
+          //gpService.decrement('Regenerating bins...  DO NOT refresh browser.');
+          //deferred.reject(response.data);
         });
       
       return deferred.promise;
     };
     
+    // decrement the glass pane
+    this.decrementGlassPane= function(message) {
+      gpService.decrement(message);
+    }
+
     // replace the glass pane message
     this.updateGlassPaneMessage = function(message) {
       gpService.replaceMessage(message);
@@ -1174,9 +1183,11 @@ tsApp.service('workflowService', [
       },
       // error
       function(response) {
-        utilService.handleError(response);
-        gpService.decrement();
-        deferred.reject(response.data);
+        // if this times out and fails, progress monitoring will keep it running
+        // and end gracefully
+        //utilService.handleError(response);
+        //gpService.decrement();
+        //deferred.reject(response.data);
       });
       return deferred.promise;
     };

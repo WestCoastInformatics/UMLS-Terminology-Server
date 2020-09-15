@@ -552,6 +552,7 @@ tsApp.controller('WorkflowCtrl', [
               if(data === false){
                 $interval.cancel($scope.lookupInterval);
                 $scope.lookupInterval = null;
+                workflowService.decrementGlassPane();
               }
             })};
     	  }
@@ -624,7 +625,7 @@ tsApp.controller('WorkflowCtrl', [
                 $interval.cancel($scope.lookupInterval);
                 $scope.lookupInterval = null;
                 workflowService.updateGlassPaneMessage(null);
-                
+                workflowService.decrementGlassPane();
               } 
             });
           }
