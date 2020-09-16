@@ -552,7 +552,7 @@ tsApp.controller('WorkflowCtrl', [
               if(data === false){
                 $interval.cancel($scope.lookupInterval);
                 $scope.lookupInterval = null;
-                workflowService.decrementGlassPane();
+                workflowService.decrementGlassPane('Regenerating bin...');
                 $scope.getBins($scope.selected.project.id, $scope.selected.config, bin);
               }
             })};
