@@ -161,10 +161,10 @@ public class ValidateAttributesAlgorithm
     Set<String> scuis = new HashSet<>();
     Set<String> sduis = new HashSet<>();
     
-    // cache sgId, sgType, sgQualifier
+    // cache sauis, scuis and sduis
     while ((fileLine = in.readLine()) != null) {
       String[] fields = FieldedStringTokenizer.split(fileLine, "|");
-      sauis.add(fields[3]);
+      sauis.add(fields[9]);
       scuis.add(fields[10]);
       sduis.add(fields[11]);
     } 
@@ -220,7 +220,7 @@ public class ValidateAttributesAlgorithm
         }
       }
 
-      // check for non-unique AUI fields
+      // check for non-unique ATUI fields
       if (checkNames.contains("#ATTRS_4")) {
 
         // source|attribute_name|source_atui|sg_id|sg_type_1|sg_qualifier_1|hashcode
@@ -308,7 +308,7 @@ public class ValidateAttributesAlgorithm
         }
       }
 
-      // cSgType indicates SOURCE_AUI, check if sg_id is in that classes_atoms field
+      // SgType indicates SOURCE_AUI, check if sg_id is in that classes_atoms field
       if (checkNames.contains("#ATTRS_10")) {
         String sgType = fields[10];
         if (sgType.equals("SOURCE_AUI")) {
