@@ -296,7 +296,7 @@ public class ValidateAttributesAlgorithm
         }
       }
 
-      // check if STY attribute value is in semantic_type table
+      // SgType indicates SOURCE_CUI, check if sg_id is in that classes_atoms field
       if (checkNames.contains("#ATTRS_9")) {
         String sgType = fields[10];
         if (sgType.equals("SOURCE_CUI")) {
@@ -308,11 +308,11 @@ public class ValidateAttributesAlgorithm
         }
       }
 
-      // check if STY attribute value is in semantic_type table
+      // cSgType indicates SOURCE_AUI, check if sg_id is in that classes_atoms field
       if (checkNames.contains("#ATTRS_10")) {
         String sgType = fields[10];
         if (sgType.equals("SOURCE_AUI")) {
-          if (!scuis.contains(fields[1])) {
+          if (!sauis.contains(fields[1])) {
             if (underErrorTallyThreashold("#ATTRS_10")) {
               result.addError("ATTRS_10:" + fields[1]);
             }
@@ -320,11 +320,11 @@ public class ValidateAttributesAlgorithm
         }
       }
 
-      // check if STY attribute value is in semantic_type table
+      // SgType indicates SOURCE_DUI, check if sg_id is in that classes_atoms field
       if (checkNames.contains("#ATTRS_11")) {
         String sgType = fields[10];
         if (sgType.equals("SOURCE_DUI")) {
-          if (!scuis.contains(fields[1])) {
+          if (!sduis.contains(fields[1])) {
             if (underErrorTallyThreashold("#ATTRS_11")) {
               result.addError("ATTRS_11:" + fields[1]);
             }
@@ -440,13 +440,13 @@ public class ValidateAttributesAlgorithm
         "check if STY attribute value is in semantic_type table",
         "STY attribute value is not in semantic_type table"));
     testCases.add(new TestCase("ATTRS_9",
-        "check if STY attribute value is in semantic_type table",
+        "SgType indicates SOURCE_CUI, check if sg_id is in that classes_atoms field",
         "SgType indicates SOURCE_CUI, but sg_id is not in that classes_atoms field"));
     testCases.add(new TestCase("ATTRS_10",
-        "check if STY attribute value is in semantic_type table",
+        "SgType indicates SOURCE_AUI, check if sg_id is in that classes_atoms field",
         "SgType indicates SOURCE_AUI, but sg_id is not in that classes_atoms field"));
     testCases.add(new TestCase("ATTRS_11",
-        "check if STY attribute value is in semantic_type table",
+        "SgType indicates SOURCE_DUI, check if sg_id is in that classes_atoms field",
         "SgType indicates SOURCE_DUI, but sg_id is not in that classes_atoms field"));
   }
 
