@@ -258,11 +258,13 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
         // String pat3c =
         // "^(has_conceptual_part|has_form|inverse_isa|has_part|has_tradname)$";
         // 20201013: Nels indicates has_part is allowed with RT
+        // contains/contained in also allowed for RT (used by FMA)
 
         if (!fields[3].equals("RT") && (fields[4].equals("associated_with")
             || fields[4].equals("consists_of")
-            || fields[4].equals("constitutes") || fields[4].equals("contains")
-            || fields[4].equals("contained_in")
+            || fields[4].equals("constitutes") 
+            //|| fields[4].equals("contains")
+            //|| fields[4].equals("contained_in")
             || fields[4].equals("ingredient_of")
             || fields[4].equals("has_ingredient"))) {
           if (underErrorTallyThreashold("#RELS_4")) {
@@ -348,16 +350,16 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
        * if ($IL[5] =~ /$pat8/ && $IL[7] eq 'SRC' && ($IL[13] ne 'CODE_SOURCE'
        * || $IL[15] ne 'CODE_SOURCE' || $IL[14] ne 'SRC' || $IL[16] ne 'SRC') my
        * $pat8 = qr{^(translation_of|version_of)$};
+       * 20201013: Nels advised to add SRC_ATOM_ID clause
        */
       if (checkNames.contains("#RELS_7")) {
 
         if ((fields[4].equals("translation_of")
             || fields[4].equals("version_of"))
             && fields[6].equals("SRC")
+            && !fields[12].equals("SRC_ATOM_ID")
             && (!fields[12].equals("CODE_SOURCE")
                 || !fields[14].equals("CODE_SOURCE")
-                || !fields[12].equals("SRC_ATOM_ID")
-                || !fields[14].equals("SRC_ATOM_ID")
                 || !fields[13].equals("SRC") || !fields[15].equals("SRC"))) {
           if (underErrorTallyThreashold("#RELS_7")) {
             result.addError("RELS_7:" + fields[4] + ":" + fields[12] + ":"
