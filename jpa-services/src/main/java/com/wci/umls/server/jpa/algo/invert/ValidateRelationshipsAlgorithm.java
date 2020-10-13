@@ -257,6 +257,7 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
         // "^(conceptual_part_of|form_of|isa|part_of|tradname_of)$";
         // String pat3c =
         // "^(has_conceptual_part|has_form|inverse_isa|has_part|has_tradname)$";
+        // 20201013: Nels indicates has_part is allowed with RT
 
         if (!fields[3].equals("RT") && (fields[4].equals("associated_with")
             || fields[4].equals("consists_of")
@@ -278,7 +279,7 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
         }
         if (!fields[3].equals("BT") && (fields[4].equals("has_conceptual_part")
             || fields[4].equals("has_form") || fields[4].equals("inverse_isa")
-            || fields[4].equals("has_part")
+           // || fields[4].equals("has_part")
             || fields[4].equals("has_tradename"))) {
           if (underErrorTallyThreashold("#RELS_4")) {
             result.addError("RELS_4:" + fields[3] + ":" + fields[4]);
@@ -307,7 +308,7 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
             + source_of_label + "|" + id_qualifier_1 + "|" + id_type_2 + "|"
             + id_qualifier_2 + "|" + source_rui + "|" + relationship_group)) {
           if (underErrorTallyThreashold("#RELS_5")) {
-            result.addError("RELS_5:" + id_1 + "|" + relationship_name + "|"
+            result.addWarning("RELS_5:" + id_1 + "|" + relationship_name + "|"
                 + relationship_attribute + "|" + id_2 + "|" + source + "|"
                 + source_of_label + "|" + id_qualifier_1 + "|" + id_type_2 + "|"
                 + id_qualifier_2 + "|" + source_rui + "|" + relationship_group);
@@ -355,6 +356,8 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
             && fields[6].equals("SRC")
             && (!fields[12].equals("CODE_SOURCE")
                 || !fields[14].equals("CODE_SOURCE")
+                || !fields[12].equals("SRC_ATOM_ID")
+                || !fields[14].equals("SRC_ATOM_ID")
                 || !fields[13].equals("SRC") || !fields[15].equals("SRC"))) {
           if (underErrorTallyThreashold("#RELS_7")) {
             result.addError("RELS_7:" + fields[4] + ":" + fields[12] + ":"

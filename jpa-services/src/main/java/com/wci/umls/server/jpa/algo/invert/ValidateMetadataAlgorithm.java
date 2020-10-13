@@ -193,13 +193,49 @@ public class ValidateMetadataAlgorithm extends AbstractInsertMaintReleaseAlgorit
               // allowed for null rela - so ignore
             } else {
               if (underErrorTallyThreashold("#META_4")) {
-                result.addError("META_4:" + fields[0] + "|" + fields[1] + "|"
+                result.addWarning("META_4:" + fields[0] + "|" + fields[1] + "|"
                     + fields[2] + "|" + fields[3]);
               }
             }
+          } else if (fields[0].equals("MAPATN")) {
+              if ((fields[2].equals("rela_inverse") && fields[3].equals(""))
+                  || (fields[2].equals("expanded_form")
+                      && fields[3].equals("Empty attribute name"))) {
+                // allowed for null rela - so ignore
+              } else {
+                if (underErrorTallyThreashold("#META_4")) {
+                  result.addWarning("META_4:" + fields[0] + "|" + fields[1] + "|"
+                      + fields[2] + "|" + fields[3]);
+                }
+              }
+            
+          } else if (fields[0].equals("REL")) {
+              if ((fields[2].equals("rela_inverse") && fields[3].equals(""))
+                  || (fields[2].equals("expanded_form")
+                      && fields[3].equals("Empty relationship"))) {
+                // allowed for null rela - so ignore
+              } else {
+                if (underErrorTallyThreashold("#META_4")) {
+                  result.addWarning("META_4:" + fields[0] + "|" + fields[1] + "|"
+                      + fields[2] + "|" + fields[3]);
+                }
+              }
+            
+          } else if (fields[0].equals("SUPPRESS")) {
+              if ((fields[2].equals("rela_inverse") && fields[3].equals(""))
+                  || (fields[2].equals("expanded_form")
+                      && fields[3].equals("Suppressibility not yet assigned by the UMLS"))) {
+                // allowed for null rela - so ignore
+              } else {
+                if (underErrorTallyThreashold("#META_4")) {
+                  result.addWarning("META_4:" + fields[0] + "|" + fields[1] + "|"
+                      + fields[2] + "|" + fields[3]);
+                }
+              }
+            
           } else {
             if (underErrorTallyThreashold("#META_4")) {
-              result.addError("META_4:" + fields[0] + "|" + fields[1] + "|"
+              result.addWarning("META_4:" + fields[0] + "|" + fields[1] + "|"
                   + fields[2] + "|" + fields[3]);
             }
           }
@@ -207,6 +243,7 @@ public class ValidateMetadataAlgorithm extends AbstractInsertMaintReleaseAlgorit
 
       }
     }
+
     in.close();
 
     // read in file termgroups.src
