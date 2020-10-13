@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import javax.persistence.NoResultException;
@@ -79,6 +80,17 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
   private Set<Long> atomIdsForTrackingRecordNeedsReview = null;
 
+  /** The process in progress map. */
+  static Map<String, Boolean> processInProgressMap = new ConcurrentHashMap<>();
+  
+  /** The process validation result map. */
+  /*
+   * Store process validation results so they can be sent to the UI once the
+   * process is complete
+   */
+  static Map<String, ValidationResult> processValidationResultMap =
+      new ConcurrentHashMap<>();
+  
   static {
     init();
   }
@@ -597,6 +609,9 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     WorkflowBinDefinition definition, int rank, Set<Long> conceptsSeen,
     Map<Long, String> conceptIdWorklistNameMap) throws Exception {
     Logger.getLogger(getClass()).info("Regenerate bin " + definition.getName());
+    
+    // start progress monitoring
+    startProcess(project.getId(), definition.getName());
 
     setTransactionPerOperation(false);
     final Date startDate = new Date();
@@ -746,6 +761,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     bin.setCreationTime(new Date().getTime() - startDate.getTime());
     updateWorkflowBin(bin);
 
+    // finish progress monitoring
+    finishProcess(project.getId(), definition.getName());
     return bin;
 
   }
@@ -1333,5 +1350,53 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       throw new Exception(
           "Workflow action handler did not properly initialize, serious error.");
     }
+  }
+  
+  /* see superclass */
+  @Override
+  public void startProcess(Long projectId, String process) throws Exception {
+    processInProgressMap.put(projectId + "|" + process, true);
+  }
+
+  /* see superclass */
+  @Override
+  public void finishProcess(Long projectId, String process)
+    throws Exception {
+    processInProgressMap.remove(projectId + "|" + process);
+  }
+
+  /* see superclass */
+  @Override
+  public Boolean getProcessProgressStatus(Long projectId, String process)
+    throws Exception {
+    if (processInProgressMap.containsKey(projectId + "|" + process)) {
+      return true;
+    }
+    return false;
+  }
+  
+
+  /* see superclass */
+  @Override
+  public void setProcessValidationResult(Long projectId, String process,
+    ValidationResult validationResult) throws Exception {
+
+    processValidationResultMap.put(projectId + "|" + process, validationResult);
+  }
+
+  /* see superclass */
+  @Override
+  public ValidationResult getProcessValidationResult(Long projectId,
+    String process) throws Exception {
+
+    return processValidationResultMap.get(projectId + "|" + process);
+  }
+
+  /* see superclass */
+  @Override
+  public void removeProcessValidationResult(Long projectId, String process)
+    throws Exception {
+
+    processValidationResultMap.remove(projectId + "|" + process);
   }
 }
