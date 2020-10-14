@@ -404,7 +404,12 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
           String atomSuppress = fields[8];
           String tgSuppress = termgroupToSuppressMap.get(fields[2]);
 
-          if (tgSuppress.equals("Y") && !atomSuppress.equals("Y")
+          if (atomSuppress == null || tgSuppress == null) {
+            if (underErrorTallyThreashold("#ATOMS_18")) {
+              result.addError("ATOMS_18:" + atomSuppress + ":"
+                + tgSuppress + " : " + fileLine);
+            }
+          } else if (tgSuppress.equals("Y") && !atomSuppress.equals("Y")
               && !atomSuppress.equals("O")) {
             if (underErrorTallyThreashold("#ATOMS_18")) {
               result.addError("ATOMS_18:" + atomSuppress + ":"
