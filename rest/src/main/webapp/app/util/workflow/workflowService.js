@@ -1234,13 +1234,13 @@ tsApp.service('workflowService', [
     };
 
     // run autofix
-    this.runAutofix = function(projectId, id, autofix) {
-      console.debug('create autofix process', projectId, id, autofix);
+    this.runAutofix = function(projectId, bin) {
+      console.debug('create autofix process', projectId, bin);
       var deferred = $q.defer();
 
       gpService.increment('Creating autofixing process...');
-      var url = workflowUrl + '/bin/' + id + '/autofix?projectId=' + projectId;
-      $http.post(url, '').then(
+      var url = workflowUrl + '/runautofix?projectId=' + projectId;
+      $http.post(url, bin).then(
       // success
       function(response) {
         console.debug('  autofix process creation successful ', gpService.getGlassPane().counter);

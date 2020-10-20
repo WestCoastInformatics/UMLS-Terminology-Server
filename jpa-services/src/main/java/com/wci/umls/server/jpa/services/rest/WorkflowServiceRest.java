@@ -1,5 +1,11 @@
 /*
- *    Copyright 2019 West Coast Informatics, LLC
+ * Copyright 2020 Wci Informatics - All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains the property of Wci Informatics
+ * The intellectual and technical concepts contained herein are proprietary to
+ * Wci Informatics and may be covered by U.S. and Foreign Patents, patents in process,
+ * and are protected by trade secret or copyright law.  Dissemination of this information
+ * or reproduction of this material is strictly forbidden.
  */
 package com.wci.umls.server.jpa.services.rest;
 
@@ -21,6 +27,7 @@ import com.wci.umls.server.helpers.WorkflowEpochList;
 import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.workflow.WorkflowBinDefinitionJpa;
+import com.wci.umls.server.jpa.workflow.WorkflowBinJpa;
 import com.wci.umls.server.jpa.workflow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.workflow.WorkflowEpochJpa;
 import com.wci.umls.server.jpa.workflow.WorklistJpa;
@@ -46,8 +53,8 @@ public interface WorkflowServiceRest {
    * @return the workflow config
    * @throws Exception the exception
    */
-  public WorkflowConfig addWorkflowConfig(Long projectId,
-    WorkflowConfigJpa config, String authToken) throws Exception;
+  public WorkflowConfig addWorkflowConfig(Long projectId, WorkflowConfigJpa config,
+    String authToken) throws Exception;
 
   /**
    * Import workflow config.
@@ -59,9 +66,8 @@ public interface WorkflowServiceRest {
    * @return the workflow config
    * @throws Exception the exception
    */
-  public WorkflowConfig importWorkflowConfig(
-    FormDataContentDisposition contentDispositionHeader, InputStream in,
-    Long projectId, String authToken) throws Exception;
+  public WorkflowConfig importWorkflowConfig(FormDataContentDisposition contentDispositionHeader,
+    InputStream in, Long projectId, String authToken) throws Exception;
 
   /**
    * Export process config.
@@ -72,8 +78,8 @@ public interface WorkflowServiceRest {
    * @return the input stream
    * @throws Exception the exception
    */
-  public InputStream exportWorkflowConfig(Long projectId, Long workflowId,
-    String authToken) throws Exception;
+  public InputStream exportWorkflowConfig(Long projectId, Long workflowId, String authToken)
+    throws Exception;
 
   /**
    * Update workflow config.
@@ -83,8 +89,8 @@ public interface WorkflowServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void updateWorkflowConfig(Long projectId, WorkflowConfigJpa config,
-    String authToken) throws Exception;
+  public void updateWorkflowConfig(Long projectId, WorkflowConfigJpa config, String authToken)
+    throws Exception;
 
   /**
    * Removes the workflow config.
@@ -94,8 +100,7 @@ public interface WorkflowServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void removeWorkflowConfig(Long projectId, Long id, String authToken)
-    throws Exception;
+  public void removeWorkflowConfig(Long projectId, Long id, String authToken) throws Exception;
 
   /**
    * Returns the workflow config.
@@ -106,8 +111,8 @@ public interface WorkflowServiceRest {
    * @return the workflow config
    * @throws Exception the exception
    */
-  public WorkflowConfig getWorkflowConfig(Long projectId, Long id,
-    String authToken) throws Exception;
+  public WorkflowConfig getWorkflowConfig(Long projectId, Long id, String authToken)
+    throws Exception;
 
   /**
    * Adds the workflow bin definition.
@@ -119,9 +124,8 @@ public interface WorkflowServiceRest {
    * @return the workflow bin definition
    * @throws Exception the exception
    */
-  public WorkflowBinDefinition addWorkflowBinDefinition(Long projectId,
-    Long positionAfterId, WorkflowBinDefinitionJpa binDefinition,
-    String authToken) throws Exception;
+  public WorkflowBinDefinition addWorkflowBinDefinition(Long projectId, Long positionAfterId,
+    WorkflowBinDefinitionJpa binDefinition, String authToken) throws Exception;
 
   /**
    * Update workflow bin definition.
@@ -131,8 +135,8 @@ public interface WorkflowServiceRest {
    *
    * @throws Exception the exception
    */
-  public void updateWorkflowBinDefinition(Long projectId,
-    WorkflowBinDefinitionJpa definition, String authToken) throws Exception;
+  public void updateWorkflowBinDefinition(Long projectId, WorkflowBinDefinitionJpa definition,
+    String authToken) throws Exception;
 
   /**
    * Removes the workflow bin definition.
@@ -142,8 +146,8 @@ public interface WorkflowServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void removeWorkflowBinDefinition(Long projectId, Long id,
-    String authToken) throws Exception;
+  public void removeWorkflowBinDefinition(Long projectId, Long id, String authToken)
+    throws Exception;
 
   /**
    * Removes the workflow bin.
@@ -153,8 +157,7 @@ public interface WorkflowServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void removeWorkflowBin(Long projectId, Long id, String authToken)
-    throws Exception;
+  public void removeWorkflowBin(Long projectId, Long id, String authToken) throws Exception;
 
   /**
    * Returns the workflow bin definition.
@@ -165,8 +168,8 @@ public interface WorkflowServiceRest {
    * @return the workflow bin definition
    * @throws Exception the exception
    */
-  public WorkflowBinDefinition getWorkflowBinDefinition(Long projectId, Long id,
-    String authToken) throws Exception;
+  public WorkflowBinDefinition getWorkflowBinDefinition(Long projectId, Long id, String authToken)
+    throws Exception;
 
   /**
    * Clear bins.
@@ -176,8 +179,7 @@ public interface WorkflowServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void clearBins(Long projectId, String type, String authToken)
-    throws Exception;
+  public void clearBins(Long projectId, String type, String authToken) throws Exception;
 
   /**
    * Regenerate bins.
@@ -187,8 +189,7 @@ public interface WorkflowServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void regenerateBins(Long projectId, String type, String authToken)
-    throws Exception;
+  public void regenerateBins(Long projectId, String type, String authToken) throws Exception;
 
   /**
    * Find assigned work.
@@ -201,8 +202,8 @@ public interface WorkflowServiceRest {
    * @return the tracking record list
    * @throws Exception the exception
    */
-  public TrackingRecordList findAssignedWork(Long projectId, String userName,
-    UserRole role, PfsParameterJpa pfs, String authToken) throws Exception;
+  public TrackingRecordList findAssignedWork(Long projectId, String userName, UserRole role,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Find done work.
@@ -215,8 +216,8 @@ public interface WorkflowServiceRest {
    * @return the tracking record list
    * @throws Exception the exception
    */
-  public TrackingRecordList findDoneWork(Long projectId, String userName,
-    UserRole role, PfsParameterJpa pfs, String authToken) throws Exception;
+  public TrackingRecordList findDoneWork(Long projectId, String userName, UserRole role,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Find available work.
@@ -228,8 +229,8 @@ public interface WorkflowServiceRest {
    * @return the tracking record list
    * @throws Exception the exception
    */
-  public TrackingRecordList findAvailableWork(Long projectId, UserRole role,
-    PfsParameterJpa pfs, String authToken) throws Exception;
+  public TrackingRecordList findAvailableWork(Long projectId, UserRole role, PfsParameterJpa pfs,
+    String authToken) throws Exception;
 
   /**
    * Find tracking records for checklist.
@@ -241,8 +242,8 @@ public interface WorkflowServiceRest {
    * @return the tracking record list
    * @throws Exception the exception
    */
-  public TrackingRecordList findTrackingRecordsForChecklist(Long projectId,
-    Long checklistId, PfsParameterJpa pfs, String authToken) throws Exception;
+  public TrackingRecordList findTrackingRecordsForChecklist(Long projectId, Long checklistId,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Find tracking records for worklist.
@@ -254,8 +255,8 @@ public interface WorkflowServiceRest {
    * @return the tracking record list
    * @throws Exception the exception
    */
-  public TrackingRecordList findTrackingRecordsForWorklist(Long projectId,
-    Long worklistId, PfsParameterJpa pfs, String authToken) throws Exception;
+  public TrackingRecordList findTrackingRecordsForWorklist(Long projectId, Long worklistId,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Find tracking records for workflow bin.
@@ -267,8 +268,8 @@ public interface WorkflowServiceRest {
    * @return the tracking record list
    * @throws Exception the exception
    */
-  public TrackingRecordList findTrackingRecordsForWorkflowBin(Long projectId,
-    Long workflowBinId, PfsParameterJpa pfs, String authToken) throws Exception;
+  public TrackingRecordList findTrackingRecordsForWorkflowBin(Long projectId, Long workflowBinId,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Find assigned worklists.
@@ -281,8 +282,8 @@ public interface WorkflowServiceRest {
    * @return the worklist list
    * @throws Exception the exception
    */
-  public WorklistList findAssignedWorklists(Long projectId, String userName,
-    UserRole role, PfsParameterJpa pfs, String authToken) throws Exception;
+  public WorklistList findAssignedWorklists(Long projectId, String userName, UserRole role,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Find done worklists.
@@ -295,8 +296,8 @@ public interface WorkflowServiceRest {
    * @return the worklist list
    * @throws Exception the exception
    */
-  public WorklistList findDoneWorklists(Long projectId, String userName,
-    UserRole role, PfsParameterJpa pfs, String authToken) throws Exception;
+  public WorklistList findDoneWorklists(Long projectId, String userName, UserRole role,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Find checklists.
@@ -308,8 +309,8 @@ public interface WorkflowServiceRest {
    * @return the checklist list
    * @throws Exception the exception
    */
-  public ChecklistList findChecklists(Long projectId, String query,
-    PfsParameterJpa pfs, String authToken) throws Exception;
+  public ChecklistList findChecklists(Long projectId, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception;
 
   /**
    * Returns the workflow paths defined by the supported listeners.
@@ -332,9 +333,8 @@ public interface WorkflowServiceRest {
    * @return the tracking record
    * @throws Exception the exception
    */
-  public Worklist performWorkflowAction(Long projectId, Long worklistId,
-    String userName, UserRole role, WorkflowAction action, String authToken)
-    throws Exception;
+  public Worklist performWorkflowAction(Long projectId, Long worklistId, String userName,
+    UserRole role, WorkflowAction action, String authToken) throws Exception;
 
   /**
    * Find available worklists.
@@ -346,8 +346,8 @@ public interface WorkflowServiceRest {
    * @return the worklist list
    * @throws Exception the exception
    */
-  public WorklistList findAvailableWorklists(Long projectId, UserRole role,
-    PfsParameterJpa pfs, String authToken) throws Exception;
+  public WorklistList findAvailableWorklists(Long projectId, UserRole role, PfsParameterJpa pfs,
+    String authToken) throws Exception;
 
   /**
    * Creates the checklist.
@@ -365,10 +365,9 @@ public interface WorkflowServiceRest {
    * @return the checklist
    * @throws Exception the exception
    */
-  public Checklist createChecklist(Long projectId, Long workflowBinId,
-    String clusterType, String name, String description, Boolean randomize,
-    Boolean excludeOnWorklist, String query, PfsParameterJpa pfs,
-    String authToken) throws Exception;
+  public Checklist createChecklist(Long projectId, Long workflowBinId, String clusterType,
+    String name, String description, Boolean randomize, Boolean excludeOnWorklist, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Adds the workflow epoch.
@@ -379,8 +378,8 @@ public interface WorkflowServiceRest {
    * @return the workflow epoch
    * @throws Exception the exception
    */
-  public WorkflowEpoch addWorkflowEpoch(Long projectId, WorkflowEpochJpa epoch,
-    String authToken) throws Exception;
+  public WorkflowEpoch addWorkflowEpoch(Long projectId, WorkflowEpochJpa epoch, String authToken)
+    throws Exception;
 
   /**
    * Removes the workflow epoch.
@@ -390,8 +389,7 @@ public interface WorkflowServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void removeWorkflowEpoch(Long projectId, Long id, String authToken)
-    throws Exception;
+  public void removeWorkflowEpoch(Long projectId, Long id, String authToken) throws Exception;
 
   /**
    * Creates the worklist.
@@ -404,8 +402,8 @@ public interface WorkflowServiceRest {
    * @return the worklist
    * @throws Exception the exception
    */
-  public Worklist createWorklist(Long projectId, Long workflowBinId,
-    String clusterType, PfsParameterJpa pfs, String authToken) throws Exception;
+  public Worklist createWorklist(Long projectId, Long workflowBinId, String clusterType,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Removes the worklist.
@@ -415,8 +413,7 @@ public interface WorkflowServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void removeWorklist(Long projectId, Long id, String authToken)
-    throws Exception;
+  public void removeWorklist(Long projectId, Long id, String authToken) throws Exception;
 
   /**
    * Removes the checklist.
@@ -426,8 +423,7 @@ public interface WorkflowServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void removeChecklist(Long projectId, Long id, String authToken)
-    throws Exception;
+  public void removeChecklist(Long projectId, Long id, String authToken) throws Exception;
 
   /**
    * Find worklists.
@@ -439,8 +435,8 @@ public interface WorkflowServiceRest {
    * @return the worklist list
    * @throws Exception the exception
    */
-  public WorklistList findWorklists(Long projectId, String query,
-    PfsParameterJpa pfs, String authToken) throws Exception;
+  public WorklistList findWorklists(Long projectId, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception;
 
   /**
    * Returns the workflow bin stats.
@@ -451,8 +447,8 @@ public interface WorkflowServiceRest {
    * @return the workflow bin stats
    * @throws Exception the exception
    */
-  public WorkflowBinList getWorkflowBins(Long projectId, String type,
-    String authToken) throws Exception;
+  public WorkflowBinList getWorkflowBins(Long projectId, String type, String authToken)
+    throws Exception;
 
   /**
    * Clear bin.
@@ -462,8 +458,7 @@ public interface WorkflowServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void clearBin(Long projectId, Long workflowBinId, String authToken)
-    throws Exception;
+  public void clearBin(Long projectId, Long workflowBinId, String authToken) throws Exception;
 
   /**
    * Regenerate bin.
@@ -475,8 +470,8 @@ public interface WorkflowServiceRest {
    * @return the workflow bin
    * @throws Exception the exception
    */
-  public WorkflowBin regenerateBin(Long projectId, Long workflowBinId,
-    String type, String authToken) throws Exception;
+  public WorkflowBin regenerateBin(Long projectId, Long workflowBinId, String type,
+    String authToken) throws Exception;
 
   /**
    * Regenerate bin.
@@ -488,8 +483,8 @@ public interface WorkflowServiceRest {
    * @return the workflow bin
    * @throws Exception the exception
    */
-  public WorkflowBin regenerateBinDefinition(Long projectId, String name,
-    String type, String authToken) throws Exception;
+  public WorkflowBin regenerateBinDefinition(Long projectId, String name, String type,
+    String authToken) throws Exception;
 
   /**
    * Generate concept report.
@@ -504,9 +499,9 @@ public interface WorkflowServiceRest {
    * @return the string
    * @throws Exception the exception
    */
-  public String generateConceptReport(Long projectId, Long worklistId,
-    Long delay, Boolean sendEmail, String conceptReportType,
-    Integer relationshipCt, String authToken) throws Exception;
+  public String generateConceptReport(Long projectId, Long worklistId, Long delay,
+    Boolean sendEmail, String conceptReportType, Integer relationshipCt, String authToken)
+    throws Exception;
 
   /**
    * Find generated concept reports.
@@ -518,8 +513,8 @@ public interface WorkflowServiceRest {
    * @return the string list
    * @throws Exception the exception
    */
-  public StringList findGeneratedConceptReports(Long projectId, String query,
-    PfsParameterJpa pfs, String authToken) throws Exception;
+  public StringList findGeneratedConceptReports(Long projectId, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception;
 
   /**
    * Returns the generated concept report.
@@ -530,8 +525,8 @@ public interface WorkflowServiceRest {
    * @return the generated concept report
    * @throws Exception the exception
    */
-  public String getGeneratedConceptReport(Long projectId, String fileName,
-    String authToken) throws Exception;
+  public String getGeneratedConceptReport(Long projectId, String fileName, String authToken)
+    throws Exception;
 
   /**
    * Removes the generated concept report.
@@ -541,8 +536,8 @@ public interface WorkflowServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void removeGeneratedConceptReport(Long projectId, String fileName,
-    String authToken) throws Exception;
+  public void removeGeneratedConceptReport(Long projectId, String fileName, String authToken)
+    throws Exception;
 
   /**
    * Returns the worklist stats.
@@ -553,8 +548,7 @@ public interface WorkflowServiceRest {
    * @return the worklist stats
    * @throws Exception the exception
    */
-  public Worklist getWorklist(Long projectId, Long worklistId, String authToken)
-    throws Exception;
+  public Worklist getWorklist(Long projectId, Long worklistId, String authToken) throws Exception;
 
   /**
    * Returns the workflow configs.
@@ -564,8 +558,7 @@ public interface WorkflowServiceRest {
    * @return the workflow configs
    * @throws Exception the exception
    */
-  public WorkflowConfigList getWorkflowConfigs(Long projectId, String authToken)
-    throws Exception;
+  public WorkflowConfigList getWorkflowConfigs(Long projectId, String authToken) throws Exception;
 
   /**
    * Removes the note.
@@ -575,8 +568,7 @@ public interface WorkflowServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void removeChecklistNote(Long projectId, Long noteId, String authToken)
-    throws Exception;
+  public void removeChecklistNote(Long projectId, Long noteId, String authToken) throws Exception;
 
   /**
    * Adds the note.
@@ -588,8 +580,8 @@ public interface WorkflowServiceRest {
    * @return the note
    * @throws Exception the exception
    */
-  public Note addChecklistNote(Long projectId, Long checklistId, String note,
-    String authToken) throws Exception;
+  public Note addChecklistNote(Long projectId, Long checklistId, String note, String authToken)
+    throws Exception;
 
   /**
    * Returns the checklist.
@@ -600,8 +592,7 @@ public interface WorkflowServiceRest {
    * @return the checklist
    * @throws Exception the exception
    */
-  public Checklist getChecklist(Long projectId, Long id, String authToken)
-    throws Exception;
+  public Checklist getChecklist(Long projectId, Long id, String authToken) throws Exception;
 
   /**
    * Returns the log for the worklist or checklist. This includes log for any
@@ -615,8 +606,8 @@ public interface WorkflowServiceRest {
    * @return the log
    * @throws Exception the exception
    */
-  public String getLog(Long projectId, Long checklistId, Long worklistId,
-    int lines, String authToken) throws Exception;
+  public String getLog(Long projectId, Long checklistId, Long worklistId, int lines,
+    String authToken) throws Exception;
 
   /**
    * Adds the worklist note.
@@ -628,8 +619,8 @@ public interface WorkflowServiceRest {
    * @return the note
    * @throws Exception the exception
    */
-  public Note addWorklistNote(Long projectId, Long worklistId, String note,
-    String authToken) throws Exception;
+  public Note addWorklistNote(Long projectId, Long worklistId, String note, String authToken)
+    throws Exception;
 
   /**
    * Removes the worklist note.
@@ -639,8 +630,7 @@ public interface WorkflowServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void removeWorklistNote(Long projectId, Long noteId, String authToken)
-    throws Exception;
+  public void removeWorklistNote(Long projectId, Long noteId, String authToken) throws Exception;
 
   /**
    * Update worklist.
@@ -650,8 +640,7 @@ public interface WorkflowServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void updateWorklist(Long projectId, WorklistJpa config,
-    String authToken) throws Exception;
+  public void updateWorklist(Long projectId, WorklistJpa config, String authToken) throws Exception;
 
   /**
    * Returns the workflow bin definition.
@@ -663,8 +652,8 @@ public interface WorkflowServiceRest {
    * @return the workflow bin definition
    * @throws Exception the exception
    */
-  public WorkflowBinDefinition getWorkflowBinDefinition(Long projectId,
-    String name, String type, String authToken) throws Exception;
+  public WorkflowBinDefinition getWorkflowBinDefinition(Long projectId, String name, String type,
+    String authToken) throws Exception;
 
   /**
    * Test query.
@@ -674,11 +663,11 @@ public interface WorkflowServiceRest {
    * @param type the type
    * @param style the style
    * @param authToken the auth token
-   * @return
+   * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList testQuery(Long projectId, String query,
-    QueryType type, QueryStyle style, String authToken) throws Exception;
+  public SearchResultList testQuery(Long projectId, String query, QueryType type, QueryStyle style,
+    String authToken) throws Exception;
 
   /**
    * Import checklist.
@@ -691,9 +680,8 @@ public interface WorkflowServiceRest {
    * @return the checklist
    * @throws Exception the exception
    */
-  public Checklist importChecklist(
-    FormDataContentDisposition contentDispositionHeader, InputStream in,
-    Long projectId, String checklistName, String authToken) throws Exception;
+  public Checklist importChecklist(FormDataContentDisposition contentDispositionHeader,
+    InputStream in, Long projectId, String checklistName, String authToken) throws Exception;
 
   /**
    * Creates the checklist.
@@ -707,9 +695,8 @@ public interface WorkflowServiceRest {
    * @return the checklist
    * @throws Exception the exception
    */
-  public Checklist computeChecklist(Long projectId, String query,
-    QueryType queryType, String checklistName, PfsParameterJpa pfs,
-    String authToken) throws Exception;
+  public Checklist computeChecklist(Long projectId, String query, QueryType queryType,
+    String checklistName, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Export checklist.
@@ -720,8 +707,8 @@ public interface WorkflowServiceRest {
    * @return the input stream
    * @throws Exception the exception
    */
-  public InputStream exportChecklist(Long projectId, Long checklistId,
-    String authToken) throws Exception;
+  public InputStream exportChecklist(Long projectId, Long checklistId, String authToken)
+    throws Exception;
 
   /**
    * Export worklist.
@@ -732,8 +719,8 @@ public interface WorkflowServiceRest {
    * @return the input stream
    * @throws Exception the exception
    */
-  public InputStream exportWorklist(Long projectId, Long worklistId,
-    String authToken) throws Exception;
+  public InputStream exportWorklist(Long projectId, Long worklistId, String authToken)
+    throws Exception;
 
   /**
    * Stamp.
@@ -745,8 +732,8 @@ public interface WorkflowServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void stampWorklist(Long projectId, Long id, String activityId,
-    boolean approve, String authToken) throws Exception;
+  public void stampWorklist(Long projectId, Long id, String activityId, boolean approve,
+    String authToken) throws Exception;
 
   /**
    * Stamp checklist.
@@ -758,8 +745,8 @@ public interface WorkflowServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void stampChecklist(Long projectId, Long id, String activityId,
-    boolean approve, String authToken) throws Exception;
+  public void stampChecklist(Long projectId, Long id, String activityId, boolean approve,
+    String authToken) throws Exception;
 
   /**
    * Recompute concept status.
@@ -770,8 +757,8 @@ public interface WorkflowServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void recomputeConceptStatus(Long projectId, String activityId,
-    Boolean updaterFlag, String authToken) throws Exception;
+  public void recomputeConceptStatus(Long projectId, String activityId, Boolean updaterFlag,
+    String authToken) throws Exception;
 
   /**
    * Gets the current workflow epoch.
@@ -781,8 +768,7 @@ public interface WorkflowServiceRest {
    * @return the current workflow epoch
    * @throws Exception the exception
    */
-  public WorkflowEpoch getCurrentWorkflowEpoch(Long projectId, String authToken)
-    throws Exception;
+  public WorkflowEpoch getCurrentWorkflowEpoch(Long projectId, String authToken) throws Exception;
 
   /**
    * Gets the workflow epochs.
@@ -792,18 +778,17 @@ public interface WorkflowServiceRest {
    * @return the workflow epochs
    * @throws Exception the exception
    */
-  public WorkflowEpochList getWorkflowEpochs(Long projectId, String authToken)
-    throws Exception;
+  public WorkflowEpochList getWorkflowEpochs(Long projectId, String authToken) throws Exception;
 
   /**
-   * Autofix bin.
+   * Run autofix.
    *
    * @param projectId the project id
-   * @param id the id
+   * @param workflowBin the workflow bin
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void autofixBin(Long projectId, Long id, String authToken)
+  public void runAutofix(Long projectId, WorkflowBinJpa workflowBin, String authToken)
     throws Exception;
 
 }

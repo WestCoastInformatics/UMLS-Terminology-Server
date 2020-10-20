@@ -1,5 +1,11 @@
 /*
- *    Copyright 2017 West Coast Informatics, LLC
+ * Copyright 2020 Wci Informatics - All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains the property of Wci Informatics
+ * The intellectual and technical concepts contained herein are proprietary to
+ * Wci Informatics and may be covered by U.S. and Foreign Patents, patents in process,
+ * and are protected by trade secret or copyright law.  Dissemination of this information
+ * or reproduction of this material is strictly forbidden.
  */
 package com.wci.umls.server.rest.impl;
 
@@ -19,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
@@ -43,7 +48,6 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.ProcessConfig;
-import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
@@ -69,7 +73,6 @@ import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.AlgorithmConfigJpa;
 import com.wci.umls.server.jpa.ComponentInfoJpa;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
-import com.wci.umls.server.jpa.ProcessExecutionJpa;
 import com.wci.umls.server.jpa.actions.ChangeEventJpa;
 import com.wci.umls.server.jpa.algo.insert.RepartitionAlgorithm;
 import com.wci.umls.server.jpa.algo.maint.MatrixInitializerAlgorithm;
@@ -1611,12 +1614,14 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
       }
 
       // Compute "cluster" and "concept" counts
-     /* for (final Checklist checklist : list.getObjects()) {
-        checklist.getStats().put("clusterCt", checklist.getTrackingRecords().size());
-        // Add up orig concepts size from all tracking records
-        checklist.getStats().put("conceptCt", checklist.getTrackingRecords().stream()
-            .collect(Collectors.summingInt(w -> w.getOrigConceptIds().size())));
-      }*/
+      /*
+       * for (final Checklist checklist : list.getObjects()) {
+       * checklist.getStats().put("clusterCt",
+       * checklist.getTrackingRecords().size()); // Add up orig concepts size
+       * from all tracking records checklist.getStats().put("conceptCt",
+       * checklist.getTrackingRecords().stream()
+       * .collect(Collectors.summingInt(w -> w.getOrigConceptIds().size()))); }
+       */
 
       // websocket - n/a
 
@@ -1898,13 +1903,14 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
 
       final Project project = workflowService.getProject(projectId);
       final WorkflowBin workflowBin = workflowService.getWorkflowBin(workflowBinId);
-      
+
       // Check that checklist name isn't already in use
-      ChecklistList matchingChecklistNames = findChecklists(projectId, name, new PfsParameterJpa(), authToken);
+      ChecklistList matchingChecklistNames =
+          findChecklists(projectId, name, new PfsParameterJpa(), authToken);
       if (matchingChecklistNames.size() != 0) {
         throw new LocalException("Checklist name " + name + " is already in use.");
       }
-      
+
       // Build up list of identifiers
       final List<String> clauses = workflowBin.getTrackingRecords().stream()
           // Skip records on worklists if excludeWorklist is used
@@ -2064,8 +2070,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
         final PfsParameter localPfs =
             pfs == null ? new PfsParameterJpa() : new PfsParameterJpa(pfs);
         // Always work in clusterId order, unless specified by user
-        localPfs.setSortField("clusterId");            
-        if(pfs != null && !ConfigUtility.isEmpty(pfs.getSortField())){
+        localPfs.setSortField("clusterId");
+        if (pfs != null && !ConfigUtility.isEmpty(pfs.getSortField())) {
           localPfs.setSortField(pfs.getSortField());
         }
         final TrackingRecordList recordResultList =
@@ -2758,15 +2764,21 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
   @GET
   @Produces(MediaType.TEXT_PLAIN)
   @Path("/worklist/{id}/report/generate")
-  @ApiOperation(value = "Generate concept reports for worklist", notes = "Generate concept reports for the specified worklist", response = String.class)
+  @ApiOperation(value = "Generate concept reports for worklist",
+      notes = "Generate concept reports for the specified worklist", response = String.class)
   public String generateConceptReport(
-    @ApiParam(value = "Project id, e.g. 5", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Project id, e.g. 5",
+        required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Worklist id, e.g. 5", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Delay", required = false) @QueryParam("delay") Long delay,
-    @ApiParam(value = "Send email, e.g. false", required = false) @QueryParam("sendEmail") Boolean sendEmail,
-    @ApiParam(value = "Concept report type", required = false) @QueryParam("conceptReportType") String conceptReportType,
-    @ApiParam(value = "Relationship count", required = false) @QueryParam("relationshipCt") Integer relationshipCt,
-    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    @ApiParam(value = "Send email, e.g. false",
+        required = false) @QueryParam("sendEmail") Boolean sendEmail,
+    @ApiParam(value = "Concept report type",
+        required = false) @QueryParam("conceptReportType") String conceptReportType,
+    @ApiParam(value = "Relationship count",
+        required = false) @QueryParam("relationshipCt") Integer relationshipCt,
+    @ApiParam(value = "Authorization token, e.g. 'author1'",
+        required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful call (Workflow): /report/" + id + "/report/generate ");
@@ -2775,9 +2787,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
     final ReportServiceJpa reportService = new ReportServiceJpa();
     StringBuilder conceptReport = new StringBuilder();
     try {
-      final String userName =
-          authorizeProject(workflowService, projectId, securityService,
-              authToken, "trying to generate concept report", UserRole.AUTHOR);
+      final String userName = authorizeProject(workflowService, projectId, securityService,
+          authToken, "trying to generate concept report", UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
       final Project project = workflowService.getProject(projectId);
 
@@ -2788,12 +2799,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
       // Construct filename
       final String fileName = worklist.getName() + "_rpt.txt";
       final String uploadDir = ConfigUtility.getUploadDir();
-      final File reportsDir =
-          new File(uploadDir + "/" + projectId + "/reports");
+      final File reportsDir = new File(uploadDir + "/" + projectId + "/reports");
       final File file = new File(reportsDir, fileName);
       if (file.exists()) {
-        throw new Exception(
-            "Worklist report file already exists - " + file.getAbsolutePath());
+        throw new Exception("Worklist report file already exists - " + file.getAbsolutePath());
       }
 
       // Make dirs
@@ -2811,12 +2820,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
         for (final Long conceptId : record.getOrigConceptIds()) {
           final Concept concept = reportService.getConcept(conceptId);
 
-          final PrecedenceList list = sortAtoms(securityService, reportService,
-              userName, concept, project);
-          conceptReport.append(
-              reportService.getConceptReport(project, concept, list, false));
-          conceptReport.append(
-              "\r\n---------------------------------------------\r\n\r\n");
+          final PrecedenceList list =
+              sortAtoms(securityService, reportService, userName, concept, project);
+          conceptReport.append(reportService.getConceptReport(project, concept, list, false));
+          conceptReport.append("\r\n---------------------------------------------\r\n\r\n");
         }
       }
 
@@ -2836,16 +2843,14 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
         } else {
           from = config.getProperty("mail.smtp.user");
         }
-        ConfigUtility.sendEmail(
-            "[Terminology Server] Worklist Concept Report " + fileName, from,
-            user.getEmail(), "The worklist concept report " + fileName
-                + " has been successfully generated.",
+        ConfigUtility.sendEmail("[Terminology Server] Worklist Concept Report " + fileName, from,
+            user.getEmail(),
+            "The worklist concept report " + fileName + " has been successfully generated.",
             config);
       }
 
-      workflowService.addLogEntry(userName, projectId, worklist.getId(), null,
-          null, "GENERATE REPORT for worklist - " + worklist.getId() + ", "
-              + worklist.getName());
+      workflowService.addLogEntry(userName, projectId, worklist.getId(), null, null,
+          "GENERATE REPORT for worklist - " + worklist.getId() + ", " + worklist.getName());
 
       // websocket - n/a
 
@@ -3777,21 +3782,21 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
     }
 
   }
-  
+
   /* see superclass */
   @Override
   @POST
-  @Path("/bin/{id}/autofix")
+  @Path("runautofix")
   @ApiOperation(value = "Autofix bin", notes = "Autofix bin")
-  public void autofixBin(
+  public void runAutofix(
     @ApiParam(value = "Project id, e.g. 1",
         required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Workflow bin id, e.g. 5", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Workflow bin to run autofix on", required = true) WorkflowBinJpa workflowBin,
     @ApiParam(value = "Authorization token, e.g. 'guest'",
         required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass()).info("RESTful call (Workflow): /bin/" + id + "/autofix ");
+    Logger.getLogger(getClass()).info("RESTful call (Workflow): /runautofix ");
 
     // Only one user can autofix a bin at a time
     synchronized (lock) {
@@ -3799,25 +3804,26 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
       final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
       final ProcessServiceJpa processService = new ProcessServiceJpa();
       processService.setLastModifiedBy(authToken);
-      
+
       try {
         final String userName = authorizeProject(workflowService, projectId, securityService,
             authToken, "trying to autofix a bin", UserRole.AUTHOR);
         workflowService.setLastModifiedBy(userName);
 
         // Read relevant workflow objects
-        final WorkflowBin bin = workflowService.getWorkflowBin(id);
-        verifyProject(bin, projectId);
         final Project project = workflowService.getProject(projectId);
+
         if (!project.isEditingEnabled()) {
           throw new LocalException("Editing is disabled on project: " + project.getName());
         }
 
-        //Create autofix process
+        // Create autofix process
         ProcessConfig processConfig = new ProcessConfigJpa();
-        processConfig.setDescription("Autofix Process for '" + bin.getName() + "' - " + ConfigUtility.DATE_YYYYMMDDHHMMSS.format(new Date()));
+        processConfig.setDescription("Autofix Process for '" + workflowBin.getName() + "' - "
+            + ConfigUtility.DATE_YYYYMMDDHHMMSS.format(new Date()));
         processConfig.setFeedbackEmail(null);
-        processConfig.setName("Autofix Process for '" + bin.getName() + "' - " + ConfigUtility.DATE_YYYYMMDDHHMMSS.format(new Date()));
+        processConfig.setName("Autofix Process for '" + workflowBin.getName() + "' - "
+            + ConfigUtility.DATE_YYYYMMDDHHMMSS.format(new Date()));
         processConfig.setProject(project);
         processConfig.setTerminology("");
         processConfig.setVersion("");
@@ -3826,12 +3832,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
         processConfig.setInputPath("");
         processConfig = processService.addProcessConfig(processConfig);
 
-        //Create autofix algorithm
+        // Create autofix algorithm
         AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
-        algoConfig.setAlgorithmKey(bin.getAutofix());
-        algoConfig.setDescription("Autofix Algorithm: " + bin.getAutofix());
+        algoConfig.setAlgorithmKey(workflowBin.getAutofix());
+        algoConfig.setDescription("Autofix Algorithm: " + workflowBin.getAutofix());
         algoConfig.setEnabled(true);
-        algoConfig.setName("Autofix Algorithm: " + bin.getAutofix());
+        algoConfig.setName("Autofix Algorithm: " + workflowBin.getAutofix());
         algoConfig.setProcess(processConfig);
         algoConfig.setProject(project);
         algoConfig.setTimestamp(new Date());
@@ -3840,11 +3846,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
 
         processConfig.getSteps().add(algoConfig);
         processService.updateProcessConfig(processConfig);
-        
-        //TODO Execute algorithm?  Or go to process page so they can execute algorithm themselves?      
-        
-        workflowService.addLogEntry(userName, projectId, id, null, null,
-            "AUTOFIX BIN - " + id + ", " + bin.getName());
+
+        // TODO Execute algorithm? Or go to process page so they can execute
+        // algorithm themselves?
+
+        workflowService.addLogEntry(userName, projectId, null, null, null,
+            "AUTOFIX BIN - " + workflowBin.getName());
 
         // websocket - n/a
 
@@ -3865,6 +3872,5 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
       return;
     }
   }
-  
-  
+
 }
