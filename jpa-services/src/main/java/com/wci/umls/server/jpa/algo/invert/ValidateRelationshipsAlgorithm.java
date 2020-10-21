@@ -258,9 +258,11 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
         // String pat3c =
         // "^(has_conceptual_part|has_form|inverse_isa|has_part|has_tradname)$";
 
+
         if (!fields[3].equals("RT") && (fields[4].equals("associated_with")
             || fields[4].equals("consists_of")
-            || fields[4].equals("constitutes") || fields[4].equals("contains")
+            || fields[4].equals("constitutes") 
+            || fields[4].equals("contains")
             || fields[4].equals("contained_in")
             || fields[4].equals("ingredient_of")
             || fields[4].equals("has_ingredient"))) {
@@ -307,7 +309,7 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
             + source_of_label + "|" + id_qualifier_1 + "|" + id_type_2 + "|"
             + id_qualifier_2 + "|" + source_rui + "|" + relationship_group)) {
           if (underErrorTallyThreashold("#RELS_5")) {
-            result.addError("RELS_5:" + id_1 + "|" + relationship_name + "|"
+            result.addWarning("RELS_5:" + id_1 + "|" + relationship_name + "|"
                 + relationship_attribute + "|" + id_2 + "|" + source + "|"
                 + source_of_label + "|" + id_qualifier_1 + "|" + id_type_2 + "|"
                 + id_qualifier_2 + "|" + source_rui + "|" + relationship_group);
@@ -347,12 +349,14 @@ public class ValidateRelationshipsAlgorithm extends AbstractInsertMaintReleaseAl
        * if ($IL[5] =~ /$pat8/ && $IL[7] eq 'SRC' && ($IL[13] ne 'CODE_SOURCE'
        * || $IL[15] ne 'CODE_SOURCE' || $IL[14] ne 'SRC' || $IL[16] ne 'SRC') my
        * $pat8 = qr{^(translation_of|version_of)$};
+       * 20201013: Nels advised to add SRC_ATOM_ID clause
        */
       if (checkNames.contains("#RELS_7")) {
 
         if ((fields[4].equals("translation_of")
             || fields[4].equals("version_of"))
             && fields[6].equals("SRC")
+            && !fields[12].equals("SRC_ATOM_ID")
             && (!fields[12].equals("CODE_SOURCE")
                 || !fields[14].equals("CODE_SOURCE")
                 || !fields[13].equals("SRC") || !fields[15].equals("SRC"))) {

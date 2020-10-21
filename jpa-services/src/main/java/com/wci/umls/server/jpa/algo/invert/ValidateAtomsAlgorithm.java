@@ -212,7 +212,7 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
       
       // check each row has the correct number of fields
       if (checkNames.contains("#ATOMS_1")) {
-        if (fields.length != 14) {
+        if (fields.length != 14 && fields.length != 15) {
           if (underErrorTallyThreashold("#ATOMS_1")) {
             result.addError("ATOMS_1:" + fileLine);
           }
@@ -404,7 +404,12 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
           String atomSuppress = fields[8];
           String tgSuppress = termgroupToSuppressMap.get(fields[2]);
 
-          if (tgSuppress.equals("Y") && !atomSuppress.equals("Y")
+          if (atomSuppress == null || tgSuppress == null) {
+            if (underErrorTallyThreashold("#ATOMS_18")) {
+              result.addError("ATOMS_18:" + atomSuppress + ":"
+                + tgSuppress + " : " + fileLine);
+            }
+          } else if (tgSuppress.equals("Y") && !atomSuppress.equals("Y")
               && !atomSuppress.equals("O")) {
             if (underErrorTallyThreashold("#ATOMS_18")) {
               result.addError("ATOMS_18:" + atomSuppress + ":"
@@ -437,7 +442,7 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
         }
       }
 
-      // check all VPT atoms have STY of Intellectual Property
+      // check all VPT atoms have STY of Intellectual Product
       if (checkNames.contains("#ATOMS_20")) {
         if ((fields[2].equals("SRC/VPT")
             && !styIntelProds.contains(fields[0]))) {
@@ -581,8 +586,8 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
         .add(new TestCase("ATOMS_19", "check for XML chars in string field",
             "String contains an XML character"));
     testCases.add(new TestCase("ATOMS_20",
-        "check all VPT atoms have STY of Intellectual Property",
-        "All VPT atoms have STY of Intellectual Property"));
+        "check all VPT atoms have STY of Intellectual Product",
+        "All VPT atoms have STY of Intellectual Product"));
   }
 
   /* see superclass */

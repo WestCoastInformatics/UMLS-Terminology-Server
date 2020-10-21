@@ -51,6 +51,7 @@ import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -73,6 +74,7 @@ import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.AlgorithmConfigJpa;
 import com.wci.umls.server.jpa.ComponentInfoJpa;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.ChangeEventJpa;
 import com.wci.umls.server.jpa.algo.insert.RepartitionAlgorithm;
 import com.wci.umls.server.jpa.algo.maint.MatrixInitializerAlgorithm;
@@ -731,6 +733,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
       // Add to list in workflow config and save
       List<WorkflowBinDefinition> definitions = config.getWorkflowBinDefinitions();
 
+      if (binDefinition.getAutofix() == null) {
+        binDefinition.setAutofix("");
+      }
       final WorkflowBinDefinition def;
       // if no position stated, add definition at the end of the list
       if (positionAfterId == null) {
@@ -2620,6 +2625,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
 
     Logger.getLogger(getClass()).info("RESTful call (Workflow): /bin/" + id + "/regenerate ");
 
+    WorkflowBin bin = null;
+    
     // Only one user can regenerate a bin at a time
     synchronized (lock) {
 
@@ -2634,12 +2641,15 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
         workflowService.beginTransaction();
 
         // Read relevant workflow objects
-        final WorkflowBin bin = workflowService.getWorkflowBin(id);
+        bin = workflowService.getWorkflowBin(id);
         verifyProject(bin, projectId);
         final Project project = workflowService.getProject(projectId);
         if (!project.isEditingEnabled()) {
           throw new LocalException("Editing is disabled on project: " + project.getName());
         }
+        
+        // start progress monitoring
+        workflowService.startProcess(projectId, bin.getName());
 
         // Remove the workflow bin
         workflowService.removeWorkflowBin(id, true);
@@ -2661,6 +2671,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
         workflowService.commit();
 
         // websocket - n/a
+        
+        // finish progress monitoring
+        workflowService.finishProcess(projectId, bin.getName());
 
         return newBin;
 
@@ -2672,6 +2685,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
         }
         handleException(e, "trying to regenerate a single bin");
       } finally {
+        if (bin != null) {
+          workflowService.finishProcess(projectId, bin.getName());
+        }
         workflowService.close();
         securityService.close();
       }
@@ -3023,6 +3039,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
       authorizeProject(workflowService, projectId, securityService, authToken,
           "trying to test query", UserRole.AUTHOR);
 
+	  // start progress monitoring
+      workflowService.startProcess(projectId, "test-query-" + authToken);
+      
       final Project project = workflowService.getProject(projectId);
       if (query == null) {
         throw new LocalException("Unexpected null query");
@@ -3065,12 +3084,18 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
       }
       searchResultList.setObjects(srl);
       searchResultList.setTotalCount(ct);
+      
+      // finish progress monitoring
+      workflowService.finishProcess(projectId, "test-query-" + authToken);
+      
       return searchResultList;
 
       // websocket - n/a
     } catch (Exception e) {
       handleException(e, "trying to test query");
     } finally {
+      workflowService.finishProcess(projectId, "test-query-" + authToken);
+      
       workflowService.close();
       securityService.close();
     }
@@ -3872,5 +3897,152 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
       return;
     }
   }
+  
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/lookup/progress")
+  @ApiOperation(value = "Lookup progress through process", notes = "Returns whether the process is still in progress", response = Boolean.class)
+  public Boolean getProcessProgress(
+    @ApiParam(value = "Project id", required = true) Long projectId,
+    @ApiParam(value = "Process, e.g. BETA", required = true) @QueryParam("process") String process,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call GET (Workflow): /lookup/process " + projectId + ", "
+            + process);
 
+    final WorkflowService releaseService = new WorkflowServiceJpa();
+
+    Boolean processStillInProgress = false;
+
+    try {
+      if (releaseService.getProcessProgressStatus(projectId, process)) {
+        processStillInProgress = true;
+      }
+
+      return processStillInProgress;
+    } catch (Exception e) {
+      handleException(e, "trying to find the process status");
+    } finally {
+      releaseService.close();
+      securityService.close();
+    }
+    return null;
+  }
+  
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/process/results/{projectId}")
+  @ApiOperation(value = "Get process results", notes = "Returns the validation result of a completed process", response = ValidationResultJpa.class)
+  public ValidationResult getProcessResults(
+    @ApiParam(value = "Project id, e.g. 2", required = true) @PathParam("projectId") Long projectId,
+    @ApiParam(value = "Bulk Process, e.g. BETA", required = true) @QueryParam("process") String process,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call GET (Refset): /process/results/" + projectId + ", "
+            + process);
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+
+    try {
+      ValidationResult validationResult =
+          workflowService.getProcessValidationResult(projectId, process);
+
+      if (validationResult == null) {
+        throw new LocalException("No validation result found for project="
+            + projectId + ", process=" + process);
+      }
+
+      // Now that we've gotten the result, clear it out so a future process run
+      // can use the same key
+      workflowService.removeProcessValidationResult(projectId, process);
+
+      return validationResult;
+    } catch (Exception e) {
+      handleException(e,
+          "trying to find the validation results for a completed process");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+    return null;
+  }
+  
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/lookup/progress/bulk")
+  @ApiOperation(value = "Lookup progress through bulk process", notes = "Returns the refsetIds that are still in progress for specified bulk process", response = StringList.class)
+  public StringList getBulkProcessProgress(
+    @ApiParam(value = "List of workflow bins", required = true) String[] binNames,
+    @ApiParam(value = "Project id", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call GET (Refset): /lookup/process/bulk "
+            + binNames.toString() + ", " + projectId);
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+
+    StringList refsetsStillInProgress = new StringList();
+
+    try {
+      for (String binName : binNames) {
+        if (workflowService.getProcessProgressStatus(projectId, binName)) {
+          refsetsStillInProgress.getObjects().add(binName);
+        }
+      }
+
+      return refsetsStillInProgress;
+    } catch (Exception e) {
+      handleException(e, "trying to find the bulk process status for refsets");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+    return null;
+  }
+
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/process/results/bulk/{projectId}")
+  @ApiOperation(value = "Get bulk process results", notes = "Returns the validation results of a completed bulk process", response = ValidationResultJpa.class)
+  public ValidationResult getBulkProcessResults(
+    @ApiParam(value = "Project id, e.g. 2", required = true) @PathParam("projectId") Long projectId,
+    @ApiParam(value = "Bulk Process, e.g. BETA", required = true) @QueryParam("process") String process,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call GET (Refset): /process/results/bulk/" + projectId
+            + ", " + process);
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+
+    try {
+      ValidationResult validationResult =
+          workflowService.getProcessValidationResult(projectId, process);
+
+      if (validationResult == null) {
+        throw new LocalException("No validation result found for project="
+            + projectId + ", process=" + process);
+      }
+
+      // Now that we've gotten the result, clear it out so a future process run
+      // can use the same key
+      workflowService.removeProcessValidationResult(projectId, process);
+
+      return validationResult;
+    } catch (Exception e) {
+      handleException(e,
+          "trying to find the validation results for a completed bulk process");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+    return null;
+  }
 }

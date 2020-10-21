@@ -14,6 +14,7 @@ import java.io.InputStream;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.QueryStyle;
@@ -790,5 +791,54 @@ public interface WorkflowServiceRest {
    */
   public void runAutofix(Long projectId, WorkflowBinJpa workflowBin, String authToken)
     throws Exception;
+
+  /**
+   * Returns the process progress.
+   *
+   * @param projectId the refset id
+   * @param process the process
+   * @param authToken the auth token
+   * @return the process progress
+   * @throws Exception the exception
+   */
+  public Boolean getProcessProgress(Long projectId, String process, String authToken)
+    throws Exception;
+
+  /**
+   * Returns the process results.
+   *
+   * @param projectId the project id
+   * @param process the process
+   * @param authToken the auth token
+   * @return the process results
+   * @throws Exception the exception
+   */
+  public ValidationResult getProcessResults(Long projectId, String process,
+    String authToken) throws Exception;
+
+
+  /**
+   * Returns the bulk process results.
+   *
+   * @param projectId the project id
+   * @param process the process
+   * @param authToken the auth token
+   * @return the bulk process results
+   * @throws Exception the exception
+   */
+  public ValidationResult getBulkProcessResults(Long projectId, String process,
+    String authToken) throws Exception;
+
+  /**
+   * Returns the bulk process progress.
+   *
+   * @param binNames the bin names
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @return the bulk process progress
+   * @throws Exception the exception
+   */
+  public StringList getBulkProcessProgress(String[] binNames, Long projectId,
+    String authToken) throws Exception;
 
 }

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2019 West Coast Informatics, LLC
  */
 package com.wci.umls.server.services;
 
@@ -9,6 +9,7 @@ import java.util.Set;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.StringList;
@@ -520,4 +521,67 @@ public interface WorkflowService extends ContentService {
    * @param checklist the checklist
    */
   public void handleLazyInit(Checklist checklist);
+
+  /**
+   * Start process.
+   *
+   * @param projectId the project id
+   * @param process the process
+   * @throws Exception the exception
+   */
+  public void startProcess(Long projectId, String process) throws Exception;
+
+  /**
+   * Finish process.
+   *
+   * @param projectId the project id
+   * @param process the process
+   * @throws Exception the exception
+   */
+  public void finishProcess(Long projectId, String process) throws Exception;
+
+  /**
+   * Returns the process progress status.
+   *
+   * @param projectId the project id
+   * @param process the process
+   * @return the process progress status
+   * @throws Exception the exception
+   */
+  public Boolean getProcessProgressStatus(Long projectId, String process)
+    throws Exception;
+
+  /**
+   * Sets the process validation result.
+   *
+   * @param projectId the project id
+   * @param process the process
+   * @param validationResult the validation result
+   * @throws Exception the exception
+   */
+  public void setProcessValidationResult(Long projectId, String process,
+    ValidationResult validationResult) throws Exception;
+
+  /**
+   * Returns the process validation result.
+   *
+   * @param projectId the project id
+   * @param process the process
+   * @return the process validation result
+   * @throws Exception the exception
+   */
+  public ValidationResult getProcessValidationResult(Long projectId, String process)
+    throws Exception;
+
+  /**
+   * Removes the process validation result.
+   *
+   * @param projectId the project id
+   * @param process the process
+   * @throws Exception the exception
+   */
+  public void removeProcessValidationResult(Long projectId, String process)
+    throws Exception;
+
+
 }

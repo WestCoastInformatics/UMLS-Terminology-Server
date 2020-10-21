@@ -49,6 +49,8 @@ tsApp.controller('ImportModalCtrl', [
       // Error
       function(data) {
         utilService.handleDialogError($scope.errors, data);
+
+        workflowService.decrementGlassPane();
       });
     }
 
