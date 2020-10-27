@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
@@ -30,6 +31,7 @@ import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
+import com.wci.umls.server.model.meta.Terminology;
 
 /**
  * Implementation of an algorithm to save information before an insertion.
@@ -157,6 +159,21 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
       rootSources.add(fields[4]);
     } 
     in.close();
+    
+    // attempt to look up atom's source in db as it might not be in sources.src
+    // Generally, this is seen in UMLS insertions where there are atoms from sources that aren't being
+    // updated in that insertion
+    // Unfortunately, the format from classes_atoms doesn't always fit typical formatting conventions
+    // and cannot be programmatically predicted from merging root name with version, so there will still
+    // be some reported errors
+    for (Entry<String, Terminology> entry : getCachedTerminologies().entrySet()) {
+      rootSources.add(entry.getValue().getRootTerminology().getTerminology());
+      sourcesToLatMap.put(entry.getKey() + '_' + entry.getValue().getVersion(), entry.getValue().getRootTerminology().getLanguage());
+      sourcesToLatMap.put(entry.getKey() + entry.getValue().getVersion(), entry.getValue().getRootTerminology().getLanguage());      
+      if (entry.getValue().getVersion().length() >= 3) {
+        sourcesToLatMap.put(entry.getKey() +  entry.getValue().getVersion().substring(2), entry.getValue().getRootTerminology().getLanguage());
+      }
+    } 
     
     // read in file attributes.src
     in = new BufferedReader(new FileReader(new File(srcFullPath + File.separator + "attributes.src")));
@@ -307,10 +324,10 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
       if (checkNames.contains("#ATOMS_10")) {
         if ((fields[2].equals("SRC/VPT") || fields[2].equals("SRC/VAB"))
             && !sourcesToLatMap.containsKey(fields[3].substring(2))) {
-          if (underErrorTallyThreashold("#ATOMS_10")) {
+          //if (underErrorTallyThreashold("#ATOMS_10")) {
             result
                 .addError("ATOMS_10:" + fields[3].substring(2));
-          }
+          //}
         }
       }
 
@@ -318,9 +335,9 @@ public class ValidateAtomsAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
       if (checkNames.contains("#ATOMS_11")) {
         if ((fields[2].equals("SRC/VAB"))
             && !sourcesToLatMap.containsKey(fields[7])) {
-          if (underErrorTallyThreashold("#ATOMS_11")) {
+          //if (underErrorTallyThreashold("#ATOMS_11")) {
             result.addError("ATOMS_11:" + fields[7]);
-          }
+          //}
         }
       }
 
