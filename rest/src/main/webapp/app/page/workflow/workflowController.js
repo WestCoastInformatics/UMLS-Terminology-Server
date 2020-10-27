@@ -710,9 +710,9 @@ tsApp.controller('WorkflowCtrl', [
     };
 
     // Run autofix on a bin
-    $scope.runAutofix = function(bin) {
+    $scope.runAutofix = function(lbin) {
       console.log('Creating autofix process for bin');     	
-      workflowService.runAutofix($scope.selected.project.id, bin.id, bin.autofix).then(
+      workflowService.runAutofix($scope.selected.project.id, lbin).then(
     	      // Success
     	      function(data) {
     	        // Go to process page, autofix section

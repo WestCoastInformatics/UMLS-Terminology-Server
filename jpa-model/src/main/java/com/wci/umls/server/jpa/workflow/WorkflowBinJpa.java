@@ -192,6 +192,7 @@ public class WorkflowBinJpa implements WorkflowBin {
     editable = def.isEditable();
     enabled = def.isEnabled();
     required = def.isRequired();
+    autofix = def.getAutofix();
   }
 
   /* see superclass */

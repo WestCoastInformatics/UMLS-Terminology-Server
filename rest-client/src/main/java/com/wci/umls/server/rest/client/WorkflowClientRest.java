@@ -1762,19 +1762,18 @@ public class WorkflowClientRest extends RootClientRest
   }
 
   @Override
-  public void autofixBin(Long projectId, Long workflowBinId, String authToken)
+  public void runAutofix(Long projectId, WorkflowBinJpa workflowBin, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug("Workflow Client - autofix bin "
-        + projectId + ", " + workflowBinId + ", " + projectId);
+        + projectId + ", " + workflowBin.getName());
 
     validateNotEmpty(projectId, "projectId");
-    validateNotEmpty(workflowBinId, "workflowBinId");
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/workflow/bin/" + workflowBinId + "/autofix?projectId=" + projectId);
+        + "/workflow/runautofix?projectId=" + projectId);
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.text(""));
+        .header("Authorization", authToken).post(Entity.json(workflowBin));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
