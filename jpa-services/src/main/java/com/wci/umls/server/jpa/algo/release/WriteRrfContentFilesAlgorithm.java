@@ -241,13 +241,14 @@ public class WriteRrfContentFilesAlgorithm
     commitClearBegin();
 
     // Close Ambig writers
-    writerMap.get("AMBIGSUI.RRF").close();
-    writerMap.get("AMBIGLUI.RRF").close();
+    if (writerMap.containsKey("AMBIGSUI.RRF")) {
+      writerMap.get("AMBIGSUI.RRF").close();
+    }
+    if (writerMap.containsKey("AMBIGLUI.RRF")) {
+      writerMap.get("AMBIGLUI.RRF").close();
+    }
     
     if (onlyWriteAmbig()) {
-      // close print writers (if any are still open)
-      closeWriters();
-
       fireProgressEvent(100, "Finished");
       logInfo("Finished " + getName());
       return;
