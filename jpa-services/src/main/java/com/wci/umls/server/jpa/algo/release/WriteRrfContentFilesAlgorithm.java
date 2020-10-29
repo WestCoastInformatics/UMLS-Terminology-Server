@@ -1,5 +1,11 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ * Copyright 2020 Wci Informatics - All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains the property of Wci Informatics
+ * The intellectual and technical concepts contained herein are proprietary to
+ * Wci Informatics and may be covered by U.S. and Foreign Patents, patents in process,
+ * and are protected by trade secret or copyright law.  Dissemination of this information
+ * or reproduction of this material is strictly forbidden.
  */
 package com.wci.umls.server.jpa.algo.release;
 
@@ -20,6 +26,7 @@ import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ComponentInfo;
@@ -29,6 +36,7 @@ import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.content.ConceptList;
+import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.CodeJpa;
@@ -70,6 +78,12 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 public class WriteRrfContentFilesAlgorithm
     extends AbstractInsertMaintReleaseAlgorithm {
 
+  /** The files to be written. */
+  private String filesToWrite;
+  
+  /** The set of files to be written. */
+  private Set<String> filesToWriteSet = new HashSet<>();
+  
   /** The sem type map. */
   private Map<String, SemanticType> semTypeMap = new HashMap<>(10000);
 
@@ -155,6 +169,29 @@ public class WriteRrfContentFilesAlgorithm
   }
 
   /**
+   * Sets the files to write.
+   *
+   * @param filesToWrite the files to write
+   */
+  public void setFilesToWrite(String filesToWrite) {
+    this.filesToWrite = filesToWrite;
+  }
+  
+  /**
+   * If we only want AMBIG file(s), we'll skip preparing the maps
+   *
+   * @return true, if successful
+   */
+  private boolean onlyWriteAmbig() {
+    for (String file : filesToWriteSet) {
+      if (!file.startsWith("AMBIG")) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
    * Compute.
    *
    * @throws Exception the exception
@@ -164,18 +201,51 @@ public class WriteRrfContentFilesAlgorithm
   public void compute() throws Exception {
     logInfo("Starting " + getName());
     fireProgressEvent(0, "Starting");
+    
+    
+    if (filesToWrite == null || filesToWrite.isEmpty()) {
+
+      // Add all files
+      for (String fileName : writerMap.keySet()) {
+        filesToWriteSet.add(fileName);
+      }
+
+      // otherwise, construct set of files to write
+    } else {
+
+      // remove white-space and split by comma
+      String[] objects = filesToWrite.replaceAll(" ", "").split(",");
+
+      // add each value to the set
+      for (final String object : objects)
+        filesToWriteSet.add(object);
+
+    }
+
 
     // open print writers
     openWriters();
 
     // Write AMBIG files
     writeAmbig();
-
+    
+    
     commitClearBegin();
 
     // Close Ambig writers
     writerMap.get("AMBIGSUI.RRF").close();
     writerMap.get("AMBIGLUI.RRF").close();
+    
+    if (onlyWriteAmbig()) {
+      commit();
+      // close print writers (if any are still open)
+      closeWriters();
+
+      fireProgressEvent(100, "Finished");
+      logInfo("Finished " + getName());
+      return;
+    }
+
 
     prepareMaps();
     commitClearBegin();
@@ -195,7 +265,7 @@ public class WriteRrfContentFilesAlgorithm
     setSteps(conceptIds.size());
 
     // Parallelize output
-    final Thread[] threads = new Thread[3];
+    final Set<Thread> threads = new HashSet<>();
     final Exception[] exceptions = new Exception[4];
 
     Thread t = new Thread(new Runnable() {
@@ -244,8 +314,10 @@ public class WriteRrfContentFilesAlgorithm
         }
       }
     });
-    threads[0] = t;
-    t.start();
+    if (filesToWriteSet.contains("MRREL.RRF")) {
+      threads.add(t);
+      t.start();
+    }
 
     t = new Thread(new Runnable() {
       @Override
@@ -293,8 +365,10 @@ public class WriteRrfContentFilesAlgorithm
         }
       }
     });
-    threads[1] = t;
-    t.start();
+    if (filesToWriteSet.contains("MRHIER.RRF")) {
+      threads.add(t);
+      t.start();
+    }
 
     t = new Thread(new Runnable() {
       @Override
@@ -342,35 +416,43 @@ public class WriteRrfContentFilesAlgorithm
         }
       }
     });
-    threads[2] = t;
-    t.start();
+    if (filesToWriteSet.contains("MRSAT.RRF")) {
+      threads.add(t);
+      t.start();
+    }
 
     // Start writing other files
     try {
       for (final Long conceptId : conceptIds) {
         final Concept c = getConcept(conceptId);
         String prev = "";
-        for (final String line : writeMrconso(c)) {
-          if (!line.equals(prev)) {
-            writerMap.get("MRCONSO.RRF").print(line);
+        if (filesToWriteSet.contains("MRCONSO.RRF")) {
+          for (final String line : writeMrconso(c)) {
+            if (!line.equals(prev)) {
+              writerMap.get("MRCONSO.RRF").print(line);
+            }
+            prev = line;
           }
-          prev = line;
         }
 
         prev = "";
-        for (final String line : writeMrdef(c)) {
-          if (!line.equals(prev)) {
-            writerMap.get("MRDEF.RRF").print(line);
+        if (filesToWriteSet.contains("MRDEF.RRF")) {
+          for (final String line : writeMrdef(c)) {
+            if (!line.equals(prev)) {
+              writerMap.get("MRDEF.RRF").print(line);
+            }
+            prev = line;
           }
-          prev = line;
         }
 
         prev = "";
-        for (final String line : writeMrsty(c)) {
-          if (!line.equals(prev)) {
-            writerMap.get("MRSTY.RRF").print(line);
+        if (filesToWriteSet.contains("MRSTY.RRF")) {
+          for (final String line : writeMrsty(c)) {
+            if (!line.equals(prev)) {
+              writerMap.get("MRSTY.RRF").print(line);
+            }
+            prev = line;
           }
-          prev = line;
         }
         updateProgress();
       }
@@ -386,7 +468,9 @@ public class WriteRrfContentFilesAlgorithm
 
     // Wait for threads
     for (final Thread thread : threads) {
-      thread.join();
+      if (thread.isAlive()) {
+        thread.join();
+      }
     }
 
     // close print writers (if any are still open)
@@ -417,60 +501,61 @@ public class WriteRrfContentFilesAlgorithm
         getProject().getVersion());
 
     // make semantic types map
-    logInfo("  Prepare semantic type map");
-    for (final SemanticType semType : getSemanticTypes(
-        getProject().getTerminology(), getProject().getVersion())
-            .getObjects()) {
-      semTypeMap.put(semType.getExpandedForm(), semType);
+    if (filesToWriteSet.contains("MRSTY.RRF")) {
+      logInfo("  Prepare semantic type map");
+      for (final SemanticType semType : getSemanticTypes(getProject().getTerminology(),
+          getProject().getVersion()).getObjects()) {
+        semTypeMap.put(semType.getExpandedForm(), semType);
+      }
     }
 
     // make terminologies map
-    logInfo("  Prepare terminologies maps");
-    for (final Terminology term : getCurrentTerminologies().getObjects()) {
-      termMap.put(term.getTerminology(), term);
-    }
-    for (final Terminology term : getTerminologyLatestVersions().getObjects()) {
-      Atom srcRhtAtom = null;
-      SearchResultList searchResults = findConceptSearchResults(
-          getProject().getTerminology(), getProject().getVersion(),
-          getProject().getBranch(), " atoms.codeId:V-" + term.getTerminology()
-              + " AND atoms.terminology:SRC AND atoms.termType:RPT",
-          null);
-      if (searchResults.size() == 1) {
-        final Concept concept =
-            getConcept(searchResults.getObjects().get(0).getId());
-        for (final Atom a : concept.getAtoms()) {
-          if (a.getTermType().equals("RHT") && a.isPublishable()) {
-            srcRhtAtom = a;
-            break;
-          }
-        }
-
-        if (srcRhtAtom != null) {
-
-          // Look for terminology-specific atom matching RHT on string in same
-          // concept
-          boolean found = false;
+    if (filesToWriteSet.contains("MRCONSO.RRF") || filesToWriteSet.contains("MRREL.RRF")
+        || filesToWriteSet.contains("MRHIER.RRF")) {
+      logInfo("  Prepare terminologies maps");
+      for (final Terminology term : getCurrentTerminologies().getObjects()) {
+        termMap.put(term.getTerminology(), term);
+      }
+      for (final Terminology term : getTerminologyLatestVersions().getObjects()) {
+        Atom srcRhtAtom = null;
+        SearchResultList searchResults = findConceptSearchResults(getProject().getTerminology(),
+            getProject().getVersion(), getProject().getBranch(), " atoms.codeId:V-"
+                + term.getTerminology() + " AND atoms.terminology:SRC AND atoms.termType:RPT",
+            null);
+        if (searchResults.size() == 1) {
+          final Concept concept = getConcept(searchResults.getObjects().get(0).getId());
           for (final Atom a : concept.getAtoms()) {
-            if (a.getTerminology().equals(term.getTerminology())
-                && a.isPublishable()
-                && a.getName().equals(srcRhtAtom.getName())) {
-              found = true;
+            if (a.getTermType().equals("RHT") && a.isPublishable()) {
+              srcRhtAtom = a;
               break;
             }
           }
-          if (!found) {
-            terminologyUsingSrcRoot.add(term.getTerminology());
-          }
 
-          final String srcAui = srcRhtAtom.getAlternateTerminologyIds()
-              .get(getProject().getTerminology());
-          final String name = srcRhtAtom.getName();
-          terminologyToSrcRhtNameMap.put(term.getTerminology(), name);
-          terminologyToSrcAuiMap.put(term.getTerminology(), srcAui);
+          if (srcRhtAtom != null) {
+
+            // Look for terminology-specific atom matching RHT on string in same
+            // concept
+            boolean found = false;
+            for (final Atom a : concept.getAtoms()) {
+              if (a.getTerminology().equals(term.getTerminology()) && a.isPublishable()
+                  && a.getName().equals(srcRhtAtom.getName())) {
+                found = true;
+                break;
+              }
+            }
+            if (!found) {
+              terminologyUsingSrcRoot.add(term.getTerminology());
+            }
+
+            final String srcAui =
+                srcRhtAtom.getAlternateTerminologyIds().get(getProject().getTerminology());
+            final String name = srcRhtAtom.getName();
+            terminologyToSrcRhtNameMap.put(term.getTerminology(), name);
+            terminologyToSrcAuiMap.put(term.getTerminology(), srcAui);
+          }
+        } else {
+          logWarn("missing root SRC concept " + term.getTerminology());
         }
-      } else {
-        logWarn("missing root SRC concept " + term.getTerminology());
       }
     }
 
@@ -516,71 +601,80 @@ public class WriteRrfContentFilesAlgorithm
     }
 
     // Attribute -> ATUI map
-    logInfo("  Cache attribute->ATUI map");
-    query = getEntityManager().createQuery(
-        "select a.id, value(b) from AttributeJpa a join a.alternateTerminologyIds b "
-            + "where KEY(b) = :terminology and a.publishable=true");
-    query.setParameter("terminology", getProject().getTerminology());
-    final List<Object[]> results4 = query.getResultList();
-    ct = 0;
-    for (final Object[] result : results4) {
-      final Long id = Long.valueOf(result[0].toString());
-      final String alternateTerminologyId = result[1].toString();
-      attAtuiMap.put(id, alternateTerminologyId);
-      logAndCommit(ct++, RootService.logCt, RootService.commitCt);
+    if (filesToWriteSet.contains("MRSAT.RRF")) {
+      logInfo("  Cache attribute->ATUI map");
+      query = getEntityManager()
+          .createQuery("select a.id, value(b) from AttributeJpa a join a.alternateTerminologyIds b "
+              + "where KEY(b) = :terminology and a.publishable=true");
+      query.setParameter("terminology", getProject().getTerminology());
+      final List<Object[]> results4 = query.getResultList();
+      ct = 0;
+      for (final Object[] result : results4) {
+        final Long id = Long.valueOf(result[0].toString());
+        final String alternateTerminologyId = result[1].toString();
+        attAtuiMap.put(id, alternateTerminologyId);
+        logAndCommit(ct++, RootService.logCt, RootService.commitCt);
+      }
     }
+    
+    
     // Relationship -> RUI map
-    logInfo("  Cache relationship->RUI map (atom rels)");
-    query = getEntityManager().createQuery(
-        "select a.id, value(b) from AtomRelationshipJpa a join a.alternateTerminologyIds b "
-            + "where KEY(b) = :terminology and a.publishable = true");
-    query.setParameter("terminology", getProject().getTerminology());
-    List<Object[]> results5 = query.getResultList();
-    ct = 0;
-    for (final Object[] result : results5) {
-      final Long id = Long.valueOf(result[0].toString());
-      final String alternateTerminologyId = result[1].toString();
-      relAtomRuiMap.put(id, alternateTerminologyId);
-      logAndCommit(ct++, RootService.logCt, RootService.commitCt);
-    }
-    logInfo("  Cache relationship->RUI map (concept rels)");
-    query = getEntityManager().createQuery(
-        "select a.id, value(b) from ConceptRelationshipJpa a join a.alternateTerminologyIds b "
-            + "where KEY(b) = :terminology and a.publishable = true");
-    query.setParameter("terminology", getProject().getTerminology());
-    results5 = query.getResultList();
-    ct = 0;
-    for (final Object[] result : results5) {
-      final Long id = Long.valueOf(result[0].toString());
-      final String alternateTerminologyId = result[1].toString();
-      relConceptRuiMap.put(id, alternateTerminologyId);
-      logAndCommit(ct++, RootService.logCt, RootService.commitCt);
-    }
-    logInfo("  Cache relationship->RUI map (descriptor rels)");
-    query = getEntityManager().createQuery(
-        "select a.id, value(b) from DescriptorRelationshipJpa a join a.alternateTerminologyIds b "
-            + "where KEY(b) = :terminology and a.publishable = true");
-    query.setParameter("terminology", getProject().getTerminology());
-    results5 = query.getResultList();
-    ct = 0;
-    for (final Object[] result : results5) {
-      final Long id = Long.valueOf(result[0].toString());
-      final String alternateTerminologyId = result[1].toString();
-      relDescriptorRuiMap.put(id, alternateTerminologyId);
-      logAndCommit(ct++, RootService.logCt, RootService.commitCt);
-    }
-    logInfo("  Cache relationship->RUI map (code rels)");
-    query = getEntityManager().createQuery(
-        "select a.id, value(b) from CodeRelationshipJpa a join a.alternateTerminologyIds b "
-            + "where KEY(b) = :terminology and a.publishable = true");
-    query.setParameter("terminology", getProject().getTerminology());
-    results5 = query.getResultList();
-    ct = 0;
-    for (final Object[] result : results5) {
-      final Long id = Long.valueOf(result[0].toString());
-      final String alternateTerminologyId = result[1].toString();
-      relCodeRuiMap.put(id, alternateTerminologyId);
-      logAndCommit(ct++, RootService.logCt, RootService.commitCt);
+    if (filesToWriteSet.contains("MRREL.RRF") || filesToWriteSet.contains("MRSAT.RRF")) {
+      logInfo("  Cache relationship->RUI map (atom rels)");
+      query = getEntityManager().createQuery(
+          "select a.id, value(b) from AtomRelationshipJpa a join a.alternateTerminologyIds b "
+              + "where KEY(b) = :terminology and a.publishable = true");
+      query.setParameter("terminology", getProject().getTerminology());
+      List<Object[]> results5 = query.getResultList();
+      ct = 0;
+      for (final Object[] result : results5) {
+        final Long id = Long.valueOf(result[0].toString());
+        final String alternateTerminologyId = result[1].toString();
+        relAtomRuiMap.put(id, alternateTerminologyId);
+        logAndCommit(ct++, RootService.logCt, RootService.commitCt);
+      }
+
+      logInfo("  Cache relationship->RUI map (concept rels)");
+      query = getEntityManager().createQuery(
+          "select a.id, value(b) from ConceptRelationshipJpa a join a.alternateTerminologyIds b "
+              + "where KEY(b) = :terminology and a.publishable = true");
+      query.setParameter("terminology", getProject().getTerminology());
+      results5 = query.getResultList();
+      ct = 0;
+      for (final Object[] result : results5) {
+        final Long id = Long.valueOf(result[0].toString());
+        final String alternateTerminologyId = result[1].toString();
+        relConceptRuiMap.put(id, alternateTerminologyId);
+        logAndCommit(ct++, RootService.logCt, RootService.commitCt);
+      }
+      
+      logInfo("  Cache relationship->RUI map (descriptor rels)");
+      query = getEntityManager().createQuery(
+          "select a.id, value(b) from DescriptorRelationshipJpa a join a.alternateTerminologyIds b "
+              + "where KEY(b) = :terminology and a.publishable = true");
+      query.setParameter("terminology", getProject().getTerminology());
+      results5 = query.getResultList();
+      ct = 0;
+      for (final Object[] result : results5) {
+        final Long id = Long.valueOf(result[0].toString());
+        final String alternateTerminologyId = result[1].toString();
+        relDescriptorRuiMap.put(id, alternateTerminologyId);
+        logAndCommit(ct++, RootService.logCt, RootService.commitCt);
+      }
+      
+      logInfo("  Cache relationship->RUI map (code rels)");
+      query = getEntityManager().createQuery(
+          "select a.id, value(b) from CodeRelationshipJpa a join a.alternateTerminologyIds b "
+              + "where KEY(b) = :terminology and a.publishable = true");
+      query.setParameter("terminology", getProject().getTerminology());
+      results5 = query.getResultList();
+      ct = 0;
+      for (final Object[] result : results5) {
+        final Long id = Long.valueOf(result[0].toString());
+        final String alternateTerminologyId = result[1].toString();
+        relCodeRuiMap.put(id, alternateTerminologyId);
+        logAndCommit(ct++, RootService.logCt, RootService.commitCt);
+      }
     }
 
     // Determine preferred atoms for all concepts
@@ -658,91 +752,97 @@ public class WriteRrfContentFilesAlgorithm
       logAndCommit(ct++, RootService.logCt, RootService.commitCt);
     }
 
-    // Determine preferred atoms for all codes
-    logInfo(
-        "  Determine preferred atoms for all codes, and cache code->AUI maps");
-    final List<Long> codeIds = executeSingleComponentIdQuery(
-        "select c.id from CodeJpa c join c.atoms a where c.publishable = true "
-            + "and a.publishable = true",
-        QueryType.JPQL, getDefaultQueryParams(getProject()), CodeJpa.class,
-        false);
-    commitClearBegin();
-    ct = 0;
-    for (Long codeId : codeIds) {
-      final Code code = getCode(codeId);
-      // compute preferred atom of the code
-      final Atom atom = handler.sortAtoms(code.getAtoms(), list).get(0);
-      if (!atomContentsMap.containsKey(atom.getId())) {
-        throw new Exception(
-            "Atom without an AUI, or possibly an publishable code with unpublishable atom = "
-                + atom.getId() + ", " + code.getId());
+    if (filesToWriteSet.contains("MRHIER.RRF") || filesToWriteSet.contains("MRSAT.RRF")
+        || filesToWriteSet.contains("MRREL.RRF")) {
+
+      // Determine preferred atoms for all codes
+      logInfo("  Determine preferred atoms for all codes, and cache code->AUI maps");
+      final List<Long> codeIds = executeSingleComponentIdQuery(
+          "select c.id from CodeJpa c join c.atoms a where c.publishable = true "
+              + "and a.publishable = true",
+          QueryType.JPQL, getDefaultQueryParams(getProject()), CodeJpa.class, false);
+      commitClearBegin();
+      ct = 0;
+      for (Long codeId : codeIds) {
+        final Code code = getCode(codeId);
+        // compute preferred atom of the code
+        final Atom atom = handler.sortAtoms(code.getAtoms(), list).get(0);
+        if (!atomContentsMap.containsKey(atom.getId())) {
+          throw new Exception(
+              "Atom without an AUI, or possibly an publishable code with unpublishable atom = "
+                  + atom.getId() + ", " + code.getId());
+        }
+        atomContentsMap.get(atom.getId()).setCodeId(code.getId());
+        initContents(codeContentsMap, code.getId());
+        codeContentsMap.get(code.getId()).setAui(atomContentsMap.get(atom.getId()).getAui());
+        logAndCommit(ct++, RootService.logCt, RootService.commitCt);
       }
-      atomContentsMap.get(atom.getId()).setCodeId(code.getId());
-      initContents(codeContentsMap, code.getId());
-      codeContentsMap.get(code.getId())
-          .setAui(atomContentsMap.get(atom.getId()).getAui());
-      logAndCommit(ct++, RootService.logCt, RootService.commitCt);
-    }
 
-    // Determine terminologies that have relationship attributes
-    logInfo("  Determine all terminologies with relationship attributes");
-    query = manager.createQuery("select distinct r.terminology "
-        + "from ConceptRelationshipJpa r join r.attributes a "
-        + "where r.terminology != :terminology");
-    query.setParameter("terminology", getProject().getTerminology());
-    List<String> results = query.getResultList();
-    for (final String result : results) {
-      ruiAttributeTerminologies.add(result);
-    }
+      // Determine terminologies that have relationship attributes
+      if (filesToWriteSet.contains("MRSAT.RRF")) {
+        logInfo("  Determine all terminologies with relationship attributes");
+        query = manager.createQuery(
+            "select distinct r.terminology " + "from ConceptRelationshipJpa r join r.attributes a "
+                + "where r.terminology != :terminology");
+        query.setParameter("terminology", getProject().getTerminology());
+        List<String> results = query.getResultList();
+        for (final String result : results) {
+          ruiAttributeTerminologies.add(result);
+        }
 
-    query = manager.createQuery("select distinct r.terminology "
-        + "from CodeRelationshipJpa r join r.attributes a "
-        + "where r.terminology != :terminology");
-    query.setParameter("terminology", getProject().getTerminology());
-    results = query.getResultList();
-    for (final String result : results) {
-      ruiAttributeTerminologies.add(result);
-    }
+        query = manager.createQuery(
+            "select distinct r.terminology " + "from CodeRelationshipJpa r join r.attributes a "
+                + "where r.terminology != :terminology");
+        query.setParameter("terminology", getProject().getTerminology());
+        results = query.getResultList();
+        for (final String result : results) {
+          ruiAttributeTerminologies.add(result);
+        }
 
-    query = manager.createQuery("select distinct r.terminology "
-        + "from DescriptorRelationshipJpa r join r.attributes a "
-        + "where r.terminology != :terminology");
-    query.setParameter("terminology", getProject().getTerminology());
-    results = query.getResultList();
-    for (final String result : results) {
-      ruiAttributeTerminologies.add(result);
-    }
+        query = manager.createQuery("select distinct r.terminology "
+            + "from DescriptorRelationshipJpa r join r.attributes a "
+            + "where r.terminology != :terminology");
+        query.setParameter("terminology", getProject().getTerminology());
+        results = query.getResultList();
+        for (final String result : results) {
+          ruiAttributeTerminologies.add(result);
+        }
 
-    // TBD: because only atom and component info rels don't have RUI attributes
-    // so far
-    //
-    // query = manager.createQuery("select distinct r.terminology "
-    // + "from AtomRelationshipJpa r join r.attributes a "
-    // + "where r.terminology != :terminology");
-    // query.setParameter("terminology", getProject().getTerminology());
-    // results = query.getResultList();
-    // for (final String result : results) {
-    // ruiAttributeTerminologies.add(result);
-    // }
+        // TBD: because only atom and component info rels don't have RUI
+        // attributes
+        // so far
+        //
+        // query = manager.createQuery("select distinct r.terminology "
+        // + "from AtomRelationshipJpa r join r.attributes a "
+        // + "where r.terminology != :terminology");
+        // query.setParameter("terminology", getProject().getTerminology());
+        // results = query.getResultList();
+        // for (final String result : results) {
+        // ruiAttributeTerminologies.add(result);
+        // }
+      }
+    }
 
     // Cache component info relationships
-    logInfo("  Cache component info relationships");
-    query = manager.createQuery(
-        "select r from ComponentInfoRelationshipJpa r where publishable = true");
-    final List<ComponentInfoRelationship> rels = query.getResultList();
-    final Map<String, String> SAUIToAUI = new HashMap<>();
-    for (final ComponentInfoRelationship rel : rels) {
-      String key = rel.getTo().getTerminologyId() + rel.getTo().getTerminology()
-          + rel.getTo().getVersion() + rel.getTo().getType();
-      if (rel.getTo().getType() == IdType.ATOM) {
-        // AUI+terminology+type
-        key = rel.getTo().getTerminologyId() + rel.getTo().getTerminology()
-            + rel.getTo().getType();
+    if (filesToWrite.contains("MRREL.RRF")) {
+      logInfo("  Cache component info relationships");
+      query = manager
+          .createQuery("select r from ComponentInfoRelationshipJpa r where publishable = true");
+      final List<ComponentInfoRelationship> rels = query.getResultList();
+      final Map<String, String> SAUIToAUI = new HashMap<>();
+      for (final ComponentInfoRelationship rel : rels) {
+        String key = rel.getTo().getTerminologyId() + rel.getTo().getTerminology()
+            + rel.getTo().getVersion() + rel.getTo().getType();
+        if (rel.getTo().getType() == IdType.ATOM) {
+          // AUI+terminology+type
+          key =
+              rel.getTo().getTerminologyId() + rel.getTo().getTerminology() + rel.getTo().getType();
+        }
+        if (!componentInfoRelMap.containsKey(key)) {
+          componentInfoRelMap.put(key, new ArrayList<>());
+        }
+        componentInfoRelMap.get(key).add(rel);
       }
-      if (!componentInfoRelMap.containsKey(key)) {
-        componentInfoRelMap.put(key, new ArrayList<>());
-      }
-      componentInfoRelMap.get(key).add(rel);
     }
 
     // Cache Contents
@@ -1050,11 +1150,15 @@ public class WriteRrfContentFilesAlgorithm
             a.getVersion(), Branch.ROOT);
 
         if (mapSet.isPublishable()) {
-          for (final String line : writeMrmap(mapSet, c.getTerminologyId())) {
-            writerMap.get("MRMAP.RRF").print(line);
+          if (filesToWriteSet.contains("MRMAP.RRF")) {
+            for (final String line : writeMrmap(mapSet, c.getTerminologyId())) {
+              writerMap.get("MRMAP.RRF").print(line);
+            }
           }
-          for (final String line : writeMrsmap(mapSet, c.getTerminologyId())) {
-            writerMap.get("MRSMAP.RRF").print(line);
+          if (filesToWriteSet.contains("MRSMAP.RRF")) {
+            for (final String line : writeMrsmap(mapSet, c.getTerminologyId())) {
+              writerMap.get("MRSMAP.RRF").print(line);
+            }
           }
         }
       }
@@ -2952,42 +3056,45 @@ public class WriteRrfContentFilesAlgorithm
     // variable
     // length CL-CUIs and SUIs
 
-    logInfo("  Write AMBIGSUI.RRF");
-    Query query = manager.createQuery(
-        "select distinct a.stringClassId, a.stringClassId || '|', c.terminologyId , c.terminologyId || '|' from "
-            + "ConceptJpa c join c.atoms a, ConceptJpa c2 join c2.atoms a2 "
-            + "where c.id != c2.id and a.stringClassId = a2.stringClassId"
-            + "  and c.terminology = :terminology and c2.terminology = :terminology"
-            + "  and c.version = :version and c2.version = :version"
-            + "  and a.publishable = true and a2.publishable = true order by 2,4");
-    query.setParameter("terminology", getProject().getTerminology());
-    query.setParameter("version", getProject().getVersion());
-    List<Object[]> results = query.getResultList();
-    logInfo("    count = " + results.size());
-    for (final Object[] result : results) {
-      writerMap.get("AMBIGSUI.RRF").print(result[0] + "|" + result[2] + "|\n");
+
+    if (filesToWriteSet.contains("AMBIGSUI.RRF")) {
+      logInfo("  Write AMBIGSUI.RRF");
+      Query query = manager.createQuery(
+          "select distinct a.stringClassId, a.stringClassId || '|', c.terminologyId , c.terminologyId || '|' from "
+              + "ConceptJpa c join c.atoms a, ConceptJpa c2 join c2.atoms a2 "
+              + "where c.id != c2.id and a.stringClassId = a2.stringClassId"
+              + "  and c.terminology = :terminology and c2.terminology = :terminology"
+              + "  and c.version = :version and c2.version = :version"
+              + "  and a.publishable = true and a2.publishable = true order by 2,4");
+      query.setParameter("terminology", getProject().getTerminology());
+      query.setParameter("version", getProject().getVersion());
+      List<Object[]> results = query.getResultList();
+      logInfo("    count = " + results.size());
+      for (final Object[] result : results) {
+        writerMap.get("AMBIGSUI.RRF").print(result[0] + "|" + result[2] + "|\n");
+      }
     }
 
     // Find ambig LUIs, write them out.
     // 2020/08/03, NM-87: added "|| '|'" to terminologyId sort to handle
     // variable
     // length CL-CUIs and LUIs
-
-    logInfo("  Write AMBIGLUI.RRF");
-    query = manager.createQuery(
-        "select distinct a.lexicalClassId, a.lexicalClassId || '|', c.terminologyId, c.terminologyId || '|' from "
-            + "ConceptJpa c join c.atoms a, ConceptJpa c2 join c2.atoms a2 "
-            + "where c.id != c2.id"
-            + "  and a.lexicalClassId = a2.lexicalClassId"
-            + "  and c.terminology = :terminology and c2.terminology = :terminology"
-            + "  and c.version = :version and c2.version = :version"
-            + "  and a.publishable = true and a2.publishable = true order by 2,4");
-    query.setParameter("terminology", getProject().getTerminology());
-    query.setParameter("version", getProject().getVersion());
-    results = query.getResultList();
-    logInfo("    count = " + results.size());
-    for (final Object[] result : results) {
-      writerMap.get("AMBIGLUI.RRF").print(result[0] + "|" + result[2] + "|\n");
+    if (filesToWriteSet.contains("AMBIGLUI.RRF")) {
+      logInfo("  Write AMBIGLUI.RRF");
+      Query query = manager.createQuery(
+          "select distinct a.lexicalClassId, a.lexicalClassId || '|', c.terminologyId, c.terminologyId || '|' from "
+              + "ConceptJpa c join c.atoms a, ConceptJpa c2 join c2.atoms a2 "
+              + "where c.id != c2.id" + "  and a.lexicalClassId = a2.lexicalClassId"
+              + "  and c.terminology = :terminology and c2.terminology = :terminology"
+              + "  and c.version = :version and c2.version = :version"
+              + "  and a.publishable = true and a2.publishable = true order by 2,4");
+      query.setParameter("terminology", getProject().getTerminology());
+      query.setParameter("version", getProject().getVersion());
+      List<Object[]> results = query.getResultList();
+      logInfo("    count = " + results.size());
+      for (final Object[] result : results) {
+        writerMap.get("AMBIGLUI.RRF").print(result[0] + "|" + result[2] + "|\n");
+      }
     }
   }
 
@@ -3028,11 +3135,28 @@ public class WriteRrfContentFilesAlgorithm
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
+    if (p.getProperty("filesToWrite") != null) {
+      filesToWrite = p.getProperty("filesToWrite");
+    }
+
     checkRequiredProperties(new String[] {
         ""
     }, p);
   }
 
+  /* see superclass */
+  @Override
+  public List<AlgorithmParameter> getParameters() throws Exception {
+    final List<AlgorithmParameter> params = super.getParameters();
+    final AlgorithmParameter param =
+        new AlgorithmParameterJpa("Files to Write", "filesToWrite",
+            "Comma-separated list of file names that should be written.", "",
+            255, AlgorithmParameter.Type.STRING, "");
+    params.add(param);
+    return params;
+
+  }
+  
   /**
    * Returns the description.
    *
