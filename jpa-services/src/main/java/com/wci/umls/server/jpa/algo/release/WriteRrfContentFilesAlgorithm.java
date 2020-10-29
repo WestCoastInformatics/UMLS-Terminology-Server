@@ -201,14 +201,22 @@ public class WriteRrfContentFilesAlgorithm
   public void compute() throws Exception {
     logInfo("Starting " + getName());
     fireProgressEvent(0, "Starting");
-    
+ 
     
     if (filesToWrite == null || filesToWrite.isEmpty()) {
 
       // Add all files
-      for (String fileName : writerMap.keySet()) {
-        filesToWriteSet.add(fileName);
-      }
+      filesToWriteSet.add("AMBIGSUI.RRF");
+      filesToWriteSet.add("AMBIGLUI.RRF");
+      filesToWriteSet.add("MRCONSO.RRF");
+      filesToWriteSet.add("MRDEF.RRF");
+      filesToWriteSet.add("MRREL.RRF");
+      filesToWriteSet.add("MRSTY.RRF");
+      filesToWriteSet.add("MRSAT.RRF");
+      filesToWriteSet.add("MRHIER.RRF");
+      filesToWriteSet.add("MRHIST.RRF");
+      filesToWriteSet.add("MRMAP.RRF");
+      filesToWriteSet.add("MRSMAP.RRF");
 
       // otherwise, construct set of files to write
     } else {
@@ -237,7 +245,6 @@ public class WriteRrfContentFilesAlgorithm
     writerMap.get("AMBIGLUI.RRF").close();
     
     if (onlyWriteAmbig()) {
-      commit();
       // close print writers (if any are still open)
       closeWriters();
 
@@ -969,28 +976,50 @@ public class WriteRrfContentFilesAlgorithm
         + getProcess().getInputPath() + "/" + getProcess().getVersion() + "/"
         + "META");
 
-    writerMap.put("AMBIGSUI.RRF",
+    if (filesToWriteSet.contains("AMBIGSUI.RRF")) {
+      writerMap.put("AMBIGSUI.RRF",
         new PrintWriter(new FileWriter(new File(dir, "AMBIGSUI.RRF"))));
-    writerMap.put("AMBIGLUI.RRF",
+    }
+    if (filesToWriteSet.contains("AMBIGLUI.RRF")) {
+      writerMap.put("AMBIGLUI.RRF",
         new PrintWriter(new FileWriter(new File(dir, "AMBIGLUI.RRF"))));
-    writerMap.put("MRCONSO.RRF",
+    }
+    if (filesToWriteSet.contains("MRCONSO.RRF")) {
+      writerMap.put("MRCONSO.RRF",
         new PrintWriter(new FileWriter(new File(dir, "MRCONSO.RRF"))));
-    writerMap.put("MRDEF.RRF",
+    }
+    if (filesToWriteSet.contains("MRDEF.RRF")) {
+      writerMap.put("MRDEF.RRF",
         new PrintWriter(new FileWriter(new File(dir, "MRDEF.RRF"))));
-    writerMap.put("MRREL.RRF",
+    }
+    if (filesToWriteSet.contains("MRREL.RRF")) {
+      writerMap.put("MRREL.RRF",
         new PrintWriter(new FileWriter(new File(dir, "MRREL.RRF"))));
-    writerMap.put("MRSTY.RRF",
+    }
+    if (filesToWriteSet.contains("MRSTY.RRF")) {
+      writerMap.put("MRSTY.RRF",
         new PrintWriter(new FileWriter(new File(dir, "MRSTY.RRF"))));
-    writerMap.put("MRSAT.RRF",
+    }
+    if (filesToWriteSet.contains("MRSAT.RRF")) {
+      writerMap.put("MRSAT.RRF",
         new PrintWriter(new FileWriter(new File(dir, "MRSAT.RRF"))));
-    writerMap.put("MRHIER.RRF",
+    }
+    if (filesToWriteSet.contains("MRHIER.RRF")) {
+      writerMap.put("MRHIER.RRF",
         new PrintWriter(new FileWriter(new File(dir, "MRHIER.RRF"))));
-    writerMap.put("MRHIST.RRF",
+    }
+    if (filesToWriteSet.contains("MRHIST.RRF")) {
+      writerMap.put("MRHIST.RRF",
         new PrintWriter(new FileWriter(new File(dir, "MRHIST.RRF"))));
-    writerMap.put("MRMAP.RRF",
+    }
+    if (filesToWriteSet.contains("MRMAP.RRF")) {
+      writerMap.put("MRMAP.RRF",
         new PrintWriter(new FileWriter(new File(dir, "MRMAP.RRF"))));
-    writerMap.put("MRSMAP.RRF",
+    }
+    if (filesToWriteSet.contains("MRSMAP.RRF")) {
+      writerMap.put("MRSMAP.RRF",
         new PrintWriter(new FileWriter(new File(dir, "MRSMAP.RRF"))));
+    }
   }
 
   /**
