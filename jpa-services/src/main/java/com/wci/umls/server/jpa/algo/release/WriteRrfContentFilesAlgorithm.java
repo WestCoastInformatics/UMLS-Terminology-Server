@@ -730,38 +730,35 @@ public class WriteRrfContentFilesAlgorithm
       logAndCommit(ct++, RootService.logCt, RootService.commitCt);
     }
 
-    // Determine preferred atoms for all descriptors
-    logInfo(
-        "  Determine preferred atoms for all descriptors, and cache descriptor->AUI maps");
-    final List<Long> descriptorIds = executeSingleComponentIdQuery(
-        "select d.id from DescriptorJpa d where publishable = true",
-        QueryType.JPQL, getDefaultQueryParams(getProject()),
-        DescriptorJpa.class, false);
-    commitClearBegin();
-    ct = 0;
-    for (Long descriptorId : descriptorIds) {
-      final Descriptor descriptor = getDescriptor(descriptorId);
-
-      // compute preferred atom of the descriptor
-      final Atom atom = handler.sortAtoms(descriptor.getAtoms(), list).get(0);
-      if (!atomContentsMap.containsKey(atom.getId())) {
-        throw new Exception(
-            "Atom without an AUI, or possibly an publishable descriptor with unpublishable atom = "
-                + atom.getId() + ", " + descriptor.getId());
-      }
-      atomContentsMap.get(atom.getId()).setDescriptorId(descriptor.getId());
-      initContents(descriptorContentsMap, descriptor.getId());
-      // skip if atom is not publishable
-      if (!atom.isPublishable()) {
-        continue;
-      }
-      descriptorContentsMap.get(descriptor.getId())
-          .setAui(atomContentsMap.get(atom.getId()).getAui());
-      logAndCommit(ct++, RootService.logCt, RootService.commitCt);
-    }
-
     if (filesToWriteSet.contains("MRHIER.RRF") || filesToWriteSet.contains("MRSAT.RRF")
         || filesToWriteSet.contains("MRREL.RRF")) {
+      // Determine preferred atoms for all descriptors
+      logInfo("  Determine preferred atoms for all descriptors, and cache descriptor->AUI maps");
+      final List<Long> descriptorIds =
+          executeSingleComponentIdQuery("select d.id from DescriptorJpa d where publishable = true",
+              QueryType.JPQL, getDefaultQueryParams(getProject()), DescriptorJpa.class, false);
+      commitClearBegin();
+      ct = 0;
+      for (Long descriptorId : descriptorIds) {
+        final Descriptor descriptor = getDescriptor(descriptorId);
+
+        // compute preferred atom of the descriptor
+        final Atom atom = handler.sortAtoms(descriptor.getAtoms(), list).get(0);
+        if (!atomContentsMap.containsKey(atom.getId())) {
+          throw new Exception(
+              "Atom without an AUI, or possibly an publishable descriptor with unpublishable atom = "
+                  + atom.getId() + ", " + descriptor.getId());
+        }
+        atomContentsMap.get(atom.getId()).setDescriptorId(descriptor.getId());
+        initContents(descriptorContentsMap, descriptor.getId());
+        // skip if atom is not publishable
+        if (!atom.isPublishable()) {
+          continue;
+        }
+        descriptorContentsMap.get(descriptor.getId())
+            .setAui(atomContentsMap.get(atom.getId()).getAui());
+        logAndCommit(ct++, RootService.logCt, RootService.commitCt);
+      }
 
       // Determine preferred atoms for all codes
       logInfo("  Determine preferred atoms for all codes, and cache code->AUI maps");
