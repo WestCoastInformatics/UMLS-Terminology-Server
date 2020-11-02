@@ -469,9 +469,15 @@ public class WriteRrfContentFilesAlgorithm
       exceptions[3] = e;
     } finally {
       // Close final writers
-      writerMap.get("MRCONSO.RRF").close();
-      writerMap.get("MRDEF.RRF").close();
-      writerMap.get("MRSTY.RRF").close();
+      if (writerMap.containsKey("MRCONSO.RRF")) {
+        writerMap.get("MRCONSO.RRF").close();
+      }
+      if (writerMap.containsKey("MRDEF.RRF")) {
+        writerMap.get("MRDEF.RRF").close();
+      }
+      if (writerMap.containsKey("MRSTY.RRF")) {
+        writerMap.get("MRSTY.RRF").close();
+      }
     }
 
     // Wait for threads
