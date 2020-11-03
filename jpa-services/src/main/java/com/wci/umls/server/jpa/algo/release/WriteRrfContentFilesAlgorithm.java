@@ -434,7 +434,8 @@ public class WriteRrfContentFilesAlgorithm
       for (final Long conceptId : conceptIds) {
         final Concept c = getConcept(conceptId);
         String prev = "";
-        if (filesToWriteSet.contains("MRCONSO.RRF")) {
+        if (filesToWriteSet.contains("MRCONSO.RRF") || filesToWriteSet.contains("MRMAP.RRF")
+            || filesToWriteSet.contains("MRSMAP.RRF")) {
           for (final String line : writeMrconso(c)) {
             if (!line.equals(prev)) {
               writerMap.get("MRCONSO.RRF").print(line);
@@ -477,6 +478,12 @@ public class WriteRrfContentFilesAlgorithm
       }
       if (writerMap.containsKey("MRSTY.RRF")) {
         writerMap.get("MRSTY.RRF").close();
+      }
+      if (writerMap.containsKey("MRMAP.RRF")) {
+        writerMap.get("MRMAP.RRF").close();
+      }
+      if (writerMap.containsKey("MRSMAP.RRF")) {
+        writerMap.get("MRSMAP.RRF").close();
       }
     }
 
