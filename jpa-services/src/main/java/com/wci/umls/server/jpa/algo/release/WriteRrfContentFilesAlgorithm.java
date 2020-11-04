@@ -437,7 +437,7 @@ public class WriteRrfContentFilesAlgorithm
         if (filesToWriteSet.contains("MRCONSO.RRF") || filesToWriteSet.contains("MRMAP.RRF")
             || filesToWriteSet.contains("MRSMAP.RRF")) {
           for (final String line : writeMrconso(c)) {
-            if (!line.equals(prev)) {
+            if (filesToWriteSet.contains("MRCONSO.RRF") && !line.equals(prev)) {
               writerMap.get("MRCONSO.RRF").print(line);
             }
             prev = line;
