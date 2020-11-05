@@ -11,12 +11,15 @@ import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
@@ -92,7 +95,8 @@ public class MapSetJpa extends AbstractComponentHasAttributes
   private String toVersion;
 
   /** The alternate terminology ids. */
-  @ElementCollection()
+  @ElementCollection(fetch = FetchType.EAGER)
+  @Fetch(FetchMode.JOIN)
   // consider this: @Fetch(FetchMode.JOIN)
   @Column(nullable = true)
   private Map<String, String> alternateTerminologyIds;
