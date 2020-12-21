@@ -5,15 +5,10 @@ package com.wci.umls.server.jpa.algo.insert;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.UUID;
-
-import javax.persistence.Query;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
@@ -78,8 +73,9 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     // Check the input directories
 
-    String srcFullPath = ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-        + File.separator + getProcess().getInputPath();
+    String srcFullPath =
+        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
+            + File.separator + getProcess().getInputPath();
 
     setSrcDirFile(new File(srcFullPath));
     if (!getSrcDirFile().exists()) {
@@ -87,7 +83,8 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     }
 
     // Get valid terminologies first
-    final String query = "SELECT term.terminology, term.version from TerminologyJpa term";
+    final String query =
+        "SELECT term.terminology, term.version from TerminologyJpa term";
 
     javax.persistence.Query jpaQuery = getEntityManager().createQuery(query);
 
@@ -102,8 +99,8 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     //
     // Validate Terminology Names
     //
-    List<String> srcLines =
-        loadFileIntoStringList(getSrcDirFile(), "classes_atoms.src", "(.*)SRC/V(.*)", null, null);
+    List<String> srcLines = loadFileIntoStringList(getSrcDirFile(),
+        "classes_atoms.src", "(.*)SRC/V(.*)", null, null);
 
     String fields[] = new String[14];
 
@@ -111,8 +108,10 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     for (String line : srcLines) {
       FieldedStringTokenizer.split(line, "|", 14, fields);
       if (!possibleCodeIds.contains(fields[3])) {
-        validationResult.addError("ERROR: classes_atoms.src references a SRC atom with a codeId "
-            + fields[3] + " that doesn't match the format or terminology content available.");
+        validationResult.addError(
+            "ERROR: classes_atoms.src references a SRC atom with a codeId "
+                + fields[3]
+                + " that doesn't match the format or terminology content available.");
       }
 
     }
@@ -137,15 +136,11 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     try {
 
-      // Track new atomId -> new conceptId for later (only used for UMLS
-      // insertions)
-      Map<Long, Long> newAtomIdConceptId = new HashMap<>();
-
       //
       // Load the classes_atoms.src file
       //
-      final List<String> lines =
-          loadFileIntoStringList(getSrcDirFile(), "classes_atoms.src", null, null, null);
+      final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
+          "classes_atoms.src", null, null, null);
 
       logInfo("  Process classes_atoms.src");
       commitClearBegin();
@@ -198,8 +193,8 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         //
         final Atom newAtom = new AtomJpa();
         if (!ConfigUtility.isEmpty(fields[0])) {
-          newAtom.getAlternateTerminologyIds().put(getProject().getTerminology() + "-SRC",
-              fields[0]);
+          newAtom.getAlternateTerminologyIds()
+              .put(getProject().getTerminology() + "-SRC", fields[0]);
         }
         final Terminology terminology = getCachedTerminology(fields[1]);
         if (terminology == null) {
@@ -218,7 +213,8 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         if (fields[4].equals("R")) {
           newAtom.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
         }
-        newAtom.setPublishable((fields[5].equals("Y") || fields[5].equals("y")));
+        newAtom
+            .setPublishable((fields[5].equals("Y") || fields[5].equals("y")));
         newAtom.setPublished((fields[6].equals("Y")));
         newAtom.setName(fields[7]);
         newAtom.setSuppressible("OYE".contains(fields[8]));
@@ -258,7 +254,8 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
         // Check if existing atom has already been processes on a previous run.
         // In this case, skip to the next line
-        if (oldAtom != null && oldAtom.getLastModifiedBy().equals(getLastModifiedBy())) {
+        if (oldAtom != null
+            && oldAtom.getLastModifiedBy().equals(getLastModifiedBy())) {
 
           reconcileCodeConceptDescriptor(oldAtom);
 
@@ -272,7 +269,8 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         // If no atom with the same AUI exists, add this new Atom and a concept
         // to put it into.
         if (oldAtom == null) {
-          newAtom.getAlternateTerminologyIds().put(getProject().getTerminology(), newAtomAui);
+          newAtom.getAlternateTerminologyIds()
+              .put(getProject().getTerminology(), newAtomAui);
           final Atom newAtom2 = addAtom(newAtom);
 
           // Create a new concept to store the atom
@@ -299,12 +297,6 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             putComponent(newAtom2, newAtom2.getTerminologyId());
           }
 
-          // If this is a UMLS insertion, track which concept the new atoms was
-          // put into for possible merging later
-          if (getProcess().getTerminology().equals("MTH")) {
-            newAtomIdConceptId.put(newAtom2.getId(), newConcept2.getId());
-          }
-
           // Reconcile code/concept/descriptor
           reconcileCodeConceptDescriptor(newAtom2);
 
@@ -315,11 +307,13 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           boolean oldAtomChanged = false;
 
           // Update "alternateTerminologyIds"
-          final Map<String, String> altTermIds = oldAtom.getAlternateTerminologyIds();
+          final Map<String, String> altTermIds =
+              oldAtom.getAlternateTerminologyIds();
           if (altTermIds.get(getProject().getTerminology() + "-SRC") == null
-              || !altTermIds.get(getProject().getTerminology() + "-SRC").equals(fields[0])) {
-            oldAtom.getAlternateTerminologyIds().put(getProject().getTerminology() + "-SRC",
-                fields[0]);
+              || !altTermIds.get(getProject().getTerminology() + "-SRC")
+                  .equals(fields[0])) {
+            oldAtom.getAlternateTerminologyIds()
+                .put(getProject().getTerminology() + "-SRC", fields[0]);
             oldAtomChanged = true;
           }
 
@@ -351,7 +345,8 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
         // Update the progress
         updateProgress();
-        handler.silentIntervalCommit(getStepsCompleted(), RootService.logCt, RootService.commitCt);
+        handler.silentIntervalCommit(getStepsCompleted(), RootService.logCt,
+            RootService.commitCt);
 
       }
 
@@ -364,25 +359,12 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         logInfo("  Process umlscui.txt");
         commitClearBegin();
 
-        // Track all new atoms by umlscui
-        Map<String, Set<Long>> umlscuiToNewAtomIds = new HashMap<>();
-
-        String previousVersion = getPreviousVersion(getProcess().getTerminology());
-        if (previousVersion == null) {
-          throw new Exception("WARNING - previous version not found for terminology = "
-              + getProcess().getTerminology());
-        }
-
-        String previousTerminologyVersion = getProcess().getTerminology() + previousVersion;
-
         //
         // Load the umlscui.txt file
         //
-        final List<String> lines2 =
-            loadFileIntoStringList(getSrcDirFile(), "umlscui.txt", null, null, null);
+        final List<String> lines2 = loadFileIntoStringList(getSrcDirFile(),
+            "umlscui.txt", null, null, null);
 
-        logInfo("  " + lines2.size() + " total rows to process");
-        
         int umlscuiStepsCompleted = 0;
 
         final String fields2[] = new String[10];
@@ -434,112 +416,30 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             if (atomAui != null) {
 
               // Load the atom with matching AUI
-              final Atom atom = (Atom) getComponent("AUI", atomAui, null, null, true);
+              final Atom atom =
+                  (Atom) getComponent("AUI", atomAui, null, null, true);
 
               if (atom == null) {
                 // do nothing. This will occur often - umlscui.txt contains way
                 // more entries than classes_atoms.src
               } else {
-
                 // Set the release CUI for process terminology/version
-                atom.getConceptTerminologyIds()
-                    .put(getProcess().getTerminology() + getProcess().getVersion(), CUI);
+                atom.getConceptTerminologyIds().put(
+                    getProcess().getTerminology() + getProcess().getVersion(),
+                    CUI);
                 mthCUIUpdateCount++;
                 updateAtom(atom);
-
-                // Also, if this is a new atom (no previous UMLS-CUI), store the
-                // CUI and atomId for later
-                if (atom.getConceptTerminologyIds().get(previousTerminologyVersion) == null) {
-                  if (umlscuiToNewAtomIds.get(CUI) == null) {
-                    Set<Long> atomIds = new HashSet<>();
-                    umlscuiToNewAtomIds.put(CUI, atomIds);
-                  }
-                  Set<Long> atomIds = umlscuiToNewAtomIds.get(CUI);
-                  atomIds.add(atom.getId());
-                  umlscuiToNewAtomIds.put(CUI, atomIds);
-                }
               }
             }
           }
 
           umlscuiStepsCompleted++;
-          logAndCommit(umlscuiStepsCompleted, RootService.logCt, RootService.commitCt);
+          logAndCommit(umlscuiStepsCompleted, RootService.logCt,
+              RootService.commitCt);
           handler.silentIntervalCommit(umlscuiStepsCompleted, RootService.logCt,
               RootService.commitCt);
         }
 
-        // Consolidate all new atoms by UMLS-CUI into a single concept, IF that
-        // UMLS-CUI is not split across different NCIMTH concepts.
-        // This is an efficiency measure to ensure large influxes of new atoms
-        // don't clog up the merge steps
-
-        logInfo("  Consolidate new atoms by UMLS-CUI where safe");
-        logInfo("  " + umlscuiToNewAtomIds.keySet().size() + " total CUIs to process");
-        
-        // First, identify which UMLS-CUIs are split into different NCIMTH
-        // concepts
-        Set<String> splitCuis = new HashSet<>();
-
-        Query query = getEntityManager().createNativeQuery("SELECT CUI " + "From "
-            + "  (   SELECT DISTINCT " + "      cid.conceptTerminologyIds CUI, " + "      c.id "
-            + "    FROM " + "      concepts c, " + "      concepts_atoms ca, " + "      atoms a, "
-            + "      AtomJpa_conceptTerminologyIds cid " + "    WHERE "
-            + "      c.terminology = 'NCIMTH' " + "      AND c.id = ca.concepts_id "
-            + "      AND ca.atoms_Id = a.id " + "      AND a.id = cid.AtomJpa_id "
-            + "      AND a.publishable = TRUE "
-            + "      AND cid.conceptTerminologyIds_KEY = :previousTerminologyVersion " + "    ) a1 "
-            + "    group by CUI " + "    having count(*)>1");
-
-        query.setParameter("previousTerminologyVersion", previousTerminologyVersion);
-        List<Object> list = query.getResultList();
-        for (final Object entry : list) {
-          final String splitCui = entry.toString();
-          splitCuis.add(splitCui);
-        }
-
-        // Now go through the new atoms and consolidate where appropriate
-
-        int consolidationStepsCompleted = 0;
-
-        for(final String umlscui : umlscuiToNewAtomIds.keySet()) {
-          // If these atoms' UMLS-CUI is split, leave them in separate concepts
-          if(splitCuis.contains(umlscui)) {
-            consolidationStepsCompleted++;
-            continue;
-          }
-          // If their UMLS-CUI is not split, consolidate all new atoms into a single concept
-          else {
-            // Find lowest atom id, and the corresponding concept
-            List<Long> atomIdsToConsolidate = new ArrayList<>();
-            atomIdsToConsolidate.addAll(umlscuiToNewAtomIds.get(umlscui));
-            atomIdsToConsolidate.sort(null);
-            final Long conceptIdToConsolidateInto = newAtomIdConceptId.get(atomIdsToConsolidate.get(0));
-            final Concept conceptToConsolidateInto = getConcept(conceptIdToConsolidateInto);
-
-            
-            for(Long atomId : atomIdsToConsolidate) {
-              final Concept concept = getConcept(newAtomIdConceptId.get(atomId));
-              // Don't consolidate a concept into itself
-              if(concept.getId().equals(conceptToConsolidateInto.getId())) {
-                continue;
-              }
-              // Add atom to the consolidate concept, and clear out and remove the other concept
-              else {
-                final Atom atom = getAtom(atomId);
-                concept.getAtoms().clear();
-                conceptToConsolidateInto.getAtoms().add(atom);
-                removeConcept(concept.getId());
-              }
-            }
-            //Update the consolidated concept to finalize the atom additions
-            updateConcept(conceptToConsolidateInto);
-          }
-          
-          consolidationStepsCompleted++;
-          logAndCommit(consolidationStepsCompleted, RootService.logCt, RootService.commitCt);
-        }
-        
-        
         // Reset the handler create flag
         ((UmlsIdentifierAssignmentHandler) handler).setCreateFlag(true);
 
@@ -580,8 +480,8 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     if (!atom.getCodeId().isEmpty() && !atom.getCodeId().equals("NOCODE")) {
 
       // Use getComponent because it caches stuff in the background
-      final Code existingCode =
-          (Code) getComponent("CODE_SOURCE", atom.getCodeId(), atom.getTerminology(), null);
+      final Code existingCode = (Code) getComponent("CODE_SOURCE",
+          atom.getCodeId(), atom.getTerminology(), null);
 
       if (existingCode != null) {
         if (!existingCode.getAtoms().contains(atom)) {
@@ -614,8 +514,8 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // Check map to see if concept already exists
     if (!atom.getConceptId().isEmpty()) {
 
-      final Concept existingConcept =
-          (Concept) getComponent("SOURCE_CUI", atom.getConceptId(), atom.getTerminology(), null);
+      final Concept existingConcept = (Concept) getComponent("SOURCE_CUI",
+          atom.getConceptId(), atom.getTerminology(), null);
       if (existingConcept != null) {
         if (!existingConcept.getAtoms().contains(atom)) {
           existingConcept.getAtoms().add(atom);
@@ -646,8 +546,9 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // Check map to see if descriptor already exists
     if (!atom.getDescriptorId().isEmpty()) {
 
-      final Descriptor existingDescriptor = (Descriptor) getComponent("SOURCE_DUI",
-          atom.getDescriptorId(), atom.getTerminology(), null);
+      final Descriptor existingDescriptor =
+          (Descriptor) getComponent("SOURCE_DUI", atom.getDescriptorId(),
+              atom.getTerminology(), null);
       if (existingDescriptor != null) {
         if (!existingDescriptor.getAtoms().contains(atom)) {
           existingDescriptor.getAtoms().add(atom);
