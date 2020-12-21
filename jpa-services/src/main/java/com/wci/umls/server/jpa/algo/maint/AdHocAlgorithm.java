@@ -4202,7 +4202,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       Map<Long, Long> newAtomIdConceptId = new HashMap<>();
 
       Query query = getEntityManager().createNativeQuery("SELECT "
-          + "cid.conceptTerminologyIds CUI, " + "a.id, " + "c.id " + "FROM " + "concepts c, "
+          + "cid.conceptTerminologyIds CUI, " + "a.id atomId, " + "c.id conceptId " + "FROM " + "concepts c, "
           + "concepts_atoms ca, " + "atoms a, " + "AtomJpa_conceptTerminologyIds cid " + "WHERE "
           + "c.terminology = 'NCIMTH' " + "AND c.id = ca.concepts_id " + "AND ca.atoms_Id = a.id "
           + "AND a.id = cid.AtomJpa_id " + "AND a.publishable = TRUE "
