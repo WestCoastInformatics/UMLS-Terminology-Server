@@ -228,6 +228,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixAdditionalRelTypeInverses2();
     } else if (actionName.equals("Fix AdditionalRelType Inverses 3")) {
       fixAdditionalRelTypeInverses3();
+    } else if (actionName.equals("Fix AdditionalRelType Inverses 4")) {
+      fixAdditionalRelTypeInverses4();
     } else if (actionName.equals("Remove Demotions")) {
       removeDemotions();
     } else if (actionName.equals("Revise Semantic Types")) {
@@ -3024,6 +3026,41 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Updated " + updatedRelationships + " relationships updated 3.");
     logInfo("Finished " + getName());
   }
+  
+  private void fixAdditionalRelTypeInverses4() throws Exception {
+    // 1/26/2021 fix concept_relationships that have old Is_PCDC_AML_Permissible_Value_For and PCDC_AML_Permissible_Value_Of relas
+
+    logInfo(" Fix Additional Rel Type Inverses 4");
+
+    int updatedRelationships = 0;
+
+    try {
+
+      // update atom_relationships from 'gives_rise_to' to 'develops_into'
+      Query query = getEntityManager().createNativeQuery(
+          "select id from concept_relationships where additionalRelationshipType = 'Is_PCDC_AML_Permissible_Value_For' or"
+          + " additionalRelationshipType = 'PCDC_AML_Permissible_Value_Of' " );
+
+      List<Object> ids = query.getResultList();
+
+      for (final Object result : ids) {
+        final Relationship<?, ?> rel = (ConceptRelationship) getRelationship(
+            Long.valueOf(result.toString()), ConceptRelationshipJpa.class);
+        rel.setAdditionalRelationshipType("Is_PCDC_AML_Permissible_Value_For_Variable");
+        updateRelationship(rel);
+        updatedRelationships++;
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+      // n/a
+    }
+
+    logInfo("Updated " + updatedRelationships + " relationships updated 4.");
+    logInfo("Finished " + getName());
+  }
 
   private void removeDemotions() throws Exception {
     // 3/22/2019 Clean up demotions that should have been removed during concept
@@ -3685,7 +3722,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts", "Fix Null RUIs",
         "Remove old MTH relationships", "Remove old relationships", "Assign Missing STY ATUIs",
         "Fix Component History Version", "Fix AdditionalRelType Inverses 2",
-        "Fix AdditionalRelType Inverses 3", "Remove Demotions", "Revise Semantic Types",
+        "Fix AdditionalRelType Inverses 3", "Fix AdditionalRelType Inverses 4", 
+		"Remove Demotions", "Revise Semantic Types",
         "Fix Atom Last Release CUI", "Fix VPT and Terminologies",
         "Fix Atom Suppressible and Obsolete", "Initialize Source Atom Id Range App",
         "Remove Deprecated Termgroups", "Change null treeposition Relas to blank",
