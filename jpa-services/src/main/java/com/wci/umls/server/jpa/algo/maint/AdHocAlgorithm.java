@@ -260,6 +260,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       removeOldMTHHHTreePositions();
     } else if (actionName.equals("Combine Atoms By UMLS CUI")) {
       combineAtomsByUMLSCui();
+    }else if (actionName.equals("Attach FDA Atom")) {
+      attachFDAAtom();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -3729,7 +3731,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Remove Deprecated Termgroups", "Change null treeposition Relas to blank",
         "Fix overlapping bequeathal rels", "Fix NCBI VPT atom", "Inactivate old tree positions",
         "Fix Duplicate CUIs", "Remove Old CCS_10 AtomRelationships",
-        "Remove Old MTHHH Tree Positions","Combine Atoms By UMLS CUI"));
+        "Remove Old MTHHH Tree Positions","Combine Atoms By UMLS CUI","Attach FDA Atom"));
     params.add(param);
 
     return params;
@@ -4363,4 +4365,29 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   }
 
+  private void attachFDAAtom() throws Exception {
+    // 02/02/2021 An FDA atom ended up unattached to its source-concept due to a hole in the AtomLoader logic.
+    // Atom and concept IDs identified by error message in RRFContent Algorithm
+
+    try {
+
+      logInfo("  Attach FDA atom");
+
+      final Atom atom = getAtom(14123932L);
+      
+      final Concept concept = getConcept(18189760L);
+      
+      concept.getAtoms().add(atom);
+      updateConcept(concept);
+      
+    } catch (
+
+    Exception e) {
+      logError("Unexpected problem - " + e.getMessage());
+      throw e;
+    }
+
+  }
+
+  
 }
