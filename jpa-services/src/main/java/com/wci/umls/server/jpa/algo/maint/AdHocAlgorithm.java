@@ -262,6 +262,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       combineAtomsByUMLSCui();
     } else if (actionName.equals("Attach FDA Atom")) {
       attachFDAAtom();
+    } else if (actionName.equals("Fix SNOMED atoms")) {
+      fixSNOMEDAtoms();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -3732,7 +3734,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Remove Deprecated Termgroups", "Change null treeposition Relas to blank",
         "Fix overlapping bequeathal rels", "Fix NCBI VPT atom", "Inactivate old tree positions",
         "Fix Duplicate CUIs", "Remove Old CCS_10 AtomRelationships",
-        "Remove Old MTHHH Tree Positions", "Combine Atoms By UMLS CUI", "Attach FDA Atom"));
+        "Remove Old MTHHH Tree Positions", "Combine Atoms By UMLS CUI", "Attach FDA Atom",
+        "Fix SNOMED atoms"));
     params.add(param);
 
     return params;
@@ -4401,11 +4404,11 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       int updatedAtoms = 0;
       int updatedRelationships = 0;
-      
+
       logInfo("  Fix SNOMED Atoms");
 
-      Query query = getEntityManager()
-          .createNativeQuery("select id from atoms where terminologyId <> '' and terminology='NCIMTH'");
+      Query query = getEntityManager().createNativeQuery(
+          "select id from atoms where terminologyId <> '' and terminology='NCIMTH'");
 
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
@@ -4414,25 +4417,27 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         atom.setTerminology("SNOMEDCT_US");
         atom.setVersion("2020_09_01");
         updateAtom(atom);
-        updatedAtoms ++;
+        updatedAtoms++;
       }
-      
-      logInfo("[FixSNOMEDAtoms] " + updatedAtoms + " SNOMEDCT_US atoms terminology and version fixed.");
 
-      
-      query = getEntityManager()
-          .createNativeQuery("select * from component_info_relationships where (fromTerminology='NCIMTH' and toTerminology='SNOMEDCT_US') or (toTerminology='NCIMTH' and fromTerminology='SNOMEDCT_US')");
+      logInfo(
+          "[FixSNOMEDAtoms] " + updatedAtoms + " SNOMEDCT_US atoms terminology and version fixed.");
+
+      query = getEntityManager().createNativeQuery(
+          "select * from component_info_relationships where (fromTerminology='NCIMTH' and toTerminology='SNOMEDCT_US') or (toTerminology='NCIMTH' and fromTerminology='SNOMEDCT_US')");
 
       list = query.getResultList();
       for (final Object entry : list) {
         final Long relId = Long.valueOf(entry.toString());
-        final ComponentInfoRelationship relationship = (ComponentInfoRelationship) getRelationship(relId, ComponentInfoRelationship.class);
+        final ComponentInfoRelationship relationship =
+            (ComponentInfoRelationship) getRelationship(relId, ComponentInfoRelationship.class);
         relationship.setPublishable(false);
         updateRelationship(relationship);
-        updatedRelationships ++;
-      }     
-      
-      logInfo("[FixSNOMEDAtoms] " + updatedRelationships + " faulty SNOMEDCT_US relationships set to unpublishable.");
+        updatedRelationships++;
+      }
+
+      logInfo("[FixSNOMEDAtoms] " + updatedRelationships
+          + " faulty SNOMEDCT_US relationships set to unpublishable.");
 
     } catch (
 
