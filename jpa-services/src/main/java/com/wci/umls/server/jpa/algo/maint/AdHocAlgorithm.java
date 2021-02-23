@@ -4430,7 +4430,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       for (final Object entry : list) {
         final Long relId = Long.valueOf(entry.toString());
         final ComponentInfoRelationship relationship =
-            (ComponentInfoRelationship) getRelationship(relId, ComponentInfoRelationship.class);
+            (ComponentInfoRelationship) getRelationship(relId, ComponentInfoRelationshipJpa.class);
         relationship.setPublishable(false);
         updateRelationship(relationship);
         updatedRelationships++;
