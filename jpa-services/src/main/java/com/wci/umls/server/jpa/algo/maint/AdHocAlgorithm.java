@@ -4424,7 +4424,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           "[FixSNOMEDAtoms] " + updatedAtoms + " SNOMEDCT_US atoms terminology and version fixed.");
 
       query = getEntityManager().createNativeQuery(
-          "select * from component_info_relationships where (fromTerminology='NCIMTH' and toTerminology='SNOMEDCT_US') or (toTerminology='NCIMTH' and fromTerminology='SNOMEDCT_US')");
+          "select id from component_info_relationships where (fromTerminology='NCIMTH' and toTerminology='SNOMEDCT_US') or (toTerminology='NCIMTH' and fromTerminology='SNOMEDCT_US')");
 
       list = query.getResultList();
       for (final Object entry : list) {
