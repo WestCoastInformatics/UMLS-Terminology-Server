@@ -38,6 +38,7 @@ import com.wci.umls.server.jpa.content.MappingJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.model.content.Component;
+import com.wci.umls.server.services.RootService;
 
 /**
  * Implementation of an algorithm to update publishable but not published to
@@ -114,6 +115,7 @@ public class UpdatePublishedAlgorithm
       setSteps(componentClassList.size());
 
       for (final Class clazz : componentClassList) {
+        int objectCt = 0;
         logInfo("  Update " + clazz.getSimpleName());
         Query query =
             manager.createQuery("SELECT a.id FROM " + clazz.getSimpleName()
@@ -121,7 +123,11 @@ public class UpdatePublishedAlgorithm
         for (final Long id : (List<Long>) query.getResultList()) {
           final Component component = getComponent(id, clazz);
           component.setPublished(true);
-          updateComponent(component);
+          updateComponent(component);   
+          objectCt++;
+          if(objectCt % RootService.commitCt == 0) {
+            commitClearBegin();
+          }
         }
         commitClearBegin();
 
