@@ -520,7 +520,7 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
     // the atom (such as demotions)
     logInfo("  Remove atom relationships from " + terminology + "/" + version + " atoms");
     query = manager.createQuery(
-        "SELECT a.id FROM AtomJpa a join a.relationships r WHERE a.terminology = :terminology "
+        "SELECT distinct a.id FROM AtomJpa a join a.relationships r WHERE a.terminology = :terminology "
             + " AND a.version = :version");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
@@ -555,7 +555,7 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
         updateAtom(atom);
         updateAtom(relatedAtom);
       }
-      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
+      logAndCommit(++ct, 100, 10);
     }
 
     commitClearBegin();
