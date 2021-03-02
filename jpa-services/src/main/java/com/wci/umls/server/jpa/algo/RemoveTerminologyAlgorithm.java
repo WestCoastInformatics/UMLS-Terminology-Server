@@ -530,23 +530,28 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
     for (final Long id : (List<Long>) query.getResultList()) {
       Atom atom = getAtom(id);
       Atom relatedAtom = null;
-      for (final AtomRelationship atomRelationship : new ArrayList<>(atom.getRelationships())) {
+      
+      if (atom.getRelationships().size() > 0) {
         logInfo("  starting to remove " + atom.getRelationships().size()
             + " relationships from atom with terminologyId: " + atom.getTerminologyId());
 
-        AtomRelationship inverseRelationship =
-            (AtomRelationship) getInverseRelationship(getProject().getTerminology(),
-                getProject().getVersion(), atomRelationship);
-        relatedAtom = getAtom(atomRelationship.getTo().getId());
+        for (final AtomRelationship atomRelationship : new ArrayList<>(atom.getRelationships())) {
 
-        atom.getRelationships().remove(atomRelationship);
-        relatedAtom.getRelationships().remove(inverseRelationship);
+          AtomRelationship inverseRelationship =
+              (AtomRelationship) getInverseRelationship(getProject().getTerminology(),
+                  getProject().getVersion(), atomRelationship);
+          relatedAtom = getAtom(atomRelationship.getTo().getId());
 
-        removeRelationship(atomRelationship.getId(), AtomRelationshipJpa.class);
-        removeRelationship(inverseRelationship.getId(), AtomRelationshipJpa.class);
-      }
+          atom.getRelationships().remove(atomRelationship);
+          relatedAtom.getRelationships().remove(inverseRelationship);
 
-      if (atom.getRelationships().size() > 0) {
+          removeRelationship(atomRelationship.getId(), AtomRelationshipJpa.class);
+          removeRelationship(inverseRelationship.getId(), AtomRelationshipJpa.class);
+        }
+
+        logInfo("  finished removing removing relationships from atom with terminologyId: "
+            + atom.getTerminologyId());
+
         updateAtom(atom);
         updateAtom(relatedAtom);
       }
