@@ -558,7 +558,7 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
             (AtomRelationship) getInverseRelationship(
                 getProject().getTerminology(), getProject().getVersion(),
                 atomRelationship);
-        relatedAtom = atomRelationship.getTo();
+        relatedAtom = getAtom(atomRelationship.getTo().getId());
 
         atom.getRelationships().remove(atomRelationship);
         relatedAtom.getRelationships().remove(inverseRelationship);
@@ -569,8 +569,8 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
         removeRelationship(atomRelationship.getId(), AtomRelationshipJpa.class);
         removeRelationship(inverseRelationship.getId(),
             AtomRelationshipJpa.class);
+        logAndCommit(++ct, RootService.logCt, RootService.commitCt);
       }
-      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
 
