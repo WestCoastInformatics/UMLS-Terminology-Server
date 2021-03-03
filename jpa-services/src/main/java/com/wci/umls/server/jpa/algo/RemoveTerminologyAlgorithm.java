@@ -530,10 +530,11 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
     for (final Long id : (List<Long>) query.getResultList()) {
       Atom atom = getAtom(id);
       Atom relatedAtom = null;
-      
+
       if (atom.getRelationships().size() > 0) {
-        System.out.println("  starting to remove " + atom.getRelationships().size()
-            + " relationships from atom with terminologyId: " + atom.getTerminologyId());
+        System.out
+            .println(new Date().getTime() + "  starting to remove " + atom.getRelationships().size()
+                + " relationships from atom with terminologyId: " + atom.getTerminologyId());
 
         for (final AtomRelationship atomRelationship : new ArrayList<>(atom.getRelationships())) {
 
@@ -552,7 +553,7 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
         updateAtom(atom);
         updateAtom(relatedAtom);
       }
-      logAndCommit(++ct, 100, 10);
+      logAndCommit(++ct, 100, 100);
     }
 
     commitClearBegin();
