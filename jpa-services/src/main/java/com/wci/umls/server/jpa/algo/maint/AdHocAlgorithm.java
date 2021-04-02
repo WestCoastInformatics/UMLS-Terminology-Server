@@ -260,10 +260,14 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       removeOldMTHHHTreePositions();
     } else if (actionName.equals("Combine Atoms By UMLS CUI")) {
       combineAtomsByUMLSCui();
+    } else if (actionName.equals("Attach FDA Atom")) {
+      attachFDAAtom();
+    } else if (actionName.equals("Fix SNOMED atoms")) {
+      fixSNOMEDAtoms();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
-    
+
     commitClearBegin();
 
     logInfo("  project = " + getProject().getId());
@@ -3026,9 +3030,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Updated " + updatedRelationships + " relationships updated 3.");
     logInfo("Finished " + getName());
   }
-  
+
   private void fixAdditionalRelTypeInverses4() throws Exception {
-    // 1/26/2021 fix concept_relationships that have old Is_PCDC_AML_Permissible_Value_For and PCDC_AML_Permissible_Value_Of relas
+    // 1/26/2021 fix concept_relationships that have old
+    // Is_PCDC_AML_Permissible_Value_For and PCDC_AML_Permissible_Value_Of relas
 
     logInfo(" Fix Additional Rel Type Inverses 4");
 
@@ -3039,13 +3044,14 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       // update atom_relationships from 'gives_rise_to' to 'develops_into'
       Query query = getEntityManager().createNativeQuery(
           "select id from concept_relationships where additionalRelationshipType = 'Is_PCDC_AML_Permissible_Value_For' or"
-          + " additionalRelationshipType = 'PCDC_AML_Permissible_Value_Of' " );
+              + " additionalRelationshipType = 'PCDC_AML_Permissible_Value_Of' ");
 
       List<Object> ids = query.getResultList();
 
       for (final Object result : ids) {
-        final Relationship<?, ?> rel = (ConceptRelationship) getRelationship(
-            Long.valueOf(result.toString()), ConceptRelationshipJpa.class);
+        final Relationship<?, ?> rel =
+            (ConceptRelationship) getRelationship(Long.valueOf(result.toString()),
+                ConceptRelationshipJpa.class);
         rel.setAdditionalRelationshipType("Is_PCDC_AML_Permissible_Value_For_Variable");
         updateRelationship(rel);
         updatedRelationships++;
@@ -3722,14 +3728,14 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts", "Fix Null RUIs",
         "Remove old MTH relationships", "Remove old relationships", "Assign Missing STY ATUIs",
         "Fix Component History Version", "Fix AdditionalRelType Inverses 2",
-        "Fix AdditionalRelType Inverses 3", "Fix AdditionalRelType Inverses 4", 
-		"Remove Demotions", "Revise Semantic Types",
-        "Fix Atom Last Release CUI", "Fix VPT and Terminologies",
+        "Fix AdditionalRelType Inverses 3", "Fix AdditionalRelType Inverses 4", "Remove Demotions",
+        "Revise Semantic Types", "Fix Atom Last Release CUI", "Fix VPT and Terminologies",
         "Fix Atom Suppressible and Obsolete", "Initialize Source Atom Id Range App",
         "Remove Deprecated Termgroups", "Change null treeposition Relas to blank",
         "Fix overlapping bequeathal rels", "Fix NCBI VPT atom", "Inactivate old tree positions",
         "Fix Duplicate CUIs", "Remove Old CCS_10 AtomRelationships",
-        "Remove Old MTHHH Tree Positions","Combine Atoms By UMLS CUI"));
+        "Remove Old MTHHH Tree Positions", "Combine Atoms By UMLS CUI", "Attach FDA Atom",
+        "Fix SNOMED atoms"));
     params.add(param);
 
     return params;
@@ -4240,11 +4246,11 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       Map<Long, Long> newAtomIdConceptId = new HashMap<>();
 
       Query query = getEntityManager().createNativeQuery("SELECT "
-          + "cid.conceptTerminologyIds CUI, " + "a.id atomId, " + "c.id conceptId " + "FROM " + "concepts c, "
-          + "concepts_atoms ca, " + "atoms a, " + "AtomJpa_conceptTerminologyIds cid " + "WHERE "
-          + "c.terminology = 'NCIMTH' " + "AND c.id = ca.concepts_id " + "AND ca.atoms_Id = a.id "
-          + "AND a.id = cid.AtomJpa_id " + "AND a.publishable = TRUE "
-          + "AND a.id>:maxAtomIdPreInsertion");
+          + "cid.conceptTerminologyIds CUI, " + "a.id atomId, " + "c.id conceptId " + "FROM "
+          + "concepts c, " + "concepts_atoms ca, " + "atoms a, "
+          + "AtomJpa_conceptTerminologyIds cid " + "WHERE " + "c.terminology = 'NCIMTH' "
+          + "AND c.id = ca.concepts_id " + "AND ca.atoms_Id = a.id " + "AND a.id = cid.AtomJpa_id "
+          + "AND a.publishable = TRUE " + "AND a.id>:maxAtomIdPreInsertion");
 
       query.setParameter("maxAtomIdPreInsertion",
           getProcess().getExecutionInfo().get("maxAtomIdPreInsertion"));
@@ -4317,22 +4323,22 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
               newAtomIdConceptId.get(atomIdsToConsolidate.get(0));
           final Concept conceptToConsolidateInto = getConcept(conceptIdToConsolidateInto);
 
-          if(conceptToConsolidateInto == null) {
-            logWarn("Could not find concpet for id="+conceptIdToConsolidateInto);
+          if (conceptToConsolidateInto == null) {
+            logWarn("Could not find concpet for id=" + conceptIdToConsolidateInto);
             consolidationStepsCompleted++;
             logAndCommit(consolidationStepsCompleted, RootService.logCt, RootService.commitCt);
             continue;
           }
-          
+
           for (Long atomId : atomIdsToConsolidate) {
             final Concept concept = getConcept(newAtomIdConceptId.get(atomId));
-            if(concept == null) {
-              logWarn("Could not find concpet for id="+concept);
+            if (concept == null) {
+              logWarn("Could not find concpet for id=" + concept);
               consolidationStepsCompleted++;
               logAndCommit(consolidationStepsCompleted, RootService.logCt, RootService.commitCt);
               continue;
             }
-            
+
             // Don't consolidate a concept into itself
             if (concept.getId().equals(conceptToConsolidateInto.getId())) {
               continue;
@@ -4353,6 +4359,85 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         consolidationStepsCompleted++;
         logAndCommit(consolidationStepsCompleted, RootService.logCt, RootService.commitCt);
       }
+
+    } catch (
+
+    Exception e) {
+      logError("Unexpected problem - " + e.getMessage());
+      throw e;
+    }
+
+  }
+
+  private void attachFDAAtom() throws Exception {
+    // 02/20/2021 An FDA atom ended up unattached to its source-concept due to a
+    // hole in the AtomLoader logic.
+    // Atom and concept IDs identified by error message in RRFContent Algorithm
+
+    try {
+
+      logInfo("  Attach FDA atom");
+
+      final Atom atom = getAtom(14123932L);
+
+      final Concept concept = getConcept(18189760L);
+
+      concept.getAtoms().add(atom);
+      updateConcept(concept);
+
+    } catch (
+
+    Exception e) {
+      logError("Unexpected problem - " + e.getMessage());
+      throw e;
+    }
+
+  }
+
+  private void fixSNOMEDAtoms() throws Exception {
+    // 02/22/2021 Four SNOMEDCT_US atoms got switched to being NCIMTH atoms.
+    // Switch them back.
+    // Also, four ComponentInfoRelationships are attached to these
+    // SNOMEDCT_US->NCIMTH atoms - set them to unpublishable
+
+    try {
+
+      int updatedAtoms = 0;
+      int updatedRelationships = 0;
+
+      logInfo("  Fix SNOMED Atoms");
+
+      Query query = getEntityManager().createNativeQuery(
+          "select id from atoms where terminologyId <> '' and terminology='NCIMTH'");
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final Long atomId = Long.valueOf(entry.toString());
+        final Atom atom = getAtom(atomId);
+        atom.setTerminology("SNOMEDCT_US");
+        atom.setVersion("2020_09_01");
+        updateAtom(atom);
+        updatedAtoms++;
+      }
+
+      logInfo(
+          "[FixSNOMEDAtoms] " + updatedAtoms + " SNOMEDCT_US atoms terminology and version fixed.");
+
+      query = getEntityManager().createNativeQuery(
+          "select id from component_info_relationships where (fromTerminology='NCIMTH' and toTerminology='SNOMEDCT_US') or (toTerminology='NCIMTH' and fromTerminology='SNOMEDCT_US')");
+
+      list = query.getResultList();
+      for (final Object entry : list) {
+        final Long relId = Long.valueOf(entry.toString());
+        final ComponentInfoRelationship relationship =
+            (ComponentInfoRelationship) getRelationship(relId, ComponentInfoRelationshipJpa.class);
+        relationship.setPublishable(false);
+        updateRelationship(relationship);
+        updatedRelationships++;
+      }
+
+      logInfo("[FixSNOMEDAtoms] " + updatedRelationships
+          + " faulty SNOMEDCT_US relationships set to unpublishable.");
 
     } catch (
 

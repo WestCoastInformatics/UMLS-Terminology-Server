@@ -20,6 +20,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.ComponentHistoryJpa;
@@ -85,6 +86,17 @@ public class ReloadConceptHistoryAlgorithm
           "Specified input directory does not exist = " + mrPath);
     }
 
+    // Makes sure editing is turned off before continuing
+    if(getProject().isEditingEnabled()){
+      throw new LocalException("Editing is turned on - disable before continuing.");
+    }
+    
+    // Makes sure automations are turned off before continuing
+    if(getProject().isAutomationsEnabled()){
+      throw new LocalException("Automations are turned on - disable before continuing.");
+    }
+    
+    
     return result;
   }
 

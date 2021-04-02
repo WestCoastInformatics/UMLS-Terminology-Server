@@ -842,7 +842,7 @@ public class WriteRrfContentFilesAlgorithm
     }
 
     // Cache component info relationships
-    if (filesToWrite.contains("MRREL.RRF")) {
+    if (filesToWriteSet.contains("MRREL.RRF")) {
       logInfo("  Cache component info relationships");
       query = manager
           .createQuery("select r from ComponentInfoRelationshipJpa r where publishable = true");
