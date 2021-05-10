@@ -18,29 +18,34 @@ import javax.persistence.Query;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.content.Relationship;
 
 /**
  * In effort to reduce deleted_cuis, create bequeathals to the live parent 
  * or grandparent concept.
  */
-public class CreateAncestorBequeathalAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
+public class CreateDeepAncestorBequeathalAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   /**
-   * Instantiates an empty {@link CreateAncestorBequeathalAlgorithm}.
+   * Instantiates an empty {@link CreateDeepAncestorBequeathalAlgorithm}.
    * @throws Exception if anything goes wrong
    */
-  public CreateAncestorBequeathalAlgorithm() throws Exception {
+  public CreateDeepAncestorBequeathalAlgorithm() throws Exception {
     super();
     setActivityId(UUID.randomUUID().toString());
-    setWorkId("CREATEANCESTORBEQUEATH");
+    setWorkId("CREATEDEEPANCESTORBEQUEATH");
     setLastModifiedBy("admin");
   }
 
@@ -87,7 +92,7 @@ public class CreateAncestorBequeathalAlgorithm extends AbstractInsertMaintReleas
         maintDir.mkdir();
       }
       logInfo("maint dir:" + maintDir);
-      BufferedWriter out = new BufferedWriter(new FileWriter(new File(maintDir, "bequeathal.ancestor.relationships.src")));
+      BufferedWriter out = new BufferedWriter(new FileWriter(new File(maintDir, "bequeathal.deep.ancestor.relationships.src")));
       
       Query query = getEntityManager().createNativeQuery(
           "SELECT   DISTINCT c.id conceptId FROM   concepts c,   "
@@ -136,10 +141,7 @@ public class CreateAncestorBequeathalAlgorithm extends AbstractInsertMaintReleas
               getProcess().getTerminology());
       List<Object> list = query.getResultList();
       setSteps(list.size());
-      /*List<Object> list = new ArrayList<>();
-      list.add(2228275L);
-      list.add(2752574L);
-      list.add(1048702L);*/
+     
       int index = 1;
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
@@ -151,91 +153,39 @@ public class CreateAncestorBequeathalAlgorithm extends AbstractInsertMaintReleas
       for (Concept c : deletedCuis) {
         index++;
         List<String> potentialParentBequeathals = new ArrayList<>();
-        List<String> potentialGrandparentBequeathals = new ArrayList<>();
-        for (Atom atom : c.getAtoms()) {
-          Atom a = getAtom(atom.getId());
-          for (AtomRelationship ar : a.getInverseRelationships()) {
-            if (ar.getRelationshipType().equals("PAR")) {
-              Atom parentAtom = ar.getFrom();
-              // Find the NCIMTH concept for the parent atom
-              SearchResultList srl = findConceptSearchResults(
-                  getProject().getTerminology(), getProject().getVersion(),
-                  Branch.ROOT, "atoms.id:" + parentAtom.getId(), null);
-              if (srl.size()!= 1) {
-                continue;
-              }
-              Long ncimthConceptId = srl.getObjects().get(0).getId();
-              Concept ncimthParentConcept = getConcept(ncimthConceptId);
-              
-              if (noXRRel(c, ncimthParentConcept) && ncimthParentConcept.isPublishable()) {
-                StringBuffer sb = new StringBuffer();
-                sb.append("").append("|");
-                sb.append("C").append("|");
-                sb.append(c.getTerminologyId()).append("|");
-                sb.append("BBT").append("|").append("|");
-                sb.append(ncimthParentConcept.getTerminologyId()).append("|");
-                sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI|NCIMTH|SOURCE_CUI|NCIMTH|||").append("\n");
-                potentialParentBequeathals.add(sb.toString());
-              } else {
-                // consider publishable grandparent
-                for (AtomRelationship ar2 : parentAtom.getInverseRelationships()) {
-                  if (ar2.getRelationshipType().equals("PAR")) {
-                    Atom grandparentAtom = ar2.getFrom();
-                    // Find the NCIMTH concept for the grandparent atom
-                    SearchResultList srl2 = findConceptSearchResults(
-                        getProject().getTerminology(), getProject().getVersion(),
-                        Branch.ROOT, "atoms.id:" + grandparentAtom.getId(), null);
-                    if (srl2.size()!= 1) {
-                      continue;
-                    }
-                    Long ncimthConceptId2 = srl2.getObjects().get(0).getId();
-                    Concept ncimthParentConcept2 = getConcept(ncimthConceptId2);
-                   
-                    if (noXRRel(c, ncimthParentConcept2) && ncimthParentConcept2.isPublishable()) {
-                      StringBuffer sb = new StringBuffer();
-                      sb.append("").append("|");
-                      sb.append("C").append("|");
-                      sb.append(c.getTerminologyId()).append("|");
-                      sb.append("BBT").append("|").append("|");
-                      sb.append(ncimthParentConcept2.getTerminologyId()).append("|");
-                      sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI|NCIMTH|SOURCE_CUI|NCIMTH|||").append("\n");
-                      potentialGrandparentBequeathals.add(sb.toString());
-                    } 
-                  }
+        RelationshipList relList = findConceptDeepRelationships(c.getTerminologyId(),
+            "NCIMTH", "latest", Branch.ROOT, null, true,
+            true, false, false, new PfsParameterJpa());
+        for (Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : relList.getObjects()) {
+            ConceptRelationship cptRel = (ConceptRelationship)rel;
+            if (cptRel.getRelationshipType().equals("PAR")) {
+                Concept ncimthParentConcept = cptRel.getFrom();
+                if (noXRRel(c, ncimthParentConcept) && ncimthParentConcept.isPublishable()) {
+                    StringBuffer sb = new StringBuffer();
+                    sb.append("").append("|");
+                    sb.append("C").append("|");
+                    sb.append(c.getTerminologyId()).append("|");
+                    sb.append("BBT").append("|").append("|");
+                    sb.append(ncimthParentConcept.getTerminologyId()).append("|");
+                    sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI|NCIMTH|SOURCE_CUI|NCIMTH|||").append("\n");
+                    potentialParentBequeathals.add(sb.toString());
                 }
-              }
             }
-          }
         }
-        // write out a max of two bequeathals, parent bequeathals get precedence over grandparent ones
-        if (potentialParentBequeathals.size() >= 2) {
-          out.write(potentialParentBequeathals.get(0));
-          addedCount++;
-          logInfo("[CreateBequeathal parent] " + potentialParentBequeathals.get(0));
-          out.write(potentialParentBequeathals.get(1));
-          addedCount++;
-          logInfo("[CreateBequeathal parent] " + potentialParentBequeathals.get(1));
-        } else if (potentialParentBequeathals.size() == 1) {
-          out.write(potentialParentBequeathals.get(0));
-          addedCount++;
-          logInfo("[CreateBequeathal parent] " + potentialParentBequeathals.get(0));
-          if (potentialGrandparentBequeathals.size() >= 1) {
-            out.write(potentialGrandparentBequeathals.get(0));
-            addedCount++;
-            logInfo("[CreateBequeathal grandp] " + potentialGrandparentBequeathals.get(0));
-          }
-        } else if (potentialGrandparentBequeathals.size() >= 1) {
-          out.write(potentialGrandparentBequeathals.get(0));
-          addedCount++;
-          logInfo("[CreateBequeathal grandp] " + potentialGrandparentBequeathals.get(0));
-        }
+
+		for (String line : potentialParentBequeathals) {
+			out.write(line);
+			addedCount++;
+			logInfo("[CreateBequeathal parent] " + line);
+		}
         updateProgress();
         if (index % 100 == 0) {
           out.flush();
         }
       }
-      
+
       out.close();
+
 
 
       commitClearBegin();
