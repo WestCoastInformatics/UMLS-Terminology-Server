@@ -264,6 +264,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       attachFDAAtom();
     } else if (actionName.equals("Fix SNOMED atoms")) {
       fixSNOMEDAtoms();
+    } else if (actionName.contentEquals("Mark MTH/NCIMTH/PN atoms unpublishable")) {
+      fixSuppressibleToUnpublishable();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -3735,7 +3737,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Fix overlapping bequeathal rels", "Fix NCBI VPT atom", "Inactivate old tree positions",
         "Fix Duplicate CUIs", "Remove Old CCS_10 AtomRelationships",
         "Remove Old MTHHH Tree Positions", "Combine Atoms By UMLS CUI", "Attach FDA Atom",
-        "Fix SNOMED atoms"));
+        "Fix SNOMED atoms", "Mark MTH/NCIMTH/PN atoms unpublishable"));
     params.add(param);
 
     return params;
@@ -4447,5 +4449,52 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     }
 
   }
+  
+  private void fixSuppressibleToUnpublishable() throws Exception {
+    // 04/15/2021 Suppressible toggle has been removed from atom editing in application,
+    // but this will cleanup the db for atoms that were marked suppressible but intended
+    // to be unpublishable
 
+    logInfo(" Fix suppressible 'MTH' and 'NCIMTH' 'PN's meant to be unpublishable.");
+
+    int updatedAtomCount = 0;
+
+    try {
+
+      logInfo("[FixSuppressibleToUnpublishable] Loading atoms to be updated");
+
+      Query query =
+        getEntityManager().createNativeQuery(
+          " select id from atoms where terminology='MTH' and termtype='PN' and publishable=true and suppressible=true" +
+          " UNION " + 
+          " select id from atoms where terminology='NCIMTH' and termtype='PN' and publishable=true  and suppressible=true"
+        );
+
+      List<Object> list = query.getResultList();
+      setSteps(list.size());
+
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        Atom atom = getAtom(id);
+        atom.setPublishable(false);
+        logInfo("[FixSuppressibleToUnpublishable] marking atom unpublishable " + atom.getId());
+        updateAtom(atom);
+        updatedAtomCount++;
+
+        updateProgress();
+      }
+
+      commitClearBegin();
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+
+    }
+
+    logInfo("Updated " + updatedAtomCount + " atoms updated to unpublishable.");
+    logInfo("Finished " + getName());
+
+  }
 }
