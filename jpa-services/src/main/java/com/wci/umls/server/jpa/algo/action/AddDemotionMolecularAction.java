@@ -225,15 +225,23 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
 
     // log the REST calls
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
-        getActivityId(), getWorkId(), getName() + " to concept "
-            + getConcept().getId() + " " + demotionRelationship);
-    addLogEntry(getLastModifiedBy(), getProject().getId(),
-        getConcept2().getId(), getActivityId(), getWorkId(),
-        getName() + " from concept " + getConcept().getId() + " "
-            + inverseDemotionRelationship);
+        getActivityId(), getWorkId(), getName() + " between concept "
+            + getConcept().getId() + " and " + getConcept2().getId());
+    
 
     // N/A - no log entry for molecular action -> only ever performed by
     // insertion.
+    // Log for the molecular action report
+    // Log for the molecular action report
+    addLogEntry(getLastModifiedBy(), getProject().getId(),
+        getMolecularAction().getId(), getActivityId(), getWorkId(),
+        "\nACTION  " + getName() + "\n  atom  = "
+            + demotionRelationship.getFrom().getId() + " " + demotionRelationship.getFrom().getName()
+            + (demotionRelationship.getTo() != null ? "\n  atom  = "
+                + demotionRelationship.getTo().getId() + " " + demotionRelationship.getTo().getName()
+                : ""));
+    
+
   }
 
 }
