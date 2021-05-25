@@ -624,7 +624,8 @@ public class RelationshipLoaderAlgorithm
     Relationship newRelationship = null;
     Class relClass = null;
 
-    if (!fromComponent.getClass().equals(toComponent.getClass())) {
+    // NE-14 Removed based on email chain from 5/24/2021 'RHT atoms inserted as 'SRC' not 'NCIMTH'
+    /**if (!fromComponent.getClass().equals(toComponent.getClass())) {
       relClass = ComponentInfoRelationshipJpa.class;
       newRelationship = new ComponentInfoRelationshipJpa();
       // Handle ComponentInfoRelationship atom components
@@ -637,7 +638,7 @@ public class RelationshipLoaderAlgorithm
         toComponent.setTerminology(getProject().getTerminology());
         toComponent.setVersion(getProject().getVersion());
       }
-    } else if (ConceptJpa.class.isAssignableFrom(fromComponent.getClass())) {
+    } else */ if (ConceptJpa.class.isAssignableFrom(fromComponent.getClass())) {
       relClass = ConceptRelationshipJpa.class;
       newRelationship = new ConceptRelationshipJpa();
     } else if (DescriptorJpa.class.isAssignableFrom(fromComponent.getClass())) {
