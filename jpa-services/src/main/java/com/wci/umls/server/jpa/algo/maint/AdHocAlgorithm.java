@@ -264,6 +264,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       attachFDAAtom();
     } else if (actionName.equals("Fix SNOMED atoms")) {
       fixSNOMEDAtoms();
+    } else if (actionName.equals("Remove Log Entries")) {
+      removeLogEntries();
     } else if (actionName.contentEquals("Mark MTH/NCIMTH/PN atoms unpublishable")) {
       fixSuppressibleToUnpublishable();
     } else {
@@ -2212,6 +2214,45 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
   }
 
+  private void removeLogEntries() throws Exception {
+
+    int removals = 0;
+
+    WorkflowService workflowService = new WorkflowServiceJpa();
+    workflowService.setLastModifiedBy("admin");
+
+    Set<Long> logEntriesToRemove = new HashSet<>();
+
+    // Get log entries that are counters
+    Query query = getEntityManager()
+        .createQuery("select a.id from " + "LogEntryJpa a where timestamp < '2018-01-01'");
+
+    logInfo("[RemoveLogEntries] Loading ");
+
+    List list = query.getResultList();
+    for (final Object entry : list) {
+      final Long id = Long.valueOf(entry.toString());
+      logEntriesToRemove.add(id);
+    }
+
+    setSteps(logEntriesToRemove.size() );
+
+    logInfo("[RemoveLogEntries] " + logEntriesToRemove.size()
+        + " checklists to be removed");
+
+
+    // Remove log entries
+    for (Long id : logEntriesToRemove) {
+      workflowService.removeLogEntry(id);
+      updateProgress();
+      removals++;
+    }
+
+
+    logInfo("[RemoveLogEntries] " + removals + " log entries successfully removed.");
+
+  }
+  
   private void removeSNOMEDAtomSubsets() throws Exception {
 
     logInfo(" Remove SNOMED Atom Subsets");
@@ -3737,7 +3778,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Fix overlapping bequeathal rels", "Fix NCBI VPT atom", "Inactivate old tree positions",
         "Fix Duplicate CUIs", "Remove Old CCS_10 AtomRelationships",
         "Remove Old MTHHH Tree Positions", "Combine Atoms By UMLS CUI", "Attach FDA Atom",
-        "Fix SNOMED atoms", "Mark MTH/NCIMTH/PN atoms unpublishable"));
+        "Fix SNOMED atoms", "Mark MTH/NCIMTH/PN atoms unpublishable", "Remove Log Entries"));
     params.add(param);
 
     return params;
