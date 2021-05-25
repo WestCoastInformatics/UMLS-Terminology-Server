@@ -5,8 +5,10 @@ package com.wci.umls.server.jpa.algo;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.persistence.Query;
 
@@ -149,7 +151,7 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
       }
     }
 
-    // remove root terminology if all versions removed
+
     if (!keepTerminology) {
       logInfo("  Remove root terminology");
       for (final RootTerminology root : getRootTerminologies().getObjects()) {
@@ -493,6 +495,33 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
     }
     commitClearBegin();
 
+	// Pre-removal of atom_relationships
+    Query sqlQuery = getEntityManager().createNativeQuery(
+		"select ar.id from atom_relationships ar, atoms a1, atoms a2 " +
+		" where ar.from_id=a1.id and  ar.to_id=a2.id " +
+		" and a1.terminology=:terminology and a1.version=:version " + 
+		" and a2.terminology=:terminology and a2.version=:version " +
+		" and ar.terminology=:terminology and ar.version=:version");
+    sqlQuery.setParameter("terminology", terminology);
+    sqlQuery.setParameter("version", version);
+
+    List<Object> results = sqlQuery.getResultList();
+
+    logInfo("[Remove terminology] " + results.size()
+        + " *atom relationships - both atoms and rel match " + terminology + " " + version);
+
+    for (final Object object_id : results) {
+
+	  final Long id = Long.parseLong(object_id.toString());
+
+      removeRelationship(id, AtomRelationshipJpa.class);
+
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
+    }
+    commitClearBegin();
+
+
+
     // remove terminology atom relationships
     logInfo("  Remove " + terminology + "/" + version + " atom relationships");
     query = manager
@@ -500,14 +529,20 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
             + " AND version = :version");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
+    List<Long> queryResults = (List<Long>) query.getResultList();
+    logInfo("[Remove terminology] " + queryResults.size() + " **atom relationships match " + terminology + " " + version);
     ct = 0;
-    for (final Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : queryResults) {
+      // going to delete anyway, so no need to update
+      // check that they are always to and from the same source
+      // maybe confirm that they do
+      // second block if they don't
       AtomRelationship atomRelationship =
           (AtomRelationshipJpa) getRelationship(id, AtomRelationshipJpa.class);
       Atom fromAtom = getAtom(atomRelationship.getFrom().getId());
 
       fromAtom.getRelationships().remove(atomRelationship);
-      updateAtom(fromAtom);
+      updateAtom(fromAtom); 
 
       removeRelationship(atomRelationship.getId(), AtomRelationshipJpa.class);
 
@@ -515,48 +550,34 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
     }
     commitClearBegin();
 
-    // remove atom relationships from terminology atoms
-    // This will catch any non-source-terminology relationships that may be on
-    // the atom (such as demotions)
-    logInfo("  Remove atom relationships from " + terminology + "/" + version + " atoms");
-    query = manager.createQuery(
-        "SELECT distinct a.id FROM AtomJpa a join a.relationships r WHERE a.terminology = :terminology "
-            + " AND a.version = :version");
-    query.setParameter("terminology", terminology);
-    query.setParameter("version", version);
-    ct = 0;
-    logInfo("  " + query.getResultList().size() + " atoms with atom relationships identified");
 
-    for (final Long id : (List<Long>) query.getResultList()) {
-      Atom atom = getAtom(id);
-      Atom relatedAtom = null;
 
-      if (atom.getRelationships().size() > 0) {
-        System.out
-            .println(new Date().getTime() + "  starting to remove " + atom.getRelationships().size()
-                + " relationships from atom with terminologyId: " + atom.getTerminologyId());
+    sqlQuery = getEntityManager().createNativeQuery(
+        "select ar.id from atom_relationships ar, atoms a " +
+        " where ar.from_id=a.id " +
+        " and a.terminology=:terminology and a.version=:version" + 
+		" UNION " +
+        "select ar.id from atom_relationships ar, atoms a " +
+        " where ar.to_id=a.id " +
+        " and a.terminology=:terminology and a.version=:version");
+    sqlQuery.setParameter("terminology", terminology);
+    sqlQuery.setParameter("version", version);
 
-        for (final AtomRelationship atomRelationship : new ArrayList<>(atom.getRelationships())) {
+    results = sqlQuery.getResultList();
 
-          AtomRelationship inverseRelationship =
-              (AtomRelationship) getInverseRelationship(getProject().getTerminology(),
-                  getProject().getVersion(), atomRelationship);
-          relatedAtom = getAtom(atomRelationship.getTo().getId());
+    logInfo("[Remove terminology] " + results.size()
+        + " ***atom relationships - one atom matches " + terminology + " " + version);
 
-          atom.getRelationships().remove(atomRelationship);
-          relatedAtom.getRelationships().remove(inverseRelationship);
+    for (final Object object_id : results) {
 
-          removeRelationship(atomRelationship.getId(), AtomRelationshipJpa.class);
-          removeRelationship(inverseRelationship.getId(), AtomRelationshipJpa.class);
-        }
+	  final Long id = Long.parseLong(object_id.toString());
 
-        updateAtom(atom);
-        updateAtom(relatedAtom);
-      }
-      logAndCommit(++ct, 100, 100);
+      removeRelationship(id, AtomRelationshipJpa.class);
+
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
-
     commitClearBegin();
+
 
     // Remove last release CUIs from atoms
     logInfo("  Remove last release CUIs");
@@ -1044,3 +1065,4 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
     return ConfigUtility.getNameFromClass(getClass());
   }
 }
+

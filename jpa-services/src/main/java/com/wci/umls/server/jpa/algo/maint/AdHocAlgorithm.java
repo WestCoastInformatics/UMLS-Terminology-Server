@@ -4442,6 +4442,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // Switch them back.
     // Also, four ComponentInfoRelationships are attached to these
     // SNOMEDCT_US->NCIMTH atoms - set them to unpublishable
+	// 05/25/2021 Update for 2021_03_01 version of SNOMEDCT_US
 
     try {
 
@@ -4458,7 +4459,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         final Long atomId = Long.valueOf(entry.toString());
         final Atom atom = getAtom(atomId);
         atom.setTerminology("SNOMEDCT_US");
-        atom.setVersion("2020_09_01");
+        atom.setVersion("2021_03_01");
         updateAtom(atom);
         updatedAtoms++;
       }
