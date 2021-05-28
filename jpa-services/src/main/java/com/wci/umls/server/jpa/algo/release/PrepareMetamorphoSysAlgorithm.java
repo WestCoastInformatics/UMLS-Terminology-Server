@@ -16,6 +16,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -126,7 +127,8 @@ public class PrepareMetamorphoSysAlgorithm extends AbstractAlgorithm {
     new File(pathMeta.getPath() + "/mmsys.zip").delete();
     
     //Zip the contents of path/x into revised path/META/mmsys.zip 
-    compressDirectory(pathTemp.getAbsolutePath(), pathMeta + "/mmsys.zip");
+    //compressDirectory(pathTemp.getAbsolutePath(), pathMeta + "/mmsys.zip");
+    zip(pathTemp.getAbsolutePath(), pathMeta + "/mmsys.zip");
     
     logInfo("Finished " + getName());
   }
@@ -222,6 +224,28 @@ public class PrepareMetamorphoSysAlgorithm extends AbstractAlgorithm {
     this.email = email;
   }
   
+  public static void zip(final String sourcNoteseDirPath, final String zipFilePath) throws IOException {
+      Path zipFile = Files.createFile(Paths.get(zipFilePath));
+
+      Path sourceDirPath = Paths.get(sourcNoteseDirPath);
+      try (ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(zipFile));
+           Stream<Path> paths = Files.walk(sourceDirPath)) {
+          paths
+                  .filter(path -> !Files.isDirectory(path))
+                  .forEach(path -> {
+                      ZipEntry zipEntry = new ZipEntry(sourceDirPath.relativize(path).toString());
+                      try {
+                          zipOutputStream.putNextEntry(zipEntry);
+                          Files.copy(path, zipOutputStream);
+                          zipOutputStream.closeEntry();
+                      } catch (IOException e) {
+                          System.err.println(e);
+                      }
+                  });
+      }
+      System.out.println("Zip is created at : "+zipFile);
+  }
+
   private void compressDirectory(String dir, String zipFile) {
       File directory = new File(dir);
       getFileList(directory);
