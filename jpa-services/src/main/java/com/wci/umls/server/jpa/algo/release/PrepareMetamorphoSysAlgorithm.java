@@ -30,6 +30,9 @@ import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.model.ZipParameters;
+
 /**
  * Algorithm to prepare MetamorphoSys.
  */
@@ -79,7 +82,9 @@ public class PrepareMetamorphoSysAlgorithm extends AbstractAlgorithm {
         + getProcess().getInputPath());
     final File pathMeta = new File(inputPath, "/META");
     final File pathTemp = new File(pathMeta, "/x");
-
+    logInfo("  pathTemp absolute: " + pathTemp.getAbsolutePath());
+    logInfo("  pathTemp canonical: " + pathTemp.getCanonicalPath());
+    
     // If temp dir "path/x  exists already, remove it"
     if (pathTemp.exists()) {
       logInfo("  Remove directory = " + pathTemp);
@@ -128,7 +133,11 @@ public class PrepareMetamorphoSysAlgorithm extends AbstractAlgorithm {
     
     //Zip the contents of path/x into revised path/META/mmsys.zip 
     //compressDirectory(pathTemp.getAbsolutePath(), pathMeta + "/mmsys.zip");
-    zip(pathTemp.getAbsolutePath(), pathMeta + "/mmsys.zip");
+    //zip(pathTemp.getCanonicalPath(), pathMeta + "/mmsys.zip");
+
+    ZipParameters params = new ZipParameters();
+    params.setIncludeRootFolder(false);
+    new ZipFile(pathMeta + "/mmsys.zip").addFolder(new File(pathTemp.getAbsolutePath()), params);
     
     logInfo("Finished " + getName());
   }
