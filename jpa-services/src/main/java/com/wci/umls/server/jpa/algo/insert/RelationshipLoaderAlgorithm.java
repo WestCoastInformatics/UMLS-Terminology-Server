@@ -19,6 +19,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.jpa.ComponentInfoJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.AtomJpa;
@@ -30,6 +31,7 @@ import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
+import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
@@ -583,7 +585,7 @@ public class RelationshipLoaderAlgorithm
       return;
     }
 
-    final Component toComponent = getComponent(toClassIdType, toTermId,
+    Component toComponent = getComponent(toClassIdType, toTermId,
         toTermAndVersion.equals("") ? null
             : getCachedTerminology(toTermAndVersion).getTerminology(),
         null, unpublishable);
@@ -624,21 +626,26 @@ public class RelationshipLoaderAlgorithm
     Relationship newRelationship = null;
     Class relClass = null;
 
-    // NE-14 Removed based on email chain from 5/24/2021 'RHT atoms inserted as 'SRC' not 'NCIMTH'
-    /**if (!fromComponent.getClass().equals(toComponent.getClass())) {
+    if (!fromComponent.getClass().equals(toComponent.getClass())) {
       relClass = ComponentInfoRelationshipJpa.class;
       newRelationship = new ComponentInfoRelationshipJpa();
       // Handle ComponentInfoRelationship atom components
       // Change terminology and version from atom's to project's
       if (AtomJpa.class.isAssignableFrom(fromComponent.getClass())) {
+        fromComponent = new AtomJpa((Atom) fromComponent);
+        fromComponent.setId(null);
         fromComponent.setTerminology(getProject().getTerminology());
         fromComponent.setVersion(getProject().getVersion());
+        fromComponent.setTerminologyId(((Atom)fromComponent).getAlternateTerminologyIds().get(getProject().getTerminology()));
       }
       if (AtomJpa.class.isAssignableFrom(toComponent.getClass())) {
+        toComponent = new AtomJpa((Atom) toComponent);
+        toComponent.setId(null);
         toComponent.setTerminology(getProject().getTerminology());
         toComponent.setVersion(getProject().getVersion());
+        toComponent.setTerminologyId(((Atom)toComponent).getAlternateTerminologyIds().get(getProject().getTerminology()));       
       }
-    } else */ if (ConceptJpa.class.isAssignableFrom(fromComponent.getClass())) {
+    } else if (ConceptJpa.class.isAssignableFrom(fromComponent.getClass())) {
       relClass = ConceptRelationshipJpa.class;
       newRelationship = new ConceptRelationshipJpa();
     } else if (DescriptorJpa.class.isAssignableFrom(fromComponent.getClass())) {

@@ -73,6 +73,7 @@ import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.ComponentInfoRelationship;
 import com.wci.umls.server.model.content.Concept;
@@ -268,6 +269,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       removeLogEntries();
     } else if (actionName.contentEquals("Mark MTH/NCIMTH/PN atoms unpublishable")) {
       fixSuppressibleToUnpublishable();
+    } else if (actionName.contentEquals("Fix Component Info Atoms")) {
+      fixComponentInfoAtoms();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -1343,6 +1346,66 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Updated " + updatedRelationships + " component info relationships.");
     logInfo("Finished " + getName());
   }
+  
+  private void fixComponentInfoAtoms() throws Exception {
+    // 6/2/2021 Simplify complexity to have all Component Info atoms have AUIs rather than 
+    // a mix of AUIs, SAUIs, Source Atom Ids.
+
+    logInfo(" Fix Component Info Atoms");
+
+    int updatedRelationships = 0;
+
+    final List<ComponentInfoRelationshipJpa> componentInfoRelationships = new ArrayList<>();
+
+    try {
+      Query query = getEntityManager().createNativeQuery(
+          "select id from component_info_relationships where fromType='ATOM' and publishable = true and fromTerminologyId not like 'A%'");
+
+      logInfo("[FixComponentInfoAtoms] Identifying "
+          + "ComponentInfoRelationships with ATOM endpoint and non-AUI identifiers");
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        componentInfoRelationships.add(
+            (ComponentInfoRelationshipJpa) getRelationship(id, ComponentInfoRelationshipJpa.class));
+      }
+
+      setSteps(componentInfoRelationships.size());
+
+      logInfo("[FixComponentInfoAtoms] " + componentInfoRelationships.size()
+          + " ComponentInfoAtoms with ATOM endpoints and non-AUI identifiers");
+
+      for (final ComponentInfoRelationship componentInfoRelationship : componentInfoRelationships) {
+        Component fromComponent = getComponent("SRC_ATOM_ID", componentInfoRelationship.getFromTerminologyId(),
+            componentInfoRelationship.getFromTerminology(),
+            null, true);
+        if (fromComponent == null) {
+          fromComponent = getComponent("SOURCE_AUI", componentInfoRelationship.getFromTerminologyId(),
+              componentInfoRelationship.getFromTerminology(),
+              null, true);
+        }
+        fromComponent = new AtomJpa((Atom) fromComponent);
+        fromComponent.setId(null);
+        fromComponent.setTerminology(getProject().getTerminology());
+        fromComponent.setVersion(getProject().getVersion());
+        String initialFromComponent = fromComponent.getTerminologyId();
+        fromComponent.setTerminologyId(((Atom)fromComponent).getAlternateTerminologyIds().get(getProject().getTerminology()));
+        logInfo("Updating component info atom terminologyId from " + initialFromComponent + " to " + fromComponent.getTerminologyId());
+        updateComponent(fromComponent);
+        componentInfoRelationship.setFrom(fromComponent);
+        updateRelationship(componentInfoRelationship);
+        updateProgress();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+    }
+
+    logInfo("Updated " + updatedRelationships + " component info atoms.");
+    logInfo("Finished " + getName());
+  }
 
   private void setComponentInfoRelationshipsToPublishable() throws Exception {
     // 5/30/2018 A bad release test run set a bunch of
@@ -2238,7 +2301,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     setSteps(logEntriesToRemove.size() );
 
     logInfo("[RemoveLogEntries] " + logEntriesToRemove.size()
-        + " checklists to be removed");
+        + " log entries to be removed");
 
 
     // Remove log entries
@@ -3778,7 +3841,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Fix overlapping bequeathal rels", "Fix NCBI VPT atom", "Inactivate old tree positions",
         "Fix Duplicate CUIs", "Remove Old CCS_10 AtomRelationships",
         "Remove Old MTHHH Tree Positions", "Combine Atoms By UMLS CUI", "Attach FDA Atom",
-        "Fix SNOMED atoms", "Mark MTH/NCIMTH/PN atoms unpublishable", "Remove Log Entries"));
+        "Fix SNOMED atoms", "Mark MTH/NCIMTH/PN atoms unpublishable", "Remove Log Entries", 
+        "Fix Component Info Atoms"));
     params.add(param);
 
     return params;
@@ -4442,7 +4506,6 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // Switch them back.
     // Also, four ComponentInfoRelationships are attached to these
     // SNOMEDCT_US->NCIMTH atoms - set them to unpublishable
-	// 05/25/2021 Update for 2021_03_01 version of SNOMEDCT_US
 
     try {
 
@@ -4459,7 +4522,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         final Long atomId = Long.valueOf(entry.toString());
         final Atom atom = getAtom(atomId);
         atom.setTerminology("SNOMEDCT_US");
-        atom.setVersion("2021_03_01");
+        atom.setVersion("2020_09_01");
         updateAtom(atom);
         updatedAtoms++;
       }
