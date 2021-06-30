@@ -25,6 +25,7 @@ import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 
 /**
@@ -211,6 +212,9 @@ public class SemanticTypeLoaderAlgorithm
           final SemanticTypeComponent newSty2 =
               addSemanticTypeComponent(newSty, concept);
           concept.getSemanticTypes().add(newSty2);
+          if (getProcess().getTerminology().equals("NCI") && concept.getSemanticTypes().size() > 1) {
+              concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+          }
           updateConcept(concept);
 
           addCount++;
