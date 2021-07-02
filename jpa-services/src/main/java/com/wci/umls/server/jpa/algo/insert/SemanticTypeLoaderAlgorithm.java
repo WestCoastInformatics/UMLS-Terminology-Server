@@ -212,9 +212,6 @@ public class SemanticTypeLoaderAlgorithm
           final SemanticTypeComponent newSty2 =
               addSemanticTypeComponent(newSty, concept);
           concept.getSemanticTypes().add(newSty2);
-          if (getProcess().getTerminology().equals("NCI") && concept.getSemanticTypes().size() > 1) {
-              concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-          }
           updateConcept(concept);
 
           addCount++;
