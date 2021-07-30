@@ -1757,6 +1757,7 @@ public class WriteRrfContentFilesAlgorithm
           + getProject().getTerminology() + a.getType();
       if (getComponentInfoRels(key) != null
           && !getComponentInfoRels(key).isEmpty()) {
+    	logInfo("ComponentInfoRelationship found with non-AUI component!  This should throw an exception.");    	  
         comInfoRels.addAll(getComponentInfoRels(key));
       }
 
