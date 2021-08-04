@@ -1379,24 +1379,64 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       for (final ComponentInfoRelationship componentInfoRelationship : componentInfoRelationships) {
         Component fromComponent = getComponent("SRC_ATOM_ID", componentInfoRelationship.getFromTerminologyId(),
             componentInfoRelationship.getFromTerminology(),
-            null, true);
+            null, false);
         if (fromComponent == null) {
           fromComponent = getComponent("SOURCE_AUI", componentInfoRelationship.getFromTerminologyId(),
               componentInfoRelationship.getFromTerminology(),
-              null, true);
+              null, false);
         }
         fromComponent = new AtomJpa((Atom) fromComponent);
         fromComponent.setId(null);
         fromComponent.setTerminology(getProject().getTerminology());
         fromComponent.setVersion(getProject().getVersion());
-        String initialFromComponent = fromComponent.getTerminologyId();
+        String initialFromComponent = componentInfoRelationship.getFromTerminologyId();
         fromComponent.setTerminologyId(((Atom)fromComponent).getAlternateTerminologyIds().get(getProject().getTerminology()));
         logInfo("Updating component info atom terminologyId from " + initialFromComponent + " to " + fromComponent.getTerminologyId());
-        updateComponent(fromComponent);
+        //updateComponent(fromComponent); <- do not do.  This creates a copy of the atom incorrectly, and we don't want to update the atom anyway
         componentInfoRelationship.setFrom(fromComponent);
         updateRelationship(componentInfoRelationship);
         updateProgress();
       }
+      
+      query = getEntityManager().createNativeQuery(
+              "select id from component_info_relationships where toType='ATOM' and publishable = true and toTerminologyId not like 'A%'");
+
+          logInfo("[FixComponentInfoAtoms] Identifying "
+              + "ComponentInfoRelationships with ATOM endpoint and non-AUI identifiers");
+
+          list = query.getResultList();
+          for (final Object entry : list) {
+            final Long id = Long.valueOf(entry.toString());
+            componentInfoRelationships.add(
+                (ComponentInfoRelationshipJpa) getRelationship(id, ComponentInfoRelationshipJpa.class));
+          }
+
+          setSteps(componentInfoRelationships.size());
+
+          logInfo("[FixComponentInfoAtoms] " + componentInfoRelationships.size()
+              + " ComponentInfoAtoms with ATOM endpoints and non-AUI identifiers");
+
+          for (final ComponentInfoRelationship componentInfoRelationship : componentInfoRelationships) {
+            Component toComponent = getComponent("SRC_ATOM_ID", componentInfoRelationship.getFromTerminologyId(),
+                componentInfoRelationship.getFromTerminology(),
+                null, false);
+            if (toComponent == null) {
+              toComponent = getComponent("SOURCE_AUI", componentInfoRelationship.getFromTerminologyId(),
+                  componentInfoRelationship.getFromTerminology(),
+                  null, false);
+            }
+            toComponent = new AtomJpa((Atom) toComponent);
+            toComponent.setId(null);
+            toComponent.setTerminology(getProject().getTerminology());
+            toComponent.setVersion(getProject().getVersion());
+            String initialFromComponent = componentInfoRelationship.getFromTerminologyId();
+            toComponent.setTerminologyId(((Atom)toComponent).getAlternateTerminologyIds().get(getProject().getTerminology()));
+            logInfo("Updating component info afromm terminologyId to " + initialFromComponent + " from " + toComponent.getTerminologyId());
+            //updateComponent(toComponent); <- do not do.  This creates a copy of the afromm incorrectly, and we don't want from update the afromm anyway
+            componentInfoRelationship.setFrom(toComponent);
+            updateRelationship(componentInfoRelationship);
+            updateProgress();
+          }
     } catch (Exception e) {
       e.printStackTrace();
       fail("Unexpected exception thrown - please review stack trace.");
