@@ -269,6 +269,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       removeLogEntries();
     } else if (actionName.contentEquals("Mark MTH/NCIMTH/PN atoms unpublishable")) {
       fixSuppressibleToUnpublishable();
+    } else if (actionName.contentEquals("Fix atom errors to unpublishable")) {
+        fixAtomErrorsToUnpublishable();
     } else if (actionName.contentEquals("Fix Component Info Atoms")) {
       fixComponentInfoAtoms();
     } else {
@@ -1362,7 +1364,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           "select id from component_info_relationships where fromType='ATOM' and publishable = true and fromTerminologyId not like 'A%'");
 
       logInfo("[FixComponentInfoAtoms] Identifying "
-          + "ComponentInfoRelationships with ATOM endpoint and non-AUI identifiers");
+          + "ComponentInfoRelationships with from ATOM endpoint and non-AUI identifiers");
 
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
@@ -1399,50 +1401,51 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       }
       
       query = getEntityManager().createNativeQuery(
-              "select id from component_info_relationships where toType='ATOM' and publishable = true and toTerminologyId not like 'A%'");
+          "select id from component_info_relationships where toType='ATOM' and publishable = true and toTerminologyId not like 'A%'");
 
-          logInfo("[FixComponentInfoAtoms] Identifying "
-              + "ComponentInfoRelationships with ATOM endpoint and non-AUI identifiers");
+      logInfo("[FixComponentInfoAtoms] Identifying "
+          + "ComponentInfoRelationships with to ATOM endpoint and non-AUI identifiers");
 
-          list = query.getResultList();
-          for (final Object entry : list) {
-            final Long id = Long.valueOf(entry.toString());
-            componentInfoRelationships.add(
-                (ComponentInfoRelationshipJpa) getRelationship(id, ComponentInfoRelationshipJpa.class));
-          }
+      list = query.getResultList();
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        componentInfoRelationships.add(
+            (ComponentInfoRelationshipJpa) getRelationship(id, ComponentInfoRelationshipJpa.class));
+      }
 
-          setSteps(componentInfoRelationships.size());
+      setSteps(componentInfoRelationships.size());
 
-          logInfo("[FixComponentInfoAtoms] " + componentInfoRelationships.size()
-              + " ComponentInfoAtoms with ATOM endpoints and non-AUI identifiers");
+      logInfo("[FixComponentInfoAtoms] " + componentInfoRelationships.size()
+          + " ComponentInfoAtoms with ATOM endpoints and non-AUI identifiers");
 
-          for (final ComponentInfoRelationship componentInfoRelationship : componentInfoRelationships) {
-            Component toComponent = getComponent("SRC_ATOM_ID", componentInfoRelationship.getFromTerminologyId(),
-                componentInfoRelationship.getFromTerminology(),
-                null, false);
-            if (toComponent == null) {
-              toComponent = getComponent("SOURCE_AUI", componentInfoRelationship.getFromTerminologyId(),
-                  componentInfoRelationship.getFromTerminology(),
-                  null, false);
-            }
-            toComponent = new AtomJpa((Atom) toComponent);
-            toComponent.setId(null);
-            toComponent.setTerminology(getProject().getTerminology());
-            toComponent.setVersion(getProject().getVersion());
-            String initialFromComponent = componentInfoRelationship.getFromTerminologyId();
-            toComponent.setTerminologyId(((Atom)toComponent).getAlternateTerminologyIds().get(getProject().getTerminology()));
-            logInfo("Updating component info afromm terminologyId to " + initialFromComponent + " from " + toComponent.getTerminologyId());
-            //updateComponent(toComponent); <- do not do.  This creates a copy of the afromm incorrectly, and we don't want from update the afromm anyway
-            componentInfoRelationship.setFrom(toComponent);
-            updateRelationship(componentInfoRelationship);
-            updateProgress();
-          }
+      for (final ComponentInfoRelationship componentInfoRelationship : componentInfoRelationships) {
+        Component toComponent = getComponent("SRC_ATOM_ID", componentInfoRelationship.getToTerminologyId(),
+            componentInfoRelationship.getToTerminology(),
+            null, false);
+        if (toComponent == null) {
+          toComponent = getComponent("SOURCE_AUI", componentInfoRelationship.getToTerminologyId(),
+              componentInfoRelationship.getToTerminology(),
+              null, false);
+        }
+        toComponent = new AtomJpa((Atom) toComponent);
+        toComponent.setId(null);
+        toComponent.setTerminology(getProject().getTerminology());
+        toComponent.setVersion(getProject().getVersion());
+        String initialtoComponent = componentInfoRelationship.getToTerminologyId();
+        toComponent.setTerminologyId(((Atom)toComponent).getAlternateTerminologyIds().get(getProject().getTerminology()));
+        logInfo("Updating component info atom terminologyId from " + initialtoComponent + " to " + toComponent.getTerminologyId());
+        //updateComponent(toComponent); <- do not do.  This creates a copy of the atom incorrectly, and we don't want to update the atom anyway
+        componentInfoRelationship.setTo(toComponent);
+        updateRelationship(componentInfoRelationship);
+        updateProgress();
+      }
     } catch (Exception e) {
       e.printStackTrace();
       fail("Unexpected exception thrown - please review stack trace.");
     } finally {
     }
 
+    
     logInfo("Updated " + updatedRelationships + " component info atoms.");
     logInfo("Finished " + getName());
   }
@@ -3882,7 +3885,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Fix Duplicate CUIs", "Remove Old CCS_10 AtomRelationships",
         "Remove Old MTHHH Tree Positions", "Combine Atoms By UMLS CUI", "Attach FDA Atom",
         "Fix SNOMED atoms", "Mark MTH/NCIMTH/PN atoms unpublishable", "Remove Log Entries", 
-        "Fix Component Info Atoms"));
+        "Fix Component Info Atoms", "Fix atom errors to unpublishable"));
     params.add(param);
 
     return params;
@@ -4623,6 +4626,52 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         Atom atom = getAtom(id);
         atom.setPublishable(false);
         logInfo("[FixSuppressibleToUnpublishable] marking atom unpublishable " + atom.getId());
+        updateAtom(atom);
+        updatedAtomCount++;
+
+        updateProgress();
+      }
+
+      commitClearBegin();
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+
+    }
+
+    logInfo("Updated " + updatedAtomCount + " atoms updated to unpublishable.");
+    logInfo("Finished " + getName());
+
+  }
+  
+  private void fixAtomErrorsToUnpublishable() throws Exception {
+    // 04/15/2021 Suppressible toggle has been removed from atom editing in application,
+    // but this will cleanup the db for atoms that were marked suppressible but intended
+    // to be unpublishable
+
+    logInfo(" Fix atom errors mark unpublishable.");
+
+    int updatedAtomCount = 0;
+
+    try {
+
+      logInfo("[FixAtomErrorsToUnpublishable] Loading atoms to be updated");
+
+      Query query =
+        getEntityManager().createNativeQuery(
+          " select id from atoms where id >= 15532032 "
+        );
+
+      List<Object> list = query.getResultList();
+      setSteps(list.size());
+
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        Atom atom = getAtom(id);
+        atom.setPublishable(false);
+        logInfo("[FixAtomErrorsToUnpublishable] marking atom unpublishable " + atom.getId());
         updateAtom(atom);
         updatedAtomCount++;
 
