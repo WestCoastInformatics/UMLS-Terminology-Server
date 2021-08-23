@@ -4,11 +4,14 @@
 package com.wci.umls.server.jpa.algo.release;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
 import com.wci.umls.server.AlgorithmParameter;
+import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
@@ -81,8 +84,8 @@ public class FeedbackReleaseAlgorithm
     //
     // Load the MRCONSO.RRF file in the mr/[version]/META folder
     //
-    final List<String> lines =
-        loadFileIntoStringList(mrDirFile, "MRCONSO.RRF", null, null, null);
+    final List<String> lines = new ArrayList<>();
+       // loadFileIntoStringList(mrDirFile, "MRCONSO.RRF", null, null, null);
 
     // Set the number of steps to the number of lines to be processed
     setSteps(lines.size());
@@ -170,6 +173,11 @@ public class FeedbackReleaseAlgorithm
       updateProgress();
     }
 
+    // indicate that the current release process is complete
+    ReleaseInfo releaseInfo = getCurrentReleaseInfo(getProject().getTerminology());
+    releaseInfo.setReleaseFinishDate(new Date());
+    releaseInfo.setPublished(true);
+    updateReleaseInfo(releaseInfo);
     commitClearBegin();
 
     fireProgressEvent(100, "Finished - 100%");
