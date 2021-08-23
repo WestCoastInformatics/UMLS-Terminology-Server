@@ -1405,7 +1405,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       logInfo("[FixComponentInfoAtoms] Identifying "
           + "ComponentInfoRelationships with to ATOM endpoint and non-AUI identifiers");
-
+      
+      componentInfoRelationships.clear();
+      
       list = query.getResultList();
       for (final Object entry : list) {
         final Long id = Long.valueOf(entry.toString());
