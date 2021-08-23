@@ -84,8 +84,8 @@ public class FeedbackReleaseAlgorithm
     //
     // Load the MRCONSO.RRF file in the mr/[version]/META folder
     //
-    final List<String> lines = new ArrayList<>();
-       // loadFileIntoStringList(mrDirFile, "MRCONSO.RRF", null, null, null);
+    final List<String> lines = 
+        loadFileIntoStringList(mrDirFile, "MRCONSO.RRF", null, null, null);
 
     // Set the number of steps to the number of lines to be processed
     setSteps(lines.size());
