@@ -2287,6 +2287,17 @@ else if ($target == "MRREL") then
 	awk -F\| '$3=="expanded_form"&&$1=="RELA"{print $2}' $mrdoc | sort -u | comm -13 - MRREL.RELA.$$ | head -10 | sed 's/^/  /'
     endif
     rm -f MRREL.RELA.$$
+    
+    #
+    #   Verify bequeathal rels not released
+    #
+    echo "    Verify bequeathal rels not released"
+    set cnt=`perl -ne '@_ = split /\|/; print "$_[3]\n" if $_[3] =~ /^B/ ' $mrrel | wc -l`
+    if ($cnt != 0) then
+	echo "ERROR:  Bequeathal rels are in MRREL"
+	perl -ne '@_ = split /\|/; print "$_" if $_[3] =~ /^B/ ' $mrrel | head -10 
+    endif
+    rm -f MRREL.RELA.$$
 
     #
     #   Verify STYPE1 in MRDOC.VALUE where MRDOC.DOCKEY=STYPE1

@@ -273,6 +273,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         fixAtomErrorsToUnpublishable();
     } else if (actionName.contentEquals("Fix Component Info Atoms")) {
       fixComponentInfoAtoms();
+    } else if (actionName.contentEquals("Fix bequeathal rels to unpublishable")) {
+      fixBequeathalRelsToUnpublishable();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -3887,7 +3889,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Fix Duplicate CUIs", "Remove Old CCS_10 AtomRelationships",
         "Remove Old MTHHH Tree Positions", "Combine Atoms By UMLS CUI", "Attach FDA Atom",
         "Fix SNOMED atoms", "Mark MTH/NCIMTH/PN atoms unpublishable", "Remove Log Entries", 
-        "Fix Component Info Atoms", "Fix atom errors to unpublishable"));
+        "Fix Component Info Atoms", "Fix atom errors to unpublishable", "Fix bequeathal rels to unpublishable"));
     params.add(param);
 
     return params;
@@ -4693,4 +4695,48 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo("Finished " + getName());
 
   }
+  
+  private void fixBequeathalRelsToUnpublishable() throws Exception {
+	    // 08/31/2021 NM-122 BRO rels shouldn't be released
+
+	    logInfo(" Fix bequeathal rels to mark unpublishable.");
+
+	    int updatedRelCount = 0;
+
+	    try {
+
+	      logInfo("[FixBequeathalRelsToUnpublishable] Loading rels to be updated");
+
+	      Query query =
+	        getEntityManager().createNativeQuery(
+	          " select id from concept_relationships where relationshipType in ('BRO', 'BRN', 'BRB') and publishable "
+	        );
+
+	      List<Object> list = query.getResultList();
+	      setSteps(list.size());
+
+	      for (final Object entry : list) {
+	        final Long id = Long.valueOf(entry.toString());
+	        ConceptRelationship rel = (ConceptRelationshipJpa) getRelationship(id, ConceptRelationshipJpa.class);
+	        rel.setPublishable(false);
+	        logInfo("[FixBequeathalRelsToUnpublishable] marking bequeathal rel unpublishable " + rel.getId());
+	        updateRelationship(rel);
+	        updatedRelCount++;
+
+	        updateProgress();
+	      }
+
+	      commitClearBegin();
+
+	    } catch (Exception e) {
+	      e.printStackTrace();
+	      fail("Unexpected exception thrown - please review stack trace.");
+	    } finally {
+
+	    }
+
+	    logInfo("Updated " + updatedRelCount + " bequeathal rels updated to unpublishable.");
+	    logInfo("Finished " + getName());
+
+	  }
 }
