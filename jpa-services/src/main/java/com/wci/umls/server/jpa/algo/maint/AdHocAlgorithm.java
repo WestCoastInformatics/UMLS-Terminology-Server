@@ -35,12 +35,15 @@ import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.QueryType;
+import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
+import com.wci.umls.server.jpa.algo.action.AbstractMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddAtomMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddSemanticTypeMolecularAction;
+import com.wci.umls.server.jpa.algo.action.ApproveMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RedoMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RemoveSemanticTypeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
@@ -52,6 +55,7 @@ import com.wci.umls.server.jpa.content.AtomTreePositionJpa;
 import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
 import com.wci.umls.server.jpa.content.ComponentHistoryJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
@@ -4736,6 +4740,129 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 	    }
 
 	    logInfo("Updated " + updatedRelCount + " bequeathal rels updated to unpublishable.");
+	    logInfo("Finished " + getName());
+
+	  }
+  
+  private void approveWorklistCluster() throws Exception {
+	    // 09/09/2021 
+	  
+	    logInfo(" Approve worklist cluster.");
+
+	    int updatedRelCount = 0;
+
+	    try {
+
+	      logInfo("[ApproveWorklistCluster] Loading concepts to be approved");
+
+
+	      final Long clusterId = 26L;
+
+
+	        // Find the specified worklist
+	        PfsParameter pfs = new PfsParameterJpa();
+	        pfs.setQueryRestriction("wrk21b_ambig_no_rel_default_001");
+	        WorklistList worklistList =
+	            this.findWorklists(this.getProject(), null, pfs);
+
+	        // There can be only one
+	        if (worklistList.getTotalCount() != 1) {
+	          throw new Exception("Expecting a single worklist, but search returned "
+	              + worklistList.getTotalCount());
+	        }
+
+	        Worklist worklist = worklistList.getObjects().get(0);
+
+	        logInfo("[ApproveWorklistCluster] Worklist loaded: "
+	            + worklist.getName());
+
+	        // Get the specified cluster
+	        List<TrackingRecord> trackingRecords = worklist.getTrackingRecords();
+
+	        TrackingRecord trackingRecord = null;
+	        for (TrackingRecord record : trackingRecords) {
+	          if (record.getClusterId().equals(clusterId)) {
+	            trackingRecord = record;
+	            break;
+	          }
+	        }
+
+	        // Throw error if null tracking record
+	        if (trackingRecord == null) {
+	          throw new Exception("No tracking record found for worklist="
+	              + worklist.getName() + " and cluster=" + clusterId);
+	        }
+
+	        // Get NCIMTH concepts for tracking record's atoms
+	        Query query = getEntityManager()
+	            .createQuery("select c.id from ConceptJpa c join c.atoms a "
+	                + "where c.terminology=:projectTerminology and c.version=:projectVersion and a.id in (:atomIds)");
+	        query.setParameter("projectTerminology", getProject().getTerminology());
+	        query.setParameter("projectVersion", getProject().getVersion());
+	        query.setParameter("atomIds", trackingRecord.getComponentIds());
+
+	        Set<Concept> concepts = new HashSet<>();
+
+	        List<Object> results = query.getResultList();
+	        for (final Object result : results) {
+	          final Concept concept =
+	              this.getConcept(Long.valueOf(result.toString()));
+	          concepts.add(concept);
+	        }
+
+	        // Throw error if concepts empty
+	        if (concepts.size() == 0) {
+	          throw new Exception(
+	              "No NCIMTH concepts associated with this tracking record.");
+	        }
+	        setSteps(concepts.size());
+	        for (Concept concept : concepts) {
+	          // If approving a concept, run it through the approveMolecularAction,
+	          // so all of the associated content is also affected.
+	          if (ConceptJpa.class.isAssignableFrom(ConceptJpa.class)) {
+	            AbstractMolecularAction action = new ApproveMolecularAction();
+	            try {
+	              // set workflowStatus action to READY_FOR_PUBLICATION
+	              // Configure the action
+	              action.setProject(getProject());
+	              action.setActivityId(getActivityId());
+	              action.setConceptId(concept.getId());
+	              action.setConceptId2(null);
+	              action.setLastModifiedBy(getLastModifiedBy());
+	              action.setLastModified(concept.getLastModified().getTime());
+	              action.setOverrideWarnings(true);
+	              action.setTransactionPerOperation(false);
+	              action.setMolecularActionFlag(true);
+	              action.setChangeStatusFlag(true);
+
+	              // Perform the action
+	              final ValidationResult validationResult =
+	                  action.performMolecularAction(action, getLastModifiedBy(),
+	                      true, false);
+
+	              // If the action failed, bail out now.
+	              if (!validationResult.isValid()) {
+	                logError("  unable to approve " + concept.getId());
+	                for (final String error : validationResult.getErrors()) {
+	                  logError("    error = " + error);
+	                }
+	              }
+	            } catch (Exception e) {
+	              action.rollback();
+	            } finally {
+	              action.close();
+	            }
+	          }
+	        }
+	      commitClearBegin();
+
+	    } catch (Exception e) {
+	      e.printStackTrace();
+	      fail("Unexpected exception thrown - please review stack trace.");
+	    } finally {
+
+	    }
+
 	    logInfo("Finished " + getName());
 
 	  }
