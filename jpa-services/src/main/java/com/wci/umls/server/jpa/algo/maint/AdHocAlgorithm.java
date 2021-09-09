@@ -279,6 +279,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixComponentInfoAtoms();
     } else if (actionName.contentEquals("Fix bequeathal rels to unpublishable")) {
       fixBequeathalRelsToUnpublishable();
+    } else if (actionName.contentEquals("Approve worklist cluster")) {
+      approveWorklistCluster();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -3859,45 +3861,6 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   }
 
-  /**
-   * Returns the parameters.
-   *
-   * @return the parameters
-   * @throws Exception the exception
-   */
-  /* see superclass */
-  @Override
-  public List<AlgorithmParameter> getParameters() throws Exception {
-    final List<AlgorithmParameter> params = super.getParameters();
-    AlgorithmParameter param = new AlgorithmParameterJpa("Action Name", "actionName",
-        "Name of Ad Hoc Action to be performed", "e.g. Fix Orphan Definitions", 200,
-        AlgorithmParameter.Type.ENUM, "");
-    param.setPossibleValues(Arrays.asList("Fix Orphan Definitions", "Undo Stampings",
-        "Remove Bad Relationships", "Remove SNOMED Subsets", "Remove SNOMED Atom Subsets",
-        "Remove Orphaned Tracking Records", "Inactivate Old SRC atoms and AtomRels",
-        "Fix SRC_ATOM_IDs", "Redo Molecular Actions", "Fix Bad Relationship Identities",
-        "Fix Component Info Relationships", "Remove Concepts without Atoms",
-        "Set Component Info Relationships To Publishable",
-        "Set Stamped Worklists To Ready For Publication", "Add Disposition Atoms", "Fix RelGroups",
-        "Fix Source Level Rels", "Fix AdditionalRelType Inverses", "Fix Snomed Family",
-        "Turn off CTRP-SDC", "Fix Terminology Names", "Fix Terminologies", "Fix RHT Atoms",
-        "Fix MDR Descriptors", "Clear Worklists and Checklists",
-        "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts", "Fix Null RUIs",
-        "Remove old MTH relationships", "Remove old relationships", "Assign Missing STY ATUIs",
-        "Fix Component History Version", "Fix AdditionalRelType Inverses 2",
-        "Fix AdditionalRelType Inverses 3", "Fix AdditionalRelType Inverses 4", "Remove Demotions",
-        "Revise Semantic Types", "Fix Atom Last Release CUI", "Fix VPT and Terminologies",
-        "Fix Atom Suppressible and Obsolete", "Initialize Source Atom Id Range App",
-        "Remove Deprecated Termgroups", "Change null treeposition Relas to blank",
-        "Fix overlapping bequeathal rels", "Fix NCBI VPT atom", "Inactivate old tree positions",
-        "Fix Duplicate CUIs", "Remove Old CCS_10 AtomRelationships",
-        "Remove Old MTHHH Tree Positions", "Combine Atoms By UMLS CUI", "Attach FDA Atom",
-        "Fix SNOMED atoms", "Mark MTH/NCIMTH/PN atoms unpublishable", "Remove Log Entries", 
-        "Fix Component Info Atoms", "Fix atom errors to unpublishable", "Fix bequeathal rels to unpublishable"));
-    params.add(param);
-
-    return params;
-  }
 
   /* see superclass */
   @Override
@@ -4866,4 +4829,46 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 	    logInfo("Finished " + getName());
 
 	  }
+  
+
+  /**
+   * Returns the parameters.
+   *
+   * @return the parameters
+   * @throws Exception the exception
+   */
+  /* see superclass */
+  @Override
+  public List<AlgorithmParameter> getParameters() throws Exception {
+    final List<AlgorithmParameter> params = super.getParameters();
+    AlgorithmParameter param = new AlgorithmParameterJpa("Action Name", "actionName",
+        "Name of Ad Hoc Action to be performed", "e.g. Fix Orphan Definitions", 200,
+        AlgorithmParameter.Type.ENUM, "");
+    param.setPossibleValues(Arrays.asList("Fix Orphan Definitions", "Undo Stampings",
+        "Remove Bad Relationships", "Remove SNOMED Subsets", "Remove SNOMED Atom Subsets",
+        "Remove Orphaned Tracking Records", "Inactivate Old SRC atoms and AtomRels",
+        "Fix SRC_ATOM_IDs", "Redo Molecular Actions", "Fix Bad Relationship Identities",
+        "Fix Component Info Relationships", "Remove Concepts without Atoms",
+        "Set Component Info Relationships To Publishable",
+        "Set Stamped Worklists To Ready For Publication", "Add Disposition Atoms", "Fix RelGroups",
+        "Fix Source Level Rels", "Fix AdditionalRelType Inverses", "Fix Snomed Family",
+        "Turn off CTRP-SDC", "Fix Terminology Names", "Fix Terminologies", "Fix RHT Atoms",
+        "Fix MDR Descriptors", "Clear Worklists and Checklists",
+        "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts", "Fix Null RUIs",
+        "Remove old MTH relationships", "Remove old relationships", "Assign Missing STY ATUIs",
+        "Fix Component History Version", "Fix AdditionalRelType Inverses 2",
+        "Fix AdditionalRelType Inverses 3", "Fix AdditionalRelType Inverses 4", "Remove Demotions",
+        "Revise Semantic Types", "Fix Atom Last Release CUI", "Fix VPT and Terminologies",
+        "Fix Atom Suppressible and Obsolete", "Initialize Source Atom Id Range App",
+        "Remove Deprecated Termgroups", "Change null treeposition Relas to blank",
+        "Fix overlapping bequeathal rels", "Fix NCBI VPT atom", "Inactivate old tree positions",
+        "Fix Duplicate CUIs", "Remove Old CCS_10 AtomRelationships",
+        "Remove Old MTHHH Tree Positions", "Combine Atoms By UMLS CUI", "Attach FDA Atom",
+        "Fix SNOMED atoms", "Mark MTH/NCIMTH/PN atoms unpublishable", "Remove Log Entries", 
+        "Fix Component Info Atoms", "Fix atom errors to unpublishable", "Fix bequeathal rels to unpublishable",
+        "Approve worklist cluster"));
+    params.add(param);
+
+    return params;
+  }
 }
