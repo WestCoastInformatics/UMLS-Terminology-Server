@@ -4707,128 +4707,124 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
 	  }
   
-  private void approveWorklistCluster() throws Exception {
-	    // 09/09/2021 
-	  
-	    logInfo(" Approve worklist cluster.");
+		private void approveWorklistCluster() throws Exception {
+			// 09/09/2021 approve concepts in worklist after XR relationships algorithm was run
 
-	    int updatedRelCount = 0;
+			logInfo(" Approve worklist cluster.");
 
-	    try {
+			int approved = 0;
 
-	      logInfo("[ApproveWorklistCluster] Loading concepts to be approved");
+			try {
 
+				logInfo("[ApproveWorklistCluster] Loading concepts to be approved");
 
-	      final Long clusterId = 26L;
+				final Long[] clusterIds = { 12L, 26L, 69L, 72L, 106L, 152L, 154L, 158L, 173L, 174L, 186L, 187L };
 
+				// Find the specified worklist
+				PfsParameter pfs = new PfsParameterJpa();
+				pfs.setQueryRestriction("wrk21b_ambig_no_rel_default_001");
+				WorklistList worklistList = this.findWorklists(this.getProject(), null, pfs);
 
-	        // Find the specified worklist
-	        PfsParameter pfs = new PfsParameterJpa();
-	        pfs.setQueryRestriction("wrk21b_ambig_no_rel_default_001");
-	        WorklistList worklistList =
-	            this.findWorklists(this.getProject(), null, pfs);
+				// There can be only one
+				if (worklistList.getTotalCount() != 1) {
+					throw new Exception(
+							"Expecting a single worklist, but search returned " + worklistList.getTotalCount());
+				}
 
-	        // There can be only one
-	        if (worklistList.getTotalCount() != 1) {
-	          throw new Exception("Expecting a single worklist, but search returned "
-	              + worklistList.getTotalCount());
-	        }
+				Worklist worklist = worklistList.getObjects().get(0);
 
-	        Worklist worklist = worklistList.getObjects().get(0);
+				logInfo("[ApproveWorklistCluster] Worklist loaded: " + worklist.getName());
 
-	        logInfo("[ApproveWorklistCluster] Worklist loaded: "
-	            + worklist.getName());
+				// Get the specified cluster
+				List<TrackingRecord> trackingRecords = worklist.getTrackingRecords();
+				for (Long clusterId : clusterIds) {
+					TrackingRecord trackingRecord = null;
+					for (TrackingRecord record : trackingRecords) {
+						if (record.getClusterId().equals(clusterId)) {
+							trackingRecord = record;
+							break;
+						}
+					}
 
-	        // Get the specified cluster
-	        List<TrackingRecord> trackingRecords = worklist.getTrackingRecords();
+					// Throw error if null tracking record
+					if (trackingRecord == null) {
+						throw new Exception("No tracking record found for worklist=" + worklist.getName()
+								+ " and cluster=" + clusterId);
+					}
 
-	        TrackingRecord trackingRecord = null;
-	        for (TrackingRecord record : trackingRecords) {
-	          if (record.getClusterId().equals(clusterId)) {
-	            trackingRecord = record;
-	            break;
-	          }
-	        }
+					// Get NCIMTH concepts for tracking record's atoms
+					Query query = getEntityManager().createQuery("select c.id from ConceptJpa c join c.atoms a "
+							+ "where c.terminology=:projectTerminology and c.version=:projectVersion and a.id in (:atomIds)");
+					query.setParameter("projectTerminology", getProject().getTerminology());
+					query.setParameter("projectVersion", getProject().getVersion());
+					query.setParameter("atomIds", trackingRecord.getComponentIds());
 
-	        // Throw error if null tracking record
-	        if (trackingRecord == null) {
-	          throw new Exception("No tracking record found for worklist="
-	              + worklist.getName() + " and cluster=" + clusterId);
-	        }
+					Set<Concept> concepts = new HashSet<>();
 
-	        // Get NCIMTH concepts for tracking record's atoms
-	        Query query = getEntityManager()
-	            .createQuery("select c.id from ConceptJpa c join c.atoms a "
-	                + "where c.terminology=:projectTerminology and c.version=:projectVersion and a.id in (:atomIds)");
-	        query.setParameter("projectTerminology", getProject().getTerminology());
-	        query.setParameter("projectVersion", getProject().getVersion());
-	        query.setParameter("atomIds", trackingRecord.getComponentIds());
+					List<Object> results = query.getResultList();
+					for (final Object result : results) {
+						final Concept concept = this.getConcept(Long.valueOf(result.toString()));
+						concepts.add(concept);
+					}
 
-	        Set<Concept> concepts = new HashSet<>();
+					// Throw error if concepts empty
+					if (concepts.size() == 0) {
+						throw new Exception("No NCIMTH concepts associated with this tracking record.");
+					}
+					setSteps(concepts.size());
+					for (Concept concept : concepts) {
+						// If approving a concept, run it through the approveMolecularAction,
+						// so all of the associated content is also affected.
+						if (ConceptJpa.class.isAssignableFrom(ConceptJpa.class)) {
+							AbstractMolecularAction action = new ApproveMolecularAction();
+							try {
+								// set workflowStatus action to READY_FOR_PUBLICATION
+								// Configure the action
+								action.setProject(getProject());
+								action.setActivityId(getActivityId());
+								action.setConceptId(concept.getId());
+								action.setConceptId2(null);
+								action.setLastModifiedBy(getLastModifiedBy());
+								action.setLastModified(concept.getLastModified().getTime());
+								action.setOverrideWarnings(true);
+								action.setTransactionPerOperation(false);
+								action.setMolecularActionFlag(true);
+								action.setChangeStatusFlag(true);
 
-	        List<Object> results = query.getResultList();
-	        for (final Object result : results) {
-	          final Concept concept =
-	              this.getConcept(Long.valueOf(result.toString()));
-	          concepts.add(concept);
-	        }
+								// Perform the action
+								final ValidationResult validationResult = action.performMolecularAction(action,
+										getLastModifiedBy(), true, false);
 
-	        // Throw error if concepts empty
-	        if (concepts.size() == 0) {
-	          throw new Exception(
-	              "No NCIMTH concepts associated with this tracking record.");
-	        }
-	        setSteps(concepts.size());
-	        for (Concept concept : concepts) {
-	          // If approving a concept, run it through the approveMolecularAction,
-	          // so all of the associated content is also affected.
-	          if (ConceptJpa.class.isAssignableFrom(ConceptJpa.class)) {
-	            AbstractMolecularAction action = new ApproveMolecularAction();
-	            try {
-	              // set workflowStatus action to READY_FOR_PUBLICATION
-	              // Configure the action
-	              action.setProject(getProject());
-	              action.setActivityId(getActivityId());
-	              action.setConceptId(concept.getId());
-	              action.setConceptId2(null);
-	              action.setLastModifiedBy(getLastModifiedBy());
-	              action.setLastModified(concept.getLastModified().getTime());
-	              action.setOverrideWarnings(true);
-	              action.setTransactionPerOperation(false);
-	              action.setMolecularActionFlag(true);
-	              action.setChangeStatusFlag(true);
+								// If the action failed, bail out now.
+								if (!validationResult.isValid()) {
+									logError("  unable to approve " + concept.getId());
+									for (final String error : validationResult.getErrors()) {
+										logError("    error = " + error);
+									}
+								} else {
+									approved++;
+								}
+							} catch (Exception e) {
+								action.rollback();
+							} finally {
+								action.close();
+							}
+						}
+					}
+					commitClearBegin();
+				}
 
-	              // Perform the action
-	              final ValidationResult validationResult =
-	                  action.performMolecularAction(action, getLastModifiedBy(),
-	                      true, false);
+			} catch (Exception e) {
+				e.printStackTrace();
+				fail("Unexpected exception thrown - please review stack trace.");
+			} finally {
 
-	              // If the action failed, bail out now.
-	              if (!validationResult.isValid()) {
-	                logError("  unable to approve " + concept.getId());
-	                for (final String error : validationResult.getErrors()) {
-	                  logError("    error = " + error);
-	                }
-	              }
-	            } catch (Exception e) {
-	              action.rollback();
-	            } finally {
-	              action.close();
-	            }
-	          }
-	        }
-	      commitClearBegin();
+			}
+			logInfo("approved " + approved);
 
-	    } catch (Exception e) {
-	      e.printStackTrace();
-	      fail("Unexpected exception thrown - please review stack trace.");
-	    } finally {
+			logInfo("Finished " + getName());
 
-	    }
-
-	    logInfo("Finished " + getName());
-
-	  }
+		}
   
 
   /**
