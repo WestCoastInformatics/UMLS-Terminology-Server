@@ -3862,6 +3862,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     if (p.getProperty("actionName") != null) {
       actionName = String.valueOf(p.getProperty("actionName"));
     }
+    if (p.getProperty("clusterNumber") != null) {
+        clusterNumber =
+            Integer.parseInt(String.valueOf(p.getProperty("clusterNumber")));
+    }
 
   }
 
