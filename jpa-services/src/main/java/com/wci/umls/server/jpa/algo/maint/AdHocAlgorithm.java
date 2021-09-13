@@ -4883,7 +4883,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     params.add(param);
     param = new AlgorithmParameterJpa("String parameter (optional)", "stringParameter",
                 "String parameter (optional)", "e.g. wrk19b_ambig_no_rel_default_003", 40,
-                AlgorithmParameter.Type.ENUM, "");
+                AlgorithmParameter.Type.STRING, "");
     params.add(param);
 
     return params;
