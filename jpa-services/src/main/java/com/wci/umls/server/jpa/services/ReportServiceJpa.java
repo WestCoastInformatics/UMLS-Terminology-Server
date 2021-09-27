@@ -475,9 +475,11 @@ public class ReportServiceJpa extends HistoryServiceJpa
     for (final Relationship<?, ?> relationship : relList) {
       final ConceptRelationship rel = (ConceptRelationship) relationship;
       if (rel.getWorkflowStatus() == WorkflowStatus.DEMOTION
-          && !(rel.getRelationshipType().equals("PAR")
-              || rel.getRelationshipType().equals("CHD")
-              || rel.getRelationshipType().equals("SIB"))) {
+		/*  Removed per Lori's request 9/27/2021
+		 * && !(rel.getRelationshipType().equals("PAR") ||
+		 * rel.getRelationshipType().equals("CHD") ||
+		 * rel.getRelationshipType().equals("SIB"))
+		 */) {
         usedFromIds.add(rel.getFrom().getTerminologyId());
         demotionRelationships.add(rel);
       }
