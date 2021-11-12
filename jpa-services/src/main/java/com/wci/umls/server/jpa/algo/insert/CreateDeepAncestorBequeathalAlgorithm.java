@@ -160,7 +160,7 @@ public class CreateDeepAncestorBequeathalAlgorithm extends AbstractInsertMaintRe
             ConceptRelationship cptRel = (ConceptRelationship)rel;
             if (cptRel.getRelationshipType().equals("PAR")) {
                 Concept ncimthParentConcept = cptRel.getFrom();
-                if (noXRRel(c, ncimthParentConcept) && ncimthParentConcept.isPublishable()) {
+                if (noXRRel(c, ncimthParentConcept) && conceptPublishable(ncimthParentConcept)) {
                     StringBuffer sb = new StringBuffer();
                     sb.append("").append("|");
                     sb.append("C").append("|");
@@ -246,4 +246,9 @@ public class CreateDeepAncestorBequeathalAlgorithm extends AbstractInsertMaintRe
     return "Bequeaths deleted cuis to their closest published ancestor";
   }
 
+  private boolean conceptPublishable(Concept cpt) {
+	  return cpt.getAtoms().stream().filter(a -> a.isPublishable() && !a.getTerminology().equals("NCIMTH")
+			  && !a.getTerminology().startsWith("MTH_")).count() > 0;
+  }
+  
 }
