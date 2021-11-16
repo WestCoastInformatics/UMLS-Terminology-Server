@@ -253,9 +253,15 @@ public class CreateAncestorBequeathalAlgorithm extends AbstractInsertMaintReleas
 
   }
 
+  /**
+   * Concept publishable.
+   *
+   * @param cpt the concept
+   * @return true, if successful
+   */
   private boolean conceptPublishable(Concept cpt) {
-	  return cpt.getAtoms().stream().filter(a -> a.isPublishable() && !a.getTerminology().equals("NCIMTH")
-			  && !a.getTerminology().startsWith("MTH_")).count() > 0;
+    return cpt.getAtoms().stream().filter(a -> a.isPublishable() && !a.getTerminology().equals("NCIMTH")
+              && !a.getTermType().equals("PN")).count() > 0;
   }
   
   private boolean noXRRel(Concept a, Concept b) {
