@@ -4848,10 +4848,12 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   
 		 private void cleanupCorruptedProcessConfig() throws Exception {
 		    // 2022/01/06 remove corrupted process config and its steps
+		   
+		   final Long processConfigId = new Long(integerParameter);
 
 		    ProcessService processService = new ProcessServiceJpa();
 		    processService.setLastModifiedBy("admin");
-		    ProcessConfig processConfig = processService.getProcessConfig(8808651L);
+		    ProcessConfig processConfig = processService.getProcessConfig(processConfigId);
 		    List<AlgorithmConfig> steps = processConfig.getSteps();
 		    
 		    for (AlgorithmConfig step : steps) {
@@ -4862,7 +4864,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 		    }
 		    commitClearBegin();
 		    
-		    processService.removeProcessConfig(8808651L);
+		    processService.removeProcessConfig(processConfigId);
 		    
 		    commit();
 		    
