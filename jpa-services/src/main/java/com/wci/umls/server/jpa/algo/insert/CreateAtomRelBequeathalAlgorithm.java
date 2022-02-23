@@ -170,7 +170,7 @@ public class CreateAtomRelBequeathalAlgorithm extends AbstractInsertMaintRelease
               Long ncimthConceptId = srl.getObjects().get(0).getId();
               Concept ncimthOtherConcept = getConcept(ncimthConceptId);
               
-              if (noXRRel(c, ncimthOtherConcept) && ncimthOtherConcept.isPublishable()) {
+              if (noXRRel(c, ncimthOtherConcept) && conceptPublishable(ncimthOtherConcept)) {
                 
                 StringBuffer sb = new StringBuffer();
                 sb.append("").append("|");
@@ -195,7 +195,7 @@ public class CreateAtomRelBequeathalAlgorithm extends AbstractInsertMaintRelease
               Long ncimthConceptId = srl.getObjects().get(0).getId();
               Concept ncimthOtherConcept = getConcept(ncimthConceptId);
               
-              if (noXRRel(c, ncimthOtherConcept) && ncimthOtherConcept.isPublishable()) {
+              if (noXRRel(c, ncimthOtherConcept) && conceptPublishable(ncimthOtherConcept)) {
                 StringBuffer sb = new StringBuffer();
                 sb.append("").append("|");
                 sb.append("C").append("|");
@@ -247,6 +247,17 @@ public class CreateAtomRelBequeathalAlgorithm extends AbstractInsertMaintRelease
       }
     }
     return true;
+  }
+  
+  /**
+   * Concept publishable.
+   *
+   * @param cpt the concept
+   * @return true, if successful
+   */
+  private boolean conceptPublishable(Concept cpt) {
+    return cpt.getAtoms().stream().filter(a -> a.isPublishable() && !a.getTerminology().equals("NCIMTH")
+              && !a.getTermType().equals("PN")).count() > 0;
   }
   
   /* see superclass */

@@ -25,7 +25,9 @@ import java.util.stream.Collectors;
 
 import javax.persistence.Query;
 
+import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.AlgorithmParameter;
+import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ChecklistList;
@@ -66,6 +68,7 @@ import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.inversion.SourceIdRangeJpa;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.services.InversionServiceJpa;
+import com.wci.umls.server.jpa.services.ProcessServiceJpa;
 import com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa;
 import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.jpa.workflow.ChecklistJpa;
@@ -99,6 +102,7 @@ import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.services.InversionService;
+import com.wci.umls.server.services.ProcessService;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.UmlsIdentityService;
 import com.wci.umls.server.services.WorkflowService;
@@ -288,6 +292,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixBequeathalRelsToUnpublishable();
     } else if (actionName.contentEquals("Approve worklist cluster")) {
       approveWorklistCluster();
+    } else if (actionName.contentEquals("Cleanup corrupted process config")) {
+      cleanupCorruptedProcessConfig();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -4840,6 +4846,31 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
 		}
   
+		 private void cleanupCorruptedProcessConfig() throws Exception {
+		    // 2022/01/06 remove corrupted process config and its steps
+		   
+		   final Long processConfigId = new Long(integerParameter);
+
+		    ProcessService processService = new ProcessServiceJpa();
+		    processService.setLastModifiedBy("admin");
+		    ProcessConfig processConfig = processService.getProcessConfig(processConfigId);
+		    List<AlgorithmConfig> steps = processConfig.getSteps();
+		    
+		    for (AlgorithmConfig step : steps) {
+		      logInfo("step to be removed " + step);
+		      if (step != null) {
+		        processService.removeAlgorithmConfig(step.getId());
+		      }
+		    }
+		    commitClearBegin();
+		    
+		    processService.removeProcessConfig(processConfigId);
+		    
+		    commit();
+		    
+		    processService.close();
+		  }
+
 
   /**
    * Returns the parameters.
@@ -4876,7 +4907,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Remove Old MTHHH Tree Positions", "Combine Atoms By UMLS CUI", "Attach FDA Atom",
         "Fix SNOMED atoms", "Mark MTH/NCIMTH/PN atoms unpublishable", "Remove Log Entries", 
         "Fix Component Info Atoms", "Fix atom errors to unpublishable", "Fix bequeathal rels to unpublishable",
-        "Approve worklist cluster"));
+        "Approve worklist cluster","Cleanup corrupted process config"));
     params.add(param);
     param = new AlgorithmParameterJpa("Integer parameter (optional)", "integerParameter",
             "Integer parameter (optional)", "e.g. 37", 10, AlgorithmParameter.Type.INTEGER, "50");

@@ -1058,6 +1058,11 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               authToken, "adding a process config", UserRole.ADMINISTRATOR);
       processService.setLastModifiedBy(userName);
 
+      final ProcessConfigJpa process =
+          (ProcessConfigJpa) processService.getProcessConfig(processId);
+      
+      
+      
       // Populate the algorithm's properties based on its parameters' values.
       for (final AlgorithmParameter param : algo.getParameters()) {
         // Note: map either Value OR Values (comma-delimited)
@@ -1078,6 +1083,12 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       final Properties p = new Properties();
       p.putAll(algo.getProperties());
       algorithm.checkProperties(p);
+      
+      if (process != null) {
+        if (process.getSteps().contains(algo)) {
+          throw new LocalException("name and description must be unique in the process");
+        }
+      }
 
     } catch (Exception e) {
       handleException(e, "trying to validate algorithm config");

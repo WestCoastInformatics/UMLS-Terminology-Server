@@ -1,5 +1,11 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ * Copyright 2020 Wci Informatics - All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains the property of Wci Informatics
+ * The intellectual and technical concepts contained herein are proprietary to
+ * Wci Informatics and may be covered by U.S. and Foreign Patents, patents in process,
+ * and are protected by trade secret or copyright law.  Dissemination of this information
+ * or reproduction of this material is strictly forbidden.
  */
 package com.wci.umls.server.jpa.algo.insert;
 
@@ -12,6 +18,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.persistence.Query;
 
@@ -160,6 +167,7 @@ public class CreateDeepAncestorBequeathalAlgorithm extends AbstractInsertMaintRe
             ConceptRelationship cptRel = (ConceptRelationship)rel;
             if (cptRel.getRelationshipType().equals("PAR")) {
                 Concept ncimthParentConcept = cptRel.getFrom();
+                ncimthParentConcept = getConcept(ncimthParentConcept.getId());
                 if (noXRRel(c, ncimthParentConcept) && conceptPublishable(ncimthParentConcept)) {
                     StringBuffer sb = new StringBuffer();
                     sb.append("").append("|");
@@ -246,9 +254,15 @@ public class CreateDeepAncestorBequeathalAlgorithm extends AbstractInsertMaintRe
     return "Bequeaths deleted cuis to their closest published ancestor";
   }
 
+  /**
+   * Concept publishable.
+   *
+   * @param cpt the concept
+   * @return true, if successful
+   */
   private boolean conceptPublishable(Concept cpt) {
-	  return cpt.getAtoms().stream().filter(a -> a.isPublishable() && !a.getTerminology().equals("NCIMTH")
-			  && !a.getTerminology().startsWith("MTH_")).count() > 0;
+    return cpt.getAtoms().stream().filter(a -> a.isPublishable() && !a.getTerminology().equals("NCIMTH")
+			  && !a.getTermType().equals("PN")).count() > 0;
   }
   
 }
