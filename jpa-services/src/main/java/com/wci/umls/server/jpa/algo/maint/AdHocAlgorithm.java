@@ -2916,7 +2916,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     Query query = getEntityManager().createNativeQuery(
         "select cr.id from " + " concept_relationships cr, concepts c1, concepts c2 "
-            + " where cr.from_id = c1.id " + " and cr.to_id = c2.id " + " AND from_id < to_id  "
+            + " where cr.from_id = c1.id " + " and cr.to_id = c2.id " 
             + " and c1.terminology = 'NCIMTH' " + " and c2.terminology = 'NCIMTH' "
             + " GROUP BY c1.terminologyId, c2.terminologyId HAVING COUNT(*) > 1");
 
