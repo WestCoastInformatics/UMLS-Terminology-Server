@@ -6,8 +6,8 @@ package com.wci.umls.server.jpa.helpers;
 import java.io.Serializable;
 
 import org.hibernate.HibernateException;
-import org.hibernate.engine.spi.SessionImplementor;
-import org.hibernate.id.MultipleHiLoPerTableGenerator;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.id.enhanced.TableGenerator;
 
 import com.wci.umls.server.helpers.HasId;
 
@@ -16,11 +16,11 @@ import com.wci.umls.server.helpers.HasId;
  * set, keep it.
  */
 public class UseExistingOrGenerateIdGenerator
-    extends MultipleHiLoPerTableGenerator {
+    extends TableGenerator {
 
   /* see superclass */
   @Override
-  public synchronized Serializable generate(SessionImplementor session,
+  public synchronized Serializable generate(SharedSessionContractImplementor session,
     Object object) throws HibernateException {
     if (object == null) {
       throw new HibernateException(new NullPointerException());
