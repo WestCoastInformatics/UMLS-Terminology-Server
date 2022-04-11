@@ -33,7 +33,7 @@ public interface RootService extends Transactionable {
   public final static int logCt = 5000;
 
   /** The commit count. */
-  public final static int commitCt = 2000;
+  public final static int commitCt = 1000;
 
   /**
    * Open the factory.
