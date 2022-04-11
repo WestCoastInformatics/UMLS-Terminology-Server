@@ -214,6 +214,23 @@ public abstract class RootServiceJpa implements RootService {
     BooleanQuery.setMaxClauseCount(ConfigUtility.getLuceneMaxClauseCount());
   }
 
+  // open a new session 
+  @Override
+  public void reopen() throws Exception {
+    if (factory == null) {
+      throw new Exception("Factory is null, serious problem.");
+    }
+    if (!factory.isOpen()) {
+      throw new Exception("Factory is closed, serious problem.");
+    }
+    close();
+    
+    // wait one minute for previous session to finish what it is doing
+    Thread.sleep(60000);
+    manager = factory.createEntityManager();
+    tx = manager.getTransaction();
+  }
+  
   /* see superclass */
   @Override
   public void openFactory() throws Exception {
@@ -830,7 +847,13 @@ public abstract class RootServiceJpa implements RootService {
       Logger.getLogger(getClass()).info("    count = " + objectCt);
     }
     if (objectCt % commitCt == 0) {
-      commitClearBegin();
+      if (objectCt % 4000 == 0) {
+        commit();
+        clear();
+        reopen();
+      } else {
+        commitClearBegin();
+      }
     }
   }
 
@@ -840,7 +863,13 @@ public abstract class RootServiceJpa implements RootService {
     final int commitCt) throws Exception {
     // commit at regular intervals
     if (objectCt % commitCt == 0) {
-      commitClearBegin();
+      if (objectCt % 4000 == 0) {
+        commit();
+        clear();
+        reopen();
+      } else {
+        commitClearBegin();
+      }
     }
   }
 

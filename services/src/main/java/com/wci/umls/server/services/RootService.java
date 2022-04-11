@@ -1,5 +1,11 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ * Copyright 2020 Wci Informatics - All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains the property of Wci Informatics
+ * The intellectual and technical concepts contained herein are proprietary to
+ * Wci Informatics and may be covered by U.S. and Foreign Patents, patents in process,
+ * and are protected by trade secret or copyright law.  Dissemination of this information
+ * or reproduction of this material is strictly forbidden.
  */
 package com.wci.umls.server.services;
 
@@ -33,7 +39,7 @@ public interface RootService extends Transactionable {
   public final static int logCt = 5000;
 
   /** The commit count. */
-  public final static int commitCt = 1000;
+  public final static int commitCt = 2000;
 
   /**
    * Open the factory.
@@ -480,5 +486,12 @@ public interface RootService extends Transactionable {
    */
   public int executeClusteredConceptQueryCt(String query, QueryType queryType,
     Map<String, String> params) throws Exception;
+
+  /**
+   * Reopen.
+   *
+   * @throws Exception the exception
+   */
+  void reopen() throws Exception;
 
 }
