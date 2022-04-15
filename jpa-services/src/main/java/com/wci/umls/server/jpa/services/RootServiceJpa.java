@@ -229,6 +229,7 @@ public abstract class RootServiceJpa implements RootService {
     Thread.sleep(60000);
     manager = factory.createEntityManager();
     tx = manager.getTransaction();
+    tx.begin();
   }
   
   /* see superclass */
