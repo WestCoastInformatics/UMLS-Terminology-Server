@@ -2111,7 +2111,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           }
 
         } catch (Exception e) {
-          // e.printStackTrace();
+          e.printStackTrace();
           exceptions[0] = e;
 
           // Mark algorithm and process as failed

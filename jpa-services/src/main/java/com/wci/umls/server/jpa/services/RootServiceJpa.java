@@ -230,6 +230,8 @@ public abstract class RootServiceJpa implements RootService {
     manager = factory.createEntityManager();
     tx = manager.getTransaction();
     tx.begin();
+    
+    new Exception().printStackTrace();
   }
   
   /* see superclass */
