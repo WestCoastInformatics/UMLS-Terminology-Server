@@ -498,7 +498,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements Meta
   /* see superclass */
   @Override
   @GET
-  @Path("/termType/{type}/{terminology}/{version}")
+  @Path("/termType/{terminology}/{version}")
   @ApiOperation(value = "Retrieve all term type", notes = "Retrieve all term types",
   response = TermTypeListJpa.class)
   public TermTypeList getTermTypes(
