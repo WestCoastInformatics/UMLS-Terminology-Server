@@ -498,7 +498,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements Meta
   /* see superclass */
   @Override
   @GET
-  @Path("/termType/{type}/{terminology}/{version}")
+  @Path("/termType/{terminology}/{version}")
   @ApiOperation(value = "Retrieve all term type", notes = "Retrieve all term types",
   response = TermTypeListJpa.class)
   public TermTypeList getTermTypes(
@@ -533,7 +533,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements Meta
   /* see superclass */
   @Override
   @GET
-  @Path("/termType/{terminology}/{version}")
+  @Path("/termType/{type}/{terminology}/{version}")
   @ApiOperation(value = "Retrieve a term type", notes = "Retrieve a term type",
       response = TermTypeJpa.class)
   public TermType getTermType(
