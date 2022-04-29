@@ -226,12 +226,14 @@ public abstract class RootServiceJpa implements RootService {
     close();
     
     // wait one minute for previous session to finish what it is doing
-    Thread.sleep(60000);
+    if (!getTransactionPerOperation()) {
+      Thread.sleep(60000);
+    }
     manager = factory.createEntityManager();
     tx = manager.getTransaction();
-    tx.begin();
-    
-    new Exception().printStackTrace();
+    if (!getTransactionPerOperation()) {
+      tx.begin();
+    }
   }
   
   /* see superclass */

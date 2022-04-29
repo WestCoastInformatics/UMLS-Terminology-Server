@@ -2041,7 +2041,10 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               lookupPeProgressMap.put(processExecution.getId(),
                   (int) ((100 * ++stepCt) / enabledSteps));
 
-              
+              // reopen and refresh objects from db
+              processService.reopen();
+              algorithmExecution = processService.getAlgorithmExecution(algorithmExecution.getId());
+              processExecution = processService.getProcessExecution(processExecution.getId());
               
               processService.updateAlgorithmExecution(algorithmExecution);
 
