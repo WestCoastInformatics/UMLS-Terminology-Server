@@ -2035,6 +2035,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               // Commit any changes the algorithm wants to make
               algorithm.commit();
 
+              processService.updateAlgorithmExecution(algorithmExecution);
+
               // Take the number of steps completed times 100 and divided by
               // the
               // total number of steps
