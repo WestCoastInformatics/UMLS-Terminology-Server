@@ -227,7 +227,10 @@ public abstract class RootServiceJpa implements RootService {
     
     // wait one minute for previous session to finish what it is doing
     if (!getTransactionPerOperation()) {
+      Logger.getLogger(getClass()).info("    wait 60000 ms on reopen");
       Thread.sleep(60000);
+    } else {
+      Logger.getLogger(getClass()).info("    DO NOT wait 60000 ms on reopen (transaction per operation)");
     }
     manager = factory.createEntityManager();
     tx = manager.getTransaction();
@@ -852,7 +855,7 @@ public abstract class RootServiceJpa implements RootService {
       Logger.getLogger(getClass()).info("    count = " + objectCt);
     }
     if (objectCt % commitCt == 0) {
-      if (objectCt % 4000 == 0) {
+      if (objectCt % 100000 == 0) {
         commit();
         clear();
         reopen();
@@ -868,7 +871,7 @@ public abstract class RootServiceJpa implements RootService {
     final int commitCt) throws Exception {
     // commit at regular intervals
     if (objectCt % commitCt == 0) {
-      if (objectCt % 4000 == 0) {
+      if (objectCt % 100000 == 0) {
         commit();
         clear();
         reopen();
