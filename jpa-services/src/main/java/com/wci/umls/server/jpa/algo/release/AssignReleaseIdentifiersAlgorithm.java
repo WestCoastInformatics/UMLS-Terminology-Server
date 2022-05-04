@@ -75,7 +75,7 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
     // TODO Save cui/rui/atui max values for "reset"
     // need an accessible properties object for this - the release info??
 
-    steps = 4;
+    steps = 3;
     previousProgress = 0;
     stepsCompleted = 0;
 
