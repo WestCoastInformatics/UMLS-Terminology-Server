@@ -2035,6 +2035,11 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               // Commit any changes the algorithm wants to make
               algorithm.commit();
 
+              // reopen and refresh objects from db
+              processService.reopen();
+              algorithmExecution = processService.getAlgorithmExecution(algorithmExecution.getId());
+              processExecution = processService.getProcessExecution(processExecution.getId());
+              
               processService.updateAlgorithmExecution(algorithmExecution);
 
               // Take the number of steps completed times 100 and divided by
@@ -2042,13 +2047,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               // total number of steps
               lookupPeProgressMap.put(processExecution.getId(),
                   (int) ((100 * ++stepCt) / enabledSteps));
-
-              // reopen and refresh objects from db
-              processService.reopen();
-              algorithmExecution = processService.getAlgorithmExecution(algorithmExecution.getId());
-              processExecution = processService.getProcessExecution(processExecution.getId());
-              
-              processService.updateAlgorithmExecution(algorithmExecution);
 
               // Update the process execution (in case anything has been done
               // to

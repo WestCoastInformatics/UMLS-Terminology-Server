@@ -227,10 +227,10 @@ public abstract class RootServiceJpa implements RootService {
     
     // wait one minute for previous session to finish what it is doing
     if (!getTransactionPerOperation()) {
-      Logger.getLogger(getClass()).info("    wait 60000 ms on reopen");
-      Thread.sleep(60000);
+      Logger.getLogger(getClass()).info("    wait 30000 ms on reopen");
+      Thread.sleep(30000);
     } else {
-      Logger.getLogger(getClass()).info("    DO NOT wait 60000 ms on reopen (transaction per operation)");
+      Logger.getLogger(getClass()).info("    DO NOT wait 30000 ms on reopen (transaction per operation)");
     }
     manager = factory.createEntityManager();
     tx = manager.getTransaction();
