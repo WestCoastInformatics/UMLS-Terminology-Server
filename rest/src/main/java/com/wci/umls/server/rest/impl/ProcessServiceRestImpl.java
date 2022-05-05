@@ -1792,7 +1792,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl implements Proce
 
           final ProcessConfig processConfig = processService.getProcessConfig(processConfigId);
           processExecution = processService.getProcessExecution(processExecutionId);
-
+          processExecution.getProject().lazyInit();
+          
           // Clear out the finish and fail date fields (these could have been
           // populated from a previous run)
           processExecution.setStopDate(null);
@@ -1956,6 +1957,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl implements Proce
             // algorithmExecution needs to be recast as final, so it can be
             // modified by updateProgress
             final AlgorithmExecution finalAlgorithmExecution = algorithmExecution;
+            algorithmExecution.getProject().lazyInit();
             final ProcessExecution processExecution2 = processExecution;
 
             algorithm.addProgressListener(new ProgressListener() {
@@ -2020,11 +2022,14 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl implements Proce
               // Commit any changes the algorithm wants to make
               algorithm.commit();
 
-              // reopen and refresh objects from db
+              // Detach hibernate-connected objects and rewire them as needed
               Logger.getLogger(getClass())
                   .info("    detach algorithm/processExecution by copy constructor");
-              algorithmExecution = new AlgorithmExecutionJpa(algorithmExecution);
               processExecution = new ProcessExecutionJpa(processExecution);
+              algorithmExecution = new AlgorithmExecutionJpa(algorithmExecution);
+              algorithmExecution.setProcess(processExecution);
+
+              // reopen and refresh objects from db
               processService.reopen();
               processService.updateAlgorithmExecution(algorithmExecution);
 

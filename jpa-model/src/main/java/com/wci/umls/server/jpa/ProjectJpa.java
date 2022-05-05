@@ -222,6 +222,20 @@ public class ProjectJpa implements Project {
     automationsEnabled = project.isAutomationsEnabled();
   }
 
+  public void lazyInit() throws Exception {
+    getName().length();
+    getNewAtomTermgroups().size();
+    getUserRoleMap().size();
+    getValidationChecks().size();
+    getValidationData().size();
+    getPrecedenceList().getName();
+    getPrecedenceList().getPrecedence().getName();
+    getPrecedenceList().getPrecedence().getKeyValuePairs().size();
+    getSemanticTypeCategoryMap().size();
+    getValidCategories().size();
+  }
+  
+  
   /* see superclass */
   @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
