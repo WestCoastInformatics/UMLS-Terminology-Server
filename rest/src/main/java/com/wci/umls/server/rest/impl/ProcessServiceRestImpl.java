@@ -691,6 +691,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl implements Proce
       // For each of the process' algorithms, populate the parameters based on
       // its properties' values.
       for (final AlgorithmExecution algorithmExecution : processExecution.getSteps()) {
+        if (algorithmExecution == null) {
+          continue;
+        }
         instance = processService.getAlgorithmInstance(algorithmExecution.getAlgorithmKey());
         instance.setProject(project);
         algorithmExecution.setParameters(instance.getParameters());
@@ -1959,6 +1962,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl implements Proce
             final AlgorithmExecution finalAlgorithmExecution = algorithmExecution;
             algorithmExecution.getProject().lazyInit();
             final ProcessExecution processExecution2 = processExecution;
+            processExecution.getSteps();
 
             algorithm.addProgressListener(new ProgressListener() {
               @Override
