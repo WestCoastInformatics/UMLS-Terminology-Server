@@ -1,5 +1,11 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ * Copyright 2020 West Coast Informatics - All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains the property of West Coast Informatics
+ * The intellectual and technical concepts contained herein are proprietary to
+ * West Coast Informatics and may be covered by U.S. and Foreign Patents, patents in process,
+ * and are protected by trade secret or copyright law.  Dissemination of this information
+ * or reproduction of this material is strictly forbidden.
  */
 package com.wci.umls.server.jpa;
 
@@ -79,11 +85,10 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   /** The input path. */
   @Column(nullable = true)
   private String inputPath;
-  
+
   /** The log path. */
   @Column(nullable = true)
   private String logPath;
-
 
   /** Has the algorithm had a warning fired during its execution. */
   @Column(nullable = false)
@@ -104,6 +109,18 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
    */
   public ProcessExecutionJpa() {
     // n/a
+  }
+
+  /**
+   * Lazy init.
+   *
+   * @throws Exception the exception
+   */
+  public void lazyInit() throws Exception {
+    for (final AlgorithmExecution ae : getSteps()) {
+      ae.lazyInit();
+    }
+    getExecutionInfo().size();
   }
 
   /**
@@ -295,8 +312,7 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result
-        + ((processConfigId == null) ? 0 : processConfigId.hashCode());
+    result = prime * result + ((processConfigId == null) ? 0 : processConfigId.hashCode());
     result = prime * result + ((workId == null) ? 0 : workId.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
     return result;
@@ -333,10 +349,10 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   /* see superclass */
   @Override
   public String toString() {
-    return "ProcessExecutionJpa [startDate=" + startDate + ", stopDate="
-        + stopDate + ", finishDate=" + finishDate + ", failDate=" + failDate
-        + ", steps=" + steps + ", workId=" + workId + ", processConfigId="
-        + processConfigId + ", type=" + type + "] " + super.toString();
+    return "ProcessExecutionJpa [startDate=" + startDate + ", stopDate=" + stopDate
+        + ", finishDate=" + finishDate + ", failDate=" + failDate + ", steps=" + steps + ", workId="
+        + workId + ", processConfigId=" + processConfigId + ", type=" + type + "] "
+        + super.toString();
 
   }
 

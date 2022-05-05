@@ -1,5 +1,11 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ * Copyright 2020 West Coast Informatics - All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains the property of West Coast Informatics
+ * The intellectual and technical concepts contained herein are proprietary to
+ * West Coast Informatics and may be covered by U.S. and Foreign Patents, patents in process,
+ * and are protected by trade secret or copyright law.  Dissemination of this information
+ * or reproduction of this material is strictly forbidden.
  */
 package com.wci.umls.server.jpa;
 
@@ -39,8 +45,7 @@ import com.wci.umls.server.Project;
 @XmlSeeAlso({
     ProcessConfigJpa.class, ProcessExecutionJpa.class
 })
-public abstract class AbstractProcessInfo<T extends AlgorithmInfo<?>>
-    implements ProcessInfo<T> {
+public abstract class AbstractProcessInfo<T extends AlgorithmInfo<?>> implements ProcessInfo<T> {
 
   /** The id. */
   @TableGenerator(name = "EntityIdGen", table = "table_generator", pkColumnValue = "Entity")
@@ -91,6 +96,15 @@ public abstract class AbstractProcessInfo<T extends AlgorithmInfo<?>>
    */
   public AbstractProcessInfo() {
     // n/a
+  }
+
+  /**
+   * Lazy init.
+   *
+   * @throws Exception the exception
+   */
+  public void lazyInit() throws Exception {
+    project.lazyInit();
   }
 
   /**
@@ -269,15 +283,11 @@ public abstract class AbstractProcessInfo<T extends AlgorithmInfo<?>>
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result =
-        prime * result + ((description == null) ? 0 : description.hashCode());
-    result = prime * result
-        + ((feedbackEmail == null) ? 0 : feedbackEmail.hashCode());
+    result = prime * result + ((description == null) ? 0 : description.hashCode());
+    result = prime * result + ((feedbackEmail == null) ? 0 : feedbackEmail.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
-    result = prime * result
-        + ((getProjectId() == null) ? 0 : getProjectId().hashCode());
-    result =
-        prime * result + ((terminology == null) ? 0 : terminology.hashCode());
+    result = prime * result + ((getProjectId() == null) ? 0 : getProjectId().hashCode());
+    result = prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
@@ -329,11 +339,10 @@ public abstract class AbstractProcessInfo<T extends AlgorithmInfo<?>>
   /* see superclass */
   @Override
   public String toString() {
-    return "AbstractProcessInfo [id=" + id + ", lastModified=" + lastModified
-        + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
-        + ", name=" + name + ", description=" + description + ", terminology="
-        + terminology + ", version=" + version + ", project=" + getProjectId()
-        + ", feedbackEmail=" + feedbackEmail + "]";
+    return "AbstractProcessInfo [id=" + id + ", lastModified=" + lastModified + ", lastModifiedBy="
+        + lastModifiedBy + ", timestamp=" + timestamp + ", name=" + name + ", description="
+        + description + ", terminology=" + terminology + ", version=" + version + ", project="
+        + getProjectId() + ", feedbackEmail=" + feedbackEmail + "]";
   }
 
 }

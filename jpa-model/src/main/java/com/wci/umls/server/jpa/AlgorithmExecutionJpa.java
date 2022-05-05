@@ -1,5 +1,11 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ * Copyright 2020 West Coast Informatics - All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains the property of West Coast Informatics
+ * The intellectual and technical concepts contained herein are proprietary to
+ * West Coast Informatics and may be covered by U.S. and Foreign Patents, patents in process,
+ * and are protected by trade secret or copyright law.  Dissemination of this information
+ * or reproduction of this material is strictly forbidden.
  */
 package com.wci.umls.server.jpa;
 
@@ -40,8 +46,8 @@ import com.wci.umls.server.ProcessExecution;
 @Audited
 @Indexed
 @XmlRootElement(name = "algorithmExecution")
-public class AlgorithmExecutionJpa extends
-    AbstractAlgorithmInfo<ProcessExecution> implements AlgorithmExecution {
+public class AlgorithmExecutionJpa extends AbstractAlgorithmInfo<ProcessExecution>
+    implements AlgorithmExecution {
 
   /** The last modified. */
   @Column(nullable = true)
@@ -85,6 +91,17 @@ public class AlgorithmExecutionJpa extends
    */
   public AlgorithmExecutionJpa() {
     // n/a
+  }
+
+  /**
+   * Lazy init.
+   *
+   * @throws Exception the exception
+   */
+  @Override
+  public void lazyInit() throws Exception {
+    super.lazyInit();
+    getProperties().size();
   }
 
   /**
@@ -258,14 +275,10 @@ public class AlgorithmExecutionJpa extends
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result
-        + ((algorithmConfigId == null) ? 0 : algorithmConfigId.hashCode());
-    result =
-        prime * result + ((activityId == null) ? 0 : activityId.hashCode());
-    result = prime * result
-        + ((getProcessId() == null) ? 0 : getProcessId().hashCode());
-    result =
-        prime * result + ((properties == null) ? 0 : properties.hashCode());
+    result = prime * result + ((algorithmConfigId == null) ? 0 : algorithmConfigId.hashCode());
+    result = prime * result + ((activityId == null) ? 0 : activityId.hashCode());
+    result = prime * result + ((getProcessId() == null) ? 0 : getProcessId().hashCode());
+    result = prime * result + ((properties == null) ? 0 : properties.hashCode());
     return result;
   }
 
@@ -305,10 +318,9 @@ public class AlgorithmExecutionJpa extends
   /* see superclass */
   @Override
   public String toString() {
-    return "AlgorithmExecutionJpa [startDate=" + startDate + ", finishDate="
-        + finishDate + ", failDate=" + failDate + ", processId="
-        + getProcessId() + ", activityId=" + activityId + ", algorithmConfigId="
-        + algorithmConfigId + "] " + super.toString();
+    return "AlgorithmExecutionJpa [startDate=" + startDate + ", finishDate=" + finishDate
+        + ", failDate=" + failDate + ", processId=" + getProcessId() + ", activityId=" + activityId
+        + ", algorithmConfigId=" + algorithmConfigId + "] " + super.toString();
   }
 
 }

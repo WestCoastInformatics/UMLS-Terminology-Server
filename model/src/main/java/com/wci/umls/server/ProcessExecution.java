@@ -1,5 +1,11 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ * Copyright 2020 West Coast Informatics - All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains the property of West Coast Informatics
+ * The intellectual and technical concepts contained herein are proprietary to
+ * West Coast Informatics and may be covered by U.S. and Foreign Patents, patents in process,
+ * and are protected by trade secret or copyright law.  Dissemination of this information
+ * or reproduction of this material is strictly forbidden.
  */
 package com.wci.umls.server;
 
@@ -11,8 +17,7 @@ import com.wci.umls.server.helpers.HasExecution;
 /**
  * Represents the result of the execution of a process.
  */
-public interface ProcessExecution
-    extends ProcessInfo<AlgorithmExecution>, HasExecution {
+public interface ProcessExecution extends ProcessInfo<AlgorithmExecution>, HasExecution {
   /**
    * Returns the stop date.
    *
@@ -82,4 +87,12 @@ public interface ProcessExecution
    * @param warning the warning
    */
   public void setWarning(Boolean warning);
+
+  /**
+   * Lazy init.
+   *
+   * @throws Exception the exception
+   */
+  public void lazyInit() throws Exception;
+
 }

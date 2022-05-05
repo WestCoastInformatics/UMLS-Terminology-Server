@@ -1796,7 +1796,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl implements Proce
           final ProcessConfig processConfig = processService.getProcessConfig(processConfigId);
           processExecution = processService.getProcessExecution(processExecutionId);
           processExecution.getProject().lazyInit();
-          
+
           // Clear out the finish and fail date fields (these could have been
           // populated from a previous run)
           processExecution.setStopDate(null);
@@ -1962,7 +1962,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl implements Proce
             final AlgorithmExecution finalAlgorithmExecution = algorithmExecution;
             algorithmExecution.getProject().lazyInit();
             final ProcessExecution processExecution2 = processExecution;
-            processExecution.getSteps();
+            processExecution.getSteps().size();
 
             algorithm.addProgressListener(new ProgressListener() {
               @Override
@@ -2009,6 +2009,10 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl implements Proce
             else {
 
               try {
+                // Lazy initialize process execution before compute
+                // so if this takes a long time it's fully ready from the DB
+                processExecution.lazyInit();
+
                 // Execute algorithm
                 algorithm.compute();
                 // algorithm has finished
@@ -2029,9 +2033,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl implements Proce
               // Detach hibernate-connected objects and rewire them as needed
               Logger.getLogger(getClass())
                   .info("    detach algorithm/processExecution by copy constructor");
-              processExecution = new ProcessExecutionJpa(processExecution);
-              algorithmExecution = new AlgorithmExecutionJpa(algorithmExecution);
-              algorithmExecution.setProcess(processExecution);
+              processService.getEntityManager().detach(algorithmExecution);
+              processService.getEntityManager().detach(processExecution);
 
               // reopen and refresh objects from db
               processService.reopen();

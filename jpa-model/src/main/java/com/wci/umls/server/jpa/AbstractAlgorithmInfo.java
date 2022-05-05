@@ -1,5 +1,11 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ * Copyright 2020 West Coast Informatics - All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains the property of West Coast Informatics
+ * The intellectual and technical concepts contained herein are proprietary to
+ * West Coast Informatics and may be covered by U.S. and Foreign Patents, patents in process,
+ * and are protected by trade secret or copyright law.  Dissemination of this information
+ * or reproduction of this material is strictly forbidden.
  */
 package com.wci.umls.server.jpa;
 
@@ -43,8 +49,7 @@ import com.wci.umls.server.Project;
 @XmlSeeAlso({
     AlgorithmConfigJpa.class, AlgorithmExecutionJpa.class
 })
-public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
-    implements AlgorithmInfo<T> {
+public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>> implements AlgorithmInfo<T> {
 
   /** The id. */
   @TableGenerator(name = "EntityIdGen", table = "table_generator", pkColumnValue = "Entity")
@@ -94,6 +99,15 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
   }
 
   /**
+   * Lazy init.
+   *
+   * @throws Exception the exception
+   */
+  public void lazyInit() throws Exception {
+    project.lazyInit();
+  }
+
+  /**
    * Instantiates a {@link AbstractAlgorithmInfo} from the specified parameters.
    *
    * @param info the config
@@ -111,84 +125,154 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
 
   }
 
+  /**
+   * Returns the id.
+   *
+   * @return the id
+   */
   /* see superclass */
   @Override
   public Long getId() {
     return id;
   }
 
+  /**
+   * Sets the id.
+   *
+   * @param id the id
+   */
   /* see superclass */
   @Override
   public void setId(Long id) {
     this.id = id;
   }
 
+  /**
+   * Returns the last modified.
+   *
+   * @return the last modified
+   */
   /* see superclass */
   @Override
   public Date getLastModified() {
     return lastModified;
   }
 
+  /**
+   * Sets the last modified.
+   *
+   * @param lastModified the last modified
+   */
   /* see superclass */
   @Override
   public void setLastModified(Date lastModified) {
     this.lastModified = lastModified;
   }
 
+  /**
+   * Returns the last modified by.
+   *
+   * @return the last modified by
+   */
   /* see superclass */
   @Override
   public String getLastModifiedBy() {
     return lastModifiedBy;
   }
 
+  /**
+   * Sets the last modified by.
+   *
+   * @param lastModifiedBy the last modified by
+   */
   /* see superclass */
   @Override
   public void setLastModifiedBy(String lastModifiedBy) {
     this.lastModifiedBy = lastModifiedBy;
   }
 
+  /**
+   * Returns the timestamp.
+   *
+   * @return the timestamp
+   */
   /* see superclass */
   @Override
   public Date getTimestamp() {
     return timestamp;
   }
 
+  /**
+   * Sets the timestamp.
+   *
+   * @param timestamp the timestamp
+   */
   /* see superclass */
   @Override
   public void setTimestamp(Date timestamp) {
     this.timestamp = timestamp;
   }
 
+  /**
+   * Returns the name.
+   *
+   * @return the name
+   */
   /* see superclass */
   @Override
   public String getName() {
     return name;
   }
 
+  /**
+   * Sets the name.
+   *
+   * @param name the name
+   */
   /* see superclass */
   @Override
   public void setName(String name) {
     this.name = name;
   }
 
+  /**
+   * Returns the description.
+   *
+   * @return the description
+   */
   /* see superclass */
   @Override
   public String getDescription() {
     return description;
   }
 
+  /**
+   * Sets the description.
+   *
+   * @param description the description
+   */
   /* see superclass */
   @Override
   public void setDescription(String description) {
     this.description = description;
   }
 
+  /**
+   * Returns the algorithm key.
+   *
+   * @return the algorithm key
+   */
   /* see superclass */
   @Override
   public String getAlgorithmKey() {
     return algorithmKey;
   }
 
+  /**
+   * Sets the algorithm key.
+   *
+   * @param algorithmKey the algorithm key
+   */
   /* see superclass */
   @Override
   public void setAlgorithmKey(String algorithmKey) {
@@ -196,6 +280,11 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
 
   }
 
+  /**
+   * Returns the project.
+   *
+   * @return the project
+   */
   /* see superclass */
   @Override
   @XmlTransient
@@ -203,6 +292,11 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
     return project;
   }
 
+  /**
+   * Sets the project.
+   *
+   * @param project the project
+   */
   /* see superclass */
   @Override
   public void setProject(Project project) {
@@ -232,6 +326,11 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
     project.setId(projectId);
   }
 
+  /**
+   * Returns the parameters.
+   *
+   * @return the parameters
+   */
   /* see superclass */
   @Override
   @XmlElement(type = AlgorithmParameterJpa.class)
@@ -242,30 +341,41 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
     return parameters;
   }
 
+  /**
+   * Sets the parameters.
+   *
+   * @param parameters the parameters
+   */
   /* see superclass */
   @Override
   public void setParameters(List<AlgorithmParameter> parameters) {
     this.parameters = parameters;
   }
 
-
+  /**
+   * Hash code.
+   *
+   * @return the int
+   */
   /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result =
-        prime * result + ((algorithmKey == null) ? 0 : algorithmKey.hashCode());
-    result =
-        prime * result + ((description == null) ? 0 : description.hashCode());
+    result = prime * result + ((algorithmKey == null) ? 0 : algorithmKey.hashCode());
+    result = prime * result + ((description == null) ? 0 : description.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
-    result = prime * result
-        + ((getProjectId() == null) ? 0 : getProjectId().hashCode());
-   
+    result = prime * result + ((getProjectId() == null) ? 0 : getProjectId().hashCode());
 
     return result;
   }
 
+  /**
+   * Equals.
+   *
+   * @param obj the obj
+   * @return true, if successful
+   */
   /* see superclass */
   @Override
   public boolean equals(Object obj) {
@@ -297,16 +407,20 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
         return false;
     } else if (!getProjectId().equals(other.getProjectId()))
       return false;
-   
+
     return true;
   }
 
+  /**
+   * To string.
+   *
+   * @return the string
+   */
   @Override
   public String toString() {
     return "AbstractAlgorithmInfo [id=" + id + ", lastModified=" + lastModified
-        + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
-        + ", name=" + name + ", description=" + description + ", algorithmKey="
-        + algorithmKey + "]";
+        + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp + ", name=" + name
+        + ", description=" + description + ", algorithmKey=" + algorithmKey + "]";
   }
 
 }
