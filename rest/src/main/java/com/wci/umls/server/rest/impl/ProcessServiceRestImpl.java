@@ -2009,9 +2009,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl implements Proce
             else {
 
               try {
-                // Lazy initialize process execution before compute
-                // so if this takes a long time it's fully ready from the DB
-                processExecution.lazyInit();
 
                 // Execute algorithm
                 algorithm.compute();
@@ -2030,14 +2027,27 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl implements Proce
               // Commit any changes the algorithm wants to make
               algorithm.commit();
 
+              // TODO: consider removing this when we go to AWS, may no longer be necessary
+              // reopen and refresh objects from db
               // Detach hibernate-connected objects and rewire them as needed
               Logger.getLogger(getClass())
                   .info("    detach algorithm/processExecution by copy constructor");
-              processService.getEntityManager().detach(algorithmExecution);
-              processService.getEntityManager().detach(processExecution);
-
-              // reopen and refresh objects from db
               processService.reopen();
+              final ProcessExecution pe2 = processService.getProcessExecution(processExecution.getId());
+              pe2.setWarning(processExecution.isWarning());
+              processExecution = pe2;
+              AlgorithmExecution ae2 = null;
+              for (final AlgorithmExecution ae : processExecution.getSteps()) {
+                if (ae.getId().equals(algorithmExecution.getId())) {
+                  ae2 = ae;
+                  // This is bascially "populateFrom"
+                  ae2.setWarning(algorithmExecution.isWarning());
+                  ae2.setFailDate(algorithmExecution.getFailDate());
+                  ae2.setFinishDate(algorithmExecution.getFinishDate());
+                  break;
+                }
+              }
+              algorithmExecution = ae2;
               processService.updateAlgorithmExecution(algorithmExecution);
 
               // Take the number of steps completed times 100 and divided by
