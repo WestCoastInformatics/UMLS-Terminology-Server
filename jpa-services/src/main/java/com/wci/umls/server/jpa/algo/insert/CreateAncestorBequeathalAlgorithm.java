@@ -167,7 +167,7 @@ public class CreateAncestorBequeathalAlgorithm extends AbstractInsertMaintReleas
               Long ncimthConceptId = srl.getObjects().get(0).getId();
               Concept ncimthParentConcept = getConcept(ncimthConceptId);
               
-              if (noXRRel(c, ncimthParentConcept) && ncimthParentConcept.isPublishable()) {
+              if (noXRRel(c, ncimthParentConcept) && conceptPublishable(ncimthParentConcept)) {
                 StringBuffer sb = new StringBuffer();
                 sb.append("").append("|");
                 sb.append("C").append("|");
@@ -191,7 +191,7 @@ public class CreateAncestorBequeathalAlgorithm extends AbstractInsertMaintReleas
                     Long ncimthConceptId2 = srl2.getObjects().get(0).getId();
                     Concept ncimthParentConcept2 = getConcept(ncimthConceptId2);
                    
-                    if (noXRRel(c, ncimthParentConcept2) && ncimthParentConcept2.isPublishable()) {
+                    if (noXRRel(c, ncimthParentConcept2) && conceptPublishable(ncimthParentConcept2)) {
                       StringBuffer sb = new StringBuffer();
                       sb.append("").append("|");
                       sb.append("C").append("|");
@@ -253,6 +253,17 @@ public class CreateAncestorBequeathalAlgorithm extends AbstractInsertMaintReleas
 
   }
 
+  /**
+   * Concept publishable.
+   *
+   * @param cpt the concept
+   * @return true, if successful
+   */
+  private boolean conceptPublishable(Concept cpt) {
+    return cpt.getAtoms().stream().filter(a -> a.isPublishable() && !a.getTerminology().equals("NCIMTH")
+              && !a.getTermType().equals("PN")).count() > 0;
+  }
+  
   private boolean noXRRel(Concept a, Concept b) {
     for (ConceptRelationship cr : a.getRelationships()) {
       if (cr.getRelationshipType().equals("XR") && (cr.getFrom().getId() == b.getId() || cr.getTo().getId() == b.getId())) {

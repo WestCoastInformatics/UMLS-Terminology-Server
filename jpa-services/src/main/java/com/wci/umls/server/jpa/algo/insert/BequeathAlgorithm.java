@@ -146,6 +146,7 @@ public class BequeathAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           bequeathRel.setFrom(fromConcept);
           bequeathRel.setTo(toConcept);
           bequeathRel.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+          bequeathRel.setPublishable(false);
           bequeathRel = (ConceptRelationship) addRelationship(bequeathRel);
           addCount++;
 
@@ -153,6 +154,7 @@ public class BequeathAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
               createInverseConceptRelationship(bequeathRel);
           inverseBequeathRel =
               (ConceptRelationship) addRelationship(inverseBequeathRel);
+          inverseBequeathRel.setPublishable(false);
           addCount++;
 
           fromConcept.getRelationships().add(bequeathRel);

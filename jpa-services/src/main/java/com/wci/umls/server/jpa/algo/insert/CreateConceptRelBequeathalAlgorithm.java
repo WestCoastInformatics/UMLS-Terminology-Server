@@ -163,14 +163,14 @@ public class CreateConceptRelBequeathalAlgorithm extends AbstractInsertMaintRele
             Concept otherConcept = cr.getFrom();
             Concept ncimthOtherConcept = getConcept(otherConcept.getId());
             if (noXRRel(c, ncimthOtherConcept)
-                && ncimthOtherConcept.isPublishable()) {
+                && conceptPublishable(ncimthOtherConcept)) {
               potentialRBBequeathals.put(c, ncimthOtherConcept);
             }
           } else if (cr.getRelationshipType().equals("RO")) {
             Concept otherConcept = cr.getFrom();
             Concept ncimthOtherConcept = getConcept(otherConcept.getId());
             if (noXRRel(c, ncimthOtherConcept)
-                && ncimthOtherConcept.isPublishable()) {
+                && conceptPublishable(ncimthOtherConcept)) {
               potentialROBequeathals.put(c, ncimthOtherConcept);
             }
           }
@@ -367,4 +367,14 @@ public class CreateConceptRelBequeathalAlgorithm extends AbstractInsertMaintRele
     return "Bequeaths deleted cuis to their closest published ancestor";
   }
 
+  /**
+   * Concept publishable.
+   *
+   * @param cpt the concept
+   * @return true, if successful
+   */
+  private boolean conceptPublishable(Concept cpt) {
+    return cpt.getAtoms().stream().filter(a -> a.isPublishable() && !a.getTerminology().equals("NCIMTH")
+              && !a.getTermType().equals("PN")).count() > 0;
+  }
 }

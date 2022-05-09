@@ -4,6 +4,7 @@
 package com.wci.umls.server.jpa.services;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -701,11 +702,16 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
         // Load the concept ids involved
         final StringBuilder conceptNames = new StringBuilder();
+        Set<String> terms = new HashSet<>();
         for (final Long conceptId : clusterIdConceptIdsMap.get(clusterId)) {
           final Concept concept = getConcept(conceptId);
           record.getOrigConceptIds().add(conceptId);
           // collect all the concept names for the indexed data
-          conceptNames.append(concept.getName()).append(" ");
+          for (Atom atom : concept.getAtoms()) {
+            terms.addAll(Arrays.asList(atom.getName().toLowerCase().split(" ")));
+          }
+          terms.addAll(Arrays.asList(concept.getName().toLowerCase().split(" ")));
+         
 
           // Set cluster type if a concept has an STY associated with a cluster
           // type in the project
@@ -741,6 +747,9 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
             record.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
           }
 
+        }
+        for (String term : terms) {
+          conceptNames.append(term).append(" ");
         }
         record.setIndexedData(conceptNames.toString());
 
@@ -1085,17 +1094,24 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       record.setTimestamp(new Date());
       record.setVersion(project.getVersion());
       final StringBuilder sb = new StringBuilder();
+      Set<String> terms  = new HashSet<>();
       for (final Long conceptId : entries.get(clusterId)) {
         final Concept concept = getConcept(conceptId);
         record.getComponentIds().addAll(concept.getAtoms().stream()
             .map(a -> a.getId()).collect(Collectors.toSet()));
         if (!record.getOrigConceptIds().contains(concept.getId())) {
-          sb.append(concept.getName()).append(" ");
+          for (Atom atom : concept.getAtoms()) {
+            terms.addAll(Arrays.asList(atom.getName().toLowerCase().split(" ")));
+          }
+          terms.addAll(Arrays.asList(concept.getName().toLowerCase().split(" ")));
         }
+        
         record.getOrigConceptIds().add(concept.getId());
 
       }
-
+      for (String term : terms) {
+        sb.append(term).append(" ");
+      }
       record.setIndexedData(sb.toString());
       record.setWorkflowStatus(computeTrackingRecordStatus(record, true));
       final TrackingRecord newRecord = addTrackingRecord(record);

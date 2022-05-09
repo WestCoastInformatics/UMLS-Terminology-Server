@@ -149,14 +149,20 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
 
     // Make sure process version is a 6-digit number that is greater than
     // the previous project terminology's most recent release
-    final ReleaseInfo currenReleaseInfo =
+    final ReleaseInfo currentReleaseInfo =
         getCurrentReleaseInfo(getProject().getTerminology());
     if (getProcess().getVersion().length() != 6
         || !(Long.parseLong(getProcess().getVersion()) > Long
-            .parseLong(currenReleaseInfo.getVersion()))) {
+            .parseLong(currentReleaseInfo.getVersion()))) {
       throw new LocalException(
           "Create new release requires the process' version to be set a 6-digit number that is greater than the most recent releases' version ("
-              + currenReleaseInfo.getVersion() + ")");
+              + currentReleaseInfo.getVersion() + ")");
+    }
+    if (currentReleaseInfo.getReleaseFinishDate() == null ||
+        currentReleaseInfo.getReleaseFinishDate().toString().isEmpty()) {
+      throw new LocalException(
+              "Create new release requires the previous release process to have been completed.  Please ensure that the feedback process has been run on the previous release ("
+                  + currentReleaseInfo.getVersion() + ":" + currentReleaseInfo.getReleaseBeginDate() + ":" + currentReleaseInfo.getReleaseFinishDate() + ")");
     }
 
     // Makes sure editing is turned off before continuing

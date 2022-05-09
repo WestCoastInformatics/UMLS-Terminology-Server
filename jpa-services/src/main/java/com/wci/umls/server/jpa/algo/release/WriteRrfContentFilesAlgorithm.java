@@ -1678,6 +1678,12 @@ public class WriteRrfContentFilesAlgorithm
           continue;
         }
 
+        // bequeathal relationship types should never be released
+        if (rel.getRelationshipType().startsWith("B")) {
+        	logInfo("Bequeathal rel should not be released!" + cui1 + " " + 
+        			rel.getRelationshipType() + " " + rel.getFrom().getTerminologyId());
+        	continue;
+        }
         lines.add(getRelLine(rel, cui1, "", "CUI",
             rel.getFrom().getTerminologyId(), "", "CUI", relConceptRuiMap));
       }

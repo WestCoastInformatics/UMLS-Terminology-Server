@@ -498,9 +498,9 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements Meta
   /* see superclass */
   @Override
   @GET
-  @Path("/termType/{type}/{terminology}/{version}")
-  @ApiOperation(value = "Retrieve a term type", notes = "Retrieve a term type",
-      response = TermTypeJpa.class)
+  @Path("/termType/{terminology}/{version}")
+  @ApiOperation(value = "Retrieve all term type", notes = "Retrieve all term types",
+  response = TermTypeListJpa.class)
   public TermTypeList getTermTypes(
     @ApiParam(value = "Terminology, e.g. UMLS",
         required = true) @PathParam("terminology") String terminology,
@@ -515,13 +515,13 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements Meta
     try {
 
       final String userName =
-          authorizeApp(securityService, authToken, "get term type ", UserRole.USER);
+          authorizeApp(securityService, authToken, "get term types ", UserRole.USER);
       metadataService.setLastModifiedBy(userName);
 
       return metadataService.getTermTypes(terminology, version);
     } catch (Exception e) {
 
-      handleException(e, "trying to retrieve the term type");
+      handleException(e, "trying to retrieve the term types");
       return null;
     } finally {
       metadataService.close();
@@ -533,9 +533,9 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements Meta
   /* see superclass */
   @Override
   @GET
-  @Path("/termType/{terminology}/{version}")
-  @ApiOperation(value = "Retrieve all term type", notes = "Retrieve all term type",
-      response = TermTypeListJpa.class)
+  @Path("/termType/{type}/{terminology}/{version}")
+  @ApiOperation(value = "Retrieve a term type", notes = "Retrieve a term type",
+      response = TermTypeJpa.class)
   public TermType getTermType(
     @ApiParam(value = "Term type, e.g. AB", required = true) @PathParam("type") String type,
     @ApiParam(value = "Terminology, e.g. UMLS",
