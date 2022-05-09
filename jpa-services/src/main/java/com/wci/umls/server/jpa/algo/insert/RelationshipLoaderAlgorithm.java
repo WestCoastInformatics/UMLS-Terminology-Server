@@ -477,6 +477,8 @@ public class RelationshipLoaderAlgorithm
     } catch (
 
     Exception e) {
+
+      e.printStackTrace();
       logError("Unexpected problem - " + e.getMessage());
       handler.rollback();
       handler.close();
