@@ -30,6 +30,7 @@ import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
+import com.wci.umls.server.services.RootService;
 
 /**
  * Implementation of an algorithm to import attributes.
@@ -192,6 +193,14 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
 
         // Update the progress
         updateProgress();
+        
+        // For merge steps, reopen each we log
+        if (getStepsCompleted() % RootService.mergeReopenCt == 0) {
+          commit();
+          clear();
+          reopen();
+        }
+        
       }
 
       commitClearBegin();

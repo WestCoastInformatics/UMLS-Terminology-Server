@@ -1,9 +1,9 @@
 /*
- * Copyright 2020 Wci Informatics - All Rights Reserved.
+ * Copyright 2020 West Coast Informatics - All Rights Reserved.
  *
- * NOTICE:  All information contained herein is, and remains the property of Wci Informatics
+ * NOTICE:  All information contained herein is, and remains the property of West Coast Informatics
  * The intellectual and technical concepts contained herein are proprietary to
- * Wci Informatics and may be covered by U.S. and Foreign Patents, patents in process,
+ * West Coast Informatics and may be covered by U.S. and Foreign Patents, patents in process,
  * and are protected by trade secret or copyright law.  Dissemination of this information
  * or reproduction of this material is strictly forbidden.
  */
@@ -41,6 +41,12 @@ public interface RootService extends Transactionable {
   /** The commit count. */
   public final static int commitCt = 2000;
 
+  /** The Constant mergeReopenCt. */
+  public final static int mergeReopenCt = 25000;
+
+  /** The Constant reopenCt. */
+  public final static int reopenCt = 100000;
+
   /**
    * Open the factory.
    *
@@ -75,8 +81,8 @@ public interface RootService extends Transactionable {
    * @return the list
    * @throws Exception the exception
    */
-  public <T> List<T> applyPfsToList(List<T> list, Class<T> clazz, int[] totalCt,
-    PfsParameter pfs) throws Exception;
+  public <T> List<T> applyPfsToList(List<T> list, Class<T> clazz, int[] totalCt, PfsParameter pfs)
+    throws Exception;
 
   /**
    * Checks if is last modified flag.
@@ -152,8 +158,7 @@ public interface RootService extends Transactionable {
    * @return the list
    * @throws Exception the exception
    */
-  public List<LogEntry> findLogEntries(String query, PfsParameter pfs)
-    throws Exception;
+  public List<LogEntry> findLogEntries(String query, PfsParameter pfs) throws Exception;
 
   /**
    * Update log entry.
@@ -201,9 +206,8 @@ public interface RootService extends Transactionable {
    * @return the log entry
    * @throws Exception the exception
    */
-  public LogEntry addLogEntry(String userName, String terminology,
-    String version, String activityId, String workId, String message)
-    throws Exception;
+  public LogEntry addLogEntry(String userName, String terminology, String version,
+    String activityId, String workId, String message) throws Exception;
 
   /**
    * Adds the log entry.
@@ -217,8 +221,8 @@ public interface RootService extends Transactionable {
    * @return the log entry
    * @throws Exception the exception
    */
-  public LogEntry addLogEntry(String userName, Long projectId, Long objectId,
-    String activityId, String workId, String message) throws Exception;
+  public LogEntry addLogEntry(String userName, Long projectId, Long objectId, String activityId,
+    String workId, String message) throws Exception;
 
   /**
    * Lock Hibernate object.
@@ -251,8 +255,7 @@ public interface RootService extends Transactionable {
    * @return the molecular action
    * @throws Exception the exception
    */
-  public MolecularAction addMolecularAction(MolecularAction action)
-    throws Exception;
+  public MolecularAction addMolecularAction(MolecularAction action) throws Exception;
 
   /**
    * Remove molecular action.
@@ -308,9 +311,8 @@ public interface RootService extends Transactionable {
    * @return the molecular action list
    * @throws Exception the exception
    */
-  public MolecularActionList findMolecularActions(Long componentId,
-    String terminology, String version, String query, PfsParameter pfs)
-    throws Exception;
+  public MolecularActionList findMolecularActions(Long componentId, String terminology,
+    String version, String query, PfsParameter pfs) throws Exception;
 
   /**
    * Find atomic actions.
@@ -321,8 +323,8 @@ public interface RootService extends Transactionable {
    * @return the atomic action list
    * @throws Exception the exception
    */
-  public AtomicActionList findAtomicActions(Long moleculeId, String query,
-    PfsParameter pfs) throws Exception;
+  public AtomicActionList findAtomicActions(Long moleculeId, String query, PfsParameter pfs)
+    throws Exception;
 
   /**
    * Adds the type key value.
@@ -331,8 +333,7 @@ public interface RootService extends Transactionable {
    * @return the type key value
    * @throws Exception the exception
    */
-  public TypeKeyValue addTypeKeyValue(TypeKeyValue typeKeyValue)
-    throws Exception;
+  public TypeKeyValue addTypeKeyValue(TypeKeyValue typeKeyValue) throws Exception;
 
   /**
    * Update type key value.
@@ -367,8 +368,8 @@ public interface RootService extends Transactionable {
    * @return the list
    * @throws Exception the exception
    */
-  public TypeKeyValueList findTypeKeyValuesForQuery(String query,
-    PfsParameter pfs) throws Exception;
+  public TypeKeyValueList findTypeKeyValuesForQuery(String query, PfsParameter pfs)
+    throws Exception;
 
   /**
    * Gets the validation check names.
@@ -389,9 +390,8 @@ public interface RootService extends Transactionable {
    * @return the list
    * @throws Exception the exception
    */
-  public List<Long[]> executeComponentIdPairQuery(String query,
-    QueryType queryType, Map<String, String> params,
-    Class<? extends Component> clazz, boolean test) throws Exception;
+  public List<Long[]> executeComponentIdPairQuery(String query, QueryType queryType,
+    Map<String, String> params, Class<? extends Component> clazz, boolean test) throws Exception;
 
   /**
    * Execute single component id query.
@@ -404,9 +404,8 @@ public interface RootService extends Transactionable {
    * @return the list
    * @throws Exception the exception
    */
-  public List<Long> executeSingleComponentIdQuery(String query,
-    QueryType queryType, Map<String, String> params,
-    Class<? extends Component> clazz, boolean test) throws Exception;
+  public List<Long> executeSingleComponentIdQuery(String query, QueryType queryType,
+    Map<String, String> params, Class<? extends Component> clazz, boolean test) throws Exception;
 
   /**
    * Execute clustered concept query.
@@ -418,9 +417,8 @@ public interface RootService extends Transactionable {
    * @return the list
    * @throws Exception the exception
    */
-  public List<Long[]> executeClusteredConceptQuery(String query,
-    QueryType queryType, Map<String, String> params, boolean test)
-    throws Exception;
+  public List<Long[]> executeClusteredConceptQuery(String query, QueryType queryType,
+    Map<String, String> params, boolean test) throws Exception;
 
   /**
    * Execute report query. This is an itemId, itemName 2 col query.
@@ -445,8 +443,8 @@ public interface RootService extends Transactionable {
    * @return the list
    * @throws Exception the exception
    */
-  public List<Object[]> executeQuery(String query, QueryType queryType,
-    Map<String, String> params, boolean test) throws Exception;
+  public List<Object[]> executeQuery(String query, QueryType queryType, Map<String, String> params,
+    boolean test) throws Exception;
 
   /**
    * Returns the validation handlers map.
@@ -454,8 +452,7 @@ public interface RootService extends Transactionable {
    * @return the validation handlers map
    * @throws Exception the exception
    */
-  public Map<String, ValidationCheck> getValidationHandlersMap()
-    throws Exception;
+  public Map<String, ValidationCheck> getValidationHandlersMap() throws Exception;
 
   /**
    * Validate action.
@@ -464,8 +461,7 @@ public interface RootService extends Transactionable {
    * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult validateAction(MolecularActionAlgorithm action)
-    throws Exception;
+  public ValidationResult validateAction(MolecularActionAlgorithm action) throws Exception;
 
   /**
    * Returns the entity manager.

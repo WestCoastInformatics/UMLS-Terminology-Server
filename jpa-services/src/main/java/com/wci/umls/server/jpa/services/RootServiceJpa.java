@@ -855,7 +855,7 @@ public abstract class RootServiceJpa implements RootService {
       Logger.getLogger(getClass()).info("    count = " + objectCt);
     }
     if (objectCt % commitCt == 0) {
-      if (objectCt % 100000 == 0) {
+      if (objectCt % reopenCt == 0) {
         commit();
         clear();
         reopen();

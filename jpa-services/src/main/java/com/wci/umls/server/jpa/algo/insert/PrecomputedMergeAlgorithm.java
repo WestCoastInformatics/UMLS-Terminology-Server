@@ -34,6 +34,7 @@ import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Component;
+import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 
 /**
@@ -288,6 +289,14 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
         // Update the progress
         updateProgress();
+        
+        // For merge steps, reopen each we log
+        if (getStepsCompleted() % RootService.mergeReopenCt == 0) {
+          commit();
+          clear();
+          reopen();
+        }
+
       }
 
       commitClearBegin();
