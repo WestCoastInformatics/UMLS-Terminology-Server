@@ -2035,6 +2035,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl implements Proce
               processService.reopen();
               final ProcessExecution pe2 = processService.getProcessExecution(processExecution.getId());
               pe2.setWarning(processExecution.isWarning());
+              pe2.setExecutionInfo(processExecution.getExecutionInfo());
               processExecution = pe2;
               AlgorithmExecution ae2 = null;
               for (final AlgorithmExecution ae : processExecution.getSteps()) {
