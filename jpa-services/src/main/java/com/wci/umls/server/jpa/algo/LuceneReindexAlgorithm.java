@@ -136,7 +136,10 @@ public class LuceneReindexAlgorithm extends AbstractAlgorithm {
         objectsToReindex.remove(key);
       }
     }
-
+    
+    reopen();
+    fullTextEntityManager = Search.getFullTextEntityManager(manager);
+    
     if (objectsToReindex.size() != 0) {
       throw new Exception(
           "The following objects were specified for re-indexing, but do not exist as indexed objects: "
