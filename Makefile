@@ -20,13 +20,13 @@ clean:
 	./mvnw clean
 
 test:
-	./mvnw test
+	./mvnw package
 
 install:
 	./mvnw -Dconfig.artifactId=term-server-config-prod install
 
 adminlucene:
-	mvn install -PReindex -Drun.config.umls=$(config)
+	mvn install -DskipTests=true -PReindex -Drun.config.umls=$(config)
 
 # Publish artifacts to nexus (requires a local .gradle/gradle.properties propery configured)
 #release:

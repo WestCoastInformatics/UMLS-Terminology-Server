@@ -3,11 +3,11 @@
  */
 package com.wci.umls.server.jpa.helpers;
 
-import org.hibernate.boot.registry.classloading.spi.ClassLoaderService;
-import org.hibernate.cfg.Configuration;
+import org.hibernate.HibernateException;
+import org.hibernate.boot.Metadata;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.envers.configuration.spi.AuditConfiguration;
-import org.hibernate.envers.event.spi.EnversIntegrator;
+import org.hibernate.envers.boot.internal.EnversIntegrator;
+import org.hibernate.envers.boot.internal.EnversService;
 import org.hibernate.envers.event.spi.EnversListenerDuplicationStrategy;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
@@ -25,8 +25,7 @@ public class TermServerEnversIntegrator extends EnversIntegrator {
 
   /* see superclass */
   @Override
-  public void integrate(Configuration configuration,
-    SessionFactoryImplementor sessionFactory,
+  public void integrate(Metadata metadata, SessionFactoryImplementor sessionFactory,
     SessionFactoryServiceRegistry serviceRegistry) {
 
     // Avoid custom behavior is autoregister is true
@@ -34,23 +33,24 @@ public class TermServerEnversIntegrator extends EnversIntegrator {
       if (!"true".equals(ConfigUtility.getConfigProperties()
           .getProperty("hibernate.listeners.envers.autoRegister"))) {
 
-        super.integrate(configuration, sessionFactory, serviceRegistry);
+        super.integrate(metadata, sessionFactory, serviceRegistry);
 
-        final AuditConfiguration enversConfiguration =
-            AuditConfiguration.getFor(configuration,
-                serviceRegistry.getService(ClassLoaderService.class));
+        EnversService enversService = serviceRegistry.getService(EnversService.class);
+        if (!enversService.isInitialized()) {
+          throw new HibernateException(
+              "Expecting EnversService to have been initialized prior to call to EnversIntegrator#integrate");
+        }
         EventListenerRegistry listenerRegistry =
             serviceRegistry.getService(EventListenerRegistry.class);
 
-        listenerRegistry
-            .addDuplicationStrategy(EnversListenerDuplicationStrategy.INSTANCE);
+        listenerRegistry.addDuplicationStrategy(EnversListenerDuplicationStrategy.INSTANCE);
 
-        if (enversConfiguration.getEntCfg().hasAuditedEntities()) {
-          listenerRegistry.appendListeners(EventType.POST_INSERT,
-              new EmptyEnversPostInsertEventListenerImpl(enversConfiguration));
-          listenerRegistry.appendListeners(EventType.POST_DELETE,
-              new CustomEnversPostDeleteEventListenerImpl(enversConfiguration));
-        }
+        // if (enversConfiguration.getEntCfg().hasAuditedEntities()) {
+        listenerRegistry.appendListeners(EventType.POST_INSERT,
+            new EmptyEnversPostInsertEventListenerImpl(enversService));
+        listenerRegistry.appendListeners(EventType.POST_DELETE,
+            new CustomEnversPostDeleteEventListenerImpl(enversService));
+        // }
       }
     } catch (Exception e) {
       throw new RuntimeException(e);

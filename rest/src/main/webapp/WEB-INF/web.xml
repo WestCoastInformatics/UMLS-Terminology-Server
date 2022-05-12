@@ -1,86 +1,86 @@
-<!DOCTYPE web-app PUBLIC
-"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
-"http://java.sun.com/dtd/web-app_2_3.dtd" >
+<?xml version="1.0" encoding="UTF-8"?>
 
-<web-app>
-	<display-name>Term Server REST Services</display-name>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+  <display-name>Term Server REST Services</display-name>
 
-	<listener>
-		<listener-class>com.wci.umls.server.rest.impl.SessionFactoryShutdownListener</listener-class>
-	</listener>
+  <listener>
+    <listener-class>com.wci.umls.server.rest.impl.SessionFactoryShutdownListener</listener-class>
+  </listener>
 
-	<!-- Redirect swagger ui pages to swagger UI -->
-	<servlet-mapping>
-		<servlet-name>default</servlet-name>
-		<url-pattern>/swagger.html</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>default</servlet-name>
-		<url-pattern>/swagger-ui.js</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>default</servlet-name>
-		<url-pattern>/swagger-ui.min.js</url-pattern>
-	</servlet-mapping>
+  <!-- Redirect swagger ui pages to swagger UI -->
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/swagger.html</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/swagger-ui.js</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/swagger-ui.min.js</url-pattern>
+  </servlet-mapping>
 
-	<!-- Servlet mappings for webapp components -->
-	<servlet-mapping>
-		<servlet-name>default</servlet-name>
-		<url-pattern>/index.html</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>default</servlet-name>
-		<url-pattern>/css/*</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>default</servlet-name>
-		<url-pattern>/fonts/*</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>default</servlet-name>
-		<url-pattern>/images/*</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>default</servlet-name>
-		<url-pattern>/lib/*</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>default</servlet-name>
-		<url-pattern>/ui/*</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>default</servlet-name>
-		<url-pattern>/sitemap.xml</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<!-- site verification file -->
-		<servlet-name>default</servlet-name>
-		<url-pattern>/google*html</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>default</servlet-name>
-		<url-pattern>/app/*</url-pattern>
-	</servlet-mapping>
-	<welcome-file-list>
-		<welcome-file>index.html</welcome-file>
-	</welcome-file-list>
+  <!-- Servlet mappings for webapp components -->
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/index.html</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/css/*</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/fonts/*</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/images/*</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/lib/*</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/ui/*</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/sitemap.xml</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <!-- site verification file -->
+    <servlet-name>default</servlet-name>
+    <url-pattern>/google*html</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/app/*</url-pattern>
+  </servlet-mapping>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+  </welcome-file-list>
 
-	<filter>
-		<filter-name>ApiOriginFilter</filter-name>
-		<filter-class>com.wci.umls.server.rest.impl.ApiOriginFilter</filter-class>
-	</filter>
-	<filter-mapping>
-		<filter-name>ApiOriginFilter</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
-	 
-	<filter>
-		<filter-name>UserActivityLoggingFilter</filter-name>
-		<filter-class>com.wci.umls.server.rest.impl.UserActivityLoggingFilter</filter-class>
-	</filter>
-	<filter-mapping>
-		<filter-name>UserActivityLoggingFilter</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
-	
+  <filter>
+    <filter-name>ApiOriginFilter</filter-name>
+    <filter-class>com.wci.umls.server.rest.impl.ApiOriginFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>ApiOriginFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <filter>
+    <filter-name>UserActivityLoggingFilter</filter-name>
+    <filter-class>com.wci.umls.server.rest.impl.UserActivityLoggingFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>UserActivityLoggingFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
 </web-app>
