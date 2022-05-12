@@ -20,10 +20,10 @@ clean:
 	./mvnw clean
 
 test:
-	./mvnw package
+	./mvnw package -DskipTests=false
 
 install:
-	./mvnw -Dconfig.artifactId=term-server-config-prod install
+	./mvnw -Dconfig.artifactId=term-server-config-prod install -DskipTests=true
 
 adminlucene:
 	mvn install -DskipTests=true -PReindex -Drun.config.umls=$(config)

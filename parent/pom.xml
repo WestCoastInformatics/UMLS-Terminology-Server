@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
@@ -102,13 +103,8 @@
       </dependency>
 
       <!-- JPA dependencies -->
-      <!-- 
-      <dependency>
-        <groupId>javax.transaction</groupId>
-        <artifactId>jta</artifactId>
-        <version>1.1</version>
-      </dependency>
-      -->
+      <!-- <dependency> <groupId>javax.transaction</groupId> <artifactId>jta</artifactId> 
+        <version>1.1</version> </dependency> -->
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-core</artifactId>
@@ -129,18 +125,10 @@
         <artifactId>hibernate-search-orm</artifactId>
         <version>${hibernate.search.version}</version>
       </dependency>
-      <!-- 
-      <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-envers</artifactId>
-        <version>${hibernate.version}</version>
-      </dependency>
-       <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-validator</artifactId>
-        <version>${hibernate.validator.version}</version>
-      </dependency>
-       -->
+      <!-- <dependency> <groupId>org.hibernate</groupId> <artifactId>hibernate-envers</artifactId> 
+        <version>${hibernate.version}</version> </dependency> <dependency> <groupId>org.hibernate</groupId> 
+        <artifactId>hibernate-validator</artifactId> <version>${hibernate.validator.version}</version> 
+        </dependency> -->
       <dependency>
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-queryparser</artifactId>
@@ -166,6 +154,7 @@
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-plugin-api</artifactId>
         <version>3.2.5</version>
+        <scope>provided></scope>
       </dependency>
 
       <dependency>
@@ -318,13 +307,13 @@
         <version>1.6.2</version>
       </dependency>
 
-	  <!-- Zip utility -->
-	  <dependency>
-    	<groupId>net.lingala.zip4j</groupId>
-    	<artifactId>zip4j</artifactId>
-    	<version>2.8.0</version>
-	  </dependency>
-	  
+      <!-- Zip utility -->
+      <dependency>
+        <groupId>net.lingala.zip4j</groupId>
+        <artifactId>zip4j</artifactId>
+        <version>2.8.0</version>
+      </dependency>
+
       <!-- Apache commons-lang3 - for FastDateTime -->
       <dependency>
         <groupId>org.apache.commons</groupId>
@@ -356,23 +345,14 @@
         <artifactId>antlr4-runtime</artifactId>
         <version>4.5.1</version>
       </dependency>
-    
-      
-<!--      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-	    <artifactId>jackson-core</artifactId>
-	    <version>${jackson.version}</version>
-      </dependency>
-       <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-	    <artifactId>jackson-annotations</artifactId>
-	    <version>${jackson.version}</version>
-      </dependency> -->
-<!-- 	  <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-	    <artifactId>jackson-databind</artifactId>
-	    <version>${jackson.version}</version>
-      </dependency> -->
+
+
+      <!-- <dependency> <groupId>com.fasterxml.jackson.core</groupId> <artifactId>jackson-core</artifactId> 
+        <version>${jackson.version}</version> </dependency> <dependency> <groupId>com.fasterxml.jackson.core</groupId> 
+        <artifactId>jackson-annotations</artifactId> <version>${jackson.version}</version> 
+        </dependency> -->
+      <!-- <dependency> <groupId>com.fasterxml.jackson.core</groupId> <artifactId>jackson-databind</artifactId> 
+        <version>${jackson.version}</version> </dependency> -->
 
 
     </dependencies>
@@ -435,19 +415,11 @@
           <version>3.3.2</version>
         </plugin>
 
-<!-- 
-        <plugin>
-          <groupId>external.atlassian.jgitflow</groupId>
-          <artifactId>jgitflow-maven-plugin</artifactId>
-          <version>1.0-m1.1</version>
-          <configuration>
-            <autoVersionSubmodules>true</autoVersionSubmodules>
-            <enableSshAgent>true</enableSshAgent>
-            <noDeploy>true</noDeploy>
-          </configuration>
-        </plugin>
- -->
- 
+        <!-- <plugin> <groupId>external.atlassian.jgitflow</groupId> <artifactId>jgitflow-maven-plugin</artifactId> 
+          <version>1.0-m1.1</version> <configuration> <autoVersionSubmodules>true</autoVersionSubmodules> 
+          <enableSshAgent>true</enableSshAgent> <noDeploy>true</noDeploy> </configuration> 
+          </plugin> -->
+
         <!-- Properties plugin, for loading properties from a file -->
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
@@ -566,8 +538,8 @@
     </profile>
   </profiles>
 
-  <!-- configure Maven to deploy to the OSSRH Nexus Repository Manager with the Nexus 
-    Staging Maven plugin (see plugins) -->
+  <!-- configure Maven to deploy to the OSSRH Nexus Repository Manager with 
+    the Nexus Staging Maven plugin (see plugins) -->
   <distributionManagement>
     <repository>
       <id>ossrh</id>
