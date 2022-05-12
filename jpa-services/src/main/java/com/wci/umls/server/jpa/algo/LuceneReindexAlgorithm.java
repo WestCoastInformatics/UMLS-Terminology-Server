@@ -135,10 +135,10 @@ public class LuceneReindexAlgorithm extends AbstractAlgorithm {
         // optimize flags are default true.
         objectsToReindex.remove(key);
       }
+      reopen();
+      fullTextEntityManager = Search.getFullTextEntityManager(manager);
     }
-    
-    reopen();
-    fullTextEntityManager = Search.getFullTextEntityManager(manager);
+       
     
     if (objectsToReindex.size() != 0) {
       throw new Exception(
