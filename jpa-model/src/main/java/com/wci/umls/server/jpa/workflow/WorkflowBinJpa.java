@@ -117,6 +117,8 @@ public class WorkflowBinJpa implements WorkflowBin {
 
   /** The tracking records. */
   @OneToMany(targetEntity = TrackingRecordJpa.class)
+  @CollectionTable(name = "workflow_bins_tracking_records",
+	      joinColumns = @JoinColumn(name = "trackingRecords_id"))
   private List<TrackingRecord> trackingRecords = new ArrayList<>();
 
   /** The creation time. */
