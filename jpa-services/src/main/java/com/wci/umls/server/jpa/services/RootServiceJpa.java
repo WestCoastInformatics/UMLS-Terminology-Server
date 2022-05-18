@@ -19,8 +19,6 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -2297,7 +2295,7 @@ public abstract class RootServiceJpa implements RootService {
     final List<Object[]> list = jpaQuery.getResultList();
     final List<Long[]> results = new ArrayList<>();
     for (final Object[] entry : list) {
-      final Long clusterId = new Long(Long.parseLong(entry[0].toString()));// Long.valueOf(entry[0].toString());
+      final Long clusterId = Long.valueOf(entry[0].toString());
       final Long conceptId = Long.valueOf(entry[1].toString());
 
       final Long[] result = new Long[] {

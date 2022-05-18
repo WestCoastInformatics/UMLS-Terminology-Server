@@ -22,6 +22,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -61,8 +62,9 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
 
   /** The tracking records. */
   @OneToMany(targetEntity = TrackingRecordJpa.class)
-  @CollectionTable(name = "worklists_tracking_records",
-      joinColumns = @JoinColumn(name = "trackingRecords_id"))
+  @JoinTable(name = "worklists_tracking_records",
+      joinColumns = @JoinColumn(name = "trackingRecords_id"),
+      inverseJoinColumns = @JoinColumn(name = "worklists_id"))
   private List<TrackingRecord> trackingRecords = new ArrayList<>();
 
   /** The authors. */
@@ -220,7 +222,6 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   public Map<String, Date> getWorkflowState() {
     return getWorkflowStateHistory();
   }
-
 
   /* see superclass */
   @Override

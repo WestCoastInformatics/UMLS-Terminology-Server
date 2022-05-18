@@ -7,13 +7,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -53,7 +53,8 @@ import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 public class WorkflowBinJpa implements WorkflowBin {
 
   /** The id. */
-  @TableGenerator(name = "EntityIdGenWorkflow", table = "table_generator_wf", pkColumnValue = "Entity")
+  @TableGenerator(name = "EntityIdGenWorkflow", table = "table_generator_wf",
+      pkColumnValue = "Entity")
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGenWorkflow")
   private Long id;
@@ -117,8 +118,11 @@ public class WorkflowBinJpa implements WorkflowBin {
 
   /** The tracking records. */
   @OneToMany(targetEntity = TrackingRecordJpa.class)
-  @CollectionTable(name = "workflow_bins_tracking_records",
-	      joinColumns = @JoinColumn(name = "trackingRecords_id"))
+  @JoinTable(name = "workflow_bins_tracking_records",
+  joinColumns = @JoinColumn(name = "trackingRecords_id"),
+  inverseJoinColumns = @JoinColumn(name = "workflow_bins_id"))
+  // @CollectionTable(name = "workflow_bins_tracking_records",
+  // joinColumns = @JoinColumn(name = "trackingRecords_id"))
   private List<TrackingRecord> trackingRecords = new ArrayList<>();
 
   /** The creation time. */
@@ -135,7 +139,7 @@ public class WorkflowBinJpa implements WorkflowBin {
 
   /** The autofix. */
   @Column(nullable = false)
-  private String autofix;  
+  private String autofix;
 
   /**
    * The stats - intended only for JAXB serialization and reporting, not
@@ -479,24 +483,21 @@ public class WorkflowBinJpa implements WorkflowBin {
   @Override
   public void setAutofix(String autofix) {
     this.autofix = autofix;
-  }      
-  
+  }
+
   /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result =
-        prime * result + ((description == null) ? 0 : description.hashCode());
+    result = prime * result + ((description == null) ? 0 : description.hashCode());
     result = prime * result + (editable ? 1231 : 1237);
     result = prime * result + (enabled ? 1231 : 1237);
     result = prime * result + (required ? 1231 : 1237);
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + rank;
-    result =
-        prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result = prime * result
-        + ((terminologyId == null) ? 0 : terminologyId.hashCode());
+    result = prime * result + ((terminology == null) ? 0 : terminology.hashCode());
+    result = prime * result + ((terminologyId == null) ? 0 : terminologyId.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
@@ -556,13 +557,12 @@ public class WorkflowBinJpa implements WorkflowBin {
   /* see superclass */
   @Override
   public String toString() {
-    return "WorkflowBinJpa [id=" + id + ", lastModified=" + lastModified
-        + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
-        + ", name=" + name + ", description=" + description + ", terminologyId="
-        + terminologyId + ", terminology=" + terminology + ", version="
-        + version + ", type=" + type + ", rank=" + rank + ", editable="
-        + editable + ", required=" + required + ", creationTime=" + creationTime
-        + ", stats=" + stats + ", enabled=" + enabled + "]";
+    return "WorkflowBinJpa [id=" + id + ", lastModified=" + lastModified + ", lastModifiedBy="
+        + lastModifiedBy + ", timestamp=" + timestamp + ", name=" + name + ", description="
+        + description + ", terminologyId=" + terminologyId + ", terminology=" + terminology
+        + ", version=" + version + ", type=" + type + ", rank=" + rank + ", editable=" + editable
+        + ", required=" + required + ", creationTime=" + creationTime + ", stats=" + stats
+        + ", enabled=" + enabled + "]";
   }
 
 }

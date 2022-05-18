@@ -15,6 +15,7 @@ import java.util.List;
 import javax.persistence.CollectionTable;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -43,8 +44,10 @@ public class ChecklistJpa extends AbstractChecklist {
 
   /** The tracking records. */
   @OneToMany(targetEntity = TrackingRecordJpa.class)
-  @CollectionTable(name = "checklists_tracking_records",
-      joinColumns = @JoinColumn(name = "trackingRecords_id"))
+  @JoinColumn(name = "trackingRecords_id")
+  @JoinTable(name = "checklists_tracking_records",
+      joinColumns = @JoinColumn(name = "trackingRecords_id"),
+      inverseJoinColumns = @JoinColumn(name = "checklists_id"))
   private List<TrackingRecord> trackingRecords = new ArrayList<>();
 
   /** The notes. */
