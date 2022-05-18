@@ -1,22 +1,23 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ * Copyright 2022 West Coast Informatics - All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains the property of West Coast Informatics
+ * The intellectual and technical concepts contained herein are proprietary to
+ * West Coast Informatics and may be covered by U.S. and Foreign Patents, patents in process,
+ * and are protected by trade secret or copyright law.  Dissemination of this information
+ * or reproduction of this material is strictly forbidden.
  */
 package com.wci.umls.server.jpa.workflow;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.OneToMany;
 import javax.persistence.TableGenerator;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlElement;
@@ -48,11 +49,11 @@ import com.wci.umls.server.model.workflow.Worklist;
 @XmlSeeAlso({
     ChecklistJpa.class, WorklistJpa.class
 })
-public abstract class AbstractChecklist extends AbstractHasLastModified
-    implements Checklist {
+public abstract class AbstractChecklist extends AbstractHasLastModified implements Checklist {
 
   /** The id. */
-  @TableGenerator(name = "EntityIdGenWorkflow", table = "table_generator_wf", pkColumnValue = "Entity")
+  @TableGenerator(name = "EntityIdGenWorkflow", table = "table_generator_wf",
+      pkColumnValue = "Entity")
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGenWorkflow")
   private Long id;
@@ -68,12 +69,6 @@ public abstract class AbstractChecklist extends AbstractHasLastModified
   /** The project. */
   @ManyToOne(targetEntity = ProjectJpa.class, optional = false)
   private Project project;
-
-  /** The tracking records. */
-  @OneToMany(targetEntity = TrackingRecordJpa.class)
-  //@CollectionTable(name = "checklists_tracking_records", joinColumns = @JoinColumn(name = "trackingRecords_id"))
-  @CollectionTable(joinColumns = @JoinColumn(name = "trackingRecords_id"))
-  private List<TrackingRecord> trackingRecords = new ArrayList<>();
 
   /**
    * The stats - intended only for JAXB serialization and reporting, not
@@ -105,9 +100,6 @@ public abstract class AbstractChecklist extends AbstractHasLastModified
     description = checklist.getDescription();
     project = checklist.getProject();
     stats = new HashMap<>(checklist.getStats());
-    if (collectionCopy) {
-      trackingRecords = new ArrayList<>(checklist.getTrackingRecords());
-    }
   }
 
   /* see superclass */
@@ -125,7 +117,9 @@ public abstract class AbstractChecklist extends AbstractHasLastModified
   /* see superclass */
   @Override
   @Fields({
-      @Field(name = "name", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord"), bridge = @FieldBridge(impl = SplitUnderscoreBridge.class)),
+      @Field(name = "name", index = Index.YES, store = Store.NO, analyze = Analyze.YES,
+          analyzer = @Analyzer(definition = "noStopWord"),
+          bridge = @FieldBridge(impl = SplitUnderscoreBridge.class)),
       @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
   public String getName() {
@@ -163,11 +157,6 @@ public abstract class AbstractChecklist extends AbstractHasLastModified
     this.project = project;
   }
 
-  /**
-   * Returns the project id.
-   *
-   * @return the project id
-   */
   @XmlElement
   @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
@@ -202,22 +191,6 @@ public abstract class AbstractChecklist extends AbstractHasLastModified
     this.stats = stats;
   }
 
-  /* see superclass */
-  @XmlTransient
-  @Override
-  public List<TrackingRecord> getTrackingRecords() {
-    if (trackingRecords == null) {
-      return new ArrayList<>();
-    }
-    return trackingRecords;
-  }
-
-  /* see superclass */
-  @Override
-  public void setTrackingRecords(List<TrackingRecord> records) {
-    this.trackingRecords = records;
-  }
-
   /**
    * Returns the concept ids. For indexing ONLY.
    *
@@ -239,8 +212,7 @@ public abstract class AbstractChecklist extends AbstractHasLastModified
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result =
-        prime * result + ((description == null) ? 0 : description.hashCode());
+    result = prime * result + ((description == null) ? 0 : description.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((project == null) ? 0 : project.hashCode());
 
@@ -279,9 +251,8 @@ public abstract class AbstractChecklist extends AbstractHasLastModified
   @Override
   public String toString() {
     return "AbstractChecklist [id=" + id + ", lastModified=" + getLastModified()
-        + ", lastModifiedBy=" + getLastModifiedBy() + ", timestamp="
-        + getTimestamp() + ", name=" + name + ", description=" + description
-        + ", project=" + project + "]";
+        + ", lastModifiedBy=" + getLastModifiedBy() + ", timestamp=" + getTimestamp() + ", name="
+        + name + ", description=" + description + ", project=" + project + "]";
   }
 
 }
