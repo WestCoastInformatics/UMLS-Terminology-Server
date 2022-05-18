@@ -8,10 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
@@ -69,6 +71,8 @@ public abstract class AbstractChecklist extends AbstractHasLastModified
 
   /** The tracking records. */
   @OneToMany(targetEntity = TrackingRecordJpa.class)
+  //@CollectionTable(name = "checklists_tracking_records", joinColumns = @JoinColumn(name = "trackingRecords_id"))
+  @CollectionTable(joinColumns = @JoinColumn(name = "trackingRecords_id"))
   private List<TrackingRecord> trackingRecords = new ArrayList<>();
 
   /**

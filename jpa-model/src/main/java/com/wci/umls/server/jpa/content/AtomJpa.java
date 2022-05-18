@@ -8,12 +8,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -77,6 +79,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
   /** The definitions. */
   @OneToMany(targetEntity = DefinitionJpa.class)
+  @CollectionTable(name = "atoms_definitions", joinColumns = @JoinColumn(name = "atoms_id"))
   @IndexedEmbedded(targetElement = DefinitionJpa.class)
   private List<Definition> definitions = null;
 

@@ -16,6 +16,7 @@ import org.hibernate.search.annotations.IndexedEmbedded;
 
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.model.workflow.Checklist;
+import com.wci.umls.server.model.workflow.TrackingRecord;
 
 /**
  * JPA-enabled implementation of a {@link Checklist}.
@@ -24,7 +25,7 @@ import com.wci.umls.server.model.workflow.Checklist;
 @Table(name = "checklists", uniqueConstraints = @UniqueConstraint(columnNames = {
     "name", "project_id"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "checklist")
 public class ChecklistJpa extends AbstractChecklist {
@@ -33,6 +34,7 @@ public class ChecklistJpa extends AbstractChecklist {
   @OneToMany(mappedBy = "checklist", targetEntity = ChecklistNoteJpa.class)
   @IndexedEmbedded(targetElement = ChecklistNoteJpa.class)
   private List<Note> notes = new ArrayList<>();
+  
 
   /**
    * Instantiates an empty {@link ChecklistJpa}.

@@ -46,7 +46,7 @@ import com.wci.umls.server.model.workflow.Worklist;
 @Table(name = "worklists", uniqueConstraints = @UniqueConstraint(columnNames = {
     "name", "workflowBinName", "project_id"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "worklist")
 public class WorklistJpa extends AbstractChecklist implements Worklist {

@@ -21,7 +21,7 @@ import com.wci.umls.server.helpers.ConfigUtility;
  *
  * For this project, we will only be logging delete events.
  */
-public class TermServerEnversIntegrator extends EnversIntegrator {
+public class TermServerEnversIntegrator  extends EnversIntegrator {
 
   /* see superclass */
   @Override

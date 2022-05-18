@@ -78,7 +78,7 @@ public class TermServerApplication extends ResourceConfig {
     }
 
     // register swagger classes
-    register(io.swagger.jaxrs.listing.ApiListingResource.class);
+    /**register(io.swagger.jaxrs.listing.ApiListingResource.class);
     register(io.swagger.jaxrs.listing.SwaggerSerializers.class);
 
     // Instantiate bean config
@@ -102,7 +102,7 @@ public class TermServerApplication extends ResourceConfig {
     }
 
     // this makes Swagger honor JAXB annotations
-    Json.mapper().registerModule(new JaxbAnnotationModule());
+    Json.mapper().registerModule(new JaxbAnnotationModule()); */
 
     // Set up a timer task to run at 2AM every day
     TimerTask task = new InitializationTask();

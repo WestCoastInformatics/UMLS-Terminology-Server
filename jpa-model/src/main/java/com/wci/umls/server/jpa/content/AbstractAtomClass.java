@@ -6,11 +6,13 @@ package com.wci.umls.server.jpa.content;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.JoinColumn;
 import javax.xml.bind.annotation.XmlElement;
 
 import org.apache.lucene.analysis.core.KeywordTokenizerFactory;
@@ -93,6 +95,7 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
 
   /** The descriptions. */
   @ManyToMany(targetEntity = AtomJpa.class)
+  @CollectionTable(name = "concepts_atoms", joinColumns = @JoinColumn(name = "concepts_id"))
   @IndexedEmbedded(targetElement = AtomJpa.class)
   private List<Atom> atoms = null;
 

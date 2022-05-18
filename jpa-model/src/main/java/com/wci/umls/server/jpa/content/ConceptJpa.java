@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -82,7 +83,8 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   private List<ComponentHistory> componentHistories = null;
 
   /** The semantic type components. */
-  @IndexedEmbedded(targetElement = SemanticTypeComponentJpa.class)
+  @IndexedEmbedded(targetElement = SemanticTypeComponentJpa.class, includeEmbeddedObjectId=true)
+  @CollectionTable(name = "concepts_semantic_type_components", joinColumns = @JoinColumn(name = "concepts_id"))
   @OneToMany(targetEntity = SemanticTypeComponentJpa.class)
   private List<SemanticTypeComponent> semanticTypes = null;
 
