@@ -28,6 +28,7 @@ import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.EnumBridge;
 import org.hibernate.search.bridge.builtin.LongBridge;
@@ -220,6 +221,7 @@ public class SourceDataJpa implements SourceData {
       @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
       @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
+  @SortableField(forField = "nameSort")
   public String getName() {
     return this.name;
   }

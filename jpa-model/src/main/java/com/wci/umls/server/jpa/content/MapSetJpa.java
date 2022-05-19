@@ -27,6 +27,7 @@ import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
@@ -141,6 +142,7 @@ public class MapSetJpa extends AbstractComponentHasAttributes
       @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
       @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   })
+  @SortableField(forField = "nameSort")
   public String getName() {
     return name;
   }

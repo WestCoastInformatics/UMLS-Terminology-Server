@@ -30,6 +30,7 @@ import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
@@ -122,6 +123,7 @@ public abstract class AbstractChecklist extends AbstractHasLastModified implemen
           bridge = @FieldBridge(impl = SplitUnderscoreBridge.class)),
       @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
+  @SortableField(forField = "nameSort")
   public String getName() {
     return name;
   }

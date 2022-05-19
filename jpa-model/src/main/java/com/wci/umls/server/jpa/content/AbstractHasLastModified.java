@@ -14,6 +14,7 @@ import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.helpers.HasLastModified;
@@ -38,6 +39,8 @@ public abstract class AbstractHasLastModified implements HasLastModified {
   /** The last modified. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
+  @Field
+  @SortableField
   protected Date lastModified = null;
 
   /** The last modified. */

@@ -20,6 +20,8 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.MapKeyClass;
 import javax.persistence.MapKeyJoinColumn;
 import javax.persistence.OneToMany;
@@ -41,6 +43,7 @@ import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
@@ -56,6 +59,7 @@ import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.jpa.helpers.UserMapUserNameBridge;
 import com.wci.umls.server.jpa.helpers.UserRoleBridge;
 import com.wci.umls.server.jpa.helpers.UserRoleMapAdapter;
+import com.wci.umls.server.jpa.workflow.TrackingRecordJpa;
 
 /**
  * JPA and JAXB enabled implementation of {@link Project}.
@@ -151,13 +155,22 @@ public class ProjectJpa implements Project {
   private Map<User, UserRole> userRoleMap;
 
   /** The validation checks. */
-  @Column(nullable = true)
-  @ElementCollection
-  @CollectionTable(name = "project_validation_checks")
+  //@Column(nullable = true)
+  //@ElementCollection
+  //@CollectionTable(name = "project_validation_checks")
+  @ElementCollection(fetch = FetchType.LAZY)
+  // @Fetch(FetchMode.JOIN)
+  @JoinColumn(nullable = true)
+  @CollectionTable(name = "project_validation_checks", joinColumns = @JoinColumn(name = "projectJpa_id"))
   private List<String> validationChecks = new ArrayList<>();
 
   /** The validation data. */
   @OneToMany(targetEntity = TypeKeyValueJpa.class)
+  //@OneToMany(targetEntity = TrackingRecordJpa.class)
+  @JoinColumn(name = "validationData_id")
+  @JoinTable(name = "projects_type_key_values",
+      joinColumns = @JoinColumn(name = "projects_id"),
+      inverseJoinColumns = @JoinColumn(name = "validationData_id"))
   private List<TypeKeyValue> validationData = null;
 
   /** The prec list. */
@@ -305,6 +318,7 @@ public class ProjectJpa implements Project {
       @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
       @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
+  @SortableField(forField = "nameSort")
   public String getName() {
     return name;
   }
