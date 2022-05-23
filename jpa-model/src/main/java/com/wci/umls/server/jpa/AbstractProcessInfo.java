@@ -52,6 +52,8 @@ public abstract class AbstractProcessInfo<T extends AlgorithmInfo<?>>
   /** The last modified. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
+  @Field
+  @SortableField(forField = "lastModified")
   private Date lastModified;
 
   /** The last modified. */

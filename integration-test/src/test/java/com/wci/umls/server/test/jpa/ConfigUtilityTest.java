@@ -10,6 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
@@ -66,6 +67,11 @@ public class ConfigUtilityTest extends IntegrationUnitSupport {
   @AfterClass
   public static void teardownClass() {
     // do nothing
+  }
+  
+  @Test
+  public void testXYZ() throws Exception {
+	  new ContentServiceJpa();
   }
 
 }

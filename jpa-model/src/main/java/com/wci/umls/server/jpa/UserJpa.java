@@ -66,6 +66,8 @@ public class UserJpa implements User {
 
   /** The user name. */
   @Column(nullable = false, unique = true)
+  @Field
+  @SortableField(forField = "userName")
   private String userName;
 
   /** The name. */

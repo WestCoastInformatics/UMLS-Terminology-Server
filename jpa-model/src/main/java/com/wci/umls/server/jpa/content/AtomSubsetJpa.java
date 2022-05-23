@@ -12,6 +12,8 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -32,6 +34,7 @@ import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomSubset;
 import com.wci.umls.server.model.content.AtomSubsetMember;
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Subset;
 
 /**
@@ -56,6 +59,13 @@ public class AtomSubsetJpa extends AbstractSubset implements AtomSubset {
   @Column(nullable = true, length = 100)
   private Map<String, String> alternateTerminologyIds;
 
+  /** The attributes. */
+  @OneToMany(targetEntity = AttributeJpa.class)
+  @JoinColumn(name = "attributes_id")
+  @JoinTable(name = "atom_subsets_attributes", joinColumns = @JoinColumn(name = "attributes_id"),
+      inverseJoinColumns = @JoinColumn(name = "atom_subsets_id"))
+  private List<Attribute> attributes = null;
+
   /**
    * Instantiates an empty {@link AtomSubsetJpa}.
    */
@@ -71,12 +81,42 @@ public class AtomSubsetJpa extends AbstractSubset implements AtomSubset {
    */
   public AtomSubsetJpa(AtomSubset subset, boolean collectionCopy) {
     super(subset, collectionCopy);
-    alternateTerminologyIds =
-        new HashMap<>(subset.getAlternateTerminologyIds());
+    alternateTerminologyIds = new HashMap<>(subset.getAlternateTerminologyIds());
 
     if (collectionCopy) {
       members = new ArrayList<>(subset.getMembers());
+      for (final Attribute attribute : subset.getAttributes()) {
+        getAttributes().add(new AttributeJpa(attribute));
+      }
     }
+  }
+
+  /* see superclass */
+  @Override
+  @XmlElement(type = AttributeJpa.class)
+  public List<Attribute> getAttributes() {
+    if (attributes == null) {
+      attributes = new ArrayList<>(1);
+    }
+    return attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAttributes(List<Attribute> attributes) {
+    this.attributes = attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public Attribute getAttributeByName(String name) {
+    for (final Attribute attribute : getAttributes()) {
+      // If there are more than one, this just returns the first.
+      if (attribute.getName().equals(name)) {
+        return attribute;
+      }
+    }
+    return null;
   }
 
   /* see superclass */
@@ -104,7 +144,8 @@ public class AtomSubsetJpa extends AbstractSubset implements AtomSubset {
   /* see superclass */
   @Override
   @FieldBridge(impl = MapKeyValueToCsvBridge.class)
-  @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES,
+      store = Store.NO)
   public Map<String, String> getAlternateTerminologyIds() {
     if (alternateTerminologyIds == null) {
       alternateTerminologyIds = new HashMap<>(2);
@@ -114,8 +155,7 @@ public class AtomSubsetJpa extends AbstractSubset implements AtomSubset {
 
   /* see superclass */
   @Override
-  public void setAlternateTerminologyIds(
-    Map<String, String> alternateTerminologyIds) {
+  public void setAlternateTerminologyIds(Map<String, String> alternateTerminologyIds) {
     this.alternateTerminologyIds = alternateTerminologyIds;
   }
 

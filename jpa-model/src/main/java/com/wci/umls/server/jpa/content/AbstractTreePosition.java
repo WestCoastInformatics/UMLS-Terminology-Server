@@ -11,6 +11,7 @@ import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
@@ -59,7 +60,7 @@ public abstract class AbstractTreePosition<T extends ComponentHasAttributesAndNa
    * @param collectionCopy the deep copy
    */
   public AbstractTreePosition(TreePosition<T> treepos, boolean collectionCopy) {
-    super(treepos, collectionCopy);
+    //super(treepos, collectionCopy);
     additionalRelationshipType = treepos.getAdditionalRelationshipType();
     ancestorPath = treepos.getAncestorPath();
     childCt = treepos.getChildCt();
@@ -80,6 +81,7 @@ public abstract class AbstractTreePosition<T extends ComponentHasAttributesAndNa
 
   /* see superclass */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @SortableField(forField = "ancestorPath")
   @Override
   public String getAncestorPath() {
     return ancestorPath;

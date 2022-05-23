@@ -3,7 +3,9 @@
  */
 package com.wci.umls.server.jpa.content;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Column;
@@ -11,9 +13,12 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -27,9 +32,11 @@ import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
 import com.wci.umls.server.model.content.Relationship;
@@ -44,8 +51,7 @@ import com.wci.umls.server.model.content.Relationship;
 @Audited
 @Indexed
 @XmlRootElement(name = "descriptorRelationship")
-public class DescriptorRelationshipJpa
-    extends AbstractRelationship<Descriptor, Descriptor>
+public class DescriptorRelationshipJpa extends AbstractRelationship<Descriptor, Descriptor>
     implements DescriptorRelationship {
 
   /** The from concept. */
@@ -64,6 +70,14 @@ public class DescriptorRelationshipJpa
   @Column(nullable = true)
   private Map<String, String> alternateTerminologyIds;
 
+  /** The attributes. */
+  @OneToMany(targetEntity = AttributeJpa.class)
+  @JoinColumn(name = "attributes_id")
+  @JoinTable(name = "descriptor_relationships_attributes",
+      joinColumns = @JoinColumn(name = "attributes_id"),
+      inverseJoinColumns = @JoinColumn(name = "descriptor_relationships_id"))
+  private List<Attribute> attributes = null;
+
   /**
    * Instantiates an empty {@link DescriptorRelationshipJpa}.
    */
@@ -78,15 +92,44 @@ public class DescriptorRelationshipJpa
    * @param relationship the concept relationship
    * @param collectionCopy the deep copy
    */
-  public DescriptorRelationshipJpa(DescriptorRelationship relationship,
-      boolean collectionCopy) {
+  public DescriptorRelationshipJpa(DescriptorRelationship relationship, boolean collectionCopy) {
     super(relationship, collectionCopy);
     to = relationship.getTo();
     from = relationship.getFrom();
     if (collectionCopy) {
-      alternateTerminologyIds =
-          new HashMap<>(relationship.getAlternateTerminologyIds());
+      alternateTerminologyIds = new HashMap<>(relationship.getAlternateTerminologyIds());
+      for (final Attribute attribute : relationship.getAttributes()) {
+        getAttributes().add(new AttributeJpa(attribute));
+      }
     }
+  }
+
+  /* see superclass */
+  @Override
+  @XmlElement(type = AttributeJpa.class)
+  public List<Attribute> getAttributes() {
+    if (attributes == null) {
+      attributes = new ArrayList<>(1);
+    }
+    return attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAttributes(List<Attribute> attributes) {
+    this.attributes = attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public Attribute getAttributeByName(String name) {
+    for (final Attribute attribute : getAttributes()) {
+      // If there are more than one, this just returns the first.
+      if (attribute.getName().equals(name)) {
+        return attribute;
+      }
+    }
+    return null;
   }
 
   /**
@@ -205,9 +248,11 @@ public class DescriptorRelationshipJpa
    * @return the from term
    */
   @Fields({
-      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO, analyzer = @Analyzer(definition = "noStopWord")),
+      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO,
+          analyzer = @Analyzer(definition = "noStopWord")),
       @Field(name = "fromNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
+  @SortableField(forField = "fromNameSort")
   public String getFromName() {
     return from == null ? null : from.getName();
   }
@@ -343,6 +388,7 @@ public class DescriptorRelationshipJpa
       @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
       @Field(name = "toNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
+  @SortableField(forField = "toNameSort")
   public String getToName() {
     return to == null ? null : to.getName();
   }
@@ -367,7 +413,8 @@ public class DescriptorRelationshipJpa
   /* see superclass */
   @Override
   @FieldBridge(impl = MapKeyValueToCsvBridge.class)
-  @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES,
+      store = Store.NO)
   public Map<String, String> getAlternateTerminologyIds() {
     if (alternateTerminologyIds == null) {
       alternateTerminologyIds = new HashMap<>(2);
@@ -382,8 +429,7 @@ public class DescriptorRelationshipJpa
    */
   /* see superclass */
   @Override
-  public void setAlternateTerminologyIds(
-    Map<String, String> alternateTerminologyIds) {
+  public void setAlternateTerminologyIds(Map<String, String> alternateTerminologyIds) {
     this.alternateTerminologyIds = alternateTerminologyIds;
   }
 
@@ -403,11 +449,10 @@ public class DescriptorRelationshipJpa
     Relationship<Descriptor, Descriptor> relationship, String inverseRelType,
     String inverseAdditionalRelType) throws Exception {
     final DescriptorRelationship inverseRelationship =
-        new DescriptorRelationshipJpa((DescriptorRelationship) relationship,
-            false);
+        new DescriptorRelationshipJpa((DescriptorRelationship) relationship, false);
 
-    return populateInverseRelationship(relationship, inverseRelationship,
-        inverseRelType, inverseAdditionalRelType);
+    return populateInverseRelationship(relationship, inverseRelationship, inverseRelType,
+        inverseAdditionalRelType);
   }
 
   /**

@@ -3,12 +3,18 @@
  */
 package com.wci.umls.server.jpa.content;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -16,6 +22,7 @@ import org.hibernate.envers.Audited;
 
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomTransitiveRelationship;
+import com.wci.umls.server.model.content.Attribute;
 
 /**
  * JPA-enabled implementation of {@link AtomTransitiveRelationship}.
@@ -26,9 +33,8 @@ import com.wci.umls.server.model.content.AtomTransitiveRelationship;
 }))
 @Audited
 @XmlRootElement(name = "atomTransitiveRel")
-public class AtomTransitiveRelationshipJpa extends
-    AbstractTransitiveRelationship<Atom> implements
-    AtomTransitiveRelationship {
+public class AtomTransitiveRelationshipJpa extends AbstractTransitiveRelationship<Atom>
+    implements AtomTransitiveRelationship {
 
   /** The super type. */
   @ManyToOne(targetEntity = AtomJpa.class, fetch = FetchType.EAGER, optional = false)
@@ -39,6 +45,14 @@ public class AtomTransitiveRelationshipJpa extends
   @ManyToOne(targetEntity = AtomJpa.class, fetch = FetchType.EAGER, optional = false)
   @JoinColumn(nullable = false)
   private Atom subType;
+
+  /** The attributes. */
+  @OneToMany(targetEntity = AttributeJpa.class)
+  @JoinColumn(name = "attributes_id")
+  @JoinTable(name = "atom_transitive_rels_attributes",
+      joinColumns = @JoinColumn(name = "attributes_id"),
+      inverseJoinColumns = @JoinColumn(name = "atom_transitive_rels_id"))
+  private List<Attribute> attributes = null;
 
   /**
    * Instantiates an empty {@link AtomTransitiveRelationshipJpa}.
@@ -54,11 +68,44 @@ public class AtomTransitiveRelationshipJpa extends
    * @param relationship the relationship
    * @param collectionCopy the deep copy
    */
-  public AtomTransitiveRelationshipJpa(
-      AtomTransitiveRelationship relationship, boolean collectionCopy) {
+  public AtomTransitiveRelationshipJpa(AtomTransitiveRelationship relationship,
+      boolean collectionCopy) {
     super(relationship, collectionCopy);
     superType = relationship.getSuperType();
     subType = relationship.getSubType();
+    if (collectionCopy) {
+      for (final Attribute attribute : relationship.getAttributes()) {
+        getAttributes().add(new AttributeJpa(attribute));
+      }
+    }
+  }
+
+  /* see superclass */
+  @Override
+  @XmlElement(type = AttributeJpa.class)
+  public List<Attribute> getAttributes() {
+    if (attributes == null) {
+      attributes = new ArrayList<>(1);
+    }
+    return attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAttributes(List<Attribute> attributes) {
+    this.attributes = attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public Attribute getAttributeByName(String name) {
+    for (final Attribute attribute : getAttributes()) {
+      // If there are more than one, this just returns the first.
+      if (attribute.getName().equals(name)) {
+        return attribute;
+      }
+    }
+    return null;
   }
 
   @XmlTransient
@@ -310,8 +357,7 @@ public class AtomTransitiveRelationshipJpa extends
       return false;
     if (getClass() != obj.getClass())
       return false;
-    AtomTransitiveRelationshipJpa other =
-        (AtomTransitiveRelationshipJpa) obj;
+    AtomTransitiveRelationshipJpa other = (AtomTransitiveRelationshipJpa) obj;
     if (subType == null) {
       if (other.subType != null)
         return false;

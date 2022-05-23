@@ -38,6 +38,7 @@ import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.helpers.Note;
@@ -196,7 +197,8 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
           analyze = Analyze.YES, store = Store.NO),
       @Field(name = "authorsSort", bridge = @FieldBridge(impl = MinValueBridge.class),
           index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  })
+  })	
+  @SortableField(forField = "authorsSort")
   @Override
   public List<String> getAuthors() {
     if (authors == null) {
@@ -217,7 +219,8 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
           analyze = Analyze.YES, store = Store.NO),
       @Field(name = "workflowStateSort", bridge = @FieldBridge(impl = MaxStateHistoryBridge.class),
           index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  })
+  })	
+  @SortableField(forField = "workflowStateSort")
   @Override
   public Map<String, Date> getWorkflowState() {
     return getWorkflowStateHistory();
@@ -244,7 +247,8 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
           analyze = Analyze.YES, store = Store.NO),
       @Field(name = "reviewersSort", bridge = @FieldBridge(impl = MinValueBridge.class),
           index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  })
+  })	
+  @SortableField(forField = "reviewersSort")
   @Override
   public List<String> getReviewers() {
     if (reviewers == null) {

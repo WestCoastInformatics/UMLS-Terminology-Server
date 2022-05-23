@@ -12,6 +12,8 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -31,6 +33,7 @@ import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.Mapping;
 
@@ -102,6 +105,14 @@ public class MapSetJpa extends AbstractComponentHasAttributes
   @Column(nullable = true)
   private Map<String, String> alternateTerminologyIds;
 
+  /** The attributes. */
+  @OneToMany(targetEntity = AttributeJpa.class)
+  @JoinColumn(name = "attributes_id")
+  @JoinTable(name = "mapsets_attributes",
+      joinColumns = @JoinColumn(name = "attributes_id"),
+      inverseJoinColumns = @JoinColumn(name = "mapsets_id"))
+  private List<Attribute> attributes = null;
+  
   /**
    * Instantiates an empty {@link MapSetJpa}.
    */
@@ -116,7 +127,7 @@ public class MapSetJpa extends AbstractComponentHasAttributes
    * @param collectionCopy the deep copy
    */
   public MapSetJpa(MapSet mapset, boolean collectionCopy) {
-    super(mapset, collectionCopy);
+    //super(mapset, collectionCopy);
     name = mapset.getName();
     fromComplexity = mapset.getFromComplexity();
     toComplexity = mapset.getToComplexity();
@@ -132,9 +143,40 @@ public class MapSetJpa extends AbstractComponentHasAttributes
         new HashMap<>(mapset.getAlternateTerminologyIds());
     if (collectionCopy) {
       mappings = new ArrayList<>(getMappings());
+      for (final Attribute attribute : mapset.getAttributes()) {
+          getAttributes().add(new AttributeJpa(attribute));
+  }
     }
 
   }
+
+  /* see superclass */
+@Override
+@XmlElement(type = AttributeJpa.class)
+public List<Attribute> getAttributes() {
+  if (attributes == null) {
+    attributes = new ArrayList<>(1);
+  }
+  return attributes;
+}
+
+/* see superclass */
+@Override
+public void setAttributes(List<Attribute> attributes) {
+  this.attributes = attributes;
+}
+
+/* see superclass */
+@Override
+public Attribute getAttributeByName(String name) {
+  for (final Attribute attribute : getAttributes()) {
+    // If there are more than one, this just returns the first.
+    if (attribute.getName().equals(name)) {
+      return attribute;
+    }
+  }
+  return null;
+}
 
   /* see superclass */
   @Override

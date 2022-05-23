@@ -3,11 +3,17 @@
  */
 package com.wci.umls.server.jpa.content;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -19,9 +25,11 @@ import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
@@ -38,8 +46,7 @@ import com.wci.umls.server.model.content.SubsetMember;
 @Audited
 @Indexed
 @XmlRootElement(name = "conceptMember")
-public class ConceptSubsetMemberJpa
-    extends AbstractSubsetMember<Concept, ConceptSubset>
+public class ConceptSubsetMemberJpa extends AbstractSubsetMember<Concept, ConceptSubset>
     implements ConceptSubsetMember {
 
   /** The member. */
@@ -51,6 +58,14 @@ public class ConceptSubsetMemberJpa
   @ManyToOne(targetEntity = ConceptSubsetJpa.class, optional = false)
   @JoinColumn(nullable = false, name = "subset_id")
   private ConceptSubset subset;
+
+  /** The attributes. */
+  @OneToMany(targetEntity = AttributeJpa.class)
+  @JoinColumn(name = "attributes_id")
+  @JoinTable(name = "concept_subset_members_attributes",
+      joinColumns = @JoinColumn(name = "attributes_id"),
+      inverseJoinColumns = @JoinColumn(name = "concept_subset_members_id"))
+  private List<Attribute> attributes = null;
 
   /**
    * Instantiates an empty {@link ConceptSubsetMemberJpa}.
@@ -70,6 +85,39 @@ public class ConceptSubsetMemberJpa
     super(copy, collectionCopy);
     subset = copy.getSubset();
     member = copy.getMember();
+    if (collectionCopy) {
+      for (final Attribute attribute : copy.getAttributes()) {
+        getAttributes().add(new AttributeJpa(attribute));
+      }
+    }
+  }
+
+  /* see superclass */
+  @Override
+  @XmlElement(type = AttributeJpa.class)
+  public List<Attribute> getAttributes() {
+    if (attributes == null) {
+      attributes = new ArrayList<>(1);
+    }
+    return attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAttributes(List<Attribute> attributes) {
+    this.attributes = attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public Attribute getAttributeByName(String name) {
+    for (final Attribute attribute : getAttributes()) {
+      // If there are more than one, this just returns the first.
+      if (attribute.getName().equals(name)) {
+        return attribute;
+      }
+    }
+    return null;
   }
 
   /* see superclass */
@@ -180,9 +228,11 @@ public class ConceptSubsetMemberJpa
    * @return the member name
    */
   @Fields({
-      @Field(index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord")),
+      @Field(index = Index.YES, store = Store.NO, analyze = Analyze.YES,
+          analyzer = @Analyzer(definition = "noStopWord")),
       @Field(name = "memberNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
+  @SortableField(forField = "memberNameSort")
   public String getMemberName() {
     return member == null ? null : member.getName();
   }
@@ -306,7 +356,8 @@ public class ConceptSubsetMemberJpa
    *
    * @return the subset name
    */
-  @Field(index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord"))
+  @Field(index = Index.YES, store = Store.NO, analyze = Analyze.YES,
+      analyzer = @Analyzer(definition = "noStopWord"))
   public String getSubsetName() {
     return subset == null ? null : subset.getName();
   }
@@ -333,12 +384,10 @@ public class ConceptSubsetMemberJpa
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + ((member == null) ? 0 : member.hashCode());
-    result =
-        prime * result + ((member == null || member.getTerminologyId() == null)
-            ? 0 : member.getTerminologyId().hashCode());
-    result =
-        prime * result + ((subset == null || subset.getTerminologyId() == null)
-            ? 0 : subset.getTerminologyId().hashCode());
+    result = prime * result + ((member == null || member.getTerminologyId() == null) ? 0
+        : member.getTerminologyId().hashCode());
+    result = prime * result + ((subset == null || subset.getTerminologyId() == null) ? 0
+        : subset.getTerminologyId().hashCode());
     return result;
   }
 
@@ -363,8 +412,7 @@ public class ConceptSubsetMemberJpa
     } else if (member.getTerminologyId() == null) {
       if (other.member != null && other.member.getTerminologyId() != null)
         return false;
-    } else if (!member.getTerminologyId()
-        .equals(other.member.getTerminologyId()))
+    } else if (!member.getTerminologyId().equals(other.member.getTerminologyId()))
       return false;
     if (subset == null) {
       if (other.subset != null)
@@ -372,8 +420,7 @@ public class ConceptSubsetMemberJpa
     } else if (subset.getTerminologyId() == null) {
       if (other.subset != null && other.subset.getTerminologyId() != null)
         return false;
-    } else if (!subset.getTerminologyId()
-        .equals(other.subset.getTerminologyId()))
+    } else if (!subset.getTerminologyId().equals(other.subset.getTerminologyId()))
       return false;
     return true;
   }

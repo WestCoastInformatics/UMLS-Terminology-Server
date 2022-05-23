@@ -3,17 +3,24 @@
  */
 package com.wci.umls.server.jpa.content;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeTransitiveRelationship;
 
@@ -26,8 +33,8 @@ import com.wci.umls.server.model.content.CodeTransitiveRelationship;
 }))
 @Audited
 @XmlRootElement(name = "codeTransitiveRel")
-public class CodeTransitiveRelationshipJpa extends
-    AbstractTransitiveRelationship<Code> implements CodeTransitiveRelationship {
+public class CodeTransitiveRelationshipJpa extends AbstractTransitiveRelationship<Code>
+    implements CodeTransitiveRelationship {
 
   /** The super type. */
   @ManyToOne(targetEntity = CodeJpa.class, fetch = FetchType.EAGER, optional = false)
@@ -38,6 +45,14 @@ public class CodeTransitiveRelationshipJpa extends
   @ManyToOne(targetEntity = CodeJpa.class, fetch = FetchType.EAGER, optional = false)
   @JoinColumn(nullable = false)
   private Code subType;
+
+  /** The attributes. */
+  @OneToMany(targetEntity = AttributeJpa.class)
+  @JoinColumn(name = "attributes_id")
+  @JoinTable(name = "code_transitive_rels_attributes",
+      joinColumns = @JoinColumn(name = "attributes_id"),
+      inverseJoinColumns = @JoinColumn(name = "code_transitive_rels_id"))
+  private List<Attribute> attributes = null;
 
   /**
    * Instantiates an empty {@link CodeTransitiveRelationshipJpa}.
@@ -58,6 +73,39 @@ public class CodeTransitiveRelationshipJpa extends
     super(relationship, collectionCopy);
     superType = relationship.getSuperType();
     subType = relationship.getSubType();
+    if (collectionCopy) {
+      for (final Attribute attribute : relationship.getAttributes()) {
+        getAttributes().add(new AttributeJpa(attribute));
+      }
+    }
+  }
+
+  /* see superclass */
+  @Override
+  @XmlElement(type = AttributeJpa.class)
+  public List<Attribute> getAttributes() {
+    if (attributes == null) {
+      attributes = new ArrayList<>(1);
+    }
+    return attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAttributes(List<Attribute> attributes) {
+    this.attributes = attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public Attribute getAttributeByName(String name) {
+    for (final Attribute attribute : getAttributes()) {
+      // If there are more than one, this just returns the first.
+      if (attribute.getName().equals(name)) {
+        return attribute;
+      }
+    }
+    return null;
   }
 
   /* see superclass */
@@ -67,7 +115,6 @@ public class CodeTransitiveRelationshipJpa extends
     return superType;
   }
 
-  
   /* see superclass */
   @Override
   public void setSuperType(Code ancestor) {
@@ -179,7 +226,6 @@ public class CodeTransitiveRelationshipJpa extends
     superType.setName(term);
   }
 
-  
   /* see superclass */
   @XmlTransient
   @Override
@@ -187,7 +233,6 @@ public class CodeTransitiveRelationshipJpa extends
     return subType;
   }
 
-  
   /* see superclass */
   @Override
   public void setSubType(Code descendant) {
@@ -299,7 +344,6 @@ public class CodeTransitiveRelationshipJpa extends
     subType.setName(term);
   }
 
-  
   /* see superclass */
   @Override
   public int hashCode() {
@@ -310,7 +354,6 @@ public class CodeTransitiveRelationshipJpa extends
     return result;
   }
 
-  
   /* see superclass */
   @Override
   public boolean equals(Object obj) {

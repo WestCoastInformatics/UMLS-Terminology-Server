@@ -119,5 +119,28 @@ public interface Concept extends AtomClass, ComponentHasDefinitions,
    * @param lastApproved the last approved
    */
   public void setLastApproved(Date lastApproved);
+  
+  /**
+   * Returns the attributes.
+   *
+   * @return the attributes
+   */
+  public List<Attribute> getAttributes();
+
+  /**
+   * Sets the attributes.
+   *
+   * @param attributes the attributes
+   */
+  public void setAttributes(List<Attribute> attributes);
+
+
+  /**
+   * Returns the attribute by name.
+   *
+   * @param name the name
+   * @return the attribute by name
+   */
+  public Attribute getAttributeByName(String name);
 
 }

@@ -3,11 +3,13 @@ package com.wci.umls.server.jpa.workflow;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -23,11 +25,13 @@ import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.jpa.ProjectJpa;
+import com.wci.umls.server.jpa.content.DefinitionJpa;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
 
@@ -72,6 +76,8 @@ public class WorkflowEpochJpa implements WorkflowEpoch {
 
   /** The workflow bins. */
   @OneToMany(targetEntity = WorkflowBinJpa.class)
+  @IndexedEmbedded(targetElement = WorkflowBinJpa.class, includeEmbeddedObjectId=true)
+  @CollectionTable(name = "workflow_epochs_workflow_bins", joinColumns = @JoinColumn(name = "workflow_epochs_id"))
   private List<WorkflowBin> workflowBins = null;
 
   /** The project. */

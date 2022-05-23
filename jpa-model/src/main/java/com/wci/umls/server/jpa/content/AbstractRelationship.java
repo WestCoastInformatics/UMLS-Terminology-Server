@@ -15,6 +15,7 @@ import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.EnumBridge;
 
@@ -86,7 +87,7 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
    */
   public AbstractRelationship(Relationship<S, T> relationship,
       boolean collectionCopy) {
-    super(relationship, collectionCopy);
+    //super(relationship, collectionCopy);
     relationshipType = relationship.getRelationshipType();
     additionalRelationshipType = relationship.getAdditionalRelationshipType();
     group = relationship.getGroup();
@@ -100,6 +101,7 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
   /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @SortableField
   public String getRelationshipType() {
     return relationshipType;
   }
@@ -113,6 +115,7 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
   /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @SortableField
   public String getAdditionalRelationshipType() {
     return additionalRelationshipType;
   }
@@ -126,6 +129,7 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
   /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @SortableField
   public String getGroup() {
     return group;
   }

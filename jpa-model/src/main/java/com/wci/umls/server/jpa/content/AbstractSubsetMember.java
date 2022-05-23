@@ -41,7 +41,7 @@ public abstract class AbstractSubsetMember<T extends ComponentHasAttributesAndNa
    */
   public AbstractSubsetMember(SubsetMember<T, S> member,
       boolean collectionCopy) {
-    super(member, collectionCopy);
+    //super(member, collectionCopy);
   }
 
   /* see superclass */

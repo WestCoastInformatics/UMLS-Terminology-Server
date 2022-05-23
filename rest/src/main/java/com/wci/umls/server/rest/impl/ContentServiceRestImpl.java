@@ -2701,11 +2701,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /concept/"
         + terminology + "/" + version + "/" + terminologyId + "/trees");
-    final ContentService contentService = new ContentServiceJpa();
+    ContentService contentService = null;
     try {
+
+      contentService = new ContentServiceJpa();
       authorizeApp(securityService, authToken,
           "retrieve trees for the concept ", UserRole.VIEWER);
-
+      
       final TreePositionList list =
           contentService.findTreePositions(terminologyId, terminology, version,
               Branch.ROOT, null, ConceptTreePositionJpa.class, pfs);

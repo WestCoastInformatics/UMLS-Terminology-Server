@@ -36,6 +36,7 @@ import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.EnumBridge;
 import org.hibernate.search.bridge.builtin.LongBridge;
@@ -262,6 +263,7 @@ public class TrackingRecordJpa implements TrackingRecord {
       @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO, bridge = @FieldBridge(impl = LongBridge.class)),
       @Field(name = "clusterIdSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
+  @SortableField(forField = "clusterIdSort")
   public Long getClusterId() {
     return clusterId;
   }
@@ -350,7 +352,8 @@ public class TrackingRecordJpa implements TrackingRecord {
   @Fields({
       @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
       @Field(name = "indexedDataSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  })
+  })	
+  @SortableField(forField = "indexedDataSort")
   @Override
   public String getIndexedData() {
     return indexedData;

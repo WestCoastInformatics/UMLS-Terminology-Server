@@ -14,6 +14,8 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
@@ -93,6 +95,10 @@ public class ReleaseInfoJpa implements ReleaseInfo {
 
   /** The release properties. */
   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true, targetEntity = ReleasePropertyJpa.class)
+  @JoinColumn(name = "properties_id")
+  @JoinTable(name = "release_infos_release_properties",
+      joinColumns = @JoinColumn(name = "properties_id"),
+      inverseJoinColumns = @JoinColumn(name = "release_infos_id"))
   private List<ReleaseProperty> properties;
 
   /** the timestamp. */

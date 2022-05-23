@@ -16,6 +16,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -45,6 +46,7 @@ import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.AtomTreePosition;
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -101,6 +103,8 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   private List<AtomTreePosition> treePositions = null;
 
   /** The component histories. */
+  @IndexedEmbedded(targetElement = ComponentHistoryJpa.class, includeEmbeddedObjectId = true)
+  @CollectionTable(name = "atoms_component_histories", joinColumns = @JoinColumn(name = "atoms_id"))
   @OneToMany(targetEntity = ComponentHistoryJpa.class)
   private List<ComponentHistory> componentHistories = null;
 
@@ -168,6 +172,13 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @IndexedEmbedded(targetElement = AtomNoteJpa.class)
   private List<Note> notes = new ArrayList<>();
 
+  /** The attributes. */
+  @OneToMany(targetEntity = AttributeJpa.class)
+  @JoinColumn(name = "attributes_id")
+  @JoinTable(name = "atoms_attributes", joinColumns = @JoinColumn(name = "attributes_id"),
+      inverseJoinColumns = @JoinColumn(name = "atoms_id"))
+  private List<Attribute> attributes = null;
+
   /**
    * Instantiates an empty {@link AtomJpa}.
    */
@@ -191,7 +202,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
    * @param collectionCopy the deep copy
    */
   public AtomJpa(Atom atom, boolean collectionCopy) {
-    super(atom, collectionCopy);
+    // super(atom, collectionCopy);
     codeId = atom.getCodeId();
     conceptTerminologyIds = new HashMap<>(atom.getConceptTerminologyIds());
     alternateTerminologyIds = new HashMap<>(atom.getAlternateTerminologyIds());
@@ -211,7 +222,38 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
       treePositions = new ArrayList<>(atom.getTreePositions());
       members = new ArrayList<>(atom.getMembers());
       componentHistories = new ArrayList<>(atom.getComponentHistory());
+      for (final Attribute attribute : atom.getAttributes()) {
+        getAttributes().add(new AttributeJpa(attribute));
+      }
     }
+  }
+
+  /* see superclass */
+  @Override
+  @XmlElement(type = AttributeJpa.class)
+  public List<Attribute> getAttributes() {
+    if (attributes == null) {
+      attributes = new ArrayList<>(1);
+    }
+    return attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAttributes(List<Attribute> attributes) {
+    this.attributes = attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public Attribute getAttributeByName(String name) {
+    for (final Attribute attribute : getAttributes()) {
+      // If there are more than one, this just returns the first.
+      if (attribute.getName().equals(name)) {
+        return attribute;
+      }
+    }
+    return null;
   }
 
   /* see superclass */
@@ -287,15 +329,13 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
   /* see superclass */
   @Override
-  public void setConceptTerminologyIds(
-    Map<String, String> conceptTerminologyIds) {
+  public void setConceptTerminologyIds(Map<String, String> conceptTerminologyIds) {
     this.conceptTerminologyIds = conceptTerminologyIds;
   }
 
   /* see superclass */
   @Override
-  public void putConceptTerminologyId(String terminology,
-    String terminologyId) {
+  public void putConceptTerminologyId(String terminology, String terminologyId) {
     if (conceptTerminologyIds == null) {
       conceptTerminologyIds = new HashMap<>(2);
     }
@@ -403,10 +443,13 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   /* see superclass */
   @Override
   @Fields({
-      @Field(name = "name", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord")),
+      @Field(name = "name", index = Index.YES, store = Store.NO, analyze = Analyze.YES,
+          analyzer = @Analyzer(definition = "noStopWord")),
       @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
-      @Field(name = "edgeNGramName", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "autocompleteEdgeAnalyzer")),
-      @Field(name = "nGramName", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "autocompleteNGramAnalyzer"))
+      @Field(name = "edgeNGramName", index = Index.YES, store = Store.NO, analyze = Analyze.YES,
+          analyzer = @Analyzer(definition = "autocompleteEdgeAnalyzer")),
+      @Field(name = "nGramName", index = Index.YES, store = Store.NO, analyze = Analyze.YES,
+          analyzer = @Analyzer(definition = "autocompleteNGramAnalyzer"))
   })
   @SortableField(forField = "nameSort")
   public String getName() {
@@ -462,7 +505,8 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   /* see superclass */
   @Override
   @FieldBridge(impl = MapKeyValueToCsvBridge.class)
-  @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES,
+      store = Store.NO)
   public Map<String, String> getAlternateTerminologyIds() {
     if (alternateTerminologyIds == null) {
       alternateTerminologyIds = new HashMap<>(2);
@@ -472,8 +516,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
   /* see superclass */
   @Override
-  public void setAlternateTerminologyIds(
-    Map<String, String> alternateTerminologyIds) {
+  public void setAlternateTerminologyIds(Map<String, String> alternateTerminologyIds) {
     this.alternateTerminologyIds = alternateTerminologyIds;
   }
 
@@ -545,16 +588,12 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     int result = super.hashCode();
     result = prime * result + ((codeId == null) ? 0 : codeId.hashCode());
     result = prime * result + ((conceptId == null) ? 0 : conceptId.hashCode());
-    result =
-        prime * result + ((descriptorId == null) ? 0 : descriptorId.hashCode());
+    result = prime * result + ((descriptorId == null) ? 0 : descriptorId.hashCode());
     result = prime * result + ((language == null) ? 0 : language.hashCode());
-    result = prime * result
-        + ((lexicalClassId == null) ? 0 : lexicalClassId.hashCode());
-    result = prime * result
-        + ((stringClassId == null) ? 0 : stringClassId.hashCode());
+    result = prime * result + ((lexicalClassId == null) ? 0 : lexicalClassId.hashCode());
+    result = prime * result + ((stringClassId == null) ? 0 : stringClassId.hashCode());
     result = prime * result + ((termType == null) ? 0 : termType.hashCode());
-    result = prime * result
-        + ((lastPublishedRank == null) ? 0 : lastPublishedRank.hashCode());
+    result = prime * result + ((lastPublishedRank == null) ? 0 : lastPublishedRank.hashCode());
     return result;
   }
 
@@ -614,11 +653,10 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   /* see superclass */
   @Override
   public String toString() {
-    return "AtomJpa [name=" + name + ", codeId=" + codeId + ", descriptorId="
-        + descriptorId + ", conceptId=" + conceptId + ", language=" + language
-        + ", lexicalClassId=" + lexicalClassId + ", stringClassId="
-        + stringClassId + ", termType=" + termType + ", workflowStatus="
-        + workflowStatus + ", lastPublishedRank=" + lastPublishedRank + "] - "
+    return "AtomJpa [name=" + name + ", codeId=" + codeId + ", descriptorId=" + descriptorId
+        + ", conceptId=" + conceptId + ", language=" + language + ", lexicalClassId="
+        + lexicalClassId + ", stringClassId=" + stringClassId + ", termType=" + termType
+        + ", workflowStatus=" + workflowStatus + ", lastPublishedRank=" + lastPublishedRank + "] - "
         + super.toString();
   }
 
