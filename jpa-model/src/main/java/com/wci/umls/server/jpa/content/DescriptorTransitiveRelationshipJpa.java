@@ -51,8 +51,8 @@ public class DescriptorTransitiveRelationshipJpa extends AbstractTransitiveRelat
   @OneToMany(targetEntity = AttributeJpa.class)
   @JoinColumn(name = "attributes_id")
   @JoinTable(name = "descriptor_transitive_rels_attributes",
-      joinColumns = @JoinColumn(name = "attributes_id"),
-      inverseJoinColumns = @JoinColumn(name = "descriptor_transitive_rels_id"))
+      inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "descriptor_transitive_rels_id"))
   private List<Attribute> attributes = null;
 
   /**

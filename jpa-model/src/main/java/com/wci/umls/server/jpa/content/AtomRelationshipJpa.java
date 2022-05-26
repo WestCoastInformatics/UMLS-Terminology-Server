@@ -77,8 +77,8 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
   @OneToMany(targetEntity = AttributeJpa.class)
   @JoinColumn(name = "attributes_id")
   @JoinTable(name = "atom_relationships_attributes",
-      joinColumns = @JoinColumn(name = "attributes_id"),
-      inverseJoinColumns = @JoinColumn(name = "atom_relationships_id"))
+      inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "atom_relationships_id"))
   private List<Attribute> attributes = null;
 
   /**

@@ -109,8 +109,8 @@ public class MapSetJpa extends AbstractComponentHasAttributes
   @OneToMany(targetEntity = AttributeJpa.class)
   @JoinColumn(name = "attributes_id")
   @JoinTable(name = "mapsets_attributes",
-      joinColumns = @JoinColumn(name = "attributes_id"),
-      inverseJoinColumns = @JoinColumn(name = "mapsets_id"))
+      inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "mapsets_id"))
   private List<Attribute> attributes = null;
   
   /**

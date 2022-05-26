@@ -92,8 +92,8 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
   /** The attributes. */
   @OneToMany(targetEntity = AttributeJpa.class)
   @JoinColumn(name = "attributes_id")
-  @JoinTable(name = "descriptors_attributes", joinColumns = @JoinColumn(name = "attributes_id"),
-      inverseJoinColumns = @JoinColumn(name = "descriptors_id"))
+  @JoinTable(name = "descriptors_attributes", inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "descriptors_id"))
   private List<Attribute> attributes = null;
 
   /**

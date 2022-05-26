@@ -55,8 +55,8 @@ public class AtomTreePositionJpa extends AbstractTreePosition<Atom> implements A
   @OneToMany(targetEntity = AttributeJpa.class)
   @JoinColumn(name = "attributes_id")
   @JoinTable(name = "atom_tree_positions_attributes",
-      joinColumns = @JoinColumn(name = "attributes_id"),
-      inverseJoinColumns = @JoinColumn(name = "atom_tree_positions_id"))
+      inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "atom_tree_positions_id"))
   private List<Attribute> attributes = null;
 
   /**

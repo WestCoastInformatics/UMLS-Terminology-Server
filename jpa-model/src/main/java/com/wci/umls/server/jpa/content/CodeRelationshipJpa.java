@@ -74,8 +74,8 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
   @OneToMany(targetEntity = AttributeJpa.class)
   @JoinColumn(name = "attributes_id")
   @JoinTable(name = "code_relationships_attributes",
-      joinColumns = @JoinColumn(name = "attributes_id"),
-      inverseJoinColumns = @JoinColumn(name = "code_relationships_id"))
+      inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "code_relationships_id"))
   private List<Attribute> attributes = null;
 
   /**

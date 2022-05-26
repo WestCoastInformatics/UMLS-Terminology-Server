@@ -666,9 +666,7 @@ public class IndexUtility {
           SortField sortField = null;
 
           // check for LONG fields
-          if (sortFieldStr.equals("lastModified") || sortFieldStr.equals("effectiveTime")
-              || sortFieldStr.equals("timestamp")
-              || (sortFieldStr.toLowerCase().endsWith("id")
+          if ((sortFieldStr.toLowerCase().endsWith("id")
                   && !sortFieldStr.toLowerCase().endsWith("terminologyid"))
               || sortFieldStr.toLowerCase().endsWith("idsort")
                   && !sortFieldStr.toLowerCase().endsWith("terminologyidsort")) {

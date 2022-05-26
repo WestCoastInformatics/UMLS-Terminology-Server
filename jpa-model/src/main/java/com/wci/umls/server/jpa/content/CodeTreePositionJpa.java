@@ -55,8 +55,8 @@ public class CodeTreePositionJpa extends AbstractTreePosition<Code> implements C
   @OneToMany(targetEntity = AttributeJpa.class)
   @JoinColumn(name = "attributes_id")
   @JoinTable(name = "code_tree_positions_attributes",
-      joinColumns = @JoinColumn(name = "attributes_id"),
-      inverseJoinColumns = @JoinColumn(name = "code_tree_positions_id"))
+      inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "code_tree_positions_id"))
   private List<Attribute> attributes = null;
 
   /**

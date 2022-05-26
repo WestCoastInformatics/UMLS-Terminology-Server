@@ -63,10 +63,11 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
 
   /** The tracking records. */
   @OneToMany(targetEntity = TrackingRecordJpa.class)
+  @JoinColumn(name = "trackingRecords_id")
   @JoinTable(name = "worklists_tracking_records",
-      joinColumns = @JoinColumn(name = "trackingRecords_id"),
-      inverseJoinColumns = @JoinColumn(name = "worklists_id"))
-  private List<TrackingRecord> trackingRecords = new ArrayList<>();
+      inverseJoinColumns = @JoinColumn(name = "trackingRecords_id"),
+      joinColumns = @JoinColumn(name = "worklists_id"))
+  private List<TrackingRecord> trackingRecords;
 
   /** The authors. */
   @ElementCollection

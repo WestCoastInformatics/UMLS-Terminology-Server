@@ -102,8 +102,8 @@ public class ComponentInfoRelationshipJpa extends AbstractRelationship<Component
   @OneToMany(targetEntity = AttributeJpa.class)
   @JoinColumn(name = "attributes_id")
   @JoinTable(name = "component_info_relationships_attributes",
-      joinColumns = @JoinColumn(name = "attributes_id"),
-      inverseJoinColumns = @JoinColumn(name = "component_info_relationships_id"))
+      inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "component_info_relationships_id"))
   private List<Attribute> attributes = null;
 
   /**
