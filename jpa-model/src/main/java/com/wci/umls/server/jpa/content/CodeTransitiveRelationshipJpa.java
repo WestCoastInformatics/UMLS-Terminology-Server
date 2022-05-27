@@ -50,8 +50,8 @@ public class CodeTransitiveRelationshipJpa extends AbstractTransitiveRelationshi
   @OneToMany(targetEntity = AttributeJpa.class)
   @JoinColumn(name = "attributes_id")
   @JoinTable(name = "code_transitive_rels_attributes",
-      joinColumns = @JoinColumn(name = "attributes_id"),
-      inverseJoinColumns = @JoinColumn(name = "code_transitive_rels_id"))
+      inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "code_transitive_rels_id"))
   private List<Attribute> attributes = null;
 
   /**

@@ -63,8 +63,8 @@ public class ConceptSubsetMemberJpa extends AbstractSubsetMember<Concept, Concep
   @OneToMany(targetEntity = AttributeJpa.class)
   @JoinColumn(name = "attributes_id")
   @JoinTable(name = "concept_subset_members_attributes",
-      joinColumns = @JoinColumn(name = "attributes_id"),
-      inverseJoinColumns = @JoinColumn(name = "concept_subset_members_id"))
+      inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "concept_subset_members_id"))
   private List<Attribute> attributes = null;
 
   /**

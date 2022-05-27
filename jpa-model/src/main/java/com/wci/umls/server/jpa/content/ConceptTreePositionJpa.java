@@ -56,8 +56,8 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
   @OneToMany(targetEntity = AttributeJpa.class)
   @JoinColumn(name = "attributes_id")
   @JoinTable(name = "concept_tree_positions_attributes",
-      joinColumns = @JoinColumn(name = "attributes_id"),
-      inverseJoinColumns = @JoinColumn(name = "concept_tree_positions_id"))
+      inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "concept_tree_positions_id"))
   private List<Attribute> attributes = null;
 
   /**

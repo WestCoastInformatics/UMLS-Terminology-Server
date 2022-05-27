@@ -27,10 +27,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.DateBridge;
+import org.hibernate.search.annotations.EncodingType;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Resolution;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
@@ -118,9 +122,10 @@ public class WorkflowBinJpa implements WorkflowBin {
 
   /** The tracking records. */
   @OneToMany(targetEntity = TrackingRecordJpa.class)
+  @JoinColumn(name = "trackingRecords_id")
   @JoinTable(name = "workflow_bins_tracking_records",
-  joinColumns = @JoinColumn(name = "trackingRecords_id"),
-  inverseJoinColumns = @JoinColumn(name = "workflow_bins_id"))
+  inverseJoinColumns = @JoinColumn(name = "trackingRecords_id"),
+  joinColumns = @JoinColumn(name = "workflow_bins_id"))
   // @CollectionTable(name = "workflow_bins_tracking_records",
   // joinColumns = @JoinColumn(name = "trackingRecords_id"))
   private List<TrackingRecord> trackingRecords = new ArrayList<>();
@@ -217,6 +222,9 @@ public class WorkflowBinJpa implements WorkflowBin {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @DateBridge(resolution = Resolution.SECOND, encoding = EncodingType.STRING)
+  @SortableField
   public Date getLastModified() {
     return lastModified;
   }

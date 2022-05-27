@@ -1379,12 +1379,15 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
       // records with the checklist name will be attached to this checklist
       final TrackingRecordList list = workflowService.findTrackingRecords(project,
           "checklistName:\"" + checklist.getName() + "\"", pfs);
+      List<TrackingRecord> recordListWithConcepts = new ArrayList<>();
       for (final TrackingRecord record : list.getObjects()) {
-        workflowService.lookupTrackingRecordConcepts(record);
+        TrackingRecord recordWithConcepts = workflowService.lookupTrackingRecordConcepts(record);
+        recordListWithConcepts.add(recordWithConcepts);
       }
 
       // websocket - n/a
 
+      list.setObjects(recordListWithConcepts);
       return list;
 
     } catch (Exception e) {
@@ -1413,8 +1416,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Workflow): /worklist/" + id + "/records");
 
-    final WorkflowService workflowService = new WorkflowServiceJpa();
+    WorkflowService workflowService = null; 
     try {
+      workflowService = new WorkflowServiceJpa();
       authorizeProject(workflowService, projectId, securityService, authToken,
           "trying to find records for worklist", UserRole.AUTHOR);
 
@@ -1430,7 +1434,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
 
       if (query.isEmpty()) {
         return new TrackingRecordListJpa();
-      }
+      } //"id:39527201"
       final TrackingRecordList list = workflowService.findTrackingRecords(project, query, pfs);
       for (final TrackingRecord record : list.getObjects()) {
         workflowService.lookupTrackingRecordConcepts(record);

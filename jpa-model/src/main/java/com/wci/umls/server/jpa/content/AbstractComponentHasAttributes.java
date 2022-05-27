@@ -45,7 +45,7 @@ public abstract class AbstractComponentHasAttributes extends AbstractComponent
 //  public AbstractComponentHasAttributes(ComponentHasAttributes component,
 //      boolean collectionCopy) {
 //    super(component);
-//
+
 //    if (collectionCopy) {
 //      for (final Attribute attribute : component.getAttributes()) {
 //        getAttributes().add(new AttributeJpa(attribute));

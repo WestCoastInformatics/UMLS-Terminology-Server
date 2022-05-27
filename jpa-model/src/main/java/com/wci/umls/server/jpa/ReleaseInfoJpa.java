@@ -97,8 +97,8 @@ public class ReleaseInfoJpa implements ReleaseInfo {
   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true, targetEntity = ReleasePropertyJpa.class)
   @JoinColumn(name = "properties_id")
   @JoinTable(name = "release_infos_release_properties",
-      joinColumns = @JoinColumn(name = "properties_id"),
-      inverseJoinColumns = @JoinColumn(name = "release_infos_id"))
+      inverseJoinColumns = @JoinColumn(name = "properties_id"),
+      joinColumns = @JoinColumn(name = "release_infos_id"))
   private List<ReleaseProperty> properties;
 
   /** the timestamp. */

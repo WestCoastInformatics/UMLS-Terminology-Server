@@ -83,8 +83,8 @@ public class CodeJpa extends AbstractAtomClass implements Code {
   /** The attributes. */
   @OneToMany(targetEntity = AttributeJpa.class)
   @JoinColumn(name = "attributes_id")
-  @JoinTable(name = "codes_attributes", joinColumns = @JoinColumn(name = "attributes_id"),
-      inverseJoinColumns = @JoinColumn(name = "codes_id"))
+  @JoinTable(name = "codes_attributes", inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "codes_id"))
   private List<Attribute> attributes = null;
 
   /**

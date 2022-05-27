@@ -512,7 +512,7 @@ public interface WorkflowService extends ContentService {
    * @param record the record
    * @throws Exception the exception
    */
-  public void lookupTrackingRecordConcepts(TrackingRecord record)
+  public TrackingRecord lookupTrackingRecordConcepts(TrackingRecord record)
     throws Exception;
 
   /**

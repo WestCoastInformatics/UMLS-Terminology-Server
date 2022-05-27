@@ -175,8 +175,8 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   /** The attributes. */
   @OneToMany(targetEntity = AttributeJpa.class)
   @JoinColumn(name = "attributes_id")
-  @JoinTable(name = "atoms_attributes", joinColumns = @JoinColumn(name = "attributes_id"),
-      inverseJoinColumns = @JoinColumn(name = "atoms_id"))
+  @JoinTable(name = "atoms_attributes", inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "atoms_id"))
   private List<Attribute> attributes = null;
 
   /**

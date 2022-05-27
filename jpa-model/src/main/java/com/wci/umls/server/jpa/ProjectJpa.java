@@ -172,8 +172,8 @@ public class ProjectJpa implements Project {
   //@OneToMany(targetEntity = TrackingRecordJpa.class)
   @JoinColumn(name = "validationData_id")
   @JoinTable(name = "projects_type_key_values",
-      joinColumns = @JoinColumn(name = "projects_id"),
-      inverseJoinColumns = @JoinColumn(name = "validationData_id"))
+      inverseJoinColumns = @JoinColumn(name = "projects_id"),
+      joinColumns = @JoinColumn(name = "validationData_id"))
   private List<TypeKeyValue> validationData = null;
 
   /** The prec list. */

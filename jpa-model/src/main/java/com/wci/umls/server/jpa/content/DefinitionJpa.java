@@ -57,8 +57,8 @@ public class DefinitionJpa extends AbstractComponentHasAttributes
   @OneToMany(targetEntity = AttributeJpa.class)
   @JoinColumn(name = "attributes_id")
   @JoinTable(name = "definitions_attributes",
-      joinColumns = @JoinColumn(name = "attributes_id"),
-      inverseJoinColumns = @JoinColumn(name = "definitions_id"))
+      inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "definitions_id"))
   private List<Attribute> attributes = null;
   
   /**

@@ -81,8 +81,8 @@ public class ConceptRelationshipJpa extends AbstractRelationship<Concept, Concep
   @OneToMany(targetEntity = AttributeJpa.class)
   @JoinColumn(name = "attributes_id")
   @JoinTable(name = "concept_relationships_attributes",
-      joinColumns = @JoinColumn(name = "attributes_id"),
-      inverseJoinColumns = @JoinColumn(name = "concept_relationships_id"))
+      inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "concept_relationships_id"))
   private List<Attribute> attributes = null;
 
   /**

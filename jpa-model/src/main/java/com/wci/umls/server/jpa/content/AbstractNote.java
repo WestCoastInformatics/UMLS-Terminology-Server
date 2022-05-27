@@ -14,8 +14,12 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.DateBridge;
+import org.hibernate.search.annotations.EncodingType;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Resolution;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.helpers.Note;
@@ -103,6 +107,8 @@ public abstract class AbstractNote implements Note {
 
   /* see superclass */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @DateBridge(resolution = Resolution.SECOND, encoding = EncodingType.STRING)
+  @SortableField
   @Override
   public Date getLastModified() {
     return lastModified;

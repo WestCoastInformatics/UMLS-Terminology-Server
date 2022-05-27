@@ -91,7 +91,7 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
 })
 @Audited
 @MappedSuperclass
-public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
+public abstract class AbstractAtomClass extends AbstractComponent
     implements AtomClass {
 
 //  /** The descriptions. */
@@ -127,7 +127,7 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
    * @param collectionCopy the deep copy
    */
   public AbstractAtomClass(AtomClass atomClass, boolean collectionCopy) {
-    //super(atomClass, collectionCopy);
+    super(atomClass);
     name = atomClass.getName();
     workflowStatus = atomClass.getWorkflowStatus();
     branchedTo = atomClass.getBranchedTo();

@@ -50,8 +50,8 @@ public class AtomTransitiveRelationshipJpa extends AbstractTransitiveRelationshi
   @OneToMany(targetEntity = AttributeJpa.class)
   @JoinColumn(name = "attributes_id")
   @JoinTable(name = "atom_transitive_rels_attributes",
-      joinColumns = @JoinColumn(name = "attributes_id"),
-      inverseJoinColumns = @JoinColumn(name = "atom_transitive_rels_id"))
+      inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "atom_transitive_rels_id"))
   private List<Attribute> attributes = null;
 
   /**

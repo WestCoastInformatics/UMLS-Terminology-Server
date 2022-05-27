@@ -56,8 +56,8 @@ public class DescriptorTreePositionJpa extends AbstractTreePosition<Descriptor>
   @OneToMany(targetEntity = AttributeJpa.class)
   @JoinColumn(name = "attributes_id")
   @JoinTable(name = "descriptor_tree_positions_attributes",
-      joinColumns = @JoinColumn(name = "attributes_id"),
-      inverseJoinColumns = @JoinColumn(name = "descriptor_tree_positions_id"))
+      inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "descriptor_tree_positions_id"))
   private List<Attribute> attributes = null;
 
   /**

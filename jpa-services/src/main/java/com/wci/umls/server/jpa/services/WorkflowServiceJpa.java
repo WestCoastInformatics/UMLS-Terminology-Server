@@ -1299,12 +1299,12 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
   }
 
   @Override
-  public void lookupTrackingRecordConcepts(TrackingRecord record)
+  public TrackingRecord lookupTrackingRecordConcepts(TrackingRecord record)
     throws Exception {
 
     // Bail if no atom components.
     if (record.getComponentIds().size() == 0) {
-      return;
+      return record;
     }
 
     // Create a query
@@ -1319,6 +1319,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       record.getConcepts().add(new ConceptJpa(concept, false));
     }
 
+    return record;
   }
 
   /**

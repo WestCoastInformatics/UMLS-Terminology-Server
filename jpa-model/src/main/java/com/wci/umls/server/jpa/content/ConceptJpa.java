@@ -146,8 +146,8 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @OneToMany(targetEntity = AttributeJpa.class)
   @JoinColumn(name = "attributes_id")
   @JoinTable(name = "concepts_attributes",
-      joinColumns = @JoinColumn(name = "attributes_id"),
-      inverseJoinColumns = @JoinColumn(name = "concepts_id"))
+      inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "concepts_id"))
   private List<Attribute> attributes = null;
   
   /**

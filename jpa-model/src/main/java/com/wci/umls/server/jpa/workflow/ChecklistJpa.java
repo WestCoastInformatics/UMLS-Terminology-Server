@@ -46,8 +46,8 @@ public class ChecklistJpa extends AbstractChecklist {
   @OneToMany(targetEntity = TrackingRecordJpa.class)
   @JoinColumn(name = "trackingRecords_id")
   @JoinTable(name = "checklists_tracking_records",
-      joinColumns = @JoinColumn(name = "trackingRecords_id"),
-      inverseJoinColumns = @JoinColumn(name = "checklists_id"))
+      inverseJoinColumns = @JoinColumn(name = "trackingRecords_id"),
+      joinColumns = @JoinColumn(name = "checklists_id"))
   private List<TrackingRecord> trackingRecords = new ArrayList<>();
 
   /** The notes. */

@@ -58,8 +58,8 @@ public class StringClassJpa extends AbstractAtomClass implements StringClass {
   /** The attributes. */
   @OneToMany(targetEntity = AttributeJpa.class)
   @JoinColumn(name = "attributes_id")
-  @JoinTable(name = "string_classes_attributes", joinColumns = @JoinColumn(name = "attributes_id"),
-      inverseJoinColumns = @JoinColumn(name = "string_classes_id"))
+  @JoinTable(name = "string_classes_attributes", inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "string_classes_id"))
   private List<Attribute> attributes = null;
 
   /**

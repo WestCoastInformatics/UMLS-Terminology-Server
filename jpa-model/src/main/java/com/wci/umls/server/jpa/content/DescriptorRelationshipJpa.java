@@ -74,8 +74,8 @@ public class DescriptorRelationshipJpa extends AbstractRelationship<Descriptor, 
   @OneToMany(targetEntity = AttributeJpa.class)
   @JoinColumn(name = "attributes_id")
   @JoinTable(name = "descriptor_relationships_attributes",
-      joinColumns = @JoinColumn(name = "attributes_id"),
-      inverseJoinColumns = @JoinColumn(name = "descriptor_relationships_id"))
+      inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "descriptor_relationships_id"))
   private List<Attribute> attributes = null;
 
   /**
