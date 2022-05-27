@@ -78,7 +78,7 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
 })
 @Audited
 @XmlRootElement(name = "atom")
-public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
+public class AtomJpa extends AbstractComponent implements Atom {
 
   /** The definitions. */
   @OneToMany(targetEntity = DefinitionJpa.class)
@@ -202,7 +202,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
    * @param collectionCopy the deep copy
    */
   public AtomJpa(Atom atom, boolean collectionCopy) {
-    // super(atom, collectionCopy);
+    super(atom);
     codeId = atom.getCodeId();
     conceptTerminologyIds = new HashMap<>(atom.getConceptTerminologyIds());
     alternateTerminologyIds = new HashMap<>(atom.getAlternateTerminologyIds());
