@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, Inc
  */
 package com.wci.umls.server.jpa.content;
 
