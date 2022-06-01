@@ -640,6 +640,8 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
 
     // Add this terminology and name to the cached set.
     attributeIdentityCachedTerms.add(terminology + name);
+    
+    getService().reopen();
   }
 
   private void cacheExistingAtomIdentities(String terminology)
@@ -673,6 +675,8 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
 
     // Add this terminology to the cached set.
     atomIdentityCachedTerms.add(terminology);
+    
+    getService().reopen();
   }
 
   private void cacheExistingStringClassIdentities() throws Exception {
@@ -694,6 +698,8 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
       stringClassIdentityCache.put(identityCode, id);
     }
     results.close();
+
+    getService().reopen();
   }
 
   private void cacheExistingLexicalClassIdentities() throws Exception {
@@ -715,6 +721,8 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
       lexicalClassIdentityCache.put(identityCode, id);
     }
     results.close();
+    
+    getService().reopen();
   }
 
   private void cacheExistingRelationshipIdentities(String terminology)
@@ -754,6 +762,8 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
 
     // Add this terminology to the cached set.
     relationshipIdentityCachedTerms.add(terminology);
+
+    getService().reopen();
   }
 
   /* see superclass */
@@ -1114,6 +1124,7 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
    */
   public UmlsIdentityService getService() throws Exception {
     if (service != null && !service.getTransactionPerOperation()) {
+      service.reopen();
       return service;
     } else if (service == null) {
       return new UmlsIdentityServiceJpa();

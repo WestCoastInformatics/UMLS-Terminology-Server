@@ -110,6 +110,8 @@ public abstract class RootServiceJpa implements RootService {
 
   /** The validation handlers. */
   private static Map<String, ValidationCheck> validationHandlersMap = null;
+  
+  protected Date sessionTimestamp = new Date();
 
   static {
     init();
@@ -208,6 +210,8 @@ public abstract class RootServiceJpa implements RootService {
 
     // created on each instantiation
     manager = factory.createEntityManager();
+    // TODO save current time in ms also in other spot
+    sessionTimestamp = new Date();
     tx = manager.getTransaction();
 
     // set the max clause count from config
@@ -217,6 +221,12 @@ public abstract class RootServiceJpa implements RootService {
   // open a new session 
   @Override
   public void reopen() throws Exception {
+    
+    // check if time elapsed < 30 min, don't reopen
+    if ((new Date().getTime() - sessionTimestamp.getTime())/1000 < 1800000) {
+      return;
+    }
+    
     if (factory == null) {
       throw new Exception("Factory is null, serious problem.");
     }
