@@ -212,6 +212,8 @@ public abstract class RootServiceJpa implements RootService {
     manager = factory.createEntityManager();
     // TODO save current time in ms also in other spot
     sessionTimestamp = new Date();
+
+    Logger.getLogger(getClass()).info("*new timestamp: " + sessionTimestamp);
     tx = manager.getTransaction();
 
     // set the max clause count from config
@@ -223,6 +225,9 @@ public abstract class RootServiceJpa implements RootService {
   public void reopen() throws Exception {
     
     // check if time elapsed < 30 min, don't reopen
+    Logger.getLogger(getClass())
+    .info("reopen? : "  + sessionTimestamp.getTime() + ":" + new Date().getTime() + ":" + sessionTimestamp.getTime() + ":" + (new Date().getTime() - sessionTimestamp.getTime())/1000);
+
     if ((new Date().getTime() - sessionTimestamp.getTime())/1000 < 1800000) {
       return;
     }
@@ -243,6 +248,8 @@ public abstract class RootServiceJpa implements RootService {
       Logger.getLogger(getClass()).info("    DO NOT wait 30000 ms on reopen (transaction per operation)");
     }
     manager = factory.createEntityManager();
+    sessionTimestamp = new Date();
+    Logger.getLogger(getClass()).info("new timestamp: " + sessionTimestamp);
     tx = manager.getTransaction();
     if (!getTransactionPerOperation()) {
       tx.begin();
