@@ -48,7 +48,7 @@ public abstract class AbstractSubset extends AbstractComponentHasAttributes
    * @param collectionCopy the deep copy
    */
   public AbstractSubset(Subset subset, boolean collectionCopy) {
-    //super(subset, collectionCopy);
+    super(subset, collectionCopy);
     name = subset.getName();
     description = subset.getDescription();
     branchedTo = subset.getBranchedTo();

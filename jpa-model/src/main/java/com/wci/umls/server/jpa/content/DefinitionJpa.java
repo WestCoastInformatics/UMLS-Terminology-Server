@@ -75,7 +75,7 @@ public class DefinitionJpa extends AbstractComponentHasAttributes
    * @param collectionCopy the deep copy
    */
   public DefinitionJpa(Definition definition, boolean collectionCopy) {
-    //super(definition, collectionCopy);
+    super(definition, collectionCopy);
     value = definition.getValue();
     alternateTerminologyIds =
         new HashMap<>(definition.getAlternateTerminologyIds());

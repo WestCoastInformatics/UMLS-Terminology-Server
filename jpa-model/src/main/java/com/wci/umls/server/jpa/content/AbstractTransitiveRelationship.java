@@ -43,7 +43,7 @@ public abstract class AbstractTransitiveRelationship<T extends ComponentHasAttri
    */
   public AbstractTransitiveRelationship(TransitiveRelationship<T> relationship,
       boolean collectionCopy) {
-    //super(relationship, collectionCopy);
+    super(relationship, collectionCopy);
     depth = relationship.getDepth();
   }
 

@@ -60,7 +60,7 @@ public abstract class AbstractTreePosition<T extends ComponentHasAttributesAndNa
    * @param collectionCopy the deep copy
    */
   public AbstractTreePosition(TreePosition<T> treepos, boolean collectionCopy) {
-    //super(treepos, collectionCopy);
+    super(treepos, collectionCopy);
     additionalRelationshipType = treepos.getAdditionalRelationshipType();
     ancestorPath = treepos.getAncestorPath();
     childCt = treepos.getChildCt();

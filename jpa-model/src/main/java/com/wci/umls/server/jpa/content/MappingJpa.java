@@ -140,7 +140,7 @@ public class MappingJpa extends AbstractComponentHasAttributes
    * @param collectionCopy the deep copy
    */
   public MappingJpa(Mapping mapping, boolean collectionCopy) {
-    //super(mapping, collectionCopy);
+    super(mapping, collectionCopy);
     mapSet = mapping.getMapSet();
     fromTerminologyId = mapping.getFromTerminologyId();
     fromName = mapping.getFromName();

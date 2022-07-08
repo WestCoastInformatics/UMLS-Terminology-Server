@@ -127,7 +127,7 @@ public class MapSetJpa extends AbstractComponentHasAttributes
    * @param collectionCopy the deep copy
    */
   public MapSetJpa(MapSet mapset, boolean collectionCopy) {
-    //super(mapset, collectionCopy);
+    super(mapset, collectionCopy);
     name = mapset.getName();
     fromComplexity = mapset.getFromComplexity();
     toComplexity = mapset.getToComplexity();
