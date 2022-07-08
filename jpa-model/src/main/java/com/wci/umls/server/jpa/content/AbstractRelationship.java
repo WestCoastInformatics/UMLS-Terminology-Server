@@ -87,7 +87,7 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
    */
   public AbstractRelationship(Relationship<S, T> relationship,
       boolean collectionCopy) {
-    //super(relationship, collectionCopy);
+    super(relationship, collectionCopy);
     relationshipType = relationship.getRelationshipType();
     additionalRelationshipType = relationship.getAdditionalRelationshipType();
     group = relationship.getGroup();
