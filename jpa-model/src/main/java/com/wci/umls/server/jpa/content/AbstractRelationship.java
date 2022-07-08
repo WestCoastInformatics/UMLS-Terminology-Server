@@ -240,6 +240,7 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
       inverseRelationship.setId(null);
       // Need to duplicate the TerminologyId from the source relationship.
       inverseRelationship.setTerminologyId(relationship.getTerminologyId());
+      inverseRelationship.setTerminology(relationship.getTerminology());
       inverseRelationship.setFrom((S) relationship.getTo());
       inverseRelationship.setTo((T) relationship.getFrom());
       inverseRelationship.setRelationshipType(inverseRelType);
