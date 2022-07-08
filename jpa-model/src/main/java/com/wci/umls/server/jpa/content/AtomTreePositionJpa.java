@@ -41,7 +41,7 @@ import com.wci.umls.server.model.content.Attribute;
 @Table(name = "atom_tree_positions", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "atomTreePosition")
 public class AtomTreePositionJpa extends AbstractTreePosition<Atom> implements AtomTreePosition {

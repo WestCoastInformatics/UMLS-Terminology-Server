@@ -28,7 +28,7 @@ import com.wci.umls.server.model.content.Attribute;
 @Table(name = "attributes", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @XmlRootElement(name = "attribute")
 public class AttributeJpa extends AbstractComponent implements Attribute {
 

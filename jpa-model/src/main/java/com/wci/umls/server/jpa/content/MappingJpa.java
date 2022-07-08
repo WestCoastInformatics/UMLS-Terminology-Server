@@ -51,7 +51,7 @@ import com.wci.umls.server.model.meta.IdType;
 @Table(name = "mappings", uniqueConstraints = @UniqueConstraint(columnNames = {
     "fromTerminologyId", "toTerminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "mapping")
 public class MappingJpa extends AbstractComponentHasAttributes

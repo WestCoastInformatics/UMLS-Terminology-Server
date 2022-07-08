@@ -20,7 +20,7 @@ import com.wci.umls.server.model.meta.Language;
 @Table(name = "languages", uniqueConstraints = @UniqueConstraint(columnNames = {
     "abbreviation", "terminology"
 }))
-@Audited
+//@Audited
 @XmlRootElement(name = "language")
 public class LanguageJpa extends AbstractAbbreviation implements Language {
 

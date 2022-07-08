@@ -23,7 +23,7 @@ import com.wci.umls.server.model.meta.Citation;
  */
 @Entity
 @Table(name = "citations")
-@Audited
+//@Audited
 @XmlRootElement(name = "citation")
 public class CitationJpa implements Citation {
 

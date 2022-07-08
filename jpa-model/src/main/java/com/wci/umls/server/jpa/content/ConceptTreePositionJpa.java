@@ -41,7 +41,7 @@ import com.wci.umls.server.model.content.ConceptTreePosition;
 @Table(name = "concept_tree_positions", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "conceptTreePosition")
 public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>

@@ -21,7 +21,7 @@ import com.wci.umls.server.model.content.TreePosition;
  * Abstract JPA and JAXB enabled implementation of {@link TreePosition}.
  * @param <T> the type
  */
-@Audited
+//@Audited
 @MappedSuperclass
 @XmlSeeAlso({
     CodeTreePositionJpa.class, ConceptTreePositionJpa.class,

@@ -38,7 +38,7 @@ import com.wci.umls.server.ProcessExecution;
  */
 @Entity
 @Table(name = "process_executions")
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "processExecution")
 public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>

@@ -46,7 +46,7 @@ import com.wci.umls.server.SourceDataFile;
 @Table(name = "source_data", uniqueConstraints = @UniqueConstraint(columnNames = {
     "name", "terminology", "version"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "data")
 public class SourceDataJpa implements SourceData {

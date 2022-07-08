@@ -41,7 +41,7 @@ import com.wci.umls.server.model.content.DescriptorTreePosition;
 @Table(name = "descriptor_tree_positions", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "descriptorTreePosition")
 public class DescriptorTreePositionJpa extends AbstractTreePosition<Descriptor>

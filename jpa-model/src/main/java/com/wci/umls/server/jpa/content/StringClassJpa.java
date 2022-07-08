@@ -35,7 +35,7 @@ import com.wci.umls.server.model.content.StringClass;
 @Table(name = "string_classes", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @XmlRootElement(name = "stringClass")
 @Indexed
 public class StringClassJpa extends AbstractAtomClass implements StringClass {

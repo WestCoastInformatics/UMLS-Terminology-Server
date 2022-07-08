@@ -47,7 +47,7 @@ import com.wci.umls.server.model.meta.IdType;
         "terminology", "version", "id"
     })
 })
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "descriptor")
 public class DescriptorJpa extends AbstractAtomClass implements Descriptor {

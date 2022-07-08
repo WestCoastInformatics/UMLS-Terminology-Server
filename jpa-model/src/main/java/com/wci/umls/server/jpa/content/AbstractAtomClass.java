@@ -89,7 +89,7 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
                 })
             })
 })
-@Audited
+//@Audited
 @MappedSuperclass
 public abstract class AbstractAtomClass extends AbstractComponent
     implements AtomClass {

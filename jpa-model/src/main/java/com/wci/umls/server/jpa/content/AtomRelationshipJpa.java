@@ -50,7 +50,7 @@ import com.wci.umls.server.model.content.Relationship;
 @Table(name = "atom_relationships", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "atomRelationship")
 public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>

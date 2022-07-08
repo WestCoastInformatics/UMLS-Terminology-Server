@@ -43,7 +43,7 @@ import com.wci.umls.server.model.content.SubsetMember;
 @Table(name = "concept_subset_members", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "conceptMember")
 public class ConceptSubsetMemberJpa extends AbstractSubsetMember<Concept, ConceptSubset>

@@ -18,7 +18,7 @@ import com.wci.umls.server.model.content.ComponentHasAttributes;
 /**
  * Abstract implementation of {@link ComponentHasAttributes} for use with JPA.
  */
-@Audited
+//@Audited 
 @MappedSuperclass
 public abstract class AbstractComponentHasAttributes extends AbstractComponent
     implements ComponentHasAttributes {

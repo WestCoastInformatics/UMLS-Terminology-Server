@@ -31,7 +31,7 @@ import com.wci.umls.server.model.content.Attribute;
 @Table(name = "atom_transitive_rels", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @XmlRootElement(name = "atomTransitiveRel")
 public class AtomTransitiveRelationshipJpa extends AbstractTransitiveRelationship<Atom>
     implements AtomTransitiveRelationship {

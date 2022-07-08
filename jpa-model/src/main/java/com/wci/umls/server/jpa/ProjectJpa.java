@@ -71,7 +71,7 @@ import com.wci.umls.server.jpa.workflow.TrackingRecordJpa;
 @Table(name = "projects", uniqueConstraints = @UniqueConstraint(columnNames = {
     "name", "description"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "project")
 public class ProjectJpa implements Project {

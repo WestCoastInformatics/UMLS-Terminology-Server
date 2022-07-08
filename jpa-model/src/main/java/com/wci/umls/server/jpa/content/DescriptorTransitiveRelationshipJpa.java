@@ -32,7 +32,7 @@ import com.wci.umls.server.model.content.DescriptorTransitiveRelationship;
 @Table(name = "descriptor_transitive_rels", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @XmlRootElement(name = "descriptorTransitiveRel")
 public class DescriptorTransitiveRelationshipJpa extends AbstractTransitiveRelationship<Descriptor>
     implements DescriptorTransitiveRelationship {

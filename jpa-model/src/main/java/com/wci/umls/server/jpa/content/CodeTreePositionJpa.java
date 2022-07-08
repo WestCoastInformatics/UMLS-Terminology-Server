@@ -41,7 +41,7 @@ import com.wci.umls.server.model.content.CodeTreePosition;
 @Table(name = "code_tree_positions", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "codeTreePosition")
 public class CodeTreePositionJpa extends AbstractTreePosition<Code> implements CodeTreePosition {

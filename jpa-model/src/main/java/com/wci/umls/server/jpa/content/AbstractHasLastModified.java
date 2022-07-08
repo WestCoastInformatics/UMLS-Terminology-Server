@@ -26,7 +26,7 @@ import com.wci.umls.server.helpers.HasLastModified;
 /**
  * Abstract implementation of {@link HasLastModified} for use with JPA.
  */
-@Audited
+//@Audited
 @MappedSuperclass
 public abstract class AbstractHasLastModified implements HasLastModified {
 

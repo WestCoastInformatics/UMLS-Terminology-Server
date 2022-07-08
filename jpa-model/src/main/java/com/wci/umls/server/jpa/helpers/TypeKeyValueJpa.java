@@ -39,7 +39,7 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
  * JPA enabled scored implementation of {@link TypeKeyValue}.
  */
 @Entity
-@Audited
+//@Audited
 @Table(name = "type_key_values")
 @Indexed
 public class TypeKeyValueJpa implements TypeKeyValue, Comparable<TypeKeyValue> {

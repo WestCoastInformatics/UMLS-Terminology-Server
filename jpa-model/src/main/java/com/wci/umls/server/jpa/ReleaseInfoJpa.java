@@ -39,7 +39,7 @@ import com.wci.umls.server.ReleaseProperty;
         "name", "terminology"
     })
 })
-@Audited
+//@Audited
 @XmlRootElement(name = "releaseInfo")
 public class ReleaseInfoJpa implements ReleaseInfo {
 

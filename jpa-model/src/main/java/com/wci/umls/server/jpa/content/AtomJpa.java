@@ -76,7 +76,7 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
         "terminology", "version", "id"
     })
 })
-@Audited
+//@Audited
 @XmlRootElement(name = "atom")
 public class AtomJpa extends AbstractComponent implements Atom {
 

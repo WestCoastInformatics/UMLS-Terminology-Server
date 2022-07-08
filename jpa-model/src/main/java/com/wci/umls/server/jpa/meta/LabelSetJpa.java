@@ -21,7 +21,7 @@ import com.wci.umls.server.model.meta.LabelSet;
 @Table(name = "label_sets", uniqueConstraints = @UniqueConstraint(columnNames = {
     "abbreviation", "terminology"
 }))
-@Audited
+//@Audited
 @XmlRootElement(name = "labelSet")
 public class LabelSetJpa extends AbstractAbbreviation implements LabelSet {
 

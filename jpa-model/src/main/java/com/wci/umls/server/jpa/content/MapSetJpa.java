@@ -44,7 +44,7 @@ import com.wci.umls.server.model.content.Mapping;
 @Table(name = "mapsets", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "id"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "mapSet")
 public class MapSetJpa extends AbstractComponentHasAttributes

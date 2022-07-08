@@ -38,7 +38,7 @@ import com.wci.umls.server.model.content.Definition;
 @Table(name = "definitions", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @XmlRootElement(name = "definition")
 public class DefinitionJpa extends AbstractComponentHasAttributes
     implements Definition {

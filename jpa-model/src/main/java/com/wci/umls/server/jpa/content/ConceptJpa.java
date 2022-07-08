@@ -61,7 +61,7 @@ import com.wci.umls.server.model.meta.IdType;
     })
 })
 
-@Audited
+//@Audited
 @XmlRootElement(name = "concept")
 @Indexed
 public class ConceptJpa extends AbstractAtomClass implements Concept {

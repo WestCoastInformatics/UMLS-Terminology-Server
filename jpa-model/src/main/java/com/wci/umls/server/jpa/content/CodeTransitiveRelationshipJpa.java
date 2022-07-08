@@ -31,7 +31,7 @@ import com.wci.umls.server.model.content.CodeTransitiveRelationship;
 @Table(name = "code_transitive_rels", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @XmlRootElement(name = "codeTransitiveRel")
 public class CodeTransitiveRelationshipJpa extends AbstractTransitiveRelationship<Code>
     implements CodeTransitiveRelationship {

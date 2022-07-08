@@ -31,7 +31,7 @@ import com.wci.umls.server.model.content.ConceptTransitiveRelationship;
 @Table(name = "concept_transitive_rels", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @XmlRootElement(name = "conceptTransitiveRel")
 public class ConceptTransitiveRelationshipJpa extends AbstractTransitiveRelationship<Concept>
     implements ConceptTransitiveRelationship {

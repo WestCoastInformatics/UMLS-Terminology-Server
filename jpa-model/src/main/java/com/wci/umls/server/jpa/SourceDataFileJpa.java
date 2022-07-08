@@ -42,7 +42,7 @@ import com.wci.umls.server.SourceDataFile;
 @Table(name = "source_data_files", uniqueConstraints = @UniqueConstraint(columnNames = {
     "path", "name", "directory"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "file")
 public class SourceDataFileJpa implements SourceDataFile {

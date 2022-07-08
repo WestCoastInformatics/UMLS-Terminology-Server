@@ -29,7 +29,7 @@ import com.wci.umls.server.jpa.workflow.WorklistNoteJpa;
 /**
  * Abstract implementation of a {@link Note}.
  */
-@Audited
+//@Audited
 @MappedSuperclass
 @XmlSeeAlso({
     CodeNoteJpa.class, ConceptNoteJpa.class, DescriptorNoteJpa.class,

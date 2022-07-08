@@ -53,7 +53,7 @@ import com.wci.umls.server.jpa.helpers.ProjectRoleMapAdapter;
 @Table(name = "users", uniqueConstraints = @UniqueConstraint(columnNames = {
     "userName"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "user")
 public class UserJpa implements User {

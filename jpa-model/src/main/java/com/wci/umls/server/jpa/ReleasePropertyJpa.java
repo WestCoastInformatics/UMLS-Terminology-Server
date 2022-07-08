@@ -21,7 +21,7 @@ import com.wci.umls.server.ReleaseProperty;
  */
 @Entity
 @Table(name = "release_properties")
-@Audited
+//@Audited
 @XmlRootElement(name = "property")
 public class ReleasePropertyJpa implements ReleaseProperty {
 

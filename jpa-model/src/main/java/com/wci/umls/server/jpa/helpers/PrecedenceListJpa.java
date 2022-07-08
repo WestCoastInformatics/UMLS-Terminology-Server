@@ -50,7 +50,7 @@ import com.wci.umls.server.helpers.PrecedenceList;
  * which atoms represent preferred names.
  */
 @Entity
-@Audited
+//@Audited
 @Table(name = "precedence_lists")
 @XmlRootElement(name = "precedenceList")
 public class PrecedenceListJpa implements PrecedenceList {

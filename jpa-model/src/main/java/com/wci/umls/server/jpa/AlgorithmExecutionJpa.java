@@ -37,7 +37,7 @@ import com.wci.umls.server.ProcessExecution;
 @Entity
 // TODO: fix this
 @Table(name = "algorithm_execs")
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "algorithmExecution")
 public class AlgorithmExecutionJpa extends

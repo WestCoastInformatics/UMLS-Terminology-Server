@@ -18,7 +18,7 @@ import com.wci.umls.server.model.content.SubsetMember;
  * @param <T> the member type
  * @param <S> the subset type
  */
-@Audited
+//@Audited
 @MappedSuperclass
 @XmlSeeAlso({
     AtomSubsetMemberJpa.class, ConceptSubsetMemberJpa.class

@@ -52,7 +52,7 @@ import com.wci.umls.server.model.meta.IdType;
 @Table(name = "component_info_relationships", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "componentInfoRelationship")
 public class ComponentInfoRelationshipJpa extends AbstractRelationship<ComponentInfo, ComponentInfo>

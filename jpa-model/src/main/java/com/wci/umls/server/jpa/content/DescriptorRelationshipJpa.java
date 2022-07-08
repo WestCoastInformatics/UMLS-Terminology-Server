@@ -48,7 +48,7 @@ import com.wci.umls.server.model.content.Relationship;
 @Table(name = "descriptor_relationships", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "descriptorRelationship")
 public class DescriptorRelationshipJpa extends AbstractRelationship<Descriptor, Descriptor>

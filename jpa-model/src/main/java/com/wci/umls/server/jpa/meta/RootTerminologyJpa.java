@@ -32,7 +32,7 @@ import com.wci.umls.server.model.meta.RootTerminology;
 @Table(name = "root_terminologies", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminology"
 }))
-@Audited
+//@Audited
 @XmlRootElement(name = "rootTerminology")
 public class RootTerminologyJpa extends AbstractHasLastModified
     implements RootTerminology {

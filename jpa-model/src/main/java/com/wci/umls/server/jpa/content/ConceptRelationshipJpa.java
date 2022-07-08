@@ -52,7 +52,7 @@ import com.wci.umls.server.model.content.Relationship;
         "terminologyId", "terminology", "version", "id"
     })
 })
-@Audited
+//@Audited
 @Indexed
 
 @XmlRootElement(name = "conceptRelationship")

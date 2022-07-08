@@ -29,7 +29,7 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
  * @param <S> the left hand side of the relationship
  * @param <T> the right hand side of the relationship
  */
-@Audited
+//@Audited
 @MappedSuperclass
 @XmlSeeAlso({
     CodeRelationshipJpa.class, ConceptRelationshipJpa.class,

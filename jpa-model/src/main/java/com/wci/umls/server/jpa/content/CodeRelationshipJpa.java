@@ -48,7 +48,7 @@ import com.wci.umls.server.model.content.Relationship;
 @Table(name = "code_relationships", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "codeRelationship")
 public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>

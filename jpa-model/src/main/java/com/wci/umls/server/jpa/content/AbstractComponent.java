@@ -27,7 +27,7 @@ import com.wci.umls.server.model.meta.IdType;
 /**
  * Abstract implementation of {@link ComponentHasAttributes} for use with JPA.
  */
-@Audited
+//@Audited
 @MappedSuperclass
 @XmlSeeAlso({
     ConceptJpa.class

@@ -40,7 +40,7 @@ import com.wci.umls.server.model.inversion.SourceIdRange;
 @Table(name = "source_id_ranges", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminology"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "sourceIdRange")
 public class SourceIdRangeJpa implements SourceIdRange {
