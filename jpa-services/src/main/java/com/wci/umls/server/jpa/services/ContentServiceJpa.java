@@ -1470,6 +1470,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements ContentServ
       inverseRelationship.setId(null);
       inverseRelationship.setTerminologyId("");
       inverseRelationship.setTerminology(relationship.getTerminology());
+      inverseRelationship.setVersion(relationship.getVersion());
       inverseRelationship.setFrom(relationship.getTo());
       inverseRelationship.setTo(relationship.getFrom());
       inverseRelationship.setPublishable(relationship.isPublishable());
@@ -1477,6 +1478,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements ContentServ
           getRelationshipType(relationship.getRelationshipType(), relationship.getTerminology(),
               relationship.getVersion()).getInverse().getAbbreviation());
       inverseRelationship.setAssertedDirection(!relationship.isAssertedDirection());
+      inverseRelationship.setHierarchical(false);
 
       return inverseRelationship;
     } else {
