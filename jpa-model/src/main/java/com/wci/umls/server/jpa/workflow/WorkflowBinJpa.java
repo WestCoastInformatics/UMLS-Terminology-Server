@@ -105,7 +105,7 @@ public class WorkflowBinJpa implements WorkflowBin {
   private String type = "MUTUALLY_EXCLUSIVE";
 
   /** The rank. */
-  @Column(nullable = false)
+  @Column(name="[rank]", nullable = false)
   private int rank;
 
   /** The editable flag. */
@@ -300,6 +300,7 @@ public class WorkflowBinJpa implements WorkflowBin {
 
   /* see superclass */
   @Override
+  @Column(name = "[rank]", nullable = false)
   public int getRank() {
     return rank;
   }

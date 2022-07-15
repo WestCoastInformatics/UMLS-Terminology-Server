@@ -93,7 +93,7 @@ public class MappingJpa extends AbstractComponentHasAttributes
   private String group;
 
   /** The rank. */
-  @Column(nullable = true)
+  @Column(name="[rank]", nullable = true)
   private String rank;
 
   /** The from name. */
@@ -362,6 +362,7 @@ public Attribute getAttributeByName(String name) {
 
   /* see superclass */
   @Override
+  @Column(name = "[rank]", nullable = false)
   public String getRank() {
     return rank;
   }
