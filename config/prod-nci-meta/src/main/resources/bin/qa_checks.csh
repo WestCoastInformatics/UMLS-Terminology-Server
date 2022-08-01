@@ -2794,15 +2794,15 @@ endif
     #
     #  Verify MRCONSO.CUI in MRSAT.CUI
     #
-    echo "    Verify MRCONSO.CUI in MRSAT.CUI"
-    cut -d\| -f 1 $mrsat | sort -u >! mrsat.tmp1.$$
-    set ct=`join -t\| -j 1 -v 2 -o 2.1 mrsat.tmp1.$$ MRCONSO.uis.cls.$$ | wc -l`
-    if ($ct != 0) then
-        echo "WARNING: There are CUIs in MRCONSO not in MRSAT"
-	join -t\| -j 1 -v 2 -o 2.1 mrsat.tmp1.$$ MRCONSO.uis.cls.$$ |\
-	    sort -u | head -10 | sed 's/^/  /'
-    endif
-    rm -f mrsat.tmp1.$$ MRCONSO.uis.cls.$$
+    # echo "    Verify MRCONSO.CUI in MRSAT.CUI"
+    # cut -d\| -f 1 $mrsat | sort -u >! mrsat.tmp1.$$
+    # set ct=`join -t\| -j 1 -v 2 -o 2.1 mrsat.tmp1.$$ MRCONSO.uis.cls.$$ | wc -l`
+    # if ($ct != 0) then
+    #    echo "WARNING: There are CUIs in MRCONSO not in MRSAT"
+	# join -t\| -j 1 -v 2 -o 2.1 mrsat.tmp1.$$ MRCONSO.uis.cls.$$ |\
+	#    sort -u | head -10 | sed 's/^/  /'
+    # endif
+    # rm -f mrsat.tmp1.$$ MRCONSO.uis.cls.$$ 
 
     #
     #  Verify AM flag matches ambig strings from MRCONSO
