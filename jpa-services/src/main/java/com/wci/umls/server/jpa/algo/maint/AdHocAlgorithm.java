@@ -236,6 +236,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       removeOldMTHRelationships();
     } else if (actionName.equals("Remove old relationships")) {
       removeOldRelationships();
+    } else if (actionName.equals("Remove bad bequeathal relationships")) {
+      removeBadBequeathalRelationships();
     } else if (actionName.equals("Assign Missing STY ATUIs")) {
       assignMissingStyAtui();
     } else if (actionName.equals("Fix Component History Version")) {
@@ -2941,6 +2943,34 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     logInfo("Finished " + getName());
 
+  }  
+  
+  private void removeBadBequeathalRelationships() throws Exception {
+    // 08/01/2022 bequeathals that were added for UMD concepts that needed to be merged instead
+
+    logInfo(" Remove bad bequeathal relationships");
+
+    Query query = getEntityManager().createNativeQuery(
+        "select distinct concept_relationships.id from concepts, concepts_atoms, atoms, concept_relationships " + 
+        " where concept_relationships.from_id = concepts.id and relationshipType like 'B%' and " +
+        " concepts.id = concepts_atoms.concepts_id and atoms.id = concepts_atoms.atoms_id and atoms.terminology = 'UMD' and " + 
+        " atoms.publishable = 1 and concept_relationships.lastMOdifiedBy = 'MTH_2022AA'");
+
+    logInfo("[RemoveBadBequeathalRelationships] Loading "
+        + "ConceptRelationship ids for bad bequeathal relationships that were added by the MTH_2022AA insertion");
+
+    List<Object> list = query.getResultList();
+    setSteps(list.size());
+    logInfo("[RemoveBadBequeathalRelationships] " + list.size() + " ConceptRelationship ids loaded");
+
+    for (final Object entry : list) {
+      final Long id = Long.valueOf(entry.toString());
+      removeRelationship(id, ConceptRelationshipJpa.class);
+      updateProgress();
+    }
+
+    logInfo("Finished " + getName());
+
   }
 
   private void assignMissingStyAtui() throws Exception {
@@ -4907,7 +4937,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Remove Old MTHHH Tree Positions", "Combine Atoms By UMLS CUI", "Attach FDA Atom",
         "Fix SNOMED atoms", "Mark MTH/NCIMTH/PN atoms unpublishable", "Remove Log Entries", 
         "Fix Component Info Atoms", "Fix atom errors to unpublishable", "Fix bequeathal rels to unpublishable",
-        "Approve worklist cluster","Cleanup corrupted process config"));
+        "Approve worklist cluster","Cleanup corrupted process config","Remove bad bequeathal relationships"));
     params.add(param);
     param = new AlgorithmParameterJpa("Integer parameter (optional)", "integerParameter",
             "Integer parameter (optional)", "e.g. 37", 10, AlgorithmParameter.Type.INTEGER, "50");
