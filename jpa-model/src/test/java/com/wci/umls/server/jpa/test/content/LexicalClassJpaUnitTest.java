@@ -171,6 +171,7 @@ public class LexicalClassJpaUnitTest extends ModelUnitSupport {
     tester.include("workflowStatus");
     tester.include("branch");
     tester.include("branchedTo");
+    tester.include("timestamp");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
 

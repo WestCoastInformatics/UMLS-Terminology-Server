@@ -178,6 +178,7 @@ public class ComponentHistoryJpaUnitTest extends ModelUnitSupport {
     tester.include("branch");
 
     tester.include("referencedTerminologyId");
+    tester.include("timestamp");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
 

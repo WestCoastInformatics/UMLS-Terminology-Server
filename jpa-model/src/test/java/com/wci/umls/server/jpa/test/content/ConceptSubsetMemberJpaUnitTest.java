@@ -283,6 +283,7 @@ public class ConceptSubsetMemberJpaUnitTest extends ModelUnitSupport {
     tester.include("memberTerminology");
     tester.include("memberVersion");
 
+    tester.include("timestamp");
     tester.include("memberNameSort");
     assertTrue(tester.testNotAnalyzedIndexedFields());
   }

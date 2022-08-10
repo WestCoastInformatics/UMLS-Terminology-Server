@@ -222,6 +222,7 @@ public class ReportJpaUnitTest extends ModelUnitSupport {
     tester.include("diffReport");
     tester.include("resultType");
     tester.include("projectId");
+    tester.include("timestamp");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
   }
