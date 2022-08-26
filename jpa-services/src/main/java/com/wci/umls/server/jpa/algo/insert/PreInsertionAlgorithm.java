@@ -146,28 +146,33 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     for (String line : srcLines) {
       FieldedStringTokenizer.split(line, "|", 14, fields);
       if (existingSourceAtomIds.contains(fields[0])) {
-        validationResult.addError(
-            "ERROR: classes_atoms.src references a SRC atom id " + fields[0] + " that is already contained in the database.");
+        validationResult.addError("ERROR: classes_atoms.src references a SRC atom id " + fields[0]
+            + " that is already contained in the database.");
         break;
       }
-    }    
-    
-    // check sufficient disk space
-    NumberFormat nf = NumberFormat.getNumberInstance();
-    for (Path root : FileSystems.getDefault().getRootDirectories()) {
-
-        System.out.print(root + ": ");
-        try {
-            FileStore store = Files.getFileStore(root);
-
-            logInfo("[PreInsertionAlgorithm] Checking sufficient disk space on " + root.toAbsolutePath() + ": available=" + nf.format(store.getUsableSpace())
-            + ", total=" + nf.format(store.getTotalSpace()));
-            
-        } catch (IOException e) {
-          validationResult.addError("error querying space: " + e.toString());
-        }
     }
-    
+
+    // check sufficient disk space (for now, if less than ~20GB)
+    NumberFormat nf = NumberFormat.getNumberInstance();
+    Path root = Paths.get("");
+
+    try {
+      FileStore store = Files.getFileStore(root);
+
+      logInfo("[PreInsertionAlgorithm] Checking sufficient disk space on " + root.toAbsolutePath()
+          + ": available=" + store.getUsableSpace() + ", total="
+          + nf.format(store.getTotalSpace()));
+
+      if (store.getUsableSpace() < 20000000000L) {
+        validationResult
+            .addError("ERROR: Insufficient disk space: " + nf.format(store.getUsableSpace()));
+        return validationResult;
+      }
+
+    } catch (IOException e) {
+      validationResult.addError("ERROR: error querying space: " + e.toString());
+    }
+
     return validationResult;
   }
 
