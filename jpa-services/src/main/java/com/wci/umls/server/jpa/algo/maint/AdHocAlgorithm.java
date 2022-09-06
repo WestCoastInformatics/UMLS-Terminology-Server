@@ -4975,13 +4975,14 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
            ci.setName(fields[0] == null || fields[0].isEmpty() ? "" : fields[0] );
            ci.setTitle(fields[1] == null || fields[1].isEmpty() ? "" : fields[1] );
            ci.setOrganization(fields[2] == null || fields[2].isEmpty() ? "" : fields[2] );
-           ci.setAddress1(fields[3] == null || fields[3].isEmpty() ? "" : fields[3] );
+           ci.setAddress1(fields[3] == null || fields[3].isEmpty() ? "" :  fields[3] );
            ci.setAddress2(fields[4] == null || fields[4].isEmpty() ? "" : fields[4] );
            ci.setCity(fields[5] == null || fields[5].isEmpty() ? "" : fields[5] );
            ci.setStateOrProvince(fields[6] == null || fields[6].isEmpty() ? "" : fields[6] );
            ci.setCountry(fields[7] == null || fields[7].isEmpty() ? "" : fields[7] );
            ci.setZipCode(fields[8] == null || fields[8].isEmpty() ? "" : fields[8] );
-           ci.setEmail(fields[9] == null || fields[9].isEmpty() ? "" : fields[9] );
+           ci.setEmail(fields[11] == null || fields[11].isEmpty() ? "" : fields[11] );
+           ci.setUrl(fields[12] == null || fields[12].isEmpty() ? "" : fields[12]) ;
            } catch (Exception e) {
              // swallow exception if some fields aren't available
            }
