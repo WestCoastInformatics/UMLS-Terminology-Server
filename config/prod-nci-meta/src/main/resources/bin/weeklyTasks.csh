@@ -41,7 +41,7 @@ if ($enabled == "true") then
 
         # 3. Rebuild the deep_relationships tables
         echo "  Rebuild the deep_relationships tables ...  `/bin/date`"
-        mysql -h ncidb-q122.nci.nih.gov -P 3668 -u ncimdb -phf72trsfsgB7L9 ncimdb < /meme_work/ncim/etc/rebuildDeepRels.sql
+        $mysql < /meme_work/ncim/etc/rebuildDeepRels.sql
 
     # 4. Bounce the tomcat server
     sudo /sbin/service tomcat-meme-8080 stop
