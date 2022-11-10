@@ -7,7 +7,9 @@ import static java.lang.Math.toIntExact;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -103,6 +105,8 @@ import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.TrackingRecord;
+import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
+import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.services.InversionService;
@@ -303,6 +307,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       cleanupCorruptedProcessConfig();
     } else if (actionName.contentEquals("Update Root Terminology Contact Info From UMLS")) {
       updateRootTerminologyContactInfoFromUMLS();    
+    } else if (actionName.contentEquals("Reload Workflow Bin Definition Queries")) {
+      reloadWorkflowBinDefinitionQueries();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -4989,7 +4995,49 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
            }
          }
    
-         
+         private void reloadWorkflowBinDefinitionQueries() throws Exception {
+           // 2022/11/10 reload corrupted workflow bin definition queries
+           Map<String, String> loadedNameToQuery = new HashMap<>();
+
+           File inputDirFile =
+               new File(config.getProperty("source.data.dir") + "/" + getProcess().getInputPath());
+           if (!inputDirFile.exists()) {
+             throw new Exception("Specified input directory does not exist");
+           }
+
+           final String workflow_type = stringParameter;
+
+           final String sourcesFile = inputDirFile + File.separator + "test.txt";
+           BufferedReader sources;
+           try {
+             sources = new BufferedReader(new FileReader(sourcesFile));
+           } catch (Exception e) {
+             throw new Exception("File not found: " + sourcesFile);
+           }
+
+           final List<String> lines = new ArrayList<>();
+           String line = null;
+
+           final String fields[] = new String[3];
+
+           while ((line = sources.readLine()) != null) {
+
+             FieldedStringTokenizer.split(line, "\t", 3, fields);
+             loadedNameToQuery.put(fields[1], fields[2]);
+           }
+
+           final WorkflowConfig workflowConfig = getWorkflowConfig(getProject(), workflow_type);
+           for (final WorkflowBinDefinition def : workflowConfig.getWorkflowBinDefinitions()) {
+
+             if (loadedNameToQuery.containsKey(def.getName())) {
+               def.setQuery(loadedNameToQuery.get(def.getName()));
+               updateWorkflowBinDefinition(def);
+               commitClearBegin();
+               logInfo("updated " + def.getId() + " " + def.getName());
+             }
+           }
+         }
+
   /**
    * Returns the parameters.
    *
@@ -5026,7 +5074,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Fix SNOMED atoms", "Mark MTH/NCIMTH/PN atoms unpublishable", "Remove Log Entries", 
         "Fix Component Info Atoms", "Fix atom errors to unpublishable", "Fix bequeathal rels to unpublishable",
         "Approve worklist cluster","Cleanup corrupted process config","Remove bad bequeathal relationships",
-        "Update Root Terminology Contact Info From UMLS"));
+        "Update Root Terminology Contact Info From UMLS","Reload Workflow Bin Definition Queries"));
     params.add(param);
     param = new AlgorithmParameterJpa("Integer parameter (optional)", "integerParameter",
             "Integer parameter (optional)", "e.g. 37", 10, AlgorithmParameter.Type.INTEGER, "50");
