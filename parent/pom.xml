@@ -54,7 +54,7 @@
     <releaseVersion>${project.version}</releaseVersion>
 
     <!-- Set third-party dependency versions -->
-    <hibernate.version>4.3.9.Final</hibernate.version>
+    <hibernate.version>5.3.20.Final</hibernate.version>
     <hibernate.em.version>4.3.9.Final</hibernate.em.version>
     <hibernate.search.version>5.1.1.Final</hibernate.search.version>
     <hibernate.entitymanager.version>4.1.0.Final</hibernate.entitymanager.version>
