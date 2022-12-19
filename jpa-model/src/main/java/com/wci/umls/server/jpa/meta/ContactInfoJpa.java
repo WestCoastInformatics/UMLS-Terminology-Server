@@ -443,9 +443,10 @@ public class ContactInfoJpa implements ContactInfo {
   /* see superclass */
   @Override
   public String toString() {
-    if (!ConfigUtility.isEmpty(getValue())) {
+    // force use of contact info fields
+    /**if (!ConfigUtility.isEmpty(getValue())) {
       return getValue();
-    }
+    } */
     return (getName() != null ? getName() : "") + ";"
         + (getTitle() != null ? getTitle() : "") + ";"
         + (getOrganization() != null ? getOrganization() : "") + ";"
@@ -455,7 +456,10 @@ public class ContactInfoJpa implements ContactInfo {
         + (getStateOrProvince() != null ? getStateOrProvince() : "") + ";"
         + (getCountry() != null ? getCountry() : "") + ";"
         + (getZipCode() != null ? getZipCode() : "") + ";"
-        + (getEmail() != null ? getEmail() : "");
+        + (getTelephone() != null ? getTelephone() : "") + ";"
+        + ";"
+        + (getEmail() != null ? getEmail() : "") + ";"
+        + (getUrl() != null ? getUrl() : "") + ";";
 
   }
 

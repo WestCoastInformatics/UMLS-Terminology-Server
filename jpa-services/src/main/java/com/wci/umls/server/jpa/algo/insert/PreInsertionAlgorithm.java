@@ -5,9 +5,14 @@ package com.wci.umls.server.jpa.algo.insert;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.FileStore;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.NumberFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -141,13 +146,33 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     for (String line : srcLines) {
       FieldedStringTokenizer.split(line, "|", 14, fields);
       if (existingSourceAtomIds.contains(fields[0])) {
-        validationResult.addError(
-            "ERROR: classes_atoms.src references a SRC atom id " + fields[0] + " that is already contained in the database.");
+        validationResult.addError("ERROR: classes_atoms.src references a SRC atom id " + fields[0]
+            + " that is already contained in the database.");
         break;
       }
-    }    
-    
-    
+    }
+
+    // check sufficient disk space (for now, if less than ~20GB)
+    NumberFormat nf = NumberFormat.getNumberInstance();
+    Path root = Paths.get("");
+
+    try {
+      FileStore store = Files.getFileStore(root);
+
+      logInfo("[PreInsertionAlgorithm] Checking sufficient disk space on " + root.toAbsolutePath()
+          + ": available=" + store.getUsableSpace() + ", total="
+          + nf.format(store.getTotalSpace()));
+
+      if (store.getUsableSpace() < 20000000000L) {
+        validationResult
+            .addError("ERROR: Insufficient disk space: " + nf.format(store.getUsableSpace()));
+        return validationResult;
+      }
+
+    } catch (IOException e) {
+      validationResult.addError("ERROR: error querying space: " + e.toString());
+    }
+
     return validationResult;
   }
 

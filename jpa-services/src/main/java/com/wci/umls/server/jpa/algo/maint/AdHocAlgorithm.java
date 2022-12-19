@@ -7,7 +7,9 @@ import static java.lang.Math.toIntExact;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,6 +44,7 @@ import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
+import com.wci.umls.server.jpa.algo.RrfReaders;
 import com.wci.umls.server.jpa.algo.action.AbstractMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddAtomMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddSemanticTypeMolecularAction;
@@ -67,6 +70,8 @@ import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.inversion.SourceIdRangeJpa;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
+import com.wci.umls.server.jpa.meta.ContactInfoJpa;
+import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
 import com.wci.umls.server.jpa.services.InversionServiceJpa;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
 import com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa;
@@ -93,12 +98,15 @@ import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.inversion.SourceIdRange;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
+import com.wci.umls.server.model.meta.ContactInfo;
 import com.wci.umls.server.model.meta.RelationshipIdentity;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.TrackingRecord;
+import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
+import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.services.InversionService;
@@ -107,6 +115,7 @@ import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.UmlsIdentityService;
 import com.wci.umls.server.services.WorkflowService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
+import com.wci.umls.server.services.helpers.PushBackReader;
 
 /**
  * Implementation of an algorithm to execute an action based on a user-defined
@@ -236,6 +245,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       removeOldMTHRelationships();
     } else if (actionName.equals("Remove old relationships")) {
       removeOldRelationships();
+    } else if (actionName.equals("Remove bad bequeathal relationships")) {
+      removeBadBequeathalRelationships();
     } else if (actionName.equals("Assign Missing STY ATUIs")) {
       assignMissingStyAtui();
     } else if (actionName.equals("Fix Component History Version")) {
@@ -294,6 +305,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       approveWorklistCluster();
     } else if (actionName.contentEquals("Cleanup corrupted process config")) {
       cleanupCorruptedProcessConfig();
+    } else if (actionName.contentEquals("Update Root Terminology Contact Info From UMLS")) {
+      updateRootTerminologyContactInfoFromUMLS();    
+    } else if (actionName.contentEquals("Reload Workflow Bin Definition Queries")) {
+      reloadWorkflowBinDefinitionQueries();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -2942,6 +2957,34 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     logInfo("Finished " + getName());
 
+  }  
+  
+  private void removeBadBequeathalRelationships() throws Exception {
+    // 08/01/2022 bequeathals that were added for UMD concepts that needed to be merged instead
+
+    logInfo(" Remove bad bequeathal relationships");
+
+    Query query = getEntityManager().createNativeQuery(
+        "select distinct concept_relationships.id from concepts, concepts_atoms, atoms, concept_relationships " + 
+        " where concept_relationships.from_id = concepts.id and relationshipType like 'B%' and " +
+        " concepts.id = concepts_atoms.concepts_id and atoms.id = concepts_atoms.atoms_id and atoms.terminology = 'UMD' and " + 
+        " atoms.publishable = 1 and concept_relationships.lastMOdifiedBy = 'MTH_2022AA'");
+
+    logInfo("[RemoveBadBequeathalRelationships] Loading "
+        + "ConceptRelationship ids for bad bequeathal relationships that were added by the MTH_2022AA insertion");
+
+    List<Object> list = query.getResultList();
+    setSteps(list.size());
+    logInfo("[RemoveBadBequeathalRelationships] " + list.size() + " ConceptRelationship ids loaded");
+
+    for (final Object entry : list) {
+      final Long id = Long.valueOf(entry.toString());
+      removeRelationship(id, ConceptRelationshipJpa.class);
+      updateProgress();
+    }
+
+    logInfo("Finished " + getName());
+
   }
 
   private void assignMissingStyAtui() throws Exception {
@@ -4872,6 +4915,129 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 		    processService.close();
 		  }
 
+         private void updateRootTerminologyContactInfoFromUMLS() throws Exception {
+           // 2022/01/06 remove corrupted process config and its steps
+           Map<String, RootTerminology> loadedRootTerminologies =
+               new HashMap<>();
+           
+           for (final RootTerminology root : getRootTerminologies().getObjects()) {
+             // lazy init
+             root.getSynonymousNames().size();
+             loadedRootTerminologies.put(root.getTerminology(), root);
+           }
+           
+           File inputDirFile = new File(config.getProperty("source.data.dir") + "/" + getProcess().getInputPath());
+           if (!inputDirFile.exists()) {
+             throw new Exception("Specified input directory does not exist");
+           }
+           
+           // Open readers - just open original RRF, no need to sort
+           RrfReaders readers = new RrfReaders(inputDirFile);
+           // Use default prefix if not specified
+           readers.openOriginalReaders("MR");
+           
+           logInfo("  Load MRSAB data");
+           String line = null;
+           final PushBackReader reader = readers.getReader(RrfReaders.Keys.MRSAB);
+           final String fields[] = new String[25];
+           while ((line = reader.readLine()) != null) {
+
+             FieldedStringTokenizer.split(line, "|", 25, fields);
+             
+             // skip rows where term frequency (tfr) is zero
+             if (Integer.parseInt(fields[14]) == 0) {
+               continue;
+             }
+
+             if (loadedRootTerminologies.containsKey(fields[3])) {
+               final RootTerminology root = loadedRootTerminologies.get(fields[3]);
+               ContactInfo contentContact = root.getContentContact();
+               updateContactInfo(contentContact, fields[12]);
+               ContactInfo licenseContact = root.getLicenseContact();
+               updateContactInfo(licenseContact, fields[11]);
+               root.setLastModified(new Date());
+               root.setLastModifiedBy("loader");
+               loadedRootTerminologies.put(root.getTerminology(), root);
+
+               updateRootTerminology(root);
+               commitClearBegin();
+             }
+           }
+         }
+         
+         public void updateContactInfo(ContactInfo ci, String mrsabField) {
+           // 0 John Kilbourne, M.D. ;
+           // 1 Head, MeSH Section;
+           // 2 National Library of Medicine;
+           // 3 6701 Democracy Blvd.;
+           // 4 Suite 202 MSC 4879;
+           // 5 Bethesda;
+           // 6 Maryland;
+           // 7 United States;
+           // 8 20892-4879;
+           // 9 kilbourj@mail.nlm.nih.gov
+           try {
+           String[] fields = FieldedStringTokenizer.split(mrsabField, ";");
+           
+           ci.setName(fields[0] == null || fields[0].isEmpty() ? "" : fields[0] );
+           ci.setTitle(fields[1] == null || fields[1].isEmpty() ? "" : fields[1] );
+           ci.setOrganization(fields[2] == null || fields[2].isEmpty() ? "" : fields[2] );
+           ci.setAddress1(fields[3] == null || fields[3].isEmpty() ? "" :  fields[3] );
+           ci.setAddress2(fields[4] == null || fields[4].isEmpty() ? "" : fields[4] );
+           ci.setCity(fields[5] == null || fields[5].isEmpty() ? "" : fields[5] );
+           ci.setStateOrProvince(fields[6] == null || fields[6].isEmpty() ? "" : fields[6] );
+           ci.setCountry(fields[7] == null || fields[7].isEmpty() ? "" : fields[7] );
+           ci.setZipCode(fields[8] == null || fields[8].isEmpty() ? "" : fields[8] );
+           ci.setTelephone(fields[9] == null || fields[9].isEmpty() ? "" : fields[9] );
+           ci.setEmail(fields[11] == null || fields[11].isEmpty() ? "" : fields[11] );
+           ci.setUrl(fields[12] == null || fields[12].isEmpty() ? "" : fields[12]) ;
+           } catch (Exception e) {
+             // swallow exception if some fields aren't available
+           }
+         }
+   
+         private void reloadWorkflowBinDefinitionQueries() throws Exception {
+           // 2022/11/10 reload corrupted workflow bin definition queries
+           Map<String, String> loadedNameToQuery = new HashMap<>();
+
+           File inputDirFile =
+               new File(config.getProperty("source.data.dir") + "/" + getProcess().getInputPath());
+           if (!inputDirFile.exists()) {
+             throw new Exception("Specified input directory does not exist");
+           }
+
+           final String workflow_type = stringParameter;
+
+           final String sourcesFile = inputDirFile + File.separator + "test.txt";
+           BufferedReader sources;
+           try {
+             sources = new BufferedReader(new FileReader(sourcesFile));
+           } catch (Exception e) {
+             throw new Exception("File not found: " + sourcesFile);
+           }
+
+           final List<String> lines = new ArrayList<>();
+           String line = null;
+
+           final String fields[] = new String[3];
+
+           while ((line = sources.readLine()) != null) {
+
+             FieldedStringTokenizer.split(line, "\t", 3, fields);
+             loadedNameToQuery.put(fields[1], fields[2]);
+           }
+
+           final WorkflowConfig workflowConfig = getWorkflowConfig(getProject(), workflow_type);
+           for (final WorkflowBinDefinition def : workflowConfig.getWorkflowBinDefinitions()) {
+
+             if (loadedNameToQuery.containsKey(def.getName())) {
+               def.setQuery(loadedNameToQuery.get(def.getName()));
+               updateWorkflowBinDefinition(def);
+               commitClearBegin();
+               logInfo("updated " + def.getId() + " " + def.getName());
+             }
+           }
+         }
 
   /**
    * Returns the parameters.
@@ -4908,7 +5074,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Remove Old MTHHH Tree Positions", "Combine Atoms By UMLS CUI", "Attach FDA Atom",
         "Fix SNOMED atoms", "Mark MTH/NCIMTH/PN atoms unpublishable", "Remove Log Entries", 
         "Fix Component Info Atoms", "Fix atom errors to unpublishable", "Fix bequeathal rels to unpublishable",
-        "Approve worklist cluster","Cleanup corrupted process config"));
+        "Approve worklist cluster","Cleanup corrupted process config","Remove bad bequeathal relationships",
+        "Update Root Terminology Contact Info From UMLS","Reload Workflow Bin Definition Queries"));
     params.add(param);
     param = new AlgorithmParameterJpa("Integer parameter (optional)", "integerParameter",
             "Integer parameter (optional)", "e.g. 37", 10, AlgorithmParameter.Type.INTEGER, "50");
