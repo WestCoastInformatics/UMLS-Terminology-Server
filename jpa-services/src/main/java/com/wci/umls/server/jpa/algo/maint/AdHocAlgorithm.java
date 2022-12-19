@@ -448,6 +448,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // 11/13/2018 Same issue happened again with MTH2018AA insertion. Updating
     // version.
     // 12/15/2018 Sigh - same thing happened AGAIN with MTH2018AB.
+	// 12/19/2022 same thing happened with MTH2022AB
 
     int removals = 0;
 
@@ -459,10 +460,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     Query query = getEntityManager().createQuery("select a.id from " + "ConceptRelationshipJpa a "
         + "where a.terminology = :terminology and a.version = :version and a.publishable=true");
     query.setParameter("terminology", "MTH");
-    query.setParameter("version", "2018AB");
+    query.setParameter("version", "2022AB");
 
     logInfo("[RemoveBadRelationships] Loading "
-        + "ConceptRelationship ids for relationships created by the MTH 2017AB insertion");
+        + "ConceptRelationship ids for relationships created by the MTH 2022AB insertion");
 
     List<Object> list = query.getResultList();
     for (final Object entry : list) {
