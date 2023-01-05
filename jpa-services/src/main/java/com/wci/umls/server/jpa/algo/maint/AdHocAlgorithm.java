@@ -309,6 +309,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       updateRootTerminologyContactInfoFromUMLS();    
     } else if (actionName.contentEquals("Reload Workflow Bin Definition Queries")) {
       reloadWorkflowBinDefinitionQueries();
+    } else if (actionName.contentEquals("Remove Unbalanced Concept Relationships")) {
+      removeUnbalancedConceptRelationships();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -2959,6 +2961,35 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   }  
   
+  private void removeUnbalancedConceptRelationships() throws Exception {
+    // 01/05/2023 remove RN/RB concept relationships that don't have an inverse
+
+    logInfo(" Remove unbalanced concept relationships");
+
+    Query query = getEntityManager().createNativeQuery(
+        "select * from concept_relationships where relationshipType = 'RN' " +
+            " and publishable and (to_id, from_id) not in " + 
+            "(select from_id, to_id from concept_relationships where relationshipType = 'RB' and publishable) " +
+            " UNION  select * from concept_relationships where relationshipType = 'RB' and " + 
+            " publishable and (to_id, from_id) not in " +
+            " (select from_id, to_id from concept_relationships where relationshipType = 'RN' and publishable)");
+
+    logInfo("[RemoveUnbalancedConceptRelationships] Loading "
+        + "ConceptRelationship ids for unbalanced relationships");
+
+    List<Object> list = query.getResultList();
+    setSteps(list.size());
+    logInfo("[RemoveUnbalancedConceptRelationships] " + list.size() + " ConceptRelationship ids loaded");
+
+    for (final Object entry : list) {
+      final Long id = Long.valueOf(entry.toString());
+      removeRelationship(id, ConceptRelationshipJpa.class);
+      updateProgress();
+    }
+
+    logInfo("Finished " + getName());
+
+  }
   private void removeBadBequeathalRelationships() throws Exception {
     // 08/01/2022 bequeathals that were added for UMD concepts that needed to be merged instead
 
@@ -5075,7 +5106,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Fix SNOMED atoms", "Mark MTH/NCIMTH/PN atoms unpublishable", "Remove Log Entries", 
         "Fix Component Info Atoms", "Fix atom errors to unpublishable", "Fix bequeathal rels to unpublishable",
         "Approve worklist cluster","Cleanup corrupted process config","Remove bad bequeathal relationships",
-        "Update Root Terminology Contact Info From UMLS","Reload Workflow Bin Definition Queries"));
+        "Update Root Terminology Contact Info From UMLS","Reload Workflow Bin Definition Queries",
+        "Remove Unbalanced Concept Relationships"));
     params.add(param);
     param = new AlgorithmParameterJpa("Integer parameter (optional)", "integerParameter",
             "Integer parameter (optional)", "e.g. 37", 10, AlgorithmParameter.Type.INTEGER, "50");
