@@ -57,6 +57,7 @@ import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.AtomTreePositionJpa;
+import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
 import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
 import com.wci.umls.server.jpa.content.ComponentHistoryJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
@@ -85,6 +86,7 @@ import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.model.content.CodeRelationship;
 import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.ComponentInfoRelationship;
@@ -2009,6 +2011,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         }
 
         updateProgress();
+        commitClearBegin();
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -2878,6 +2881,87 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       }
 
       commitClearBegin();
+      
+
+      // Identify all code relationships with null alternate terminology ids
+      // (RUIs)
+      // REAL QUERY
+      query = getEntityManager().createNativeQuery(
+          "select cr.id from code_relationships cr left join coderelationshipjpa_alternateterminologyids crat on cr.id=crat.CodeRelationshipJpa_id where cr.publishable and crat.alternateTerminologyIds is null and terminology != 'NCIMTH'");
+
+      list = query.getResultList();
+      relsToFix = new ArrayList<>();
+
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        relsToFix.add(id);
+      }
+
+      logInfo(
+          "[FixNullRUIs] " + relsToFix.size() + " Code relationships identified with null RUIs");
+
+      setSteps(relsToFix.size());
+      for (Long relId : relsToFix) {
+        CodeRelationship relationship =
+            (CodeRelationship) getRelationship(relId, CodeRelationshipJpa.class);
+
+        if (!relationship.getTerminology().equals("MTH")) {
+          continue;
+        }
+        final String inverseRelType = relTypeMap.get(relationship.getRelationshipType());
+        final String inverseAdditionalRelType =
+            relTypeMap.get(relationship.getAdditionalRelationshipType());
+        final String relationshipRui =
+            handler.getTerminologyId(relationship, inverseRelType, inverseAdditionalRelType);
+        relationship.getAlternateTerminologyIds().size();
+        relationship.getAlternateTerminologyIds().put(getProject().getTerminology(),
+            relationshipRui);
+        updateRelationship(relationship);
+        updateProgress();
+      }
+
+      commitClearBegin();
+      
+      
+      // Identify all atom relationships with null alternate terminology ids
+      // (RUIs)
+      // REAL QUERY
+      query = getEntityManager().createNativeQuery(
+          "select cr.id from atom_relationships cr left join atomrelationshipjpa_alternateterminologyids crat on cr.id=crat.AtomRelationshipJpa_id where cr.publishable and crat.alternateTerminologyIds is null and terminology != 'NCIMTH'");
+
+      list = query.getResultList();
+      relsToFix = new ArrayList<>();
+
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        relsToFix.add(id);
+      }
+
+      logInfo(
+          "[FixNullRUIs] " + relsToFix.size() + " Atom relationships identified with null RUIs");
+
+      setSteps(relsToFix.size());
+      for (Long relId : relsToFix) {
+        AtomRelationship relationship =
+            (AtomRelationship) getRelationship(relId, AtomRelationshipJpa.class);
+
+        if (!relationship.getTerminology().equals("MTH")) {
+          continue;
+        }
+        final String inverseRelType = relTypeMap.get(relationship.getRelationshipType());
+        final String inverseAdditionalRelType =
+            relTypeMap.get(relationship.getAdditionalRelationshipType());
+        final String relationshipRui =
+            handler.getTerminologyId(relationship, inverseRelType, inverseAdditionalRelType);
+        relationship.getAlternateTerminologyIds().size();
+        relationship.getAlternateTerminologyIds().put(getProject().getTerminology(),
+            relationshipRui);
+        updateRelationship(relationship);
+        updateProgress();
+      }
+
+      commitClearBegin();
+      
       handler.commit();
       handler.close();
 
