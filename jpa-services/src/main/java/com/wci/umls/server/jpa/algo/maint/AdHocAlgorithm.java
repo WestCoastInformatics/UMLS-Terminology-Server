@@ -8,8 +8,10 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,6 +42,7 @@ import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.WorklistList;
+import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -131,6 +134,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   private Integer integerParameter;
   
   private String stringParameter;
+  
+  private String[] meddraCodes = {"C0947791", "C0947802", "C0004998", "C0154040", "C0851643", "C0154038", "C0750887", "C0007095", "C0947849", "C0851693", "C0851658", "C1955745", "C0007115", "C0851753", "C0851756", "C0851764", "C0153445", "C0346629", "C0851835", "C0852202", "CL448458", "C0546837", "C0852432", "C0220636", "C0153425", "C0852438", "C1370803", "C0153452", "C0852440", "C0206624", "C3550748", "C4015937", "C0851280", "C0023434", "C0023473", "C0851281", "C0023494", "C0852441", "C0026997", "C0852442", "C3463824", "C0019829", "CL448793", "C0079772", "C0206675", "C0947932", "C0852481", "C0281784", "C2242753", "C0852482", "C0027858", "C0852483", "C0555198", "C0259785", "C0852484", "C1412004", "C0558356", "C0026764", "C0496892", "C0496893", "C0005684", "C0740457", "C0947935", "C0852491", "C0153997", "C0004997", "C0852500", "C0153999", "C0154002", "C0154003", "C0007847", "C0007103", "C0153579", "C0852495", "C0852496", "C0346180", "C0852497", "C0852498", "C0042237", "C0947936", "C0154009", "C0153601", "C0376358", "C0852502", "C0153594", "C0153956", "C0947938", "C0852506", "C0852507", "C0852508", "C1112122", "C0852511", "C0007107", "C0852512", "C0153504", "C0852513", "C1112123", "C1112124", "C1112724", "C0852516", "C0852515", "C0852517", "C0852521", "C0852522", "C1704327", "C0852523", "C0852524", "C0851522", "C0851437", "CL1379131", "C0947779", "C0947782", "C0851481", "C0851520", "C0015393", "C0851385", "C0851434", "C0851564", "C0851565", "C0851521", "C0851566", "C0851567", "C0851568", "C0851490", "C0702198", "C0851569", "C0021051", "C0027831", "C0006413", "C0023443"};
+  private List<String> ncimCodesWithMeddra = Arrays.asList(meddraCodes);
+  
   
   /**
    * Instantiates an empty {@link AdHocAlgorithm}.
@@ -313,6 +320,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       reloadWorkflowBinDefinitionQueries();
     } else if (actionName.contentEquals("Remove Unbalanced Concept Relationships")) {
       removeUnbalancedConceptRelationships();
+    } else if (actionName.contentEquals("Write Meddra Ncit Overlap Report")) {
+      writeMeddraNcitOverlapReport();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -399,6 +408,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     int successful = 0;
 
+    
     final Map<Long, Long> definitionIdAtomIdMap = new HashMap<>();
     definitionIdAtomIdMap.put(37014L, 338961L);
     definitionIdAtomIdMap.put(275324L, 6783080L);
@@ -5154,6 +5164,34 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
            }
          }
 
+         
+         private void writeMeddraNcitOverlapReport() throws Exception {
+           WorkflowService workflowService = new WorkflowServiceJpa();
+           
+           File maintDir = new File(getSrcDirFile(), "maint");
+           if (! maintDir.exists()){
+             maintDir.mkdir();
+           }
+           logInfo("maint dir:" + maintDir);
+           BufferedWriter out = new BufferedWriter(new FileWriter(new File(maintDir, "dsstmp.txt")));
+           
+           
+           for (String code : ncimCodesWithMeddra) {
+             ConceptList cpts = workflowService.findConcepts("NCIMTH", "latest", null, code, null);
+             Concept cpt = cpts.getObjects().get(0);
+             if (cpt != null) {
+               for (Atom atom : cpt.getAtoms()) {
+                 if (atom.getTerminology().contentEquals("NCI")) {
+                   out.write(cpt.getTerminologyId() + "\t" + atom.getCodeId() + "\t" + atom.getName() + "\t" + atom.getTermType() + "\n");
+                 }
+               }
+             }
+           }
+           out.flush();
+           out.close();
+         }
+         
+         
   /**
    * Returns the parameters.
    *
@@ -5191,7 +5229,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Fix Component Info Atoms", "Fix atom errors to unpublishable", "Fix bequeathal rels to unpublishable",
         "Approve worklist cluster","Cleanup corrupted process config","Remove bad bequeathal relationships",
         "Update Root Terminology Contact Info From UMLS","Reload Workflow Bin Definition Queries",
-        "Remove Unbalanced Concept Relationships"));
+        "Remove Unbalanced Concept Relationships", "Write Meddra Ncit Overlap Report"));
     params.add(param);
     param = new AlgorithmParameterJpa("Integer parameter (optional)", "integerParameter",
             "Integer parameter (optional)", "e.g. 37", 10, AlgorithmParameter.Type.INTEGER, "50");
