@@ -239,8 +239,8 @@ else if ($target == "AMBIG") then
     #   Verify field formats
     #
     echo "    Verify field formats: $ambig_lui"
-    perl -ne 'print unless /^L\d{7}\|(,{0,1}C.\d{6,7})+\|/;' $ambig_lui >! AMBIG.badfields.$$
-    #perl -ne 'print unless /^L\d{7}\|C.\d{6,7}\|/;' $ambig_lui >! AMBIG.badfields.$$
+    perl -ne 'print unless /^L\d{7,8}\|(,{0,1}C.\d{6,7})+\|/;' $ambig_lui >! AMBIG.badfields.$$
+    #perl -ne 'print unless /^L\d{7,8}\|C.\d{6,7}\|/;' $ambig_lui >! AMBIG.badfields.$$
     set cnt = `cat AMBIG.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -742,7 +742,7 @@ else if ($target == "MRCONSO") then
 if ($mode == "submission") then
     checkfields.pl $mrconso
 else
-    perl -ne 'print unless /^C.\d{6,7}\|[^\|]*\|[^\|]*\|L\d{7}\|[^\|]*\|S\d{7,8}\|.\|A\d{7,8}\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]+\|[^\|]+\|[0-9]\|[YNEO]\|\d*\|/;' $mrconso >! MRCONSO.badfields.$$
+    perl -ne 'print unless /^C.\d{6,7}\|[^\|]*\|[^\|]*\|L\d{7,8}\|[^\|]*\|S\d{7,8}\|.\|A\d{7,8}\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]+\|[^\|]+\|[0-9]\|[YNEO]\|\d*\|/;' $mrconso >! MRCONSO.badfields.$$
     set cnt = `cat MRCONSO.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -1416,7 +1416,7 @@ else if ($target == "MRCUI") then
     #   Verify field formats
     #
     echo "    Verify field formats: $deleted_lui"
-    perl -ne 'print unless /^L\d{7}\|[^\|]*\|/;' $deleted_lui >! DELETED_LUI.badfields.$$
+    perl -ne 'print unless /^L\d{7,8}\|[^\|]*\|/;' $deleted_lui >! DELETED_LUI.badfields.$$
     set cnt = `cat DELETED_LUI.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -1547,7 +1547,7 @@ else if ($target == "MRCUI") then
     #   Verify field formats
     #
     echo "    Verify field formats: $merged_lui"
-    perl -ne 'print unless /^L\d{7}\|L\d{7}\|/;' $merged_lui >! MERGED_LUI.badfields.$$
+    perl -ne 'print unless /^L\d{7,8}\|L\d{7,8}\|/;' $merged_lui >! MERGED_LUI.badfields.$$
     set cnt = `cat MERGED_LUI.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -2665,7 +2665,7 @@ else if ($target == "MRSAT") then
     #
     echo "    Verify field formats"
 if ($mode != "submission") then
-    perl -ne 'print unless /^C.\d{6,7}\|(L\d{7})*\|(S\d{7,8})?\|([AR]\d{7,9})?\|[^\|]*\|[^\|]*\|AT\d{8,9}\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|[YNEO]\|\d*\|/;' $mrsat >! MRSAT.badfields.$$
+    perl -ne 'print unless /^C.\d{6,7}\|(L\d{7,8})*\|(S\d{7,8})?\|([AR]\d{7,9})?\|[^\|]*\|[^\|]*\|AT\d{8,9}\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|[YNEO]\|\d*\|/;' $mrsat >! MRSAT.badfields.$$
     set cnt = `cat MRSAT.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -3138,7 +3138,7 @@ else if ($target == "MRX") then
     #   Verify field formats
     #
     echo "    Verify field formats: $mrxns"
-    perl -ne 'print unless /^[^\|]*\|[^\|]+\|C.\d{6,7}\|L\d{7}\|S\d{7,8}\|/;' $mrxns >! MRX.badfields.$$
+    perl -ne 'print unless /^[^\|]*\|[^\|]+\|C.\d{6,7}\|L\d{7,8}\|S\d{7,8}\|/;' $mrxns >! MRX.badfields.$$
     set cnt = `cat MRX.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -3163,7 +3163,7 @@ else if ($target == "MRX") then
     #   Verify field formats
     #
     echo "    Verify field formats: $mrxnw"
-    perl -ne 'print unless /^[^\|]*\|[^\|]+\|C.\d{6,7}\|L\d{7}\|S\d{7,8}\|/;' $mrxnw >! MRX.badfields.$$
+    perl -ne 'print unless /^[^\|]*\|[^\|]+\|C.\d{6,7}\|L\d{7,8}\|S\d{7,8}\|/;' $mrxnw >! MRX.badfields.$$
     set cnt = `cat MRX.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -3188,7 +3188,7 @@ else if ($target == "MRX") then
     #
     foreach f (`cat mrx.lats.$$`)
 	echo "    Verify field formats: ${mrxw}_$f"
-	perl -ne 'print unless /^[^\|]*\|[^\|]+\|C.\d{6,7}\|L\d{7}\|S\d{7,8}\|/;' ${mrxw}_$f.RRF >! MRX.badfields.$$
+	perl -ne 'print unless /^[^\|]*\|[^\|]+\|C.\d{6,7}\|L\d{7,8}\|S\d{7,8}\|/;' ${mrxw}_$f.RRF >! MRX.badfields.$$
 	set cnt = `cat MRX.badfields.$$ | wc -l`
 	if ($cnt != 0) then
 	    echo "ERROR: The following rows have bad field formats"
