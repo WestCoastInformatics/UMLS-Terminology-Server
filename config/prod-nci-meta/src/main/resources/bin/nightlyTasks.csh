@@ -21,6 +21,7 @@ set db = `grep 'javax.persistence.jdbc.url' $MEME_HOME/config/config.properties 
 set user = `grep 'javax.persistence.jdbc.user' $MEME_HOME/config/config.properties | perl -ne '@_ = split/=/; print $_[1];'`
 set pwd = `grep 'javax.persistence.jdbc.password' $MEME_HOME/config/config.properties | perl -ne '@_ = split/=/; print $_[1];'`
 set mysql = "mysql -h$host -P$port -u$user -p$pwd $db"
+echo "mysql= $mysql"
 set url = `grep 'base.url' $MEME_HOME/config/config.properties | perl -ne '@_ = split/=/; print $_[1];'`
 set adminUser = `grep 'admin.user' $MEME_HOME/config/config.properties | perl -ne '@_ = split/=/; print $_[1];'`
 set adminPwd = `grep 'admin.password' $MEME_HOME/config/config.properties | perl -ne '@_ = split/=/; print $_[1];'`
@@ -51,13 +52,13 @@ if ($enabled == "true") then
 	curl -H "Content-type: application/json" -H "Authorization: $authToken" -X POST -d "" "$url/workflow/bin/regenerate/all?projectId=$projectId&type=MUTUALLY_EXCLUSIVE"
 	
     # 3. Bounce the tomcat server
-    sudo /sbin/service tomcat-meme-8080 stop
+    sudo service tomcat-evs-meme stop
     if ($status != 0) then
         echo "ERROR: could not stop server"
         exit 1
     endif
 
-    sudo /sbin/service tomcat-meme-8080 start
+    sudo service tomcat-evs-meme start
     if ($status != 0) then
         echo "ERROR: could not start server"
         exit 1

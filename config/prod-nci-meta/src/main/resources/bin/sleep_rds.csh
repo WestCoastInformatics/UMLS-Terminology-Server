@@ -4,9 +4,9 @@
 #
 
 setenv usage 'sleep_rds.csh {test|release} '
-setenv TEST_DB memedb2
-setenv DEV_DB memedb2
-setenv RELEASE_DB memedb2
+setenv TEST_DB meme-test
+setenv DEV_DB meme-dev
+setenv RELEASE_DB meme-release
 
 echo "--------------------------------------------------------"
 echo "Starting `/bin/date`"
@@ -29,7 +29,7 @@ if ($DB_NAME != $DEV_DB && $DB_NAME != $TEST_DB && $DB_NAME != $RELEASE_DB) then
     exit 1
 endif
 
-set exists = `aws rds describe-db-snapshots --query "DBSnapshots[?DBSnapshotIdentifier=='$DB_NAME-$SNAPSHOT_DATE-final-snapshot'].[Status][0][0]" | jq -r`
+set exists = `aws rds describe-db-snapshots --profile meme --query "DBSnapshots[?DBSnapshotIdentifier=='$DB_NAME-$SNAPSHOT_DATE-final-snapshot'].[Status][0][0]" | jq -r`
 echo "exists: $exists"
 if ($exists == 'available') then
 	echo "ERROR: Snapshot $DB_NAME-$SNAPSHOT_DATE-final-snapshot has already been created today.  It must be removed manually if another snapshot is desired."
@@ -37,7 +37,7 @@ if ($exists == 'available') then
 endif
 
 aws rds delete-db-instance \
-    --db-instance-identifier $DB_NAME\
+    --profile meme --db-instance-identifier $DB_NAME\
 	    --final-db-snapshot-identifier $DB_NAME-$SNAPSHOT_DATE-final-snapshot
 
 echo ""
@@ -45,7 +45,7 @@ echo ""
 set started = 'deleting' 
 while ($started == 'deleting')
    echo "deleting"
-   set started = `aws rds describe-db-instances --query "DBInstances[?DBInstanceIdentifier=='$DB_NAME'].[DBInstanceStatus][0][0]" | jq -r`
+   set started = `aws rds describe-db-instances --profile meme --query "DBInstances[?DBInstanceIdentifier=='$DB_NAME'].[DBInstanceStatus][0][0]" | jq -r`
 end
 
 echo "deleting done - creating snapshot done"

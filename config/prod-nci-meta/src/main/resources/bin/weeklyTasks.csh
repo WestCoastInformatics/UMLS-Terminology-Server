@@ -31,6 +31,7 @@ echo "project: $projectId"
 echo "enabled: $enabled"
 echo ""
 
+
 # if enabled, run stuff
 if ($enabled == "true") then
 
@@ -41,16 +42,16 @@ if ($enabled == "true") then
 
         # 3. Rebuild the deep_relationships tables
         echo "  Rebuild the deep_relationships tables ...  `/bin/date`"
-        $mysql < /meme_work/ncim/etc/rebuildDeepRels.sql
+        $mysql < $MEME_HOME/bin/rebuildDeepRels.sql
 
     # 4. Bounce the tomcat server
-    sudo /sbin/service tomcat-meme-8080 stop
+    sudo service tomcat-evs-meme stop
     if ($status != 0) then
         echo "ERROR: could not stop server ...  `/bin/date`"
         exit 1
     endif
 
-    sudo /sbin/service tomcat-meme-8080 start
+    sudo service tomcat-evs-meme start
     if ($status != 0) then
         echo "ERROR: could not start server ...  `/bin/date`"
         exit 1
