@@ -1,11 +1,15 @@
 #!/bin/tcsh -f
 #
-# This script is used to push inversion source folders or release packages to s3
+# This script is used to push inversion source folders or release packages to s3.  INversion folders will be compressed as part of the upload process.
+#
+# Usage examples:
+# ./push_s3.csh inv NCI_2022_10E
+# ./push_s3.csh ncim 202208
+# ./push_s3.csh umls 2022AB
 #
 
-set rootdir = `dirname $0`
-set abs_rootdir = `cd $rootdir && pwd`
-set usage = 'push_s3.csh {inv|mr} {source_name|release_date}'
+set usage = 'push_s3.csh {inv|ncim|umls} {source_name|release_date}'
+setenv S3_BUCKET s3://nci-evs-meme
 
 echo "--------------------------------------------------------"
 echo "Starting `/bin/date`"
@@ -23,15 +27,19 @@ endif
 echo "INV_OR_MR:          $INV_OR_MR"
 echo "SOURCE_NAME:        $SOURCE_NAME"
 
-if ($INV_OR_MR != 'inv' && $INV_OR_MR != 'mr') then
-    echo "ERROR: inv or mr must be specified as first parameter"
+if ($INV_OR_MR != 'inv' && $INV_OR_MR != 'ncim' && $INV_OR_MR != 'umls') then
+    echo "ERROR: inv or ncim or umls  must be specified as first parameter"
 	echo "ERROR: $usage"
 endif
 
 if ($INV_OR_MR == 'inv') then 
-	setenv SOURCE_PATH /tmp/sources
-else
-	setenv SOURCE_PATH /tmp/mr
+	setenv SOURCE_PATH /local/content/MEME/MEME5/inv/sources
+endif
+if ($INV_OR_MR == 'ncim') then 
+	setenv SOURCE_PATH /local/content/MEME/MEME5/mr/ncim
+endif
+if ($INV_OR_MR == 'umls') then 
+	setenv SOURCE_PATH /local/content/MEME/MEME5/mr/umls
 endif
 
 cd $SOURCE_PATH
@@ -50,25 +58,32 @@ endif
 
 echo "    Put data on s3... `/bin/date`"
 if ($INV_OR_MR == 'inv') then
-	#aws s3api head-object --bucket wci1 --key NCI/inv/$SOURCE_NAME
-	set fileExists = `aws s3api head-object --bucket wci1 --key NCI/inv/$SOURCE_NAME.tgz | grep Metadata | wc -l `
-	echo "fileExists $fileExists"
+	set fileExists = `aws s3api head-object --bucket nci-evs-meme --key inv/sources/$SOURCE_NAME.tgz | grep Metadata | wc -l `
     if ($fileExists == 1) then
-	    echo "ERROR: File NCI/inv/$SOURCE_NAME.tgz already exists in bucket"
+	    echo "ERROR: File inv/sources/$SOURCE_NAME.tgz already exists in bucket"
+	    exit 1
+	endif
+	set fileExists = `aws s3api head-object --bucket nci-evs-meme --key inv/sources/$SOURCE_NAME.tar.gz | grep Metadata | wc -l `
+    if ($fileExists == 1) then
+	    echo "ERROR: File inv/sources/$SOURCE_NAME.tar.gz already exists in bucket"
 	    exit 1
 	endif
 	tar -zcvf $SOURCE_NAME.tgz $SOURCE_NAME
-    aws s3 cp $SOURCE_NAME.tgz s3://wci1/NCI/inv/$SOURCE_NAME.tgz
-else if ($INV_OR_MR == 'mr') then
-	#aws s3api head-object --bucket wci1 --key NCI/mr/$SOURCE_NAME.zip
-	set fileExists = `aws s3api head-object --bucket wci1 --key NCI/mr/$SOURCE_NAME.zip | grep Metadata | wc -l `
-	echo "fileExists $fileExists"
+    aws s3 cp $SOURCE_NAME.tgz $S3_BUCKET/inv/sources/$SOURCE_NAME.tgz
+else if ($INV_OR_MR == 'ncim') then
+	set fileExists = `aws s3api head-object --bucket nci-evs-meme --key mr/ncim/$SOURCE_NAME/$SOURCE_NAME.zip | grep Metadata | wc -l `
     if ($fileExists == 1) then
-	    echo "ERROR: File NCI/mr/$SOURCE_NAME.zip already exists in bucket"
+	    echo "ERROR: File mr/ncim/$SOURCE_NAME already exists in bucket"
 	    exit 1
 	endif
-	zip -r $SOURCE_NAME.zip $SOURCE_NAME
-    aws s3 cp $SOURCE_NAME.zip s3://wci1/NCI/mr
+    aws s3 cp $SOURCE_NAME $S3_BUCKET/mr/ncim/$SOURCE_NAME --recursive
+else if ($INV_OR_MR == 'umls') then
+	set fileExists = `aws s3api head-object --bucket nci-evs-meme --key mr/umls/$SOURCE_NAME/META/MRSAB.RRF | grep Metadata | wc -l `
+    if ($fileExists == 1) then
+	    echo "ERROR: File mr/umls/$SOURCE_NAME already exists in bucket"
+	    exit 1
+	endif
+    aws s3 cp $SOURCE_NAME $S3_BUCKET/mr/umls/$SOURCE_NAME --recursive
 endif
 
 
