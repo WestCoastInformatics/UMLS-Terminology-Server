@@ -427,6 +427,9 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
                 atom.getConceptTerminologyIds().put(
                     getProcess().getTerminology() + getProcess().getVersion(),
                     CUI);
+                if(atom.getConceptTerminologyIds().get(getProject().getTerminology()) == null) {
+                  atom.getConceptTerminologyIds().put(getProject().getTerminology(), CUI);
+                }
                 mthCUIUpdateCount++;
                 updateAtom(atom);
               }
