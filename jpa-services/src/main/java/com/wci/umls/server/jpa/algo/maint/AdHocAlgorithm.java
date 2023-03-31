@@ -2967,10 +2967,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     logInfo(" Remove unbalanced concept relationships");
 
     Query query = getEntityManager().createNativeQuery(
-        "select * from concept_relationships where relationshipType = 'RN' " +
+        "select distinct id from concept_relationships where relationshipType = 'RN' " +
             " and publishable and (to_id, from_id) not in " + 
             "(select from_id, to_id from concept_relationships where relationshipType = 'RB' and publishable) " +
-            " UNION  select * from concept_relationships where relationshipType = 'RB' and " + 
+            " UNION  select distinct id from concept_relationships where relationshipType = 'RB' and " + 
             " publishable and (to_id, from_id) not in " +
             " (select from_id, to_id from concept_relationships where relationshipType = 'RN' and publishable)");
 
