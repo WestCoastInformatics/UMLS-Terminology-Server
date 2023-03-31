@@ -4982,6 +4982,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
            ci.setStateOrProvince(fields[6] == null || fields[6].isEmpty() ? "" : fields[6] );
            ci.setCountry(fields[7] == null || fields[7].isEmpty() ? "" : fields[7] );
            ci.setZipCode(fields[8] == null || fields[8].isEmpty() ? "" : fields[8] );
+           ci.setTelephone(fields[9] == null || fields[9].isEmpty() ? "" : fields[9] );
            ci.setEmail(fields[11] == null || fields[11].isEmpty() ? "" : fields[11] );
            ci.setUrl(fields[12] == null || fields[12].isEmpty() ? "" : fields[12]) ;
            } catch (Exception e) {
