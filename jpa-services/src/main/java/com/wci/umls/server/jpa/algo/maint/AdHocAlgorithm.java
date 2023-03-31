@@ -4937,12 +4937,17 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
            while ((line = reader.readLine()) != null) {
 
              FieldedStringTokenizer.split(line, "|", 25, fields);
+             
+             // skip rows where term frequency (tfr) is zero
+             if (Integer.parseInt(fields[14]) == 0) {
+               continue;
+             }
 
              if (loadedRootTerminologies.containsKey(fields[3])) {
                final RootTerminology root = loadedRootTerminologies.get(fields[3]);
                ContactInfo contentContact = root.getContentContact();
                updateContactInfo(contentContact, fields[12]);
-               ContactInfo licenseContact = root.getContentContact();
+               ContactInfo licenseContact = root.getLicenseContact();
                updateContactInfo(licenseContact, fields[11]);
                root.setLastModified(new Date());
                root.setLastModifiedBy("loader");
