@@ -5,9 +5,14 @@ package com.wci.umls.server.jpa.algo.insert;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.FileStore;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.NumberFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -147,6 +152,21 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       }
     }    
     
+    // check sufficient disk space
+    NumberFormat nf = NumberFormat.getNumberInstance();
+    for (Path root : FileSystems.getDefault().getRootDirectories()) {
+
+        System.out.print(root + ": ");
+        try {
+            FileStore store = Files.getFileStore(root);
+
+            logInfo("[PreInsertionAlgorithm] Checking sufficient disk space on " + root.toAbsolutePath() + ": available=" + nf.format(store.getUsableSpace())
+            + ", total=" + nf.format(store.getTotalSpace()));
+            
+        } catch (IOException e) {
+          validationResult.addError("error querying space: " + e.toString());
+        }
+    }
     
     return validationResult;
   }
