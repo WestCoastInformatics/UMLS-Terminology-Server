@@ -7,7 +7,11 @@ import static java.lang.Math.toIntExact;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,10 +42,12 @@ import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.WorklistList;
+import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
+import com.wci.umls.server.jpa.algo.RrfReaders;
 import com.wci.umls.server.jpa.algo.action.AbstractMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddAtomMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddSemanticTypeMolecularAction;
@@ -54,6 +60,7 @@ import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.AtomTreePositionJpa;
+import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
 import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
 import com.wci.umls.server.jpa.content.ComponentHistoryJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
@@ -67,6 +74,8 @@ import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.inversion.SourceIdRangeJpa;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
+import com.wci.umls.server.jpa.meta.ContactInfoJpa;
+import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
 import com.wci.umls.server.jpa.services.InversionServiceJpa;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
 import com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa;
@@ -80,6 +89,7 @@ import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.model.content.CodeRelationship;
 import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.ComponentInfoRelationship;
@@ -93,12 +103,15 @@ import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.inversion.SourceIdRange;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
+import com.wci.umls.server.model.meta.ContactInfo;
 import com.wci.umls.server.model.meta.RelationshipIdentity;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.TrackingRecord;
+import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
+import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.services.InversionService;
@@ -107,6 +120,7 @@ import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.UmlsIdentityService;
 import com.wci.umls.server.services.WorkflowService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
+import com.wci.umls.server.services.helpers.PushBackReader;
 
 /**
  * Implementation of an algorithm to execute an action based on a user-defined
@@ -120,6 +134,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   private Integer integerParameter;
   
   private String stringParameter;
+  
+  private String[] meddraCodes = {"C0947791", "C0947802", "C0004998", "C0154040", "C0851643", "C0154038", "C0750887", "C0007095", "C0947849", "C0851693", "C0851658", "C1955745", "C0007115", "C0851753", "C0851756", "C0851764", "C0153445", "C0346629", "C0851835", "C0852202", "CL448458", "C0546837", "C0852432", "C0220636", "C0153425", "C0852438", "C1370803", "C0153452", "C0852440", "C0206624", "C3550748", "C4015937", "C0851280", "C0023434", "C0023473", "C0851281", "C0023494", "C0852441", "C0026997", "C0852442", "C3463824", "C0019829", "CL448793", "C0079772", "C0206675", "C0947932", "C0852481", "C0281784", "C2242753", "C0852482", "C0027858", "C0852483", "C0555198", "C0259785", "C0852484", "C1412004", "C0558356", "C0026764", "C0496892", "C0496893", "C0005684", "C0740457", "C0947935", "C0852491", "C0153997", "C0004997", "C0852500", "C0153999", "C0154002", "C0154003", "C0007847", "C0007103", "C0153579", "C0852495", "C0852496", "C0346180", "C0852497", "C0852498", "C0042237", "C0947936", "C0154009", "C0153601", "C0376358", "C0852502", "C0153594", "C0153956", "C0947938", "C0852506", "C0852507", "C0852508", "C1112122", "C0852511", "C0007107", "C0852512", "C0153504", "C0852513", "C1112123", "C1112124", "C1112724", "C0852516", "C0852515", "C0852517", "C0852521", "C0852522", "C1704327", "C0852523", "C0852524", "C0851522", "C0851437", "CL1379131", "C0947779", "C0947782", "C0851481", "C0851520", "C0015393", "C0851385", "C0851434", "C0851564", "C0851565", "C0851521", "C0851566", "C0851567", "C0851568", "C0851490", "C0702198", "C0851569", "C0021051", "C0027831", "C0006413", "C0023443"};
+  private List<String> ncimCodesWithMeddra = Arrays.asList(meddraCodes);
+  
   
   /**
    * Instantiates an empty {@link AdHocAlgorithm}.
@@ -236,6 +254,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       removeOldMTHRelationships();
     } else if (actionName.equals("Remove old relationships")) {
       removeOldRelationships();
+    } else if (actionName.equals("Remove bad bequeathal relationships")) {
+      removeBadBequeathalRelationships();
     } else if (actionName.equals("Assign Missing STY ATUIs")) {
       assignMissingStyAtui();
     } else if (actionName.equals("Fix Component History Version")) {
@@ -294,6 +314,14 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       approveWorklistCluster();
     } else if (actionName.contentEquals("Cleanup corrupted process config")) {
       cleanupCorruptedProcessConfig();
+    } else if (actionName.contentEquals("Update Root Terminology Contact Info From UMLS")) {
+      updateRootTerminologyContactInfoFromUMLS();    
+    } else if (actionName.contentEquals("Reload Workflow Bin Definition Queries")) {
+      reloadWorkflowBinDefinitionQueries();
+    } else if (actionName.contentEquals("Remove Unbalanced Concept Relationships")) {
+      removeUnbalancedConceptRelationships();
+    } else if (actionName.contentEquals("Write Meddra Ncit Overlap Report")) {
+      writeMeddraNcitOverlapReport();
     } else {
       throw new Exception("Valid Action Name not specified.");
     }
@@ -380,6 +408,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     int successful = 0;
 
+    
     final Map<Long, Long> definitionIdAtomIdMap = new HashMap<>();
     definitionIdAtomIdMap.put(37014L, 338961L);
     definitionIdAtomIdMap.put(275324L, 6783080L);
@@ -448,6 +477,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // 11/13/2018 Same issue happened again with MTH2018AA insertion. Updating
     // version.
     // 12/15/2018 Sigh - same thing happened AGAIN with MTH2018AB.
+	// 12/19/2022 same thing happened with MTH2022AB
 
     int removals = 0;
 
@@ -459,10 +489,10 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     Query query = getEntityManager().createQuery("select a.id from " + "ConceptRelationshipJpa a "
         + "where a.terminology = :terminology and a.version = :version and a.publishable=true");
     query.setParameter("terminology", "MTH");
-    query.setParameter("version", "2018AB");
+    query.setParameter("version", "2022AB");
 
     logInfo("[RemoveBadRelationships] Loading "
-        + "ConceptRelationship ids for relationships created by the MTH 2017AB insertion");
+        + "ConceptRelationship ids for relationships created by the MTH 2022AB insertion");
 
     List<Object> list = query.getResultList();
     for (final Object entry : list) {
@@ -1991,6 +2021,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         }
 
         updateProgress();
+        commitClearBegin();
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -2860,6 +2891,87 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       }
 
       commitClearBegin();
+      
+
+      // Identify all code relationships with null alternate terminology ids
+      // (RUIs)
+      // REAL QUERY
+      query = getEntityManager().createNativeQuery(
+          "select cr.id from code_relationships cr left join coderelationshipjpa_alternateterminologyids crat on cr.id=crat.CodeRelationshipJpa_id where cr.publishable and crat.alternateTerminologyIds is null and terminology != 'NCIMTH'");
+
+      list = query.getResultList();
+      relsToFix = new ArrayList<>();
+
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        relsToFix.add(id);
+      }
+
+      logInfo(
+          "[FixNullRUIs] " + relsToFix.size() + " Code relationships identified with null RUIs");
+
+      setSteps(relsToFix.size());
+      for (Long relId : relsToFix) {
+        CodeRelationship relationship =
+            (CodeRelationship) getRelationship(relId, CodeRelationshipJpa.class);
+
+        if (!relationship.getTerminology().equals("MTH")) {
+          continue;
+        }
+        final String inverseRelType = relTypeMap.get(relationship.getRelationshipType());
+        final String inverseAdditionalRelType =
+            relTypeMap.get(relationship.getAdditionalRelationshipType());
+        final String relationshipRui =
+            handler.getTerminologyId(relationship, inverseRelType, inverseAdditionalRelType);
+        relationship.getAlternateTerminologyIds().size();
+        relationship.getAlternateTerminologyIds().put(getProject().getTerminology(),
+            relationshipRui);
+        updateRelationship(relationship);
+        updateProgress();
+      }
+
+      commitClearBegin();
+      
+      
+      // Identify all atom relationships with null alternate terminology ids
+      // (RUIs)
+      // REAL QUERY
+      query = getEntityManager().createNativeQuery(
+          "select cr.id from atom_relationships cr left join atomrelationshipjpa_alternateterminologyids crat on cr.id=crat.AtomRelationshipJpa_id where cr.publishable and crat.alternateTerminologyIds is null and terminology != 'NCIMTH'");
+
+      list = query.getResultList();
+      relsToFix = new ArrayList<>();
+
+      for (final Object entry : list) {
+        final Long id = Long.valueOf(entry.toString());
+        relsToFix.add(id);
+      }
+
+      logInfo(
+          "[FixNullRUIs] " + relsToFix.size() + " Atom relationships identified with null RUIs");
+
+      setSteps(relsToFix.size());
+      for (Long relId : relsToFix) {
+        AtomRelationship relationship =
+            (AtomRelationship) getRelationship(relId, AtomRelationshipJpa.class);
+
+        if (!relationship.getTerminology().equals("MTH")) {
+          continue;
+        }
+        final String inverseRelType = relTypeMap.get(relationship.getRelationshipType());
+        final String inverseAdditionalRelType =
+            relTypeMap.get(relationship.getAdditionalRelationshipType());
+        final String relationshipRui =
+            handler.getTerminologyId(relationship, inverseRelType, inverseAdditionalRelType);
+        relationship.getAlternateTerminologyIds().size();
+        relationship.getAlternateTerminologyIds().put(getProject().getTerminology(),
+            relationshipRui);
+        updateRelationship(relationship);
+        updateProgress();
+      }
+
+      commitClearBegin();
+      
       handler.commit();
       handler.close();
 
@@ -2893,7 +3005,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     Query query = getEntityManager().createNativeQuery(
         "select cr.id from " + " concept_relationships cr, concepts c1, concepts c2 "
             + " where cr.from_id = c1.id " + " and cr.to_id = c2.id " + " AND from_id < to_id "
-            + " and cr.terminology = 'MTH' " + " and cr.terminology != '2020AB' "
+            + " and cr.terminology = 'MTH' " + " and cr.terminology != '2022AB' "
             + " and c1.terminology = 'NCIMTH' " + " and c2.terminology = 'NCIMTH' "
             + " GROUP BY c1.terminologyId, c2.terminologyId HAVING COUNT(*) > 1");
 
@@ -2932,6 +3044,63 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     List<Object> list = query.getResultList();
     setSteps(list.size());
     logInfo("[RemoveOldRelationships] " + list.size() + " ConceptRelationship ids loaded");
+
+    for (final Object entry : list) {
+      final Long id = Long.valueOf(entry.toString());
+      removeRelationship(id, ConceptRelationshipJpa.class);
+      updateProgress();
+    }
+
+    logInfo("Finished " + getName());
+
+  }  
+  
+  private void removeUnbalancedConceptRelationships() throws Exception {
+    // 01/05/2023 remove RN/RB concept relationships that don't have an inverse
+
+    logInfo(" Remove unbalanced concept relationships");
+
+    Query query = getEntityManager().createNativeQuery(
+        "select distinct id from concept_relationships where relationshipType = 'RN' " +
+            " and publishable and (to_id, from_id) not in " + 
+            "(select from_id, to_id from concept_relationships where relationshipType = 'RB' and publishable) " +
+            " UNION  select distinct id from concept_relationships where relationshipType = 'RB' and " + 
+            " publishable and (to_id, from_id) not in " +
+            " (select from_id, to_id from concept_relationships where relationshipType = 'RN' and publishable)");
+
+    logInfo("[RemoveUnbalancedConceptRelationships] Loading "
+        + "ConceptRelationship ids for unbalanced relationships");
+
+    List<Object> list = query.getResultList();
+    setSteps(list.size());
+    logInfo("[RemoveUnbalancedConceptRelationships] " + list.size() + " ConceptRelationship ids loaded");
+
+    for (final Object entry : list) {
+      final Long id = Long.valueOf(entry.toString());
+      removeRelationship(id, ConceptRelationshipJpa.class);
+      updateProgress();
+    }
+
+    logInfo("Finished " + getName());
+
+  }
+  private void removeBadBequeathalRelationships() throws Exception {
+    // 08/01/2022 bequeathals that were added for UMD concepts that needed to be merged instead
+
+    logInfo(" Remove bad bequeathal relationships");
+
+    Query query = getEntityManager().createNativeQuery(
+        "select distinct concept_relationships.id from concepts, concepts_atoms, atoms, concept_relationships " + 
+        " where concept_relationships.from_id = concepts.id and relationshipType like 'B%' and " +
+        " concepts.id = concepts_atoms.concepts_id and atoms.id = concepts_atoms.atoms_id and atoms.terminology = 'UMD' and " + 
+        " atoms.publishable = 1 and concept_relationships.lastMOdifiedBy = 'MTH_2022AA'");
+
+    logInfo("[RemoveBadBequeathalRelationships] Loading "
+        + "ConceptRelationship ids for bad bequeathal relationships that were added by the MTH_2022AA insertion");
+
+    List<Object> list = query.getResultList();
+    setSteps(list.size());
+    logInfo("[RemoveBadBequeathalRelationships] " + list.size() + " ConceptRelationship ids loaded");
 
     for (final Object entry : list) {
       final Long id = Long.valueOf(entry.toString());
@@ -4871,7 +5040,158 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 		    processService.close();
 		  }
 
+         private void updateRootTerminologyContactInfoFromUMLS() throws Exception {
+           // 2022/01/06 remove corrupted process config and its steps
+           Map<String, RootTerminology> loadedRootTerminologies =
+               new HashMap<>();
+           
+           for (final RootTerminology root : getRootTerminologies().getObjects()) {
+             // lazy init
+             root.getSynonymousNames().size();
+             loadedRootTerminologies.put(root.getTerminology(), root);
+           }
+           
+           File inputDirFile = new File(config.getProperty("source.data.dir") + "/" + getProcess().getInputPath());
+           if (!inputDirFile.exists()) {
+             throw new Exception("Specified input directory does not exist");
+           }
+           
+           // Open readers - just open original RRF, no need to sort
+           RrfReaders readers = new RrfReaders(inputDirFile);
+           // Use default prefix if not specified
+           readers.openOriginalReaders("MR");
+           
+           logInfo("  Load MRSAB data");
+           String line = null;
+           final PushBackReader reader = readers.getReader(RrfReaders.Keys.MRSAB);
+           final String fields[] = new String[25];
+           while ((line = reader.readLine()) != null) {
 
+             FieldedStringTokenizer.split(line, "|", 25, fields);
+             
+             // skip rows where term frequency (tfr) is zero
+             if (Integer.parseInt(fields[14]) == 0) {
+               continue;
+             }
+
+             if (loadedRootTerminologies.containsKey(fields[3])) {
+               final RootTerminology root = loadedRootTerminologies.get(fields[3]);
+               ContactInfo contentContact = root.getContentContact();
+               updateContactInfo(contentContact, fields[12]);
+               ContactInfo licenseContact = root.getLicenseContact();
+               updateContactInfo(licenseContact, fields[11]);
+               root.setLastModified(new Date());
+               root.setLastModifiedBy("loader");
+               loadedRootTerminologies.put(root.getTerminology(), root);
+
+               updateRootTerminology(root);
+               commitClearBegin();
+             }
+           }
+         }
+         
+         public void updateContactInfo(ContactInfo ci, String mrsabField) {
+           // 0 John Kilbourne, M.D. ;
+           // 1 Head, MeSH Section;
+           // 2 National Library of Medicine;
+           // 3 6701 Democracy Blvd.;
+           // 4 Suite 202 MSC 4879;
+           // 5 Bethesda;
+           // 6 Maryland;
+           // 7 United States;
+           // 8 20892-4879;
+           // 9 kilbourj@mail.nlm.nih.gov
+           try {
+           String[] fields = FieldedStringTokenizer.split(mrsabField, ";");
+           
+           ci.setName(fields[0] == null || fields[0].isEmpty() ? "" : fields[0] );
+           ci.setTitle(fields[1] == null || fields[1].isEmpty() ? "" : fields[1] );
+           ci.setOrganization(fields[2] == null || fields[2].isEmpty() ? "" : fields[2] );
+           ci.setAddress1(fields[3] == null || fields[3].isEmpty() ? "" :  fields[3] );
+           ci.setAddress2(fields[4] == null || fields[4].isEmpty() ? "" : fields[4] );
+           ci.setCity(fields[5] == null || fields[5].isEmpty() ? "" : fields[5] );
+           ci.setStateOrProvince(fields[6] == null || fields[6].isEmpty() ? "" : fields[6] );
+           ci.setCountry(fields[7] == null || fields[7].isEmpty() ? "" : fields[7] );
+           ci.setZipCode(fields[8] == null || fields[8].isEmpty() ? "" : fields[8] );
+           ci.setTelephone(fields[9] == null || fields[9].isEmpty() ? "" : fields[9] );
+           ci.setEmail(fields[11] == null || fields[11].isEmpty() ? "" : fields[11] );
+           ci.setUrl(fields[12] == null || fields[12].isEmpty() ? "" : fields[12]) ;
+           } catch (Exception e) {
+             // swallow exception if some fields aren't available
+           }
+         }
+   
+         private void reloadWorkflowBinDefinitionQueries() throws Exception {
+           // 2022/11/10 reload corrupted workflow bin definition queries
+           Map<String, String> loadedNameToQuery = new HashMap<>();
+
+           File inputDirFile =
+               new File(config.getProperty("source.data.dir") + "/" + getProcess().getInputPath());
+           if (!inputDirFile.exists()) {
+             throw new Exception("Specified input directory does not exist");
+           }
+
+           final String workflow_type = stringParameter;
+
+           final String sourcesFile = inputDirFile + File.separator + "test.txt";
+           BufferedReader sources;
+           try {
+             sources = new BufferedReader(new FileReader(sourcesFile));
+           } catch (Exception e) {
+             throw new Exception("File not found: " + sourcesFile);
+           }
+
+           final List<String> lines = new ArrayList<>();
+           String line = null;
+
+           final String fields[] = new String[3];
+
+           while ((line = sources.readLine()) != null) {
+
+             FieldedStringTokenizer.split(line, "\t", 3, fields);
+             loadedNameToQuery.put(fields[1], fields[2]);
+           }
+
+           final WorkflowConfig workflowConfig = getWorkflowConfig(getProject(), workflow_type);
+           for (final WorkflowBinDefinition def : workflowConfig.getWorkflowBinDefinitions()) {
+
+             if (loadedNameToQuery.containsKey(def.getName())) {
+               def.setQuery(loadedNameToQuery.get(def.getName()));
+               updateWorkflowBinDefinition(def);
+               commitClearBegin();
+               logInfo("updated " + def.getId() + " " + def.getName());
+             }
+           }
+         }
+
+         
+         private void writeMeddraNcitOverlapReport() throws Exception {
+           WorkflowService workflowService = new WorkflowServiceJpa();
+           
+           File maintDir = new File(getSrcDirFile(), "maint");
+           if (! maintDir.exists()){
+             maintDir.mkdir();
+           }
+           logInfo("maint dir:" + maintDir);
+           BufferedWriter out = new BufferedWriter(new FileWriter(new File(maintDir, "dsstmp.txt")));
+           
+           
+           for (String code : ncimCodesWithMeddra) {
+             ConceptList cpts = workflowService.findConcepts("NCIMTH", "latest", null, code, null);
+             Concept cpt = cpts.getObjects().get(0);
+             if (cpt != null) {
+               for (Atom atom : cpt.getAtoms()) {
+                 if (atom.getTerminology().contentEquals("NCI")) {
+                   out.write(cpt.getTerminologyId() + "\t" + atom.getCodeId() + "\t" + atom.getName() + "\t" + atom.getTermType() + "\n");
+                 }
+               }
+             }
+           }
+           out.flush();
+           out.close();
+         }
+         
+         
   /**
    * Returns the parameters.
    *
@@ -4907,7 +5227,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Remove Old MTHHH Tree Positions", "Combine Atoms By UMLS CUI", "Attach FDA Atom",
         "Fix SNOMED atoms", "Mark MTH/NCIMTH/PN atoms unpublishable", "Remove Log Entries", 
         "Fix Component Info Atoms", "Fix atom errors to unpublishable", "Fix bequeathal rels to unpublishable",
-        "Approve worklist cluster","Cleanup corrupted process config"));
+        "Approve worklist cluster","Cleanup corrupted process config","Remove bad bequeathal relationships",
+        "Update Root Terminology Contact Info From UMLS","Reload Workflow Bin Definition Queries",
+        "Remove Unbalanced Concept Relationships", "Write Meddra Ncit Overlap Report"));
     params.add(param);
     param = new AlgorithmParameterJpa("Integer parameter (optional)", "integerParameter",
             "Integer parameter (optional)", "e.g. 37", 10, AlgorithmParameter.Type.INTEGER, "50");

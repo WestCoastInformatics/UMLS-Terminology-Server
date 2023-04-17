@@ -456,7 +456,10 @@ public class ContactInfoJpa implements ContactInfo {
         + (getStateOrProvince() != null ? getStateOrProvince() : "") + ";"
         + (getCountry() != null ? getCountry() : "") + ";"
         + (getZipCode() != null ? getZipCode() : "") + ";"
-        + (getEmail() != null ? getEmail() : "");
+        + (getTelephone() != null ? getTelephone() : "") + ";"
+        + ";"
+        + (getEmail() != null ? getEmail() : "") + ";"
+        + (getUrl() != null ? getUrl() : "") + ";";
 
   }
 
