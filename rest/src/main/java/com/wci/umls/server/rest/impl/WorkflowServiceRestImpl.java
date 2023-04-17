@@ -3986,7 +3986,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call GET (Refset): /lookup/process/bulk "
+        .info("RESTful call POST (Workflow): /lookup/process/bulk "
             + binNames.toString() + ", " + projectId);
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
@@ -3995,6 +3995,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
 
     try {
       for (String binName : binNames) {
+    	Logger.getLogger(getClass()).info("binName: " + binName);
         if (workflowService.getProcessProgressStatus(projectId, binName)) {
           refsetsStillInProgress.getObjects().add(binName);
         }
@@ -4002,7 +4003,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
 
       return refsetsStillInProgress;
     } catch (Exception e) {
-      handleException(e, "trying to find the bulk process status for refsets");
+      handleException(e, "trying to find the bulk process status for workflow bins");
     } finally {
       workflowService.close();
       securityService.close();
