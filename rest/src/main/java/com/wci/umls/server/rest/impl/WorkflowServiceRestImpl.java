@@ -3991,17 +3991,18 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
 
-    StringList refsetsStillInProgress = new StringList();
+    StringList binsStillInProgress = new StringList();
 
     try {
       for (String binName : binNames) {
-    	Logger.getLogger(getClass()).info("binName: " + binName);
         if (workflowService.getProcessProgressStatus(projectId, binName)) {
-          refsetsStillInProgress.getObjects().add(binName);
+          binsStillInProgress.getObjects().add(binName);
         }
       }
 
-      return refsetsStillInProgress;
+		binsStillInProgress.setTotalCount(
+				binsStillInProgress.getObjects() != null ? binsStillInProgress.getObjects().size() : 0);
+		return binsStillInProgress;
     } catch (Exception e) {
       handleException(e, "trying to find the bulk process status for workflow bins");
     } finally {
