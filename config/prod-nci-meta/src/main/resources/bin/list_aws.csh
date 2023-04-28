@@ -1,11 +1,11 @@
 #!/bin/tcsh -f
 #
-# This script is used to list ec2 and reds instances
+# This script is used to list ec2 and rds instances
 #
 
 set rootdir = `dirname $0`
 set abs_rootdir = `cd $rootdir && pwd`
-set usage = 'list_aws.csh {inv|mr} {source_name|release_date}'
+set usage = 'list_aws.csh'
 
 echo "--------------------------------------------------------"
 echo "Starting `/bin/date`"
@@ -18,6 +18,15 @@ aws ec2 describe-instances --profile meme\
 --output table
 
 aws rds describe-db-instances --profile meme --query "DBInstances[*].{DBInstance:DBInstanceIdentifier,Type:DBInstanceClass,Status:DBInstanceStatus}" --output table
+
+aws rds describe-db-instances --profile meme --query "DBInstances[*].{DBInstance:DBInstanceArn}" | jq -r '.[].DBInstance' > /tmp/rdsArns.txt
+
+
+foreach i (`cat /tmp/rdsArns.txt`)
+echo ""
+echo $i
+aws rds describe-pending-maintenance-actions --profile meme --resource-identifier $i --output table
+end
 
 aws rds describe-db-snapshots --profile meme --query "DBSnapshots[*].{DBSnapshot:DBInstanceIdentifier,CreateTime:"InstanceCreateTime"}" \
              --output table
