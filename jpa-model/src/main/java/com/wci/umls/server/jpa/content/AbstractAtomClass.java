@@ -6,9 +6,11 @@ package com.wci.umls.server.jpa.content;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
 import javax.xml.bind.annotation.XmlElement;
@@ -33,6 +35,7 @@ import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Parameter;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.annotations.TokenFilterDef;
 import org.hibernate.search.annotations.TokenizerDef;
@@ -86,15 +89,16 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
                 })
             })
 })
-@Audited
+//@Audited
 @MappedSuperclass
-public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
+public abstract class AbstractAtomClass extends AbstractComponent
     implements AtomClass {
 
-  /** The descriptions. */
-  @ManyToMany(targetEntity = AtomJpa.class)
-  @IndexedEmbedded(targetElement = AtomJpa.class)
-  private List<Atom> atoms = null;
+//  /** The descriptions. */
+//  @ManyToMany(targetEntity = AtomJpa.class)
+//  @CollectionTable(name = "concepts_atoms", joinColumns = @JoinColumn(name = "concepts_id"))
+//  @IndexedEmbedded(targetElement = AtomJpa.class)
+//  private List<Atom> atoms = null;
 
   /** The name. */
   @Column(nullable = false, length = 4000)
@@ -123,30 +127,30 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
    * @param collectionCopy the deep copy
    */
   public AbstractAtomClass(AtomClass atomClass, boolean collectionCopy) {
-    super(atomClass, collectionCopy);
+    super(atomClass);
     name = atomClass.getName();
     workflowStatus = atomClass.getWorkflowStatus();
     branchedTo = atomClass.getBranchedTo();
-    if (collectionCopy) {
-      atoms = new ArrayList<>(atomClass.getAtoms());
-    }
+//    if (collectionCopy) {
+//      atoms = new ArrayList<>(atomClass.getAtoms());
+//    }
   }
 
-  /* see superclass */
-  @XmlElement(type = AtomJpa.class)
-  @Override
-  public List<Atom> getAtoms() {
-    if (atoms == null) {
-      atoms = new ArrayList<>();
-    }
-    return atoms;
-  }
-
-  /* see superclass */
-  @Override
-  public void setAtoms(List<Atom> atoms) {
-    this.atoms = atoms;
-  }
+//  /* see superclass */
+//  @XmlElement(type = AtomJpa.class)
+//  @Override
+//  public List<Atom> getAtoms() {
+//    if (atoms == null) {
+//      atoms = new ArrayList<>();
+//    }
+//    return atoms;
+//  }
+//
+//  /* see superclass */
+//  @Override
+//  public void setAtoms(List<Atom> atoms) {
+//    this.atoms = atoms;
+//  }
 
   /* see superclass */
   @Override
@@ -154,6 +158,7 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
       @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO, analyzer = @Analyzer(definition = "noStopWord")),
       @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
+  @SortableField(forField = "nameSort")
   public String getName() {
     return name;
   }

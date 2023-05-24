@@ -122,18 +122,33 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
    * @throws Exception the exception
    */
   public void logWarn(String message) throws Exception {
+    logWarn(message, "");
+  }
+  
+  /**
+   * Log warning to console and the database.
+   *
+   * @param message the message
+   * @param indent the indent
+   * @throws Exception the exception
+   */
+  public void logWarn(String message, String indent) throws Exception {
     if (project != null) {
       addLogEntry(project.getId(), getLastModifiedBy(), getTerminology(),
-          getVersion(), activityId, workId, "WARNING: " + message);
+          getVersion(), activityId, workId, indent + "WARNING: " + message);
     } else {
       addLogEntry(getLastModifiedBy(), getTerminology(), getVersion(),
-          activityId, workId, "WARNING: " + message);
+          activityId, workId, indent + "WARNING: " + message);
     }
     fireWarningEvent(message);
     Logger.getLogger(getClass()).warn(message);
     if (getTransactionPerOperation()) {
       commitClearBegin();
     }
+  }
+  
+  public void logError(String message) throws Exception {
+    logError(message, "");
   }
 
   /**
@@ -142,10 +157,10 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
    * @param message the message
    * @throws Exception the exception
    */
-  public void logError(String message) throws Exception {
+  public void logError(String message, String indent) throws Exception {
     if (project != null) {
       addLogEntry(project.getId(), getLastModifiedBy(), getTerminology(),
-          getVersion(), activityId, workId, "ERROR: " + message);
+          getVersion(), activityId, workId, indent + "ERROR: " + message);
     } else {
       addLogEntry(getLastModifiedBy(), getTerminology(), getVersion(),
           activityId, workId, "ERROR: " + message);

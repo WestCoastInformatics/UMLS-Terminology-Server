@@ -160,6 +160,10 @@ h5 {
 	opacity: 0.5;
 }
 
+.glyphicon.glyphicon-share {
+    font-size: 10px;
+}
+
 .nocontent {
 	opacity: 0.2;
 }

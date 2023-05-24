@@ -1,8 +1,8 @@
-<!DOCTYPE web-app PUBLIC
-"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
-"http://java.sun.com/dtd/web-app_2_3.dtd" >
+<?xml version="1.0" encoding="UTF-8"?>
 
-<web-app>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
   <display-name>Term Server REST Services</display-name>
 
   <listener>
@@ -64,5 +64,23 @@
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
   </welcome-file-list>
+
+  <filter>
+    <filter-name>ApiOriginFilter</filter-name>
+    <filter-class>com.wci.umls.server.rest.impl.ApiOriginFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>ApiOriginFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <filter>
+    <filter-name>UserActivityLoggingFilter</filter-name>
+    <filter-class>com.wci.umls.server.rest.impl.UserActivityLoggingFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>UserActivityLoggingFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
 
 </web-app>

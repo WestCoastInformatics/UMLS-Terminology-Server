@@ -3,7 +3,12 @@
  */
 package com.wci.umls.server.jpa.algo.insert;
 
+import java.util.List;
+import java.util.Properties;
 import java.util.UUID;
+
+import com.wci.umls.server.AlgorithmParameter;
+import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 
 /**
  * Implementation of an algorithm to create bequeathal relationships.
@@ -23,6 +28,28 @@ public class BequeathalRelationshipLoaderAlgorithm
     // Set bequeathalRels to true and filename to bequeathal name, so the
     // RelationshipLoader will create only bequeathal relationships
     bequeathalRels = true;
-    fileName = "bequeathal.relationships.src";
+  }
+  
+  /* see superclass */
+  @Override
+  public List<AlgorithmParameter> getParameters() throws Exception {
+    final List<AlgorithmParameter> params = super.getParameters();
+
+    // fileName
+    AlgorithmParameter param = new AlgorithmParameterJpa("File name", "fileName",
+        "The bequeathal file to be loaded", "e.g. bequeathal.relationships.src", 100,
+        AlgorithmParameter.Type.STRING, "");
+    params.add(param);
+
+    return params;
+  }
+  
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+
+    if (p.getProperty("fileName") != null) {
+      fileName = String.valueOf(p.getProperty("fileName"));
+    }
   }
 }

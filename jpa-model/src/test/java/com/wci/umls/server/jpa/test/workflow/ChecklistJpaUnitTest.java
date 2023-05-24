@@ -175,6 +175,7 @@ public class ChecklistJpaUnitTest extends ModelUnitSupport {
     tester.include("projectId");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
+    tester.include("timestamp");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
   }

@@ -208,6 +208,8 @@ tsApp
               function getRecords() {
 
                 var paging = $scope.paging['records'];
+                // NE-596 hardcode increase in page size for now
+                paging.pageSize = 200;
                 var pfs = {
                   startIndex : (paging.page - 1) * paging.pageSize,
                   maxResults : paging.pageSize,

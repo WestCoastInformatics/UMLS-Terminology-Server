@@ -158,7 +158,7 @@ tsApp.service('securityService', [
       $http.defaults.headers.common.Authorization = data.authToken;
 
       // Whenever set user is called, we should save a cookie
-      $cookies.put('user', JSON.stringify(user));
+      $cookies.put('user', JSON.stringify(user), { path: '/' });
     };
 
     // Set user to the guest user
@@ -171,7 +171,7 @@ tsApp.service('securityService', [
       user.userPreferences = {};
 
       // Whenever set user is called, we should save a cookie
-      $cookies.put('user', JSON.stringify(user));
+      $cookies.put('user', JSON.stringify(user), { path: '/' });
       $http.defaults.headers.common.Authorization = 'guest';
 
     };
@@ -190,7 +190,10 @@ tsApp.service('securityService', [
       user.applicationRole = null;
       user.userPreferences = null;
 
-      $cookies.remove('user');
+      // $cookies.remove('user');
+      angular.forEach($cookies.getAll(), function (v, k) {
+         $cookies.remove(k);
+      });
 
     };
 
@@ -625,7 +628,7 @@ tsApp.service('securityService', [
     this.updateUserPreferences = function(userPreferences) {
       console.debug('updateUserPreferences', userPreferences);
       // Whenever we update user preferences, we need to update the cookie
-      $cookies.put('user', JSON.stringify(user));
+      $cookies.put('user', JSON.stringify(user), { path: '/' });
 
       var deferred = $q.defer();
 

@@ -31,13 +31,6 @@ import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.AtomTreePosition;
-import com.wci.umls.server.model.content.Code;
-import com.wci.umls.server.model.content.CodeTreePosition;
-import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
-import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.ConceptTreePosition;
-import com.wci.umls.server.model.content.Descriptor;
-import com.wci.umls.server.model.content.DescriptorTreePosition;
 import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.Terminology;
@@ -274,6 +267,9 @@ public class ContextLoaderAlgorithm
     Exception e) {
       logError("Unexpected problem - " + e.getMessage());
       throw e;
+    } finally {
+      // Clear the caches to free up memory
+      clearCaches();
     }
 
   }
@@ -465,7 +461,7 @@ public class ContextLoaderAlgorithm
     // Tree Positions use the last atom in the list (which was loaded from the
     // first column of the line) for determining the node.
     final Atom nodeAtom = ptrAtoms.get(ptrAtoms.size() - 1);
-    createTreePositions(fields[12], nodeAtom, parentTreeRel, fields[6]);
+    createTreePositions(nodeAtom, parentTreeRel, fields[6], ptrAtoms);
   }
 
   // /**
@@ -560,53 +556,39 @@ public class ContextLoaderAlgorithm
   /**
    * Creates the tree positions.
    *
-   * @param idType the id type
    * @param nodeAtom the node atom
    * @param parentTreeRel the parent tree rel
    * @param hcd the hcd
+   * @param ptrAtoms the ptr atoms
    * @throws Exception the exception
    */
-  private void createTreePositions(String idType, Atom nodeAtom,
-    String parentTreeRel, String hcd) throws Exception {
+  private void createTreePositions(Atom nodeAtom, String parentTreeRel,
+    String hcd, List<Atom> ptrAtoms) throws Exception {
     // For tree positions, create one each line. The
     // "node" will always be based on the first field of the
     // contexts.src file.
 
-    final String ancestorPath = parentTreeRel.replace('.', '~');
+    // Use the atom ids to create the ancestor path (don't include the id of the
+    // node atom)
+    String ancestorIdPath = "";
+    for (final Atom atom : ptrAtoms) {
+      if (atom.getId() != nodeAtom.getId())
+        ancestorIdPath = ancestorIdPath + atom.getId() + "~";
+    }
+    // Get rid of final ~ character
+    if (ancestorIdPath.length() > 0) {
+      ancestorIdPath = ancestorIdPath.substring(0, ancestorIdPath.length() - 1);
+    }
 
     // Instantiate the tree position
-    TreePosition<? extends ComponentHasAttributesAndName> newTreePos = null;
-    if (idType.equals("SOURCE_CUI")) {
-      final ConceptTreePosition ctp = new ConceptTreePositionJpa();
-      final Concept concept = (Concept) getComponent(idType,
-          nodeAtom.getConceptId(), nodeAtom.getTerminology(), null);
-      ctp.setNode(concept);
-      newTreePos = ctp;
-    } else if (idType.equals("SOURCE_DUI")) {
-      final DescriptorTreePosition dtp = new DescriptorTreePositionJpa();
-      final Descriptor descriptor = (Descriptor) getComponent(idType,
-          nodeAtom.getConceptId(), nodeAtom.getTerminology(), null);
-      dtp.setNode(descriptor);
-      newTreePos = dtp;
-    } else if (idType.equals("CODE_SOURCE")) {
-      final CodeTreePosition ctp = new CodeTreePositionJpa();
-      final Code code = (Code) getComponent(idType, nodeAtom.getConceptId(),
-          nodeAtom.getTerminology(), null);
-      ctp.setNode(code);
-      newTreePos = ctp;
-    } else if (idType.equals("SRC_ATOM_ID")) {
-      final AtomTreePosition atp = new AtomTreePositionJpa();
-      final Atom atom = nodeAtom;
-      atp.setNode(atom);
-      newTreePos = atp;
-    } else {
-      throw new Exception("Unsupported id type: " + idType);
-    }
+    final AtomTreePosition newTreePos = new AtomTreePositionJpa();
+
+    newTreePos.setNode(nodeAtom);
     newTreePos.setObsolete(false);
     newTreePos.setSuppressible(false);
     newTreePos.setPublishable(true);
     newTreePos.setPublished(false);
-    newTreePos.setAncestorPath(ancestorPath);
+    newTreePos.setAncestorPath(ancestorIdPath);
     newTreePos.setTerminology(newTreePos.getNode().getTerminology());
     newTreePos.setVersion(newTreePos.getNode().getVersion());
     newTreePos.setChildCt(childAndDescendantCountsMap.get(parentTreeRel)[0]);
@@ -673,8 +655,8 @@ public class ContextLoaderAlgorithm
     //
     // Load the contexts.src file
     //
-    final List<String> lines =
-        loadFileIntoStringList(getSrcDirFile(), "contexts.src", null, null, null);
+    final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
+        "contexts.src", null, null, null);
 
     // Scan through contexts.src, and collect all terminology/versions
     // referenced.

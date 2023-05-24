@@ -27,10 +27,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.DateBridge;
+import org.hibernate.search.annotations.EncodingType;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Resolution;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.EnumBridge;
 import org.hibernate.search.bridge.builtin.LongBridge;
@@ -82,7 +86,7 @@ public class WorkflowConfigJpa implements WorkflowConfig {
   /** The mutually exclusive. */
   @Column(nullable = false)
   private boolean mutuallyExclusive;
-
+  
   /** The admin config. */
   @Column(nullable = false)
   private boolean adminConfig;
@@ -148,6 +152,9 @@ public class WorkflowConfigJpa implements WorkflowConfig {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @DateBridge(resolution = Resolution.SECOND, encoding = EncodingType.STRING)
+  @SortableField
   public Date getLastModified() {
     return lastModified;
   }
@@ -212,7 +219,7 @@ public class WorkflowConfigJpa implements WorkflowConfig {
   public void setType(String type) {
     this.type = type;
   }
-
+  
   /* see superclass */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override

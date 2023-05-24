@@ -27,8 +27,6 @@ set mrhist=$dir/MRHIST.RRF
 set mrcoc=$dir/MRCOC.RRF
 set mrconso=$dir/MRCONSO.RRF
 set mrcui=$dir/MRCUI.RRF
-set old_mrcui=$prev_released_dir/MRCUI.RRF
-set old_mrconso=$prev_released_dir/MRCONSO.RRF
 set deleted_cui=$dir/CHANGE/DELETEDCUI.RRF
 set deleted_lui=$dir/CHANGE/DELETEDLUI.RRF
 set deleted_sui=$dir/CHANGE/DELETEDSUI.RRF
@@ -40,7 +38,6 @@ set mrdef=$dir/MRDEF.RRF
 set mrdoc=$dir/MRDOC.RRF
 set mrfiles=$dir/MRFILES.RRF
 set mrcols=$dir/MRCOLS.RRF
-#set mrlo=$dir/MRLO.RRF
 set mrrank=$dir/MRRANK.RRF
 set mrrel=$dir/MRREL.RRF
 set mrsab=$dir/MRSAB.RRF
@@ -50,6 +47,31 @@ set mrxw=$dir/MRXW
 set mrxnw=$dir/MRXNW_ENG.RRF
 set mrxns=$dir/MRXNS_ENG.RRF
 set mraui=$dir/MRAUI.RRF
+set old_mrcui=$prev_released_dir/MRCUI.RRF
+set old_mrconso=$prev_released_dir/MRCONSO.RRF
+set old_ambig_sui=$prev_released_dir/AMBIGSUI.RRF
+set old_ambig_lui=$prev_released_dir/AMBIGLUI.RRF
+set old_mrmap=$prev_released_dir/MRMAP.RRF
+set old_mrsmap=$prev_released_dir/MRSMAP.RRF
+set old_mrhist=$prev_released_dir/MRHIST.RRF
+set old_mrcoc=$prev_released_dir/MRCOC.RRF
+set old_mrconso=$prev_released_dir/MRCONSO.RRF
+set old_mrcui=$prev_released_dir/MRCUI.RRF
+set old_mrcxt=$prev_released_dir/MRCXT.RRF
+set old_mrhier=$prev_released_dir/MRHIER.RRF
+set old_mrdef=$prev_released_dir/MRDEF.RRF
+set old_mrdoc=$prev_released_dir/MRDOC.RRF
+set old_mrfiles=$prev_released_dir/MRFILES.RRF
+set old_mrcols=$prev_released_dir/MRCOLS.RRF
+set old_mrrank=$prev_released_dir/MRRANK.RRF
+set old_mrrel=$prev_released_dir/MRREL.RRF
+set old_mrsab=$prev_released_dir/MRSAB.RRF
+set old_mrsat=$prev_released_dir/MRSAT.RRF
+set old_mrsty=$prev_released_dir/MRSTY.RRF
+set old_mrxw=$prev_released_dir/MRXW
+set old_mrxnw=$prev_released_dir/MRXNW_ENG.RRF
+set old_mrxns=$prev_released_dir/MRXNS_ENG.RRF
+set old_mraui=$prev_released_dir/MRAUI.RRF
 
 set notMini = 1
 if (`cat $mrhier | wc -l` > 1000) {
@@ -66,17 +88,28 @@ else if ($target == "MRAUI") then
     if (! -e $mraui) then
 		echo "ERROR: required file $mraui cannot be found"
 		exit 1
-	    endif
+	endif
     if (! -e $mrdoc) then
         echo "ERROR: required file $mrdoc cannot be found"
 		exit 1
     endif
+    set codeCuiMap=$dir/nci_code_cui_map_*.dat
+    if (`cat $codeCuiMap | wc -l` < 2) then
+        echo "ERROR: required file $codeCuiMap cannot be found or is empty"
+        exit 1
+    endif
+    set NCIMEMEFile=$dir/NCIMEME_*.txt
+    if (`cat $NCIMEMEFile | wc -l` < 2) then
+        echo "ERROR: required file $NCIMEMEFile cannot be found or is empty"
+        exit 1
+    endif
+
 
     #
     #   Verify field formats
     #
     echo "    Verify field formats: $mraui"
-    perl -ne 'print unless /^A\d{7,8}\|C.\d{6}\|\d\d\d\d..\|[^\|]*\|[^\|]*\|[^\|]+\|A\d{7,8}\|C.\d{6}\|[YN]\|/;' $mraui >! MRAUI.badfields.$$
+    perl -ne 'print unless /^A\d{7,8}\|C.\d{6,7}\|\d\d\d\d..\|[^\|]*\|[^\|]*\|[^\|]+\|A\d{7,8}\|C.\d{6,7}\|[YN]\|/;' $mraui >! MRAUI.badfields.$$
     set cnt = `cat MRAUI.badfields.$$ | wc -l`
     if ($cnt != 0) then
         echo "ERROR: The following rows have bad field formats"
@@ -142,8 +175,9 @@ else if ($target == "MRAUI") then
     echo "    Verify sort order"
     sort -c -u $mraui >> /dev/null
     if ($status != 0) then
-	echo "ERROR: MRAUI has incorrect sort order"
+		echo "ERROR: MRAUI has incorrect sort order"
     endif
+    
       #
       # Verify if current Version Exists
       #
@@ -153,6 +187,13 @@ else if ($target == "MRAUI") then
         echo "ERROR: NO Current Version $cur_ver AUI found in MRAUI"
      endif
 
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mraui | wc -l` < `cat $old_mraui | wc -l`) then
+        echo "WARNING: MRAUI has smaller byte count than previous version MRAUI"
+    endif
 
 else if ($target == "AMBIG") then
 
@@ -168,6 +209,14 @@ else if ($target == "AMBIG") then
 	echo "ERROR: required file $ambig_lui cannot be found"
 	exit 1
     endif
+    if (! -e $old_ambig_sui) then
+	echo "ERROR: required file $old_ambig_sui cannot be found"
+	exit 1
+    endif
+    if (! -e $old_ambig_lui) then
+	echo "ERROR: required file $old_ambig_lui cannot be found"
+	exit 1
+    endif
     if (! -e $mrconso) then
 	echo "ERROR: required file $mrconso cannot be found"
 	exit 1
@@ -177,8 +226,8 @@ else if ($target == "AMBIG") then
     #   Verify field formats
     #
     echo "    Verify field formats: $ambig_sui"
-    perl -ne 'print unless /^S\d{7,8}\|(,{0,1}C.\d{6})+\|/;' $ambig_sui >! AMBIG.badfields.$$
-    #perl -ne 'print unless /^S\d{7}\|C.\d{6}\|/;' $ambig_sui >! AMBIG.badfields.$$
+    perl -ne 'print unless /^S\d{7,8}\|(,{0,1}C.\d{6,7})+\|/;' $ambig_sui >! AMBIG.badfields.$$
+    #perl -ne 'print unless /^S\d{7}\|C.\d{6,7}\|/;' $ambig_sui >! AMBIG.badfields.$$
     set cnt = `cat AMBIG.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -190,8 +239,8 @@ else if ($target == "AMBIG") then
     #   Verify field formats
     #
     echo "    Verify field formats: $ambig_lui"
-    perl -ne 'print unless /^L\d{7}\|(,{0,1}C.\d{6})+\|/;' $ambig_lui >! AMBIG.badfields.$$
-    #perl -ne 'print unless /^L\d{7}\|C.\d{6}\|/;' $ambig_lui >! AMBIG.badfields.$$
+    perl -ne 'print unless /^L\d{7,8}\|(,{0,1}C.\d{6,7})+\|/;' $ambig_lui >! AMBIG.badfields.$$
+    #perl -ne 'print unless /^L\d{7,8}\|C.\d{6,7}\|/;' $ambig_lui >! AMBIG.badfields.$$
     set cnt = `cat AMBIG.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -241,6 +290,14 @@ else if ($target == "AMBIG") then
     endif
 
     #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $ambig_sui | wc -l` < `cat $old_ambig_sui | wc -l`) then
+        echo "WARNING: AMBIGSUI has smaller byte count than previous version AMBIGSUI"
+    endif
+    
+    #
     #   Verify cl_cnt equals the ambiguous LUI count from MRCONSO
     #
     echo "    Verify cl_cnt equals the ambiguous LUI count from MRCONSO"
@@ -280,6 +337,14 @@ else if ($target == "AMBIG") then
     if ($status != 0) then
 	echo "ERROR: $ambig_lui has incorrect sort order"
     endif
+    
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $ambig_lui | wc -l` < `cat $old_ambig_lui | wc -l`) then
+        echo "WARNING: AMBIGLUI has smaller byte count than previous version AMBIGLUI"
+    endif
 
 else if ($target == "MRHIST") then
 
@@ -289,6 +354,10 @@ else if ($target == "MRHIST") then
     echo "    Verify required files"
     if (! -e $mrhist) then
 	echo "ERROR: required file $mrhist cannot be found"
+	exit 1
+    endif
+    if (! -e $old_mrhist) then
+	echo "ERROR: required file $old_mrhist cannot be found"
 	exit 1
     endif
     if (! -e $mrconso) then
@@ -305,7 +374,7 @@ else if ($target == "MRHIST") then
     #
     echo "    Verify field formats"
 if ($mode != "submission") then
-    perl -ne 'print unless /^C.\d{6}\|[^\|]+\|[^\|]*\|[^\|]+\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|\d*\|/;' $mrhist >! MRHIST.badfields.$$
+    perl -ne 'print unless /^C.\d{6,7}\|[^\|]+\|[^\|]*\|[^\|]+\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|\d*\|/;' $mrhist >! MRHIST.badfields.$$
     set cnt = `cat MRHIST.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -359,6 +428,14 @@ endif
         echo "ERROR: MRHIST has incorrect sort order"
     endif
 
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrhist | wc -l` < `cat $old_mrhist | wc -l`) then
+        echo "ERROR: MRHIST must have larger byte count than previous version MRHIST"
+    endif
+    
 else if ($target == "MRMAP") then
 
     #
@@ -367,6 +444,10 @@ else if ($target == "MRMAP") then
     echo "    Verify required files"
     if (! -e $mrmap) then
 	echo "ERROR: required file $mrmap cannot be found"
+	exit 1
+    endif
+    if (! -e $old_mrmap) then
+	echo "ERROR: required file $old_mrmap cannot be found"
 	exit 1
     endif
     if (! -e $mrdoc) then
@@ -401,9 +482,9 @@ else if ($target == "MRMAP") then
     #  MAPRULE,MAPRES,MAPTYPE,MAPATN,MAPATV,CVF
     #
     echo "    Verify field formats"
-perl -ne '@_ = split /\|/; print unless /^C.\d{6}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*\|[^\|]*\|[^\|]+\|[^\|]*\|[^\|]+\|[^\|]+\|.*\|\d*\|/; if ($_[12] ne "XR") { print unless ($_[14] =~ /.+/ && $_[16] =~ /.+/ && $_[17] =~ /.+/); } ' $mrmap >! MRMAP.badfields.$$
+perl -ne '@_ = split /\|/; print unless /^C.\d{6,7}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*\|[^\|]*\|[^\|]+\|[^\|]*\|[^\|]+\|[^\|]+\|.*\|\d*\|/; if ($_[12] ne "XR") { print unless ($_[14] =~ /.+/ && $_[16] =~ /.+/ && $_[17] =~ /.+/); } ' $mrmap >! MRMAP.badfields.$$
     #note: this is added to address the SNOMEDCT_US mapping to empty code, may be removed later: begin
-    perl -ne '@_ = split /\|/; print unless /^C.\d{6}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*\|[^\|]*\|[^\|]+\|[^\|]*\|[^\|]+\|[^\|]+\|.*\|\d*\|/; ' MRMAP.badfields.$$ >! tmp.MRMAP.badfields.$$
+    perl -ne '@_ = split /\|/; print unless /^C.\d{6,7}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*\|[^\|]*\|[^\|]+\|[^\|]*\|[^\|]+\|[^\|]+\|.*\|\d*\|/; ' MRMAP.badfields.$$ >! tmp.MRMAP.badfields.$$
     awk -F\| '$2!="SNOMEDCT_US"&&$15=="100051"{print}' MRMAP.badfields.$$ >> tmp.MRMAP.badfields.$$
     sort -u tmp.MRMAP.badfields.$$ >! MRMAP.badfields.$$
     rm -f tmp.MRMAP.badfields.$$
@@ -620,6 +701,13 @@ perl -ne '@_ = split /\|/; print unless /^C.\d{6}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*
         echo "ERROR: MRMAP has incorrect sort order"
     endif
 
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrmap | wc -l` < `cat $old_mrmap | wc -l`) then
+        echo "ERROR: MRMAP must have larger byte count than previous version MRMAP"
+    endif
 
 else if ($target == "MRCONSO") then
 
@@ -629,6 +717,10 @@ else if ($target == "MRCONSO") then
     echo "    Verify required files"
     if (! -e $mrconso) then
 	echo "ERROR: required file $mrconso cannot be found"
+	exit 1
+    endif
+    if (! -e $old_mrconso) then
+	echo "ERROR: required file $old_mrconso cannot be found"
 	exit 1
     endif
     if (! -e $mrdoc) then
@@ -650,7 +742,7 @@ else if ($target == "MRCONSO") then
 if ($mode == "submission") then
     checkfields.pl $mrconso
 else
-    perl -ne 'print unless /^C.\d{6}\|[^\|]*\|[^\|]*\|L\d{7}\|[^\|]*\|S\d{7,8}\|.\|A\d{7,8}\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]+\|[^\|]+\|[0-9]\|[YNEO]\|\d*\|/;' $mrconso >! MRCONSO.badfields.$$
+    perl -ne 'print unless /^C.\d{6,7}\|[^\|]*\|[^\|]*\|L\d{7,8}\|[^\|]*\|S\d{7,8}\|.\|A\d{7,8}\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]+\|[^\|]+\|[0-9]\|[YNEO]\|\d*\|/;' $mrconso >! MRCONSO.badfields.$$
     set cnt = `cat MRCONSO.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -1072,6 +1164,14 @@ endif
 	echo "ERROR: MRCONSO has incorrect sort order"
     endif
 
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrconso | wc -l` < `cat $old_mrconso | wc -l`) then
+        echo "ERROR: MRCONSO must have larger byte count than previous version MRCONSO"
+    endif
+    
 else if ($target == "MRCUI") then
 
     #
@@ -1123,7 +1223,7 @@ else if ($target == "MRCUI") then
     #   Verify field formats
     #
     echo "    Verify field formats: $mrcui"
-    perl -ne 'print unless /^C.\d{6}\|\d{4}..\|[^\|]*\|[^\|]*\||[^\|]*\|C.\d{6}\|[YN]?\|/;' $mrcui >! MRCUI.badfields.$$
+    perl -ne 'print unless /^C.\d{6,7}\|\d{4}..\|[^\|]*\|[^\|]*\||[^\|]*\|C.\d{6,7}\|[YN]?\|/;' $mrcui >! MRCUI.badfields.$$
     set cnt = `cat MRCUI.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -1274,10 +1374,18 @@ else if ($target == "MRCUI") then
     endif
 
     #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrcui | wc -l` < `cat $old_mrcui | wc -l`) then
+        echo "ERROR: MRCUI must have larger byte count than previous version MRCUI"
+    endif
+    
+    #
     #   Verify field formats
     #
     echo "    Verify field formats: $deleted_cui"
-    perl -ne 'print unless /^C.\d{6}\|[^\|]*\|/;' $deleted_cui >! DELETED_CUI.badfields.$$
+    perl -ne 'print unless /^C.\d{6,7}\|[^\|]*\|/;' $deleted_cui >! DELETED_CUI.badfields.$$
     set cnt = `cat DELETED_CUI.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -1303,12 +1411,12 @@ else if ($target == "MRCUI") then
     if ($status != 0) then
         echo "ERROR: DELETED.CUI has incorrect sort order"
     endif
-
+    
     #
     #   Verify field formats
     #
     echo "    Verify field formats: $deleted_lui"
-    perl -ne 'print unless /^L\d{7}\|[^\|]*\|/;' $deleted_lui >! DELETED_LUI.badfields.$$
+    perl -ne 'print unless /^L\d{7,8}\|[^\|]*\|/;' $deleted_lui >! DELETED_LUI.badfields.$$
     set cnt = `cat DELETED_LUI.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -1335,6 +1443,7 @@ else if ($target == "MRCUI") then
         echo "ERROR: DELETED.LUI has incorrect sort order"
     endif
 
+    
     #
     #   Verify field formats
     #
@@ -1378,12 +1487,12 @@ else if ($target == "MRCUI") then
     if ($status != 0) then
         echo "ERROR: DELETED.SUI has incorrect sort order"
     endif
-
+    
     #
     #   Verify field formats
     #
     echo "    Verify field formats: $merged_cui"
-    perl -ne 'print unless /^C.\d{6}\|C.\d{6}\|/;' $merged_cui >! MERGED_CUI.badfields.$$
+    perl -ne 'print unless /^C.\d{6,7}\|C.\d{6,7}\|/;' $merged_cui >! MERGED_CUI.badfields.$$
     set cnt = `cat MERGED_CUI.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -1433,12 +1542,12 @@ else if ($target == "MRCUI") then
     if ($status != 0) then
         echo "ERROR: MERGED.CUI has incorrect sort order"
     endif
-
+    
     #
     #   Verify field formats
     #
     echo "    Verify field formats: $merged_lui"
-    perl -ne 'print unless /^L\d{7}\|L\d{7}\|/;' $merged_lui >! MERGED_LUI.badfields.$$
+    perl -ne 'print unless /^L\d{7,8}\|L\d{7,8}\|/;' $merged_lui >! MERGED_LUI.badfields.$$
     set cnt = `cat MERGED_LUI.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -1477,8 +1586,6 @@ else if ($target == "MRCUI") then
         echo "ERROR: MERGED.LUI has incorrect sort order"
     endif
 
-
-
 else if ($target == "MRHIER") then
 
     #
@@ -1487,6 +1594,10 @@ else if ($target == "MRHIER") then
     echo "    Verify required files"
     if (! -e $mrhier) then
 	echo "ERROR: required file $mrhier cannot be found"
+	exit 1
+    endif
+    if (! -e $old_mrhier) then
+	echo "ERROR: required file $old_mrhier cannot be found"
 	exit 1
     endif
     if (! -e $mrdoc) then
@@ -1506,7 +1617,7 @@ else if ($target == "MRHIER") then
     #   Verify field formats
     #
     echo "    Verify field formats"
-    perl -ne 'print unless /^C.\d{6}\|A\d{7,8}\|\d+\|(A\d{7,8})?\|[^\|]*\|[^\|]*\|(\.{0,1}A\d{7,8})*\|[^\|]*\|\d*\|/;' $mrhier >! MRHIER.badfields.$$
+    perl -ne 'print unless /^C.\d{6,7}\|A\d{7,8}\|\d+\|(A\d{7,8})?\|[^\|]*\|[^\|]*\|(\.{0,1}A\d{7,8})*\|[^\|]*\|\d*\|/;' $mrhier >! MRHIER.badfields.$$
     set cnt = `cat MRHIER.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -1616,6 +1727,14 @@ else if ($target == "MRHIER") then
         echo "ERROR: MRHIER has incorrect sort order"
     endif
 
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrhier | wc -l` < `cat $old_mrhier | wc -l`) then
+        echo "ERROR: MRHIER must have larger byte count than previous version MRHIER"
+    endif
+    
 else if ($target == "MRDEF") then
 
     #
@@ -1624,6 +1743,10 @@ else if ($target == "MRDEF") then
     echo "    Verify required files"
     if (! -e $mrdef) then
 	echo "ERROR: required file $mrdef cannot be found"
+	exit 1
+    endif
+    if (! -e $old_mrdef) then
+	echo "ERROR: required file $old_mrdef cannot be found"
 	exit 1
     endif
     if (! -e $mrconso) then
@@ -1639,7 +1762,7 @@ else if ($target == "MRDEF") then
     #   Verify field formats
     #
     echo "    Verify field formats"
-    perl -ne 'print unless /^C.\d{6}\|A\d{7,8}\|AT\d{8,9}\|[^\|]*\|[^\|]*\|[^\|]+\|[YNEO]\|\d*\|/;' $mrdef >! MRDEF.badfields.$$
+    perl -ne 'print unless /^C.\d{6,7}\|A\d{7,8}\|AT\d{8,9}\|[^\|]*\|[^\|]*\|[^\|]+\|[YNEO]\|\d*\|/;' $mrdef >! MRDEF.badfields.$$
     set cnt = `cat MRDEF.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -1749,6 +1872,14 @@ else if ($target == "MRDEF") then
         echo "ERROR: MRDEF has incorrect sort order"
     endif
 
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrdef | wc -l` < `cat $old_mrdef | wc -l`) then
+        echo "ERROR: MRDEF must have larger byte count than previous version MRDEF"
+    endif
+    
 else if ($target == "MRFILESCOLS") then
 
     #
@@ -1761,6 +1892,10 @@ else if ($target == "MRFILESCOLS") then
     endif
     if (! -e $mrcols) then
 	echo "ERROR: required file $mrcols cannot be found"
+	exit 1
+    endif
+    if (! -e $old_mrcols) then
+	echo "ERROR: required file $old_mrcols cannot be found"
 	exit 1
     endif
 
@@ -1828,7 +1963,7 @@ else if ($target == "MRFILESCOLS") then
     if ($status != 0) then
         echo "ERROR: MRFILES has incorrect sort order"
     endif
-
+    
     #
     #   Verify field formats
     #
@@ -1972,6 +2107,10 @@ else if ($target == "MRFILESCOLS") then
         echo "ERROR: MRCOLS has incorrect sort order"
     endif
 
+    echo "    Verify file size"
+    if (`cat $mrcols | wc -l` < `cat $old_mrcols | wc -l`) then
+        echo "ERROR: MRCOLS must have larger byte count than previous version MRCOLS"
+    endif
 
 else if ($target == "MRRANK") then
 
@@ -1981,6 +2120,10 @@ else if ($target == "MRRANK") then
     echo "    Verify required files"
     if (! -e $mrrank) then
 	echo "ERROR: required file $mrrank cannot be found"
+	exit 1
+    endif
+    if (! -e $old_mrrank) then
+	echo "ERROR: required file $old_mrrank cannot be found"
 	exit 1
     endif
     if (! -e $mrdoc) then
@@ -2073,6 +2216,14 @@ else if ($target == "MRRANK") then
     if ($status != 0) then
         echo "ERROR: MRRANK has incorrect sort order"
     endif
+    
+        #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrrank | wc -l` < `cat $old_mrrank | wc -l`) then
+        echo "ERROR: MRRANK must have larger byte count than previous version MRRANK"
+    endif
 
 else if ($target == "MRREL") then
 
@@ -2082,6 +2233,10 @@ else if ($target == "MRREL") then
     echo "    Verify required files"
     if (! -e $mrrel) then
 	echo "ERROR: required file $mrrel cannot be found"
+	exit 1
+    endif
+    if (! -e $old_mrrel) then
+	echo "ERROR: required file $old_mrrel cannot be found"
 	exit 1
     endif
     if (! -e $mrdoc) then
@@ -2101,7 +2256,7 @@ else if ($target == "MRREL") then
     #   Verify field formats
     #
     echo "    Verify field formats"
-    perl -ne 'print unless /^C.\d{6}\|(?:A\d{7,8})*\|[^\|]*\|[^\|]*\|C.\d{6}\|(?:A\d{7,8})*\|[^\|]*\|[^\|]*\|R\d{8,9}\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|[YN]*\|[YNEO]\|\d*\|/;' $mrrel >! MRREL.badfields.$$
+    perl -ne 'print unless /^C.\d{6,7}\|(?:A\d{7,8})*\|[^\|]*\|[^\|]*\|C.\d{6,7}\|(?:A\d{7,8})*\|[^\|]*\|[^\|]*\|R\d{8,9}\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|[YN]*\|[YNEO]\|\d*\|/;' $mrrel >! MRREL.badfields.$$
     set cnt = `cat MRREL.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -2130,6 +2285,17 @@ else if ($target == "MRREL") then
     if ($cnt != 0) then
 	echo "ERROR:  RELA not in MRDOC.VALUE where MRDOC.DOCKEY=RELA"
 	awk -F\| '$3=="expanded_form"&&$1=="RELA"{print $2}' $mrdoc | sort -u | comm -13 - MRREL.RELA.$$ | head -10 | sed 's/^/  /'
+    endif
+    rm -f MRREL.RELA.$$
+    
+    #
+    #   Verify bequeathal rels not released
+    #
+    echo "    Verify bequeathal rels not released"
+    set cnt=`perl -ne '@_ = split /\|/; print "$_[3]\n" if $_[3] =~ /^B/ ' $mrrel | wc -l`
+    if ($cnt != 0) then
+	echo "ERROR:  Bequeathal rels are in MRREL"
+	perl -ne '@_ = split /\|/; print "$_" if $_[3] =~ /^B/ ' $mrrel | head -10 
     endif
     rm -f MRREL.RELA.$$
 
@@ -2217,7 +2383,8 @@ else if ($target == "MRREL") then
     #
     echo "    Verify CUI1 in MRCONSO.CUI"
     cut -d\| -f1 $mrconso | sort -u >! MRCONSO.uis.c.$$
-    set ct=`join -v 1 -t\| -j1 1 -j2 1 $mrrel MRCONSO.uis.c.$$ | wc -l`
+    cut -d\| -f1 $mrrel | sort -u >! MRREL.c1.$$
+    set ct=`join -v 1 -t\| -j1 1 -j2 1 MRREL.c1.$$ MRCONSO.uis.c.$$ | wc -l`
     if ($ct != 0) then
         echo "ERROR: CUI1 in MRREL not in MRCONSO.CUI"
 	join -v 1 -t\| -j1 1 -j2 1 -o 1.1 $mrrel MRCONSO.uis.c.$$ | head -10 | sed 's/^/  /'
@@ -2343,6 +2510,14 @@ endif
         echo "ERROR: MRREL has incorrect sort order"
     endif
 
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrrel | wc -l` < `cat $old_mrrel | wc -l`) then
+        echo "ERROR: MRREL must have larger byte count than previous version MRREL"
+    endif
+    
 else if ($target == "MRSAB") then
 
     #
@@ -2355,7 +2530,7 @@ else if ($target == "MRSAB") then
     endif
 
     echo "    Verify field formats"
-    perl -ne '@_ = split/\|/; next unless $_[0]; print unless /^C.\d{6}\|C.\d{6}\|[^\|]+\|[^\|]+\|[^\|]+\|[^\|]+\|[^\|]*\|(?:\d{4}_\d{2}_\d{2})*\|(?:\d{4}_\d{2}_\d{2})*\|(?:\d{4}..[^\|]*)*\|(?:\d{4}..[^\|]*)*\|[^\|]*\|[^\|]*\|[0-3]\|\d*\|\d*\|(?:FULL(?:-(?:MULTIPLE|NOSIB)*)?)?\|(?:,{0,1}[A-Z]{2,})*\|(?:,{0,1}[a-zA-Z0-9]+)*|[^\|]*\|[^\|]*\|[YN]\|[YN]\|[^\|]+\|[^\|]*\|/;' $mrsab >! MRSAB.badfields.$$
+    perl -ne '@_ = split/\|/; next unless $_[0]; print unless /^C.\d{6,7}\|C.\d{6,7}\|[^\|]+\|[^\|]+\|[^\|]+\|[^\|]+\|[^\|]*\|(?:\d{4}_\d{2}_\d{2})*\|(?:\d{4}_\d{2}_\d{2})*\|(?:\d{4}..[^\|]*)*\|(?:\d{4}..[^\|]*)*\|[^\|]*\|[^\|]*\|[0-3]\|\d*\|\d*\|(?:FULL(?:-(?:MULTIPLE|NOSIB)*)?)?\|(?:,{0,1}[A-Z]{2,})*\|(?:,{0,1}[a-zA-Z0-9]+)*|[^\|]*\|[^\|]*\|[YN]\|[YN]\|[^\|]+\|[^\|]*\|/;' $mrsab >! MRSAB.badfields.$$
     set cnt = `cat MRSAB.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -2446,6 +2621,13 @@ else if ($target == "MRSAB") then
         echo "ERROR: MRSAB has incorrect sort order"
     endif
 
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrsab | wc -l` < `cat $old_mrsab | wc -l`) then
+        echo "ERROR: MRSAB must have larger byte count than previous version MRSAB"
+    endif
 
 else if ($target == "MRSAT") then
 
@@ -2455,6 +2637,10 @@ else if ($target == "MRSAT") then
     echo "    Verify required files"
     if (! -e $mrsat) then
 	echo "ERROR: required file $mrsat cannot be found"
+	exit 1
+    endif
+    if (! -e $old_mrsat) then
+	echo "ERROR: required file $old_mrsat cannot be found"
 	exit 1
     endif
     if (! -e $mrdoc) then
@@ -2479,7 +2665,7 @@ else if ($target == "MRSAT") then
     #
     echo "    Verify field formats"
 if ($mode != "submission") then
-    perl -ne 'print unless /^C.\d{6}\|(L\d{7})*\|(S\d{7,8})?\|([AR]\d{7,9})?\|[^\|]*\|[^\|]*\|AT\d{8,9}\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|[YNEO]\|\d*\|/;' $mrsat >! MRSAT.badfields.$$
+    perl -ne 'print unless /^C.\d{6,7}\|(L\d{7,8})*\|(S\d{7,8})?\|([AR]\d{7,9})?\|[^\|]*\|[^\|]*\|AT\d{8,9}\|[^\|]*\|[^\|]*\|[^\|]*\|[^\|]*\|[YNEO]\|\d*\|/;' $mrsat >! MRSAT.badfields.$$
     set cnt = `cat MRSAT.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -2598,25 +2784,25 @@ endif
     echo "    Verify CUI in MRCONSO.CUI where SUI=''"
     perl -ne '@_ = split /\|/; print "$_[0]\n" unless $_[2]' $mrsat |\
        sort -u >! mrsat.tmp1.$$
-    set ct=`join -t\| -j 1 -v 1 mrsat.tmp1.$$ MRCONSO.uis.cls.$$ | wc -l`
+    set ct=`join -t\| -j 1 -v 1 mrsat.tmp1.$$ MRCONSO.uis.c.$$ | wc -l`
     if ($ct != 0) then
         echo "ERROR: There are CUIs in MRSAT not in MRCONSO"
-	join -t\| -j 1 -v 1 mrsat.tmp1.$$ MRCONSO.uis.cls.$$ | head -10 | sed 's/^/  /'
+	join -t\| -j 1 -v 1 mrsat.tmp1.$$ MRCONSO.uis.c.$$ | head -10 | sed 's/^/  /'
     endif
     rm -f mrsat.tmp1.$$
 
     #
     #  Verify MRCONSO.CUI in MRSAT.CUI
     #
-    echo "    Verify MRCONSO.CUI in MRSAT.CUI"
-    cut -d\| -f 1 $mrsat | sort -u >! mrsat.tmp1.$$
-    set ct=`join -t\| -j 1 -v 2 -o 2.1 mrsat.tmp1.$$ MRCONSO.uis.cls.$$ | wc -l`
-    if ($ct != 0) then
-        echo "WARNING: There are CUIs in MRCONSO not in MRSAT"
-	join -t\| -j 1 -v 2 -o 2.1 mrsat.tmp1.$$ MRCONSO.uis.cls.$$ |\
-	    sort -u | head -10 | sed 's/^/  /'
-    endif
-    rm -f mrsat.tmp1.$$ MRCONSO.uis.cls.$$
+    # echo "    Verify MRCONSO.CUI in MRSAT.CUI"
+    # cut -d\| -f 1 $mrsat | sort -u >! mrsat.tmp1.$$
+    # set ct=`join -t\| -j 1 -v 2 -o 2.1 mrsat.tmp1.$$ MRCONSO.uis.cls.$$ | wc -l`
+    # if ($ct != 0) then
+    #    echo "WARNING: There are CUIs in MRCONSO not in MRSAT"
+	# join -t\| -j 1 -v 2 -o 2.1 mrsat.tmp1.$$ MRCONSO.uis.cls.$$ |\
+	#    sort -u | head -10 | sed 's/^/  /'
+    # endif
+    # rm -f mrsat.tmp1.$$ MRCONSO.uis.cls.$$ 
 
     #
     #  Verify AM flag matches ambig strings from MRCONSO
@@ -2701,6 +2887,14 @@ endif
         echo "ERROR: MRSAT has incorrect sort order"
     endif
 
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrsat | wc -l` < `cat $old_mrsat | wc -l`) then
+        echo "ERROR: MRSAT must have larger byte count than previous version MRSAT"
+    endif
+    
 else if ($target == "MRSTY") then
 
     #
@@ -2712,6 +2906,10 @@ else if ($target == "MRSTY") then
 	echo "ERROR: required file $mrsty cannot be found"
 	exit 1
     endif
+    if (! -e $old_mrsty) then
+	echo "ERROR: required file $old_mrsty cannot be found"
+	exit 1
+    endif
     if (! -e $mrconso) then
 	echo "ERROR: required file $mrconso cannot be found"
 	exit 1
@@ -2721,7 +2919,7 @@ else if ($target == "MRSTY") then
     #   Verify field formats
     #
     echo "    Verify field formats"
-    perl -ne 'print unless /^C.\d{6}\|T\d{3}\|[A-Z][\d\.]*\|[A-Za-z]+[^\|]*\|AT\d{8,9}\|\d*\|/;' $mrsty >! MRSTY.badfields.$$
+    perl -ne 'print unless /^C.\d{6,7}\|T\d{3}\|[A-Z][\d\.]*\|[A-Za-z]+[^\|]*\|AT\d{8,9}\|\d*\|/;' $mrsty >! MRSTY.badfields.$$
     set cnt = `cat MRSTY.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -2809,7 +3007,7 @@ else if ($target == "MRSTY") then
         echo "ERROR: CUIs in MRCONSO not in MRSTY"
 	comm -13 MRSTY.uis.c.$$ MRCONSO.uis.c.$$ | head -10 | sed 's/^/  /'
     endif
-    rm -f MRSTY.uis.c.$$ MRCONSO.uis.c.$$
+    rm -f MRSTY.uis.c.$$ MRCONSO.uis.c.$$ MRREL.c1.$$
 
     #
     #   Verify ATUI unique
@@ -2831,6 +3029,14 @@ else if ($target == "MRSTY") then
         echo "ERROR: MRSTY has incorrect sort order"
     endif
 
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrsty | wc -l` < `cat $old_mrsty | wc -l`) then
+        echo "ERROR: MRSTY must have larger byte count than previous version MRSTY"
+    endif
+    
 else if ($target == "MRDOC") then
 
     #
@@ -2908,6 +3114,16 @@ else if ($target == "MRX") then
 	exit 1
     endif
 
+	if (! -e $old_mrxns) then
+	echo "ERROR: required file $old_mrxns cannot be found"
+	exit 1
+    endif
+
+    if (! -e $old_mrxnw) then
+	echo "ERROR: required file $old_mrxnw cannot be found"
+	exit 1
+    endif
+    
     if (! -e $mrdoc) then
 	echo "ERROR: required file $mrdoc cannot be found"
 	exit 1
@@ -2922,7 +3138,7 @@ else if ($target == "MRX") then
     #   Verify field formats
     #
     echo "    Verify field formats: $mrxns"
-    perl -ne 'print unless /^[^\|]*\|[^\|]+\|C.\d{6}\|L\d{7}\|S\d{7,8}\|/;' $mrxns >! MRX.badfields.$$
+    perl -ne 'print unless /^[^\|]*\|[^\|]+\|C.\d{6,7}\|L\d{7,8}\|S\d{7,8}\|/;' $mrxns >! MRX.badfields.$$
     set cnt = `cat MRX.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -2947,7 +3163,7 @@ else if ($target == "MRX") then
     #   Verify field formats
     #
     echo "    Verify field formats: $mrxnw"
-    perl -ne 'print unless /^[^\|]*\|[^\|]+\|C.\d{6}\|L\d{7}\|S\d{7,8}\|/;' $mrxnw >! MRX.badfields.$$
+    perl -ne 'print unless /^[^\|]*\|[^\|]+\|C.\d{6,7}\|L\d{7,8}\|S\d{7,8}\|/;' $mrxnw >! MRX.badfields.$$
     set cnt = `cat MRX.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -2972,7 +3188,7 @@ else if ($target == "MRX") then
     #
     foreach f (`cat mrx.lats.$$`)
 	echo "    Verify field formats: ${mrxw}_$f"
-	perl -ne 'print unless /^[^\|]*\|[^\|]+\|C.\d{6}\|L\d{7}\|S\d{7,8}\|/;' ${mrxw}_$f.RRF >! MRX.badfields.$$
+	perl -ne 'print unless /^[^\|]*\|[^\|]+\|C.\d{6,7}\|L\d{7,8}\|S\d{7,8}\|/;' ${mrxw}_$f.RRF >! MRX.badfields.$$
 	set cnt = `cat MRX.badfields.$$ | wc -l`
 	if ($cnt != 0) then
 	    echo "ERROR: The following rows have bad field formats"
@@ -3082,6 +3298,22 @@ else if ($target == "MRX") then
     end
     rm -f mrx.lats.$$
 
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrxns | wc -l` < `cat $old_mrxns | wc -l`) then
+        echo "ERROR: MRXNS_ENG must have larger byte count than previous version MRXNS_ENG"
+    endif
+    
+    #
+    #  Verify new file is larger than old
+    #
+    echo "    Verify file size"
+    if (`cat $mrxnw | wc -l` < `cat $old_mrxnw | wc -l`) then
+        echo "ERROR: MRXNW_ENG must have larger byte count than previous version MRXNW_ENG"
+    endif
+    
 else
 
     echo "    Verify valid target"

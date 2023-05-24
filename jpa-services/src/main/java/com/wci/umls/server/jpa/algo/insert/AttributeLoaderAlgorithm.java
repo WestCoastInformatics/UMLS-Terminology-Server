@@ -3,7 +3,9 @@
  */
 package com.wci.umls.server.jpa.algo.insert;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -24,10 +26,15 @@ import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
+import com.wci.umls.server.jpa.content.CodeJpa;
+import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
+import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.DefinitionJpa;
+import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Attribute;
@@ -119,15 +126,17 @@ public class AttributeLoaderAlgorithm
       commitClearBegin();
 
       //
-      // Load the attributes.src file, skipping SEMANTIC_TYPE, CONTEXT,
-      // SUBSET_MEMBER, XMAP, XMAPTO, XMAPFROM, UMLSCUI
+      // Filter the attributes.src file, skipping SEMANTIC_TYPE, CONTEXT,
+      // SUBSET_MEMBER, XMAP, XMAPTO, XMAPFROM, UMLSCUI  and return the number
+      // of lines that meet this condition
       //
-      final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
-          "attributes.src", null,
-          "(.*)(SEMANTIC_TYPE|CONTEXT|SUBSET_MEMBER|XMAP|XMAPTO|XMAPFROM|UMLSCUI)(.*)", null);
-
+      final int ct =
+          filterFileForCount(getSrcDirFile(), "attributes.src", null,
+              "(.*)(SEMANTIC_TYPE|CONTEXT|SUBSET_MEMBER|XMAP|XMAPTO|XMAPFROM|UMLSCUI)(.*)");
+      logInfo("  Steps: " + ct + " filtered attribute rows to process");
+      
       // Set the number of steps to the number of lines to be processed
-      setSteps(lines.size());
+      setSteps(ct);
 
       final String fields[] = new String[14];
 
@@ -143,14 +152,34 @@ public class AttributeLoaderAlgorithm
         final Set<Pair<String, String>> terminologyAttributesToRemove =
             new HashSet<>();
 
-        for (final String line : lines) {
-
-          FieldedStringTokenizer.split(line, "|", 14, fields);
-          final Pair<String, String> terminologyAttribute =
-              new ImmutablePair<>(fields[5], fields[3]);
-
-          terminologyAttributesToRemove.add(terminologyAttribute);
+        //
+        // Load the attributes.src file, skipping SEMANTIC_TYPE, CONTEXT,
+        // SUBSET_MEMBER, XMAP, XMAPTO, XMAPFROM, UMLSCUI
+        //
+        final String sourcesFile = getSrcDirFile() + File.separator + "attributes.src";
+        BufferedReader sources = null;
+        try {
+          sources = new BufferedReader(new FileReader(sourcesFile));
+        } catch (Exception e) {
+          throw new Exception("File not found: " + sourcesFile);
         }
+
+        String linePre = null;
+        String line = null;
+        while ((linePre = sources.readLine()) != null) {
+          linePre = linePre.replace("\r", "");
+          
+          line = filterLine(linePre);
+
+          if (line != null) {
+            FieldedStringTokenizer.split(line, "|", 14, fields);
+            final Pair<String, String> terminologyAttribute =
+                new ImmutablePair<>(fields[5], fields[3]);
+
+            terminologyAttributesToRemove.add(terminologyAttribute);
+          }         
+        }
+        sources.close();
 
         // Once all unique terminology/attribute name pairs have been
         // identified, remove them all from the database
@@ -164,7 +193,7 @@ public class AttributeLoaderAlgorithm
               getCachedTerminology(terminologyAndVersion);
           if (terminology == null) {
             logWarn("WARNING - terminology not found: " + terminologyAndVersion
-                + ".");
+                + ".", "Attribute Loader: Terminology not found", "");
             continue;
           }
 
@@ -173,13 +202,15 @@ public class AttributeLoaderAlgorithm
           // attached to, so we can remove the attribute from
           // the component before deleting the attribute
 
-          // Note: .src files currently only add Atom and Concept
-          // attributes. If a later version adds attributes to
+          // Note: If a later version adds attributes to
           // different components, add those components to the below
           // list
 
           final List<Class> containingClazzes =
-              new ArrayList<>(Arrays.asList(AtomJpa.class, ConceptJpa.class));
+              new ArrayList<>(Arrays.asList(AtomJpa.class, ConceptJpa.class,
+                  CodeJpa.class, DescriptorJpa.class,
+                  ConceptRelationshipJpa.class, CodeRelationshipJpa.class,
+                  AtomSubsetMemberJpa.class, ConceptSubsetMemberJpa.class));
 
           for (Class clazz : containingClazzes) {
             final String query = "SELECT a.id, att.id from "
@@ -210,6 +241,10 @@ public class AttributeLoaderAlgorithm
               updateComponent(containingComponent);
               removeAttribute(attributeId);
               attributeRemoveCount++;
+
+              if (attributeRemoveCount % RootService.commitCt == 0) {
+                commitClearBegin();
+              }
             }
           }
         }
@@ -224,13 +259,31 @@ public class AttributeLoaderAlgorithm
       //
 
       // Each line of attributes.src corresponds to one attribute.
-      for (final String line : lines) {
+      final String sourcesFile = getSrcDirFile() + File.separator + "attributes.src";
+      BufferedReader sources = null;
+      try {
+        sources = new BufferedReader(new FileReader(sourcesFile));
+      } catch (Exception e) {
+        throw new Exception("File not found: " + sourcesFile);
+      }
 
+      String linePre = null;
+      String line = null;
+      while ((linePre = sources.readLine()) != null) {
+        
+        //skipping SEMANTIC_TYPE, CONTEXT,
+        // SUBSET_MEMBER, XMAP, XMAPTO, XMAPFROM, UMLSCUI
+        line = filterLine(linePre);
+        
         // Check for a cancelled call once every 100 lines
         if (getStepsCompleted() % 100 == 0) {
           checkCancel();
         }
 
+        if (line == null) {
+          continue;
+        }
+        
         FieldedStringTokenizer.split(line, "|", 14, fields);
 
         // Fields:
@@ -258,7 +311,8 @@ public class AttributeLoaderAlgorithm
         final Terminology setTerminology = getCachedTerminology(fields[5]);
         if (setTerminology == null) {
           logWarnAndUpdate(line,
-              "WARNING - terminology not found: " + fields[5] + ".");
+              "WARNING - terminology not found: " + fields[5] + ".",
+              "Attribute Loader: Terminology not found");
           continue;
         }
 
@@ -291,7 +345,8 @@ public class AttributeLoaderAlgorithm
             logWarnAndUpdate(line,
                 "WARNING - could not find Component for type: " + fields[10]
                     + ", terminologyId: " + fields[1] + ", and terminology:"
-                    + fields[11]);
+                    + fields[11],
+                "Attribute Loader: Could not find component");
             continue;
           }
           Atom atom = null;
@@ -307,7 +362,8 @@ public class AttributeLoaderAlgorithm
           } else {
             logWarnAndUpdate(line,
                 "WARNING - " + containerComponent.getClass().getName()
-                    + " is an unhandled type.");
+                    + " is an unhandled type.",
+                "Attribute Loader: Unhandled type");
             continue;
           }
 
@@ -398,6 +454,12 @@ public class AttributeLoaderAlgorithm
           if (fields[10].contains("RUI")) {
             relType = ConceptRelationshipJpa.class;
           }
+          // TODO: find a better way to do this.
+          // Only MDR insertion uses SRC_REL_ID, and they are all
+          // CodeRelationships.
+          else if (fields[10].contains("SRC_REL_ID")) {
+            relType = CodeRelationshipJpa.class;
+          }
           final ComponentHasAttributes containerComponent =
               (ComponentHasAttributes) getComponent(fields[10], fields[1],
                   getCachedTerminologyName(fields[11]), relType);
@@ -405,7 +467,8 @@ public class AttributeLoaderAlgorithm
             logWarnAndUpdate(line,
                 "WARNING - could not find Component for type: " + fields[10]
                     + ", terminologyId: " + fields[1] + ", and terminology:"
-                    + fields[11]);
+                    + fields[11],
+                "Attribute Loader: Could not find component");
             continue;
           }
 
@@ -478,12 +541,14 @@ public class AttributeLoaderAlgorithm
             RootService.commitCt);
       }
 
+      sources.close();
+      
+      // Clear the caches to free up memory
+      clearCaches();
+
       // Now remove the alternate terminologies for relationships - we
       // don't need them anymore
       clearRelationshipAltTerminologies();
-
-      // Clear the caches to free up memory
-      clearCaches();
 
       commitClearBegin();
       handler.commit();
@@ -503,6 +568,9 @@ public class AttributeLoaderAlgorithm
       handler.rollback();
       handler.close();
       throw e;
+    } finally {
+      // Clear the caches to free up memory
+      clearCaches();
     }
 
   }
@@ -538,6 +606,41 @@ public class AttributeLoaderAlgorithm
   @Override
   public String getDescription() {
     return "Loads and processes an attributes.src file to load Attribute and Definition objects.";
+  }
+  
+  /*filter out lines with SEMANTIC_TYPE, CONTEXT,
+  SUBSET_MEMBER, XMAP, XMAPTO, XMAPFROM, UMLSCUI*/
+  public String filterLine(String linePre) {
+    String line = null;
+    String keepRegexFilter = null;
+    String skipRegexFilter = "(.*)(SEMANTIC_TYPE|CONTEXT|SUBSET_MEMBER|XMAP|XMAPTO|XMAPFROM|UMLSCUI)(.*)";
+    
+    linePre = linePre.replace("\r", "");
+    // Filter rows if defined
+    if (ConfigUtility.isEmpty(keepRegexFilter)
+        && ConfigUtility.isEmpty(skipRegexFilter)) {
+      line = linePre;
+    } else if (!ConfigUtility.isEmpty(keepRegexFilter)
+        && ConfigUtility.isEmpty(skipRegexFilter)) {
+      if (linePre.matches(keepRegexFilter)) {
+        line = linePre;
+      }
+    } else if (ConfigUtility.isEmpty(keepRegexFilter)
+        && !ConfigUtility.isEmpty(skipRegexFilter)) {
+      if (!linePre.matches(skipRegexFilter)) {
+        line = linePre;
+      }
+    } else if (!ConfigUtility.isEmpty(keepRegexFilter)
+        && !ConfigUtility.isEmpty(skipRegexFilter)) {
+      if (linePre.matches(keepRegexFilter)
+          && !linePre.matches(skipRegexFilter)) {
+        line = linePre;
+      }
+    } else {
+      line = null;
+    }
+
+    return line;
   }
 
 }

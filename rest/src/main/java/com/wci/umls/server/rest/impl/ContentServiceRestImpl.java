@@ -215,7 +215,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     try {
       authorizeApp(securityService, authToken, "create ECL indexes",
-          UserRole.ADMINISTRATOR);
+          UserRole.VIEWER);
       EclExpressionHandler handler =
           new EclExpressionHandler(terminology, version);
       return handler.getCount(query);
@@ -245,7 +245,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     try {
       authorizeApp(securityService, authToken,
-          "checking query for expression syntax", UserRole.ADMINISTRATOR);
+          "checking query for expression syntax", UserRole.VIEWER);
       EclExpressionHandler handler =
           new EclExpressionHandler(terminology, version);
       return handler.resolve(query);
@@ -433,26 +433,23 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.compute();
       algo.close();
 
-      //
-      // Compute transitive closure - CURRENTLY DISABLED
-      //
+      // Compute transitive closure
       contentService = new ContentServiceJpa();
-      // final TerminologyList list =
-      // contentService.getTerminologyLatestVersions();
-      // for (final Terminology t : list.getObjects()) {
-      // // Only compute for organizing class types
-      // if (t.getOrganizingClassType() != null) {
-      // algo2 = new TransitiveClosureAlgorithm();
-      // algo2.setLastModifiedBy(userName);
-      // algo2.setTerminology(t.getTerminology());
-      // algo2.setVersion(t.getVersion());
-      // algo2.setIdType(t.getOrganizingClassType());
-      // // some terminologies may have cycles, allow these for now.
-      // algo2.setCycleTolerant(true);
-      // algo2.compute();
-      // algo2.close();
-      // }
-      // }
+		final TerminologyList list = contentService.getTerminologyLatestVersions();
+		for (final Terminology t : list.getObjects()) {
+			// Only compute for organizing class types
+			if (t.getOrganizingClassType() != null) {
+				algo2 = new TransitiveClosureAlgorithm();
+				algo2.setLastModifiedBy(userName);
+				algo2.setTerminology(t.getTerminology());
+				algo2.setVersion(t.getVersion());
+				algo2.setIdType(t.getOrganizingClassType());
+				// some terminologies may have cycles, allow these for now.
+				algo2.setCycleTolerant(true);
+				algo2.compute();
+				algo2.close();
+			}
+		}
 
       //
       // Compute tree positions
@@ -533,26 +530,24 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.compute();
       algo.close();
 
-      //
-      // Compute transitive closure - CURRENTLY DISABLED
-      //
+      // Compute transitive closure
       contentService = new ContentServiceJpa();
       final TerminologyList list =
           contentService.getTerminologyLatestVersions();
-      // for (final Terminology t : list.getObjects()) {
-      // // Only compute for organizing class types
-      // if (t.getOrganizingClassType() != null) {
-      // algo2 = new TransitiveClosureAlgorithm();
-      // algo2.setLastModifiedBy(userName);
-      // algo2.setTerminology(t.getTerminology());
-      // algo2.setVersion(t.getVersion());
-      // algo2.setIdType(t.getOrganizingClassType());
-      // // some terminologies may have cycles, allow these for now.
-      // algo2.setCycleTolerant(true);
-      // algo2.compute();
-      // algo2.close();
-      // }
-      // }
+		for (final Terminology t : list.getObjects()) {
+			// Only compute for organizing class types
+			if (t.getOrganizingClassType() != null) {
+				algo2 = new TransitiveClosureAlgorithm();
+				algo2.setLastModifiedBy(userName);
+				algo2.setTerminology(t.getTerminology());
+				algo2.setVersion(t.getVersion());
+				algo2.setIdType(t.getOrganizingClassType());
+				// some terminologies may have cycles, allow these for now.
+				algo2.setCycleTolerant(true);
+				algo2.compute();
+				algo2.close();
+			}
+		}
 
       //
       // Compute tree positions
@@ -678,18 +673,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.compute();
       algo.close();
 
-      //
-      // Compute transitive closure - CURRENTLY DISABLED
-      //
-      // algo2 = new TransitiveClosureAlgorithm();
-      // algo2.setLastModifiedBy(userName);
-      // algo2.setCycleTolerant(false);
-      // algo2.setIdType(IdType.CONCEPT);
-      // algo2.setTerminology(terminology);
-      // algo2.setVersion(terminology);
-      // algo2.reset();
-      // algo2.compute();
-      // algo2.close();
+      
+       //Compute transitive closure
+       algo2 = new TransitiveClosureAlgorithm();
+       algo2.setLastModifiedBy(userName);
+       algo2.setCycleTolerant(false);
+       algo2.setIdType(IdType.CONCEPT);
+       algo2.setTerminology(terminology);
+       algo2.setVersion(terminology);
+       algo2.reset();
+       algo2.compute();
+       algo2.close();
 
       // Compute label sets - after transitive closure
       // for each subset, compute the label set
@@ -787,18 +781,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.compute();
       algo.close();
 
-      //
-      // Compute transitive closure - CURRENTLY DISABLED
-      //
-      // algo2 = new TransitiveClosureAlgorithm();
-      // algo2.setLastModifiedBy(userName);
-      // algo2.setCycleTolerant(false);
-      // algo2.setIdType(IdType.CONCEPT);
-      // algo2.setTerminology(terminology);
-      // algo2.setVersion(version);
-      // algo2.reset();
-      // algo2.compute();
-      // algo2.close();
+       //Compute transitive closure
+       algo2 = new TransitiveClosureAlgorithm();
+       algo2.setLastModifiedBy(userName);
+       algo2.setCycleTolerant(false);
+       algo2.setIdType(IdType.CONCEPT);
+       algo2.setTerminology(terminology);
+       algo2.setVersion(version);
+       algo2.reset();
+       algo2.compute();
+       algo2.close();
 
       // Compute label sets - after transitive closure
       // for each subset, compute the label set
@@ -897,18 +889,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.compute();
       algo.close();
 
-      //
-      // Compute transitive closure - CURRENTLY DISABLED
-      //
-      // algo2 = new TransitiveClosureAlgorithm();
-      // algo2.setLastModifiedBy(userName);
-      // algo2.setCycleTolerant(false);
-      // algo2.setIdType(IdType.CONCEPT);
-      // algo2.setTerminology(terminology);
-      // algo2.setVersion(version);
-      // algo2.reset();
-      // algo2.compute();
-      // algo2.close();
+      //Compute transitive closure
+       algo2 = new TransitiveClosureAlgorithm();
+       algo2.setLastModifiedBy(userName);
+       algo2.setCycleTolerant(false);
+       algo2.setIdType(IdType.CONCEPT);
+       algo2.setTerminology(terminology);
+       algo2.setVersion(version);
+       algo2.reset();
+       algo2.compute();
+       algo2.close();
 
       // Compute label sets - after transitive closure
       // for each subset, compute the label set
@@ -1006,18 +996,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.compute();
       algo.close();
 
-      //
-      // Compute transitive closure - CURRENTLY DISABLED
-      //
-      // Logger.getLogger(getClass()).info("Start computing transtive closure");
-      // algo2 = new TransitiveClosureAlgorithm();
-      // algo2.setLastModifiedBy(userName);
-      // algo2.setIdType(IdType.CONCEPT);
-      // algo2.setCycleTolerant(false);
-      // algo2.setTerminology(terminology);
-      // algo2.setVersion(version);
-      // algo2.compute();
-      // algo2.close();
+
+      // Compute transitive closure
+      Logger.getLogger(getClass()).info("Start computing transtive closure");
+      algo2 = new TransitiveClosureAlgorithm();
+      algo2.setLastModifiedBy(userName);
+      algo2.setIdType(IdType.CONCEPT);
+      algo2.setCycleTolerant(false);
+      algo2.setTerminology(terminology);
+      algo2.setVersion(version);
+      algo2.compute();
+      algo2.close();
 
       // compute tree positions
       algo3 = new TreePositionAlgorithm();
@@ -1087,18 +1076,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.compute();
       algo.close();
 
-      //
-      // Compute transitive closure - CURRENTLY DISABLED
-      //
-      // Logger.getLogger(getClass()).info("Start computing transtive closure");
-      // algo2 = new TransitiveClosureAlgorithm();
-      // algo2.setLastModifiedBy(userName);
-      // algo2.setIdType(IdType.CONCEPT);
-      // algo2.setCycleTolerant(false);
-      // algo2.setTerminology(terminology);
-      // algo2.setVersion(version);
-      // algo2.compute();
-      // algo2.close();
+       //Compute transitive closure
+       Logger.getLogger(getClass()).info("Start computing transtive closure");
+       algo2 = new TransitiveClosureAlgorithm();
+       algo2.setLastModifiedBy(userName);
+       algo2.setIdType(IdType.CONCEPT);
+       algo2.setCycleTolerant(false);
+       algo2.setTerminology(terminology);
+       algo2.setVersion(version);
+       algo2.compute();
+       algo2.close();
 
       // compute tree positions
       algo3 = new TreePositionAlgorithm();
@@ -1462,8 +1449,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   @Path("/concept")
   @ApiOperation(value = "Find concepts matching a lucene or JPQL search query", notes = "Gets a list of search results that match the lucene or JPQL query for the root branch", response = SearchResultListJpa.class)
   public SearchResultList findConceptsForGeneralQuery(
-    @ApiParam(value = "Lucene Query", required = true) @QueryParam("query") String query,
-    @ApiParam(value = "JPQL Query", required = true) @QueryParam("JPQL") String JPQL,
+    @ApiParam(value = "Lucene Query", required = false) @QueryParam("query") String query,
+    @ApiParam(value = "JPQL Query", required = false) @QueryParam("JPQL") String JPQL,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -1604,6 +1591,39 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     }
 
   }
+  
+  @Override
+  @GET
+  @Produces(MediaType.TEXT_PLAIN)
+  @Path("/inverseRelationshipType/{terminology}/{version}/{relationshipType}")
+  @ApiOperation(value = "Get inverse of a relationship type by type abbreviation, terminology, and version", notes = "Get the inverse relationship type abbreviation matching the specified parameters", response = String.class)
+  public String getInverseRelationshipType(
+    @ApiParam(value = "Project terminology name, e.g. MSH", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Project terminology version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Relationship Type abbreviation, e.g. RN", required = true) @PathParam("relationshipType") String relationshipType,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info("RESTful call (Content): /inverseRelationshipType/"
+        + terminology + "/" + version + "/" + relationshipType);
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeApp(securityService, authToken,
+          "retrieve the inverse relationship type", UserRole.VIEWER);
+
+      final String inverseRelType = contentService.getInverseRelationshipType(
+          terminology, version, relationshipType);
+
+      return inverseRelType;
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve an inverse relationship type");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }  
 
   /* see superclass */
 
@@ -2015,7 +2035,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /descriptor/" + terminology + "/"
-            + version + terminologyId + "/ancestors with PFS parameter "
+            + version + terminologyId + "/ancestors/" + parentsOnly + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -2098,8 +2118,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful call (Content): /code/" + terminology + "/" + version
-            + terminologyId + "/ancestors with PFS parameter "
+        .info("RESTful call (Content): /code/" + terminology + "/" + version + "/"
+            + terminologyId + "/ancestors/" + parentsOnly + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -2140,7 +2160,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /code/" + terminology + "/" + version
-            + terminologyId + "/descendants with PFS parameter "
+            + terminologyId + "/descendants/" + childrenOnly + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -2551,7 +2571,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Subset id, e.g. 341823003", required = true) @PathParam("subsetId") String subsetId,
     @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query, e.g. 'iron'", required = true) @QueryParam("query") String query,
+    @ApiParam(value = "Query, e.g. 'iron'", required = false) @QueryParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -2593,7 +2613,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Subset id, e.g. 341823003", required = true) @PathParam("subsetId") String subsetId,
     @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query, e.g. 'iron'", required = true) @QueryParam("query") String query,
+    @ApiParam(value = "Query, e.g. 'iron'", required = false) @QueryParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -2681,11 +2701,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /concept/"
         + terminology + "/" + version + "/" + terminologyId + "/trees");
-    final ContentService contentService = new ContentServiceJpa();
+    ContentService contentService = null;
     try {
+
+      contentService = new ContentServiceJpa();
       authorizeApp(securityService, authToken,
           "retrieve trees for the concept ", UserRole.VIEWER);
-
+      
       final TreePositionList list =
           contentService.findTreePositions(terminologyId, terminology, version,
               Branch.ROOT, null, ConceptTreePositionJpa.class, pfs);
@@ -3272,7 +3294,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
             mergedTree.mergeTree(wrappedChildTree, null);
           }
         }
-        mergedTree.setChildCt(mergedTree.getChildren().size());       ;
+        mergedTree.setChildCt(mergedTree.getChildren().size());
         rootTree = mergedTree;
       }
 
@@ -3450,7 +3472,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
             mergedTree.mergeTree(wrappedChildTree, null);
           }
         }
-        mergedTree.setChildCt(mergedTree.getChildren().size());       ;
+        mergedTree.setChildCt(mergedTree.getChildren().size());
         rootTree = mergedTree;
       }
 

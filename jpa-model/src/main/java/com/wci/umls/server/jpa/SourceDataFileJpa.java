@@ -20,11 +20,15 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.DateBridge;
+import org.hibernate.search.annotations.EncodingType;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Resolution;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
@@ -38,7 +42,7 @@ import com.wci.umls.server.SourceDataFile;
 @Table(name = "source_data_files", uniqueConstraints = @UniqueConstraint(columnNames = {
     "path", "name", "directory"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "file")
 public class SourceDataFileJpa implements SourceDataFile {
@@ -63,7 +67,7 @@ public class SourceDataFileJpa implements SourceDataFile {
   private boolean directory;
 
   /** The file size. */
-  @Column(nullable = false, unique = false)
+  @Column(name = "fileSize", nullable = false, unique = false)
   private Long size;
 
   /** The file path. */
@@ -107,7 +111,10 @@ public class SourceDataFileJpa implements SourceDataFile {
   }
 
   /* see superclass */
-  @Override
+  @Override  
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @DateBridge(resolution = Resolution.SECOND, encoding = EncodingType.STRING)
+  @SortableField
   public Date getLastModified() {
     return this.lastModified;
   }
@@ -150,6 +157,7 @@ public class SourceDataFileJpa implements SourceDataFile {
       @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
       @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
+  @SortableField(forField = "nameSort")
   public String getName() {
     return this.name;
   }

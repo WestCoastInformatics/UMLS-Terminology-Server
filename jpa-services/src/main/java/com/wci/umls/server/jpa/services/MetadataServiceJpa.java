@@ -221,12 +221,19 @@ public class MetadataServiceJpa extends ProjectServiceJpa
   public PrecedenceList getPrecedenceList(String terminology, String version)
     throws Exception {
 
-    final Query query = manager.createQuery("SELECT p from PrecedenceListJpa p"
+    final Query query = manager.createQuery("SELECT p.id from PrecedenceListJpa p"
         + " where terminology = :terminology " + " and version = :version");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     try {
-      return (PrecedenceList) query.getSingleResult();
+      final Long precedenceListId = (Long) query.getSingleResult();
+      final PrecedenceList precedenceList = getPrecedenceList(precedenceListId);
+      //Handle lazy init
+      precedenceList.getTermTypeRankMap().size();
+      precedenceList.getTerminologyRankMap().size();
+      precedenceList.getPrecedence().getName();
+      return precedenceList;
+      //return (PrecedenceList) query.getSingleResult();
     } catch (NoResultException e) {
       return null;
     }

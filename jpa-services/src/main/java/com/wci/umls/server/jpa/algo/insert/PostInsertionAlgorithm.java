@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 
@@ -65,6 +66,11 @@ public class PostInsertionAlgorithm
     // Clear out the static caches that have been populated during
     // the insertion - we don't need them anymore either
     clearCaches();
+    
+    // Makes sure automations are turned back on
+    // Editing should not be turned back on until insertion results are reviewed
+    // by lead
+    getProject().setAutomationsEnabled(true);
 
     logInfo("Finished " + getName());
   }

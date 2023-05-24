@@ -25,7 +25,7 @@ import com.wci.umls.server.model.meta.AttributeName;
     // constraint works in MySQL when using standard utf8 collation/charset
     "abbreviation", "terminology", "id"
 }))
-@Audited
+//@Audited
 @XmlRootElement(name = "attributeName")
 public class AttributeNameJpa extends AbstractAbbreviation implements
     AttributeName {

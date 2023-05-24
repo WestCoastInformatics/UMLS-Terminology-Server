@@ -161,15 +161,13 @@ import com.wci.umls.server.services.handlers.SearchHandler;
 /**
  * JPA enabled implementation of the content service.
  */
-public class ContentServiceJpa extends MetadataServiceJpa
-    implements ContentService {
+public class ContentServiceJpa extends MetadataServiceJpa implements ContentService {
 
   /** The assign identifiers flag. */
   protected boolean assignIdentifiersFlag = false;
 
   /** The id handler map. */
-  static Map<String, IdentifierAssignmentHandler> idHandlerMap =
-      new HashMap<>();
+  static Map<String, IdentifierAssignmentHandler> idHandlerMap = new HashMap<>();
 
   /** The query timeout. */
   static int queryTimeout = 1000;
@@ -180,6 +178,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /** The normalized string handler. */
   private static NormalizedStringHandler normalizedStringHandler = null;
 
+  private static Map<String, String> inverseRelTypes = new HashMap<>();
+
+  private static Map<String, String> inverseAdditionalRelTypes = new HashMap<>();
+
   static {
     init();
   }
@@ -189,10 +191,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
    */
   private static void init() {
     try {
-      if (ConfigUtility.getConfigProperties()
-          .containsKey("javax.persistence.query.timeout")) {
-        queryTimeout = Integer.parseInt(ConfigUtility.getConfigProperties()
-            .getProperty("javax.persistence.query.timeout"));
+      if (ConfigUtility.getConfigProperties().containsKey("javax.persistence.query.timeout")) {
+        queryTimeout = Integer.parseInt(
+            ConfigUtility.getConfigProperties().getProperty("javax.persistence.query.timeout"));
       }
 
       if (config == null)
@@ -203,13 +204,13 @@ public class ContentServiceJpa extends MetadataServiceJpa
           continue;
         // Add handlers to map
         final IdentifierAssignmentHandler handlerService =
-            ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
-                handlerName, IdentifierAssignmentHandler.class);
+            ConfigUtility.newStandardHandlerInstanceWithConfiguration(key, handlerName,
+                IdentifierAssignmentHandler.class);
         idHandlerMap.put(handlerName, handlerService);
       }
       if (!idHandlerMap.containsKey(ConfigUtility.DEFAULT)) {
-        throw new Exception("identifier.assignment.handler."
-            + ConfigUtility.DEFAULT + " expected and does not exist.");
+        throw new Exception("identifier.assignment.handler." + ConfigUtility.DEFAULT
+            + " expected and does not exist.");
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -225,13 +226,13 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
         // Add handlers to map
         final ComputePreferredNameHandler handlerService =
-            ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
-                handlerName, ComputePreferredNameHandler.class);
+            ConfigUtility.newStandardHandlerInstanceWithConfiguration(key, handlerName,
+                ComputePreferredNameHandler.class);
         pnHandlerMap.put(handlerName, handlerService);
       }
       if (!pnHandlerMap.containsKey(ConfigUtility.DEFAULT)) {
-        throw new Exception("compute.preferred.name.handler."
-            + ConfigUtility.DEFAULT + " expected and does not exist.");
+        throw new Exception("compute.preferred.name.handler." + ConfigUtility.DEFAULT
+            + " expected and does not exist.");
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -245,8 +246,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
       final String handlerName = config.getProperty(key);
 
       final NormalizedStringHandler handlerService =
-          ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
-              handlerName, NormalizedStringHandler.class);
+          ConfigUtility.newStandardHandlerInstanceWithConfiguration(key, handlerName,
+              NormalizedStringHandler.class);
       normalizedStringHandler = handlerService;
     } catch (Exception e) {
       e.printStackTrace();
@@ -277,10 +278,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
-  public ConceptList getConcepts(String terminologyId, String terminology,
-    String version) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get concepts "
-        + terminologyId + "/" + terminology + "/" + version);
+  public ConceptList getConcepts(String terminologyId, String terminology, String version)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get concepts " + terminologyId + "/" + terminology + "/" + version);
     final List<Concept> concepts =
         getComponents(terminologyId, terminology, version, ConceptJpa.class);
     if (concepts == null) {
@@ -295,13 +296,13 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public Concept getConcept(String terminologyId, String terminology,
-    String version, String branch) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get concept "
-        + terminologyId + "/" + terminology + "/" + version + "/" + branch);
+  public Concept getConcept(String terminologyId, String terminology, String version, String branch)
+    throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - get concept " + terminologyId + "/"
+        + terminology + "/" + version + "/" + branch);
 
-    final Concept concept = getComponent(terminologyId, terminology, version,
-        branch, ConceptJpa.class);
+    final Concept concept =
+        getComponent(terminologyId, terminology, version, branch, ConceptJpa.class);
 
     return concept;
   }
@@ -309,15 +310,13 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public Concept addConcept(Concept concept) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - add concept " + concept);
+    Logger.getLogger(getClass()).debug("Content Service - add concept " + concept);
     // Assign id
     IdentifierAssignmentHandler idHandler = null;
     if (assignIdentifiersFlag) {
       idHandler = getIdentifierAssignmentHandler(concept.getTerminology());
       if (idHandler == null) {
-        throw new Exception(
-            "Unable to find id handler for " + concept.getTerminology());
+        throw new Exception("Unable to find id handler for " + concept.getTerminology());
       }
       String id = idHandler.getTerminologyId(concept);
       concept.setTerminologyId(id);
@@ -331,8 +330,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public void updateConcept(Concept concept) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - update concept " + concept);
+    Logger.getLogger(getClass()).debug("Content Service - update concept " + concept);
 
     // Id assignment should not change
     final IdentifierAssignmentHandler idHandler =
@@ -340,10 +338,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
     if (assignIdentifiersFlag) {
       if (!idHandler.allowConceptIdChangeOnUpdate()) {
         final Concept concept2 = getConcept(concept.getId());
-        if (!idHandler.getTerminologyId(concept)
-            .equals(idHandler.getTerminologyId(concept2))) {
-          throw new Exception(
-              "Update cannot be used to change object identity.");
+        if (!idHandler.getTerminologyId(concept).equals(idHandler.getTerminologyId(concept2))) {
+          throw new Exception("Update cannot be used to change object identity.");
         }
       } else {
         // set concept id on update
@@ -358,8 +354,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public void removeConcept(Long id) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - remove concept " + id);
+    Logger.getLogger(getClass()).debug("Content Service - remove concept " + id);
     // Remove the component
     removeComponent(id, ConceptJpa.class);
 
@@ -367,8 +362,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public Subset getSubset(Long id, Class<? extends Subset> subsetClass)
-    throws Exception {
+  public Subset getSubset(Long id, Class<? extends Subset> subsetClass) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - subset " + id);
     if (subsetClass != null) {
       return getComponent(id, subsetClass);
@@ -383,20 +377,17 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public Subset getSubset(String terminologyId, String terminology,
-    String version, String branch, Class<? extends Subset> subsetClass)
-    throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get subset "
-        + terminologyId + "/" + terminology + "/" + version + "/" + branch);
+  public Subset getSubset(String terminologyId, String terminology, String version, String branch,
+    Class<? extends Subset> subsetClass) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - get subset " + terminologyId + "/"
+        + terminology + "/" + version + "/" + branch);
     if (subsetClass != null) {
-      return getComponent(terminologyId, terminology, version, branch,
-          subsetClass);
+      return getComponent(terminologyId, terminology, version, branch, subsetClass);
     } else {
-      Subset subset = getComponent(terminologyId, terminology, version, branch,
-          AtomSubsetJpa.class);
+      Subset subset =
+          getComponent(terminologyId, terminology, version, branch, AtomSubsetJpa.class);
       if (subset == null) {
-        subset = getComponent(terminologyId, terminology, version, branch,
-            ConceptSubsetJpa.class);
+        subset = getComponent(terminologyId, terminology, version, branch, ConceptSubsetJpa.class);
       }
       return subset;
     }
@@ -405,13 +396,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public SubsetList getAtomSubsets(String terminology, String version,
-    String branch) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Service - get atom subsets " + terminology + "/" + version);
-    final javax.persistence.Query query =
-        manager.createQuery("select a from AtomSubsetJpa a where "
-            + "version = :version and terminology = :terminology");
+  public SubsetList getAtomSubsets(String terminology, String version, String branch)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - get atom subsets " + terminology + "/" + version);
+    final javax.persistence.Query query = manager.createQuery("select a from AtomSubsetJpa a where "
+        + "version = :version and terminology = :terminology");
     // Try to retrieve the single expected result If zero or more than one
     // result are returned, log error and set result to null
     try {
@@ -432,10 +422,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public SubsetList getConceptSubsets(String terminology, String version,
-    String branch) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Service - get concept subsets " + terminology + "/" + version);
+  public SubsetList getConceptSubsets(String terminology, String version, String branch)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - get concept subsets " + terminology + "/" + version);
     final javax.persistence.Query query =
         manager.createQuery("select a from ConceptSubsetJpa a where "
             + "version = :version and terminology = :terminology");
@@ -462,12 +452,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
       "rawtypes", "unchecked"
   })
   @Override
-  public SubsetMemberList findAtomSubsetMembers(String subsetId,
-    String terminology, String version, String branch, String query,
-    PfsParameter pfs) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - find atom subset members " + subsetId + "/"
-            + terminology + "/" + version + ", query=" + query);
+  public SubsetMemberList findAtomSubsetMembers(String subsetId, String terminology, String version,
+    String branch, String query, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - find atom subset members " + subsetId
+        + "/" + terminology + "/" + version + ", query=" + query);
     // Prepare the query string
 
     final StringBuilder finalQuery = new StringBuilder();
@@ -476,15 +464,13 @@ public class ContentServiceJpa extends MetadataServiceJpa
       if (finalQuery.length() > 0) {
         finalQuery.append(" AND ");
       }
-      finalQuery
-          .append("subsetTerminologyId:" + QueryParserBase.escape(subsetId));
+      finalQuery.append("subsetTerminologyId:" + QueryParserBase.escape(subsetId));
     }
     final SearchHandler searchHandler = getSearchHandler(terminology);
     final int[] totalCt = new int[1];
     final SubsetMemberList list = new SubsetMemberListJpa();
-    list.setObjects((List) searchHandler.getQueryResults(terminology, version,
-        branch, finalQuery.toString(), "memberNameSort",
-        AtomSubsetMemberJpa.class, pfs, totalCt, manager));
+    list.setObjects((List) searchHandler.getQueryResults(terminology, version, branch,
+        finalQuery.toString(), "memberNameSort", AtomSubsetMemberJpa.class, pfs, totalCt, manager));
     list.setTotalCount(totalCt[0]);
     return list;
   }
@@ -494,12 +480,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
       "unchecked", "rawtypes"
   })
   @Override
-  public SubsetMemberList findConceptSubsetMembers(String subsetId,
-    String terminology, String version, String branch, String query,
-    PfsParameter pfs) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - find concept subset members " + subsetId + "/"
-            + terminology + "/" + version + ", query=" + query);
+  public SubsetMemberList findConceptSubsetMembers(String subsetId, String terminology,
+    String version, String branch, String query, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - find concept subset members " + subsetId
+        + "/" + terminology + "/" + version + ", query=" + query);
     // Prepare the query string
 
     final StringBuilder finalQuery = new StringBuilder();
@@ -508,16 +492,15 @@ public class ContentServiceJpa extends MetadataServiceJpa
       if (finalQuery.length() > 0) {
         finalQuery.append(" AND ");
       }
-      finalQuery
-          .append("subsetTerminologyId:" + QueryParserBase.escape(subsetId));
+      finalQuery.append("subsetTerminologyId:" + QueryParserBase.escape(subsetId));
     }
 
     final SearchHandler searchHandler = getSearchHandler(terminology);
     final int[] totalCt = new int[1];
     final SubsetMemberList list = new SubsetMemberListJpa();
-    list.setObjects((List) searchHandler.getQueryResults(terminology, version,
-        branch, finalQuery.toString(), "memberNameSort",
-        ConceptSubsetMemberJpa.class, pfs, totalCt, manager));
+    list.setObjects(
+        (List) searchHandler.getQueryResults(terminology, version, branch, finalQuery.toString(),
+            "memberNameSort", ConceptSubsetMemberJpa.class, pfs, totalCt, manager));
     list.setTotalCount(totalCt[0]);
 
     return list;
@@ -526,16 +509,13 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
-  public SubsetMemberList getAtomSubsetMembers(String atomId,
-    String terminology, String version, String branch) {
-    Logger.getLogger(getClass())
-        .debug("Content Service - get subset members for atom " + atomId + "/"
-            + terminology + "/" + version);
-    final javax.persistence.Query query =
-        manager.createQuery("select a from AtomSubsetMemberJpa a, "
-            + " AtomJpa b where b.terminologyId = :atomId "
-            + "and b.version = :version "
-            + "and b.terminology = :terminology and a.member = b");
+  public SubsetMemberList getAtomSubsetMembers(String atomId, String terminology, String version,
+    String branch) {
+    Logger.getLogger(getClass()).debug("Content Service - get subset members for atom " + atomId
+        + "/" + terminology + "/" + version);
+    final javax.persistence.Query query = manager.createQuery(
+        "select a from AtomSubsetMemberJpa a, " + " AtomJpa b where b.terminologyId = :atomId "
+            + "and b.version = :version " + "and b.terminology = :terminology and a.member = b");
 
     try {
       final SubsetMemberList list = new SubsetMemberListJpa();
@@ -562,15 +542,13 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
-  public SubsetMemberList getConceptSubsetMembers(String conceptId,
-    String terminology, String version, String branch) {
-    Logger.getLogger(getClass())
-        .debug("Content Service - get subset members for concept " + conceptId
-            + "/" + terminology + "/" + version);
+  public SubsetMemberList getConceptSubsetMembers(String conceptId, String terminology,
+    String version, String branch) {
+    Logger.getLogger(getClass()).debug("Content Service - get subset members for concept "
+        + conceptId + "/" + terminology + "/" + version);
     final javax.persistence.Query query =
         manager.createQuery("select a from ConceptSubsetMemberJpa a, "
-            + " ConceptJpa b where b.terminologyId = :conceptId "
-            + "and b.version = :version "
+            + " ConceptJpa b where b.terminologyId = :conceptId " + "and b.version = :version "
             + "and b.terminology = :terminology and a.member = b");
 
     try {
@@ -590,10 +568,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public SubsetList getAllSubsets(String terminology, String version,
-    String branch) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get all subsets "
-        + terminology + "/" + version + "/" + branch);
+  public SubsetList getAllSubsets(String terminology, String version, String branch)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - get all subsets " + terminology + "/" + version + "/" + branch);
     assert branch != null;
 
     try {
@@ -601,8 +579,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       if (list == null) {
         return getConceptSubsets(terminology, version, branch);
       } else {
-        list.getObjects().addAll(
-            getConceptSubsets(terminology, version, branch).getObjects());
+        list.getObjects().addAll(getConceptSubsets(terminology, version, branch).getObjects());
       }
       list.setTotalCount(list.getObjects().size());
       return list;
@@ -614,18 +591,17 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public Definition getDefinition(Long id) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - get definition " + id);
+    Logger.getLogger(getClass()).debug("Content Service - get definition " + id);
     return getComponent(id, DefinitionJpa.class);
   }
 
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
-  public DefinitionList getDefinitions(String terminologyId, String terminology,
-    String version) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get definitions "
-        + terminologyId + "/" + terminology + "/" + version);
+  public DefinitionList getDefinitions(String terminologyId, String terminology, String version)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get definitions " + terminologyId + "/" + terminology + "/" + version);
     final List<Definition> definitions =
         getComponents(terminologyId, terminology, version, DefinitionJpa.class);
     if (definitions == null) {
@@ -639,27 +615,24 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public Definition getDefinition(String terminologyId, String terminology,
-    String version, String branch) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get definition "
-        + terminologyId + "/" + terminology + "/" + version + "/" + branch);
-    return getComponent(terminologyId, terminology, version, branch,
-        DefinitionJpa.class);
+  public Definition getDefinition(String terminologyId, String terminology, String version,
+    String branch) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - get definition " + terminologyId + "/"
+        + terminology + "/" + version + "/" + branch);
+    return getComponent(terminologyId, terminology, version, branch, DefinitionJpa.class);
   }
 
   /* see superclass */
   @Override
-  public Definition addDefinition(Definition definition,
-    ComponentHasDefinitions component) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - add definition " + definition);
+  public Definition addDefinition(Definition definition, ComponentHasDefinitions component)
+    throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - add definition " + definition);
     // Assign id
     IdentifierAssignmentHandler idHandler = null;
     if (assignIdentifiersFlag) {
       idHandler = getIdentifierAssignmentHandler(definition.getTerminology());
       if (idHandler == null) {
-        throw new Exception(
-            "Unable to find id handler for " + definition.getTerminology());
+        throw new Exception("Unable to find id handler for " + definition.getTerminology());
       }
       String id = idHandler.getTerminologyId(definition, component);
       definition.setTerminologyId(id);
@@ -672,27 +645,23 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public void updateDefinition(Definition definition,
-    ComponentHasDefinitions component) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - update definition " + definition);
+  public void updateDefinition(Definition definition, ComponentHasDefinitions component)
+    throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - update definition " + definition);
 
     // Id assignment should not change
     final IdentifierAssignmentHandler idHandler =
         getIdentifierAssignmentHandler(definition.getTerminology());
     if (assignIdentifiersFlag) {
       if (!idHandler.allowIdChangeOnUpdate()) {
-        Definition definition2 =
-            getComponent(definition.getId(), DefinitionJpa.class);
+        Definition definition2 = getComponent(definition.getId(), DefinitionJpa.class);
         if (!idHandler.getTerminologyId(definition, component)
             .equals(idHandler.getTerminologyId(definition2, component))) {
-          throw new Exception(
-              "Update cannot be used to change object identity.");
+          throw new Exception("Update cannot be used to change object identity.");
         }
       } else {
         // set definition id on update
-        definition.setTerminologyId(
-            idHandler.getTerminologyId(definition, component));
+        definition.setTerminologyId(idHandler.getTerminologyId(definition, component));
       }
     }
     // update component
@@ -703,8 +672,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public void removeDefinition(Long id) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - remove definition " + id);
+    Logger.getLogger(getClass()).debug("Content Service - remove definition " + id);
     // Remove the component
     removeComponent(id, DefinitionJpa.class);
 
@@ -712,26 +680,22 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public SemanticTypeComponent getSemanticTypeComponent(Long id)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - get semantic type component " + id);
+  public SemanticTypeComponent getSemanticTypeComponent(Long id) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - get semantic type component " + id);
     return getComponent(id, SemanticTypeComponentJpa.class);
   }
 
   /* see superclass */
   @Override
-  public SemanticTypeComponent addSemanticTypeComponent(
-    SemanticTypeComponent component, Concept concept) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - add semanticTypeComponent " + component);
+  public SemanticTypeComponent addSemanticTypeComponent(SemanticTypeComponent component,
+    Concept concept) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - add semanticTypeComponent " + component);
     // Assign id
     IdentifierAssignmentHandler idHandler = null;
     if (assignIdentifiersFlag) {
       idHandler = getIdentifierAssignmentHandler(component.getTerminology());
       if (idHandler == null) {
-        throw new Exception(
-            "Unable to find id handler for " + component.getTerminology());
+        throw new Exception("Unable to find id handler for " + component.getTerminology());
       }
       String id = idHandler.getTerminologyId(component, concept);
       component.setTerminologyId(id);
@@ -746,29 +710,26 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public void updateSemanticTypeComponent(
-    SemanticTypeComponent semanticTypeComponent, Concept concept)
-    throws Exception {
+  public void updateSemanticTypeComponent(SemanticTypeComponent semanticTypeComponent,
+    Concept concept) throws Exception {
     Logger.getLogger(getClass())
-        .debug("Content Service - update semanticTypeComponent "
-            + semanticTypeComponent);
+        .debug("Content Service - update semanticTypeComponent " + semanticTypeComponent);
 
     // Id assignment should not change
     final IdentifierAssignmentHandler idHandler =
         getIdentifierAssignmentHandler(semanticTypeComponent.getTerminology());
     if (assignIdentifiersFlag) {
       if (!idHandler.allowIdChangeOnUpdate()) {
-        SemanticTypeComponent semanticTypeComponent2 = getComponent(
-            semanticTypeComponent.getId(), SemanticTypeComponent.class);
-        if (!idHandler.getTerminologyId(semanticTypeComponent, concept).equals(
-            idHandler.getTerminologyId(semanticTypeComponent2, concept))) {
-          throw new Exception(
-              "Update cannot be used to change object identity.");
+        SemanticTypeComponent semanticTypeComponent2 =
+            getComponent(semanticTypeComponent.getId(), SemanticTypeComponent.class);
+        if (!idHandler.getTerminologyId(semanticTypeComponent, concept)
+            .equals(idHandler.getTerminologyId(semanticTypeComponent2, concept))) {
+          throw new Exception("Update cannot be used to change object identity.");
         }
       } else {
         // set semanticTypeComponent id on update
-        semanticTypeComponent.setTerminologyId(
-            idHandler.getTerminologyId(semanticTypeComponent, concept));
+        semanticTypeComponent
+            .setTerminologyId(idHandler.getTerminologyId(semanticTypeComponent, concept));
       }
     }
     // update component
@@ -779,8 +740,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public void removeSemanticTypeComponent(Long id) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - remove semanticTypeComponent " + id);
+    Logger.getLogger(getClass()).debug("Content Service - remove semanticTypeComponent " + id);
 
     // Remove the component
     removeComponent(id, SemanticTypeComponentJpa.class);
@@ -790,8 +750,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public Descriptor getDescriptor(Long id) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - get descriptor " + id);
+    Logger.getLogger(getClass()).debug("Content Service - get descriptor " + id);
     return getComponent(id, DescriptorJpa.class);
   }
 
@@ -799,10 +758,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   @SuppressWarnings("unchecked")
   @Override
-  public DescriptorList getDescriptors(String terminologyId, String terminology,
-    String version) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get descriptors "
-        + terminologyId + "/" + terminology + "/" + version);
+  public DescriptorList getDescriptors(String terminologyId, String terminology, String version)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get descriptors " + terminologyId + "/" + terminology + "/" + version);
     final List<Descriptor> descriptors =
         getComponents(terminologyId, terminology, version, DescriptorJpa.class);
     if (descriptors == null) {
@@ -816,26 +775,23 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public Descriptor getDescriptor(String terminologyId, String terminology,
-    String version, String branch) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get descriptor "
-        + terminologyId + "/" + terminology + "/" + version + "/" + branch);
-    return getComponent(terminologyId, terminology, version, branch,
-        DescriptorJpa.class);
+  public Descriptor getDescriptor(String terminologyId, String terminology, String version,
+    String branch) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - get descriptor " + terminologyId + "/"
+        + terminology + "/" + version + "/" + branch);
+    return getComponent(terminologyId, terminology, version, branch, DescriptorJpa.class);
   }
 
   /* see superclass */
   @Override
   public Descriptor addDescriptor(Descriptor descriptor) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - add descriptor " + descriptor);
+    Logger.getLogger(getClass()).debug("Content Service - add descriptor " + descriptor);
     // Assign id
     IdentifierAssignmentHandler idHandler = null;
     if (assignIdentifiersFlag) {
       idHandler = getIdentifierAssignmentHandler(descriptor.getTerminology());
       if (idHandler == null) {
-        throw new Exception(
-            "Unable to find id handler for " + descriptor.getTerminology());
+        throw new Exception("Unable to find id handler for " + descriptor.getTerminology());
       }
       String id = idHandler.getTerminologyId(descriptor);
       descriptor.setTerminologyId(id);
@@ -849,8 +805,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public void updateDescriptor(Descriptor descriptor) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - update descriptor " + descriptor);
+    Logger.getLogger(getClass()).debug("Content Service - update descriptor " + descriptor);
 
     // Id assignment should not change
     final IdentifierAssignmentHandler idHandler =
@@ -860,8 +815,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
         Descriptor descriptor2 = getDescriptor(descriptor.getId());
         if (!idHandler.getTerminologyId(descriptor)
             .equals(idHandler.getTerminologyId(descriptor2))) {
-          throw new Exception(
-              "Update cannot be used to change object identity.");
+          throw new Exception("Update cannot be used to change object identity.");
         }
       } else {
         // set descriptor id on update
@@ -876,8 +830,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public void removeDescriptor(Long id) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - remove descriptor " + id);
+    Logger.getLogger(getClass()).debug("Content Service - remove descriptor " + id);
     // Remove the component
     removeComponent(id, DescriptorJpa.class);
 
@@ -894,12 +847,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
-  public CodeList getCodes(String terminologyId, String terminology,
-    String version) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get codes "
-        + terminologyId + "/" + terminology + "/" + version);
-    final List<Code> codes =
-        getComponents(terminologyId, terminology, version, CodeJpa.class);
+  public CodeList getCodes(String terminologyId, String terminology, String version)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - get codes " + terminologyId + "/" + terminology + "/" + version);
+    final List<Code> codes = getComponents(terminologyId, terminology, version, CodeJpa.class);
     if (codes == null) {
       return null;
     }
@@ -911,12 +863,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public Code getCode(String terminologyId, String terminology, String version,
-    String branch) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get code "
-        + terminologyId + "/" + terminology + "/" + version + "/" + branch);
-    return getComponent(terminologyId, terminology, version, branch,
-        CodeJpa.class);
+  public Code getCode(String terminologyId, String terminology, String version, String branch)
+    throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - get code " + terminologyId + "/"
+        + terminology + "/" + version + "/" + branch);
+    return getComponent(terminologyId, terminology, version, branch, CodeJpa.class);
   }
 
   /* see superclass */
@@ -928,8 +879,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     if (assignIdentifiersFlag) {
       idHandler = getIdentifierAssignmentHandler(code.getTerminology());
       if (idHandler == null) {
-        throw new Exception(
-            "Unable to find id handler for " + code.getTerminology());
+        throw new Exception("Unable to find id handler for " + code.getTerminology());
       }
       String id = idHandler.getTerminologyId(code);
       code.setTerminologyId(id);
@@ -951,10 +901,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
     if (assignIdentifiersFlag) {
       if (!idHandler.allowIdChangeOnUpdate()) {
         Code code2 = getCode(code.getId());
-        if (!idHandler.getTerminologyId(code)
-            .equals(idHandler.getTerminologyId(code2))) {
-          throw new Exception(
-              "Update cannot be used to change object identity.");
+        if (!idHandler.getTerminologyId(code).equals(idHandler.getTerminologyId(code2))) {
+          throw new Exception("Update cannot be used to change object identity.");
         }
       } else {
         // set code id on update
@@ -979,20 +927,19 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   @Override
   public LexicalClass getLexicalClass(Long id) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - get lexical class " + id);
+    Logger.getLogger(getClass()).debug("Content Service - get lexical class " + id);
     return getComponent(id, LexicalClassJpa.class);
   }
 
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
-  public LexicalClassList getLexicalClasses(String terminologyId,
-    String terminology, String version) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get lexical classes "
-        + terminologyId + "/" + terminology + "/" + version);
-    final List<LexicalClass> luis = getComponents(terminologyId, terminology,
-        version, LexicalClassJpa.class);
+  public LexicalClassList getLexicalClasses(String terminologyId, String terminology,
+    String version) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - get lexical classes " + terminologyId
+        + "/" + terminology + "/" + version);
+    final List<LexicalClass> luis =
+        getComponents(terminologyId, terminology, version, LexicalClassJpa.class);
     if (luis == null) {
       return null;
     }
@@ -1005,27 +952,23 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public LexicalClass getLexicalClass(String terminologyId, String terminology,
-    String version, String branch) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get lexical class "
-        + terminologyId + "/" + terminology + "/" + version + "/" + branch);
-    return getComponent(terminologyId, terminology, version, branch,
-        LexicalClassJpa.class);
+  public LexicalClass getLexicalClass(String terminologyId, String terminology, String version,
+    String branch) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - get lexical class " + terminologyId + "/"
+        + terminology + "/" + version + "/" + branch);
+    return getComponent(terminologyId, terminology, version, branch, LexicalClassJpa.class);
   }
 
   /* see superclass */
   @Override
-  public LexicalClass addLexicalClass(LexicalClass lexicalClass)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - add lexical class " + lexicalClass);
+  public LexicalClass addLexicalClass(LexicalClass lexicalClass) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - add lexical class " + lexicalClass);
     // Assign id
     IdentifierAssignmentHandler idHandler = null;
     if (assignIdentifiersFlag) {
       idHandler = getIdentifierAssignmentHandler(lexicalClass.getTerminology());
       if (idHandler == null) {
-        throw new Exception(
-            "Unable to find id handler for " + lexicalClass.getTerminology());
+        throw new Exception("Unable to find id handler for " + lexicalClass.getTerminology());
       }
       String id = idHandler.getTerminologyId(lexicalClass);
       lexicalClass.setTerminologyId(id);
@@ -1039,8 +982,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public void updateLexicalClass(LexicalClass lexicalClass) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - update lexical class " + lexicalClass);
+    Logger.getLogger(getClass()).debug("Content Service - update lexical class " + lexicalClass);
 
     // Id assignment should not change
     final IdentifierAssignmentHandler idHandler =
@@ -1050,8 +992,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
         LexicalClass lexicalClass2 = getLexicalClass(lexicalClass.getId());
         if (!idHandler.getTerminologyId(lexicalClass)
             .equals(idHandler.getTerminologyId(lexicalClass2))) {
-          throw new Exception(
-              "Update cannot be used to change object identity.");
+          throw new Exception("Update cannot be used to change object identity.");
         }
       } else {
         // set lexicalClass id on update
@@ -1066,8 +1007,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public void removeLexicalClass(Long id) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - remove lexical class " + id);
+    Logger.getLogger(getClass()).debug("Content Service - remove lexical class " + id);
     // Remove the component
 
     removeComponent(id, LexicalClassJpa.class);
@@ -1077,20 +1017,19 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public StringClass getStringClass(Long id) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - get string class " + id);
+    Logger.getLogger(getClass()).debug("Content Service - get string class " + id);
     return getComponent(id, StringClassJpa.class);
   }
 
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
-  public StringClassList getStringClasses(String terminologyId,
-    String terminology, String version) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get string classes "
-        + terminologyId + "/" + terminology + "/" + version);
-    final List<StringClass> suis = getComponents(terminologyId, terminology,
-        version, StringClassJpa.class);
+  public StringClassList getStringClasses(String terminologyId, String terminology, String version)
+    throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - get string classes " + terminologyId + "/"
+        + terminology + "/" + version);
+    final List<StringClass> suis =
+        getComponents(terminologyId, terminology, version, StringClassJpa.class);
     if (suis == null) {
       return null;
     }
@@ -1102,26 +1041,23 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public StringClass getStringClass(String terminologyId, String terminology,
-    String version, String branch) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get string class "
-        + terminologyId + "/" + terminology + "/" + version + "/" + branch);
-    return getComponent(terminologyId, terminology, version, branch,
-        StringClass.class);
+  public StringClass getStringClass(String terminologyId, String terminology, String version,
+    String branch) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - get string class " + terminologyId + "/"
+        + terminology + "/" + version + "/" + branch);
+    return getComponent(terminologyId, terminology, version, branch, StringClass.class);
   }
 
   /* see superclass */
   @Override
   public StringClass addStringClass(StringClass stringClass) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - add string class " + stringClass);
+    Logger.getLogger(getClass()).debug("Content Service - add string class " + stringClass);
     // Assign id
     IdentifierAssignmentHandler idHandler = null;
     if (assignIdentifiersFlag) {
       idHandler = getIdentifierAssignmentHandler(stringClass.getTerminology());
       if (idHandler == null) {
-        throw new Exception(
-            "Unable to find id handler for " + stringClass.getTerminology());
+        throw new Exception("Unable to find id handler for " + stringClass.getTerminology());
       }
       String id = idHandler.getTerminologyId(stringClass);
       stringClass.setTerminologyId(id);
@@ -1135,8 +1071,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public void updateStringClass(StringClass stringClass) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - update string class " + stringClass);
+    Logger.getLogger(getClass()).debug("Content Service - update string class " + stringClass);
 
     // Id assignment should not change
     final IdentifierAssignmentHandler idHandler =
@@ -1146,8 +1081,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
         StringClass stringClass2 = getStringClass(stringClass.getId());
         if (!idHandler.getTerminologyId(stringClass)
             .equals(idHandler.getTerminologyId(stringClass2))) {
-          throw new Exception(
-              "Update cannot be used to change object identity.");
+          throw new Exception("Update cannot be used to change object identity.");
         }
       } else {
         // set stringClass id on update
@@ -1162,8 +1096,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public void removeStringClass(Long id) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - remove string class " + id);
+    Logger.getLogger(getClass()).debug("Content Service - remove string class " + id);
     // Remove the component
     removeComponent(id, StringClassJpa.class);
 
@@ -1171,17 +1104,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public ConceptList findDescendantConcepts(String terminologyId,
-    String terminology, String version, boolean childrenOnly, String branch,
-    PfsParameter pfs) throws Exception {
+  public ConceptList findDescendantConcepts(String terminologyId, String terminology,
+    String version, boolean childrenOnly, String branch, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass())
-        .debug("Content Service - find descendant concepts " + terminologyId
-            + ", " + terminology);
+        .debug("Content Service - find descendant concepts " + terminologyId + ", " + terminology);
     final long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
-    final List<Concept> descendants =
-        findDescendantsHelper(terminologyId, terminology, version, childrenOnly,
-            branch, pfs, ConceptJpa.class, totalCt);
+    final List<Concept> descendants = findDescendantsHelper(terminologyId, terminology, version,
+        childrenOnly, branch, pfs, ConceptJpa.class, totalCt);
     final ConceptList list = new ConceptListJpa();
     list.setObjects(descendants);
     list.setTotalCount((int) totalCt[0]);
@@ -1190,17 +1120,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public ConceptList findAncestorConcepts(String terminologyId,
-    String terminology, String version, boolean parentsOnly, String branch,
-    PfsParameter pfs) throws Exception {
+  public ConceptList findAncestorConcepts(String terminologyId, String terminology, String version,
+    boolean parentsOnly, String branch, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass())
-        .debug("Content Service - find ancestor concepts " + terminologyId
-            + ", " + terminology);
+        .debug("Content Service - find ancestor concepts " + terminologyId + ", " + terminology);
     final long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
-    final List<Concept> ancestors =
-        findAncestorsHelper(terminologyId, terminology, version, parentsOnly,
-            branch, pfs, ConceptJpa.class, totalCt);
+    final List<Concept> ancestors = findAncestorsHelper(terminologyId, terminology, version,
+        parentsOnly, branch, pfs, ConceptJpa.class, totalCt);
     final ConceptList list = new ConceptListJpa();
     list.setObjects(ancestors);
     list.setTotalCount((int) totalCt[0]);
@@ -1208,17 +1135,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
   }
 
   @Override
-  public AtomList findDescendantAtoms(String terminologyId, String terminology,
-    String version, boolean childrenOnly, String branch, PfsParameter pfs)
-    throws Exception {
+  public AtomList findDescendantAtoms(String terminologyId, String terminology, String version,
+    boolean childrenOnly, String branch, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass())
-        .debug("Content Service - find descendant atoms " + terminologyId + ", "
-            + terminology);
+        .debug("Content Service - find descendant atoms " + terminologyId + ", " + terminology);
     final long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
-    final List<Atom> descendants =
-        findDescendantsHelper(terminologyId, terminology, version, childrenOnly,
-            branch, pfs, AtomJpa.class, totalCt);
+    final List<Atom> descendants = findDescendantsHelper(terminologyId, terminology, version,
+        childrenOnly, branch, pfs, AtomJpa.class, totalCt);
     final AtomList list = new AtomListJpa();
     list.setObjects(descendants);
     list.setTotalCount((int) totalCt[0]);
@@ -1226,15 +1150,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
   }
 
   @Override
-  public AtomList findAncestorAtoms(String terminologyId, String terminology,
-    String version, boolean parentsOnly, String branch, PfsParameter pfs)
-    throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - find ancestor atoms "
-        + terminologyId + ", " + terminology);
+  public AtomList findAncestorAtoms(String terminologyId, String terminology, String version,
+    boolean parentsOnly, String branch, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - find ancestor atoms " + terminologyId + ", " + terminology);
     final long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
-    final List<Atom> ancestors = findAncestorsHelper(terminologyId, terminology,
-        version, parentsOnly, branch, pfs, AtomJpa.class, totalCt);
+    final List<Atom> ancestors = findAncestorsHelper(terminologyId, terminology, version,
+        parentsOnly, branch, pfs, AtomJpa.class, totalCt);
     final AtomList list = new AtomListJpa();
     list.setObjects(ancestors);
     list.setTotalCount((int) totalCt[0]);
@@ -1256,37 +1179,28 @@ public class ContentServiceJpa extends MetadataServiceJpa
    * @throws Exception the exception
    */
   @SuppressWarnings("rawtypes")
-  private List findDescendantsHelper(String terminologyId, String terminology,
-    String version, boolean childrenOnly, String branch, PfsParameter pfs,
-    Class<?> clazz, long[] totalCt) throws Exception {
+  private List findDescendantsHelper(String terminologyId, String terminology, String version,
+    boolean childrenOnly, String branch, PfsParameter pfs, Class<?> clazz, long[] totalCt)
+    throws Exception {
 
-    if (pfs != null && pfs.getQueryRestriction() != null
-        && !pfs.getQueryRestriction().isEmpty()) {
+    if (pfs != null && pfs.getQueryRestriction() != null && !pfs.getQueryRestriction().isEmpty()) {
       throw new IllegalArgumentException(
-          "Query restriction is not implemented for this call: "
-              + pfs.getQueryRestriction());
+          "Query restriction is not implemented for this call: " + pfs.getQueryRestriction());
     }
     final String queryStr = "select a from "
-        + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa") + " tr, "
-        + clazz.getName() + " super, " + clazz.getName() + " a "
-        + " where super.version = :version "
-        + " and super.terminology = :terminology "
-        + " and super.terminologyId = :terminologyId"
-        + " and tr.superType = super" + " and tr.subType = a "
-        + " and tr.superType != tr.subType"
+        + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa") + " tr, " + clazz.getName()
+        + " super, " + clazz.getName() + " a " + " where super.version = :version "
+        + " and super.terminology = :terminology " + " and super.terminologyId = :terminologyId"
+        + " and tr.superType = super" + " and tr.subType = a " + " and tr.superType != tr.subType"
         + (childrenOnly ? " and depth = 1" : "");
     final javax.persistence.Query query = applyPfsToJPQLQuery(queryStr, pfs);
 
-    final javax.persistence.Query ctQuery =
-        manager.createQuery("select count(*) from "
-            + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa")
-            + " tr, " + clazz.getName() + " super, " + clazz.getName() + " a "
-            + " where super.version = :version "
-            + " and super.terminology = :terminology "
-            + " and super.terminologyId = :terminologyId"
-            + " and tr.superType = super" + " and tr.subType = a "
-            + " and tr.superType != tr.subType"
-            + (childrenOnly ? " and depth = 1" : ""));
+    final javax.persistence.Query ctQuery = manager.createQuery("select count(*) from "
+        + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa") + " tr, " + clazz.getName()
+        + " super, " + clazz.getName() + " a " + " where super.version = :version "
+        + " and super.terminology = :terminology " + " and super.terminologyId = :terminologyId"
+        + " and tr.superType = super" + " and tr.subType = a " + " and tr.superType != tr.subType"
+        + (childrenOnly ? " and depth = 1" : ""));
 
     ctQuery.setParameter("terminology", terminology);
     ctQuery.setParameter("version", version);
@@ -1315,36 +1229,28 @@ public class ContentServiceJpa extends MetadataServiceJpa
    * @throws Exception the exception
    */
   @SuppressWarnings("rawtypes")
-  private List findAncestorsHelper(String terminologyId, String terminology,
-    String version, boolean parentsOnly, String branch, PfsParameter pfs,
-    Class<?> clazz, long[] totalCt) throws Exception {
+  private List findAncestorsHelper(String terminologyId, String terminology, String version,
+    boolean parentsOnly, String branch, PfsParameter pfs, Class<?> clazz, long[] totalCt)
+    throws Exception {
 
-    if (pfs != null && pfs.getQueryRestriction() != null
-        && !pfs.getQueryRestriction().isEmpty()) {
+    if (pfs != null && pfs.getQueryRestriction() != null && !pfs.getQueryRestriction().isEmpty()) {
       throw new IllegalArgumentException(
-          "Query restriction is not implemented for this call: "
-              + pfs.getQueryRestriction());
+          "Query restriction is not implemented for this call: " + pfs.getQueryRestriction());
     }
     final String queryStr = "select a from "
-        + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa") + " tr, "
-        + clazz.getName() + " sub, " + clazz.getName() + " a "
-        + " where sub.version = :version "
-        + " and sub.terminology = :terminology "
-        + " and sub.terminologyId = :terminologyId" + " and tr.subType = sub"
-        + " and tr.superType = a " + " and tr.subType != tr.superType"
+        + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa") + " tr, " + clazz.getName()
+        + " sub, " + clazz.getName() + " a " + " where sub.version = :version "
+        + " and sub.terminology = :terminology " + " and sub.terminologyId = :terminologyId"
+        + " and tr.subType = sub" + " and tr.superType = a " + " and tr.subType != tr.superType"
         + (parentsOnly ? " and depth = 1" : "");
     final javax.persistence.Query query = applyPfsToJPQLQuery(queryStr, pfs);
 
-    final javax.persistence.Query ctQuery =
-        manager.createQuery("select count(*) from "
-            + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa")
-            + " tr, " + clazz.getName() + " sub, " + clazz.getName() + " a "
-            + " where sub.version = :version "
-            + " and sub.terminology = :terminology "
-            + " and sub.terminologyId = :terminologyId"
-            + " and tr.subType = sub" + " and tr.superType = a "
-            + " and tr.subType != tr.superType"
-            + (parentsOnly ? " and depth = 1" : ""));
+    final javax.persistence.Query ctQuery = manager.createQuery("select count(*) from "
+        + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa") + " tr, " + clazz.getName()
+        + " sub, " + clazz.getName() + " a " + " where sub.version = :version "
+        + " and sub.terminology = :terminology " + " and sub.terminologyId = :terminologyId"
+        + " and tr.subType = sub" + " and tr.superType = a " + " and tr.subType != tr.superType"
+        + (parentsOnly ? " and depth = 1" : ""));
 
     ctQuery.setParameter("terminology", terminology);
     ctQuery.setParameter("version", version);
@@ -1360,17 +1266,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public DescriptorList findDescendantDescriptors(String terminologyId,
-    String terminology, String version, boolean childrenOnly, String branch,
-    PfsParameter pfs) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - find descendant descriptors " + terminologyId
-            + ", " + terminology);
+  public DescriptorList findDescendantDescriptors(String terminologyId, String terminology,
+    String version, boolean childrenOnly, String branch, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - find descendant descriptors " + terminologyId + ", " + terminology);
     long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
-    final List<Descriptor> descendants =
-        findDescendantsHelper(terminologyId, terminology, version, childrenOnly,
-            branch, pfs, DescriptorJpa.class, totalCt);
+    final List<Descriptor> descendants = findDescendantsHelper(terminologyId, terminology, version,
+        childrenOnly, branch, pfs, DescriptorJpa.class, totalCt);
     final DescriptorList list = new DescriptorListJpa();
     list.setObjects(descendants);
     list.setTotalCount((int) totalCt[0]);
@@ -1379,17 +1282,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public DescriptorList findAncestorDescriptors(String terminologyId,
-    String terminology, String version, boolean childrenOnly, String branch,
-    PfsParameter pfs) throws Exception {
+  public DescriptorList findAncestorDescriptors(String terminologyId, String terminology,
+    String version, boolean childrenOnly, String branch, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass())
-        .debug("Content Service - find ancestor descriptors " + terminologyId
-            + ", " + terminology);
+        .debug("Content Service - find ancestor descriptors " + terminologyId + ", " + terminology);
     long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
-    final List<Descriptor> ancestors =
-        findAncestorsHelper(terminologyId, terminology, version, childrenOnly,
-            branch, pfs, DescriptorJpa.class, totalCt);
+    final List<Descriptor> ancestors = findAncestorsHelper(terminologyId, terminology, version,
+        childrenOnly, branch, pfs, DescriptorJpa.class, totalCt);
     final DescriptorList list = new DescriptorListJpa();
     list.setObjects(ancestors);
     list.setTotalCount((int) totalCt[0]);
@@ -1398,17 +1298,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public CodeList findDescendantCodes(String terminologyId, String terminology,
-    String version, boolean childrenOnly, String branch, PfsParameter pfs)
-    throws Exception {
+  public CodeList findDescendantCodes(String terminologyId, String terminology, String version,
+    boolean childrenOnly, String branch, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass())
-        .debug("Content Service - find descendant codes " + terminologyId + ", "
-            + terminology);
+        .debug("Content Service - find descendant codes " + terminologyId + ", " + terminology);
     long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
-    final List<Code> descendants =
-        findDescendantsHelper(terminologyId, terminology, version, childrenOnly,
-            branch, pfs, CodeJpa.class, totalCt);
+    final List<Code> descendants = findDescendantsHelper(terminologyId, terminology, version,
+        childrenOnly, branch, pfs, CodeJpa.class, totalCt);
     final CodeList list = new CodeListJpa();
     list.setObjects(descendants);
     list.setTotalCount((int) totalCt[0]);
@@ -1417,15 +1314,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public CodeList findAncestorCodes(String terminologyId, String terminology,
-    String version, boolean parentsOnly, String branch, PfsParameter pfs)
-    throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - find ancestor codes "
-        + terminologyId + ", " + terminology);
+  public CodeList findAncestorCodes(String terminologyId, String terminology, String version,
+    boolean parentsOnly, String branch, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - find ancestor codes " + terminologyId + ", " + terminology);
     long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
-    final List<Code> descendants = findAncestorsHelper(terminologyId,
-        terminology, version, parentsOnly, branch, pfs, CodeJpa.class, totalCt);
+    final List<Code> descendants = findAncestorsHelper(terminologyId, terminology, version,
+        parentsOnly, branch, pfs, CodeJpa.class, totalCt);
     final CodeList list = new CodeListJpa();
     list.setObjects(descendants);
     list.setTotalCount((int) totalCt[0]);
@@ -1445,12 +1341,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
-  public AtomList getAtoms(String terminologyId, String terminology,
-    String version) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get atoms "
-        + terminologyId + "/" + terminology + "/" + version);
-    final List<Atom> atoms =
-        getComponents(terminologyId, terminology, version, AtomJpa.class);
+  public AtomList getAtoms(String terminologyId, String terminology, String version)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - get atoms " + terminologyId + "/" + terminology + "/" + version);
+    final List<Atom> atoms = getComponents(terminologyId, terminology, version, AtomJpa.class);
     if (atoms == null) {
       return null;
     }
@@ -1463,13 +1358,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public Atom getAtom(String terminologyId, String terminology, String version,
-    String branch) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get atom "
-        + terminologyId + "/" + terminology + "/" + version + "/" + branch);
+  public Atom getAtom(String terminologyId, String terminology, String version, String branch)
+    throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - get atom " + terminologyId + "/"
+        + terminology + "/" + version + "/" + branch);
 
-    Atom atom = getComponent(terminologyId, terminology, version, branch,
-        AtomJpa.class);
+    Atom atom = getComponent(terminologyId, terminology, version, branch, AtomJpa.class);
 
     return atom;
   }
@@ -1483,14 +1377,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
     if (assignIdentifiersFlag) {
       idHandler = getIdentifierAssignmentHandler(atom.getTerminology());
       if (idHandler == null) {
-        throw new Exception(
-            "Unable to find id handler for " + atom.getTerminology());
+        throw new Exception("Unable to find id handler for " + atom.getTerminology());
       }
       atom.setTerminologyId(idHandler.getTerminologyId(atom));
     }
     if (assignIdentifiersFlag && idHandler == null) {
-      throw new Exception(
-          "Unable to find id handler for " + atom.getTerminology());
+      throw new Exception("Unable to find id handler for " + atom.getTerminology());
     }
 
     // Add component
@@ -1507,8 +1399,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
         getIdentifierAssignmentHandler(atom.getTerminology());
     if (!idHandler.allowIdChangeOnUpdate() && assignIdentifiersFlag) {
       final Atom atom2 = getAtom(atom.getId());
-      if (!idHandler.getTerminologyId(atom)
-          .equals(idHandler.getTerminologyId(atom2))) {
+      if (!idHandler.getTerminologyId(atom).equals(idHandler.getTerminologyId(atom2))) {
         throw new Exception("Update cannot be used to change object identity.");
       }
     }
@@ -1529,11 +1420,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public void moveAtoms(Concept fromConcept, Concept toConcept,
-    List<Atom> fromAtoms) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - move atoms " + fromAtoms + " from concept "
-            + fromConcept + " to concept " + toConcept);
+  public void moveAtoms(Concept fromConcept, Concept toConcept, List<Atom> fromAtoms)
+    throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - move atoms " + fromAtoms
+        + " from concept " + fromConcept + " to concept " + toConcept);
 
     // for each atom, remove from fromConcept and add toConcept
     for (Atom atm : fromAtoms) {
@@ -1556,10 +1446,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
         atomicAction.setIdType(IdType.getIdType(atm));
         atomicAction.setClassName(AtomJpa.class.getName());
         atomicAction.setMolecularAction(molecularAction);
-        atomicAction.setOldValue(
-            (fromConcept == null) ? null : fromConcept.getId().toString());
-        atomicAction.setNewValue(
-            (toConcept == null) ? null : toConcept.getId().toString());
+        atomicAction.setOldValue((fromConcept == null) ? null : fromConcept.getId().toString());
+        atomicAction.setNewValue((toConcept == null) ? null : toConcept.getId().toString());
         atomicAction.setObjectId(atm.getId());
 
         // persist the atomic action and add the persisted version to the
@@ -1573,25 +1461,24 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public ConceptRelationship createInverseConceptRelationship(
-    ConceptRelationship relationship) throws Exception {
+  public ConceptRelationship createInverseConceptRelationship(ConceptRelationship relationship)
+    throws Exception {
     Logger.getLogger(getClass())
-        .debug("Content Service - create inverse of concept relationship "
-            + relationship);
+        .debug("Content Service - create inverse of concept relationship " + relationship);
     if (relationship != null) {
-      ConceptRelationship inverseRelationship =
-          new ConceptRelationshipJpa(relationship, false);
+      ConceptRelationship inverseRelationship = new ConceptRelationshipJpa(relationship, false);
       inverseRelationship.setId(null);
       inverseRelationship.setTerminologyId("");
+      inverseRelationship.setTerminology(relationship.getTerminology());
+      inverseRelationship.setVersion(relationship.getVersion());
       inverseRelationship.setFrom(relationship.getTo());
       inverseRelationship.setTo(relationship.getFrom());
       inverseRelationship.setPublishable(relationship.isPublishable());
       inverseRelationship.setRelationshipType(
-          getRelationshipType(relationship.getRelationshipType(),
-              relationship.getTerminology(), relationship.getVersion())
-                  .getInverse().getAbbreviation());
-      inverseRelationship
-          .setAssertedDirection(!relationship.isAssertedDirection());
+          getRelationshipType(relationship.getRelationshipType(), relationship.getTerminology(),
+              relationship.getVersion()).getInverse().getAbbreviation());
+      inverseRelationship.setAssertedDirection(!relationship.isAssertedDirection());
+      inverseRelationship.setHierarchical(false);
 
       return inverseRelationship;
     } else {
@@ -1602,35 +1489,34 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public RelationshipList getInverseRelationships(String terminology,
-    String version,
-    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
-    throws Exception {
+  public RelationshipList getInverseRelationships(String terminology, String version,
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship) throws Exception {
     Logger.getLogger(getClass())
-        .debug("Content Service - get the inverse of concept relationship "
-            + relationship);
-
-    // Relationship<? extends ComponentInfo, ? extends ComponentInfo>
-    // inverseRelationship = null;
+        .debug("Content Service - get the inverse of concept relationship " + relationship);
 
     if (relationship != null) {
-      final String inverseRelType =
-          getRelationshipType(relationship.getRelationshipType(), terminology,
-              version).getInverse().getAbbreviation();
+      if (inverseRelTypes.get(relationship.getRelationshipType()) == null) {
+        inverseRelTypes.put(relationship.getRelationshipType(),
+            getRelationshipType(relationship.getRelationshipType(), terminology, version)
+                .getInverse().getAbbreviation());
+      }
+      final String inverseRelType = inverseRelTypes.get(relationship.getRelationshipType());
 
-      final String inverseAdditionalRelType = getAdditionalRelationshipType(
-          relationship.getAdditionalRelationshipType(), terminology, version)
-              .getInverse().getAbbreviation();
+      if (inverseAdditionalRelTypes.get(relationship.getAdditionalRelationshipType()) == null) {
+        inverseAdditionalRelTypes.put(relationship.getAdditionalRelationshipType(),
+            getAdditionalRelationshipType(relationship.getAdditionalRelationshipType(), terminology,
+                version).getInverse().getAbbreviation());
+      }
+      final String inverseAdditionalRelType =
+          inverseAdditionalRelTypes.get(relationship.getAdditionalRelationshipType());
 
       final RelationshipList relList =
           findRelationshipsForComponentHelper(null, null, null, Branch.ROOT,
               "fromId:" + relationship.getTo().getId() + " AND toId:"
-                  + relationship.getFrom().getId() + " AND relationshipType:"
-                  + inverseRelType
+                  + relationship.getFrom().getId() + " AND relationshipType:" + inverseRelType
                   + (ConfigUtility.isEmpty(inverseAdditionalRelType)
                       ? " AND NOT additionalRelationshipType:[* TO *] "
-                      : " AND additionalRelationshipType:"
-                          + inverseAdditionalRelType),
+                      : " AND additionalRelationshipType:" + inverseAdditionalRelType),
               false, null, relationship.getClass());
 
       if (relList.size() == 0) {
@@ -1645,14 +1531,29 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
+  /* see superclass */
+  @Override
+  public String getInverseRelationshipType(String terminology, String version,
+    String relationshipType) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - get the inverse for relationship type " + relationshipType);
+
+    final String inverseRelType =
+        getRelationshipType(relationshipType, terminology, version).getInverse().getAbbreviation();
+
+    if (inverseRelType == null) {
+      throw new Exception("No inverse relationship found for type " + relationshipType);
+    } else {
+      return inverseRelType;
+    }
+  }
+
   @Override
   public Relationship<? extends ComponentInfo, ? extends ComponentInfo> getInverseRelationship(
     String terminology, String version,
-    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
-    throws Exception {
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship) throws Exception {
 
-    RelationshipList relList =
-        getInverseRelationships(terminology, version, relationship);
+    RelationshipList relList = getInverseRelationships(terminology, version, relationship);
 
     // If there's only one inverse relationship returned, that's the one we
     // want.
@@ -1685,12 +1586,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public Relationship<? extends ComponentInfo, ? extends ComponentInfo> getRelationship(
-    Long id,
+  public Relationship<? extends ComponentInfo, ? extends ComponentInfo> getRelationship(Long id,
     Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass)
     throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - find relationship " + id);
+    Logger.getLogger(getClass()).debug("Content Service - find relationship " + id);
     if (relationshipClass != null) {
       return getComponent(id, relationshipClass);
     } else {
@@ -1712,31 +1611,28 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
-  public RelationshipList getRelationships(String terminologyId,
-    String terminology, String version,
+  public RelationshipList getRelationships(String terminologyId, String terminology, String version,
     Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass)
     throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - find relationships "
-        + terminologyId + "/" + terminology + "/" + version);
-    List<Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationships =
-        null;
+    Logger.getLogger(getClass()).debug("Content Service - find relationships " + terminologyId + "/"
+        + terminology + "/" + version);
+    List<Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationships = null;
     if (relationshipClass != null) {
-      relationships =
-          getComponents(terminologyId, terminology, version, relationshipClass);
+      relationships = getComponents(terminologyId, terminology, version, relationshipClass);
     } else {
-      relationships = getComponents(terminologyId, terminology, version,
-          ConceptRelationshipJpa.class);
+      relationships =
+          getComponents(terminologyId, terminology, version, ConceptRelationshipJpa.class);
       if (relationships == null) {
-        relationships = getComponents(terminologyId, terminology, version,
-            AtomRelationshipJpa.class);
+        relationships =
+            getComponents(terminologyId, terminology, version, AtomRelationshipJpa.class);
       }
       if (relationships == null) {
-        relationships = getComponents(terminologyId, terminology, version,
-            CodeRelationshipJpa.class);
+        relationships =
+            getComponents(terminologyId, terminology, version, CodeRelationshipJpa.class);
       }
       if (relationships == null) {
-        relationships = getComponents(terminologyId, terminology, version,
-            DescriptorRelationshipJpa.class);
+        relationships =
+            getComponents(terminologyId, terminology, version, DescriptorRelationshipJpa.class);
       }
     }
 
@@ -1755,26 +1651,21 @@ public class ContentServiceJpa extends MetadataServiceJpa
     String terminologyId, String terminology, String version, String branch,
     Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass)
     throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - find relationship "
-        + terminologyId + "/" + terminology + "/" + version + "/" + branch);
+    Logger.getLogger(getClass()).debug("Content Service - find relationship " + terminologyId + "/"
+        + terminology + "/" + version + "/" + branch);
     if (relationshipClass != null) {
-      return getComponent(terminologyId, terminology, version, branch,
-          relationshipClass);
+      return getComponent(terminologyId, terminology, version, branch, relationshipClass);
     }
     final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel =
-        getComponent(terminologyId, terminology, version, branch,
-            ConceptRelationshipJpa.class);
+        getComponent(terminologyId, terminology, version, branch, ConceptRelationshipJpa.class);
     if (rel == null) {
-      getComponent(terminologyId, terminology, version, branch,
-          AtomRelationshipJpa.class);
+      getComponent(terminologyId, terminology, version, branch, AtomRelationshipJpa.class);
     }
     if (rel == null) {
-      getComponent(terminologyId, terminology, version, branch,
-          CodeRelationshipJpa.class);
+      getComponent(terminologyId, terminology, version, branch, CodeRelationshipJpa.class);
     }
     if (rel == null) {
-      getComponent(terminologyId, terminology, version, branch,
-          DescriptorRelationshipJpa.class);
+      getComponent(terminologyId, terminology, version, branch, DescriptorRelationshipJpa.class);
     }
     return rel;
   }
@@ -1782,10 +1673,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public Relationship<? extends ComponentInfo, ? extends ComponentInfo> addRelationship(
-    Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - add relationship " + rel);
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - add relationship " + rel);
     // Assign id - this was moved to Release time.
     // IdentifierAssignmentHandler idHandler = null;
     // if (assignIdentifiersFlag) {
@@ -1805,11 +1694,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public void updateRelationship(
-    Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel)
+  public void updateRelationship(Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel)
     throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - update relationship " + rel);
+    Logger.getLogger(getClass()).debug("Content Service - update relationship " + rel);
 
     // Id assignment should not change - Id assignment was moved to release
     // time.
@@ -1840,8 +1727,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   public void removeRelationship(Long id,
     Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass)
     throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - remove relationship " + id);
+    Logger.getLogger(getClass()).debug("Content Service - remove relationship " + id);
     // Remove the component
     Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel = null;
     if (relationshipClass != null) {
@@ -1855,12 +1741,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public TransitiveRelationship<? extends AtomClass> getTransitiveRelationship(
-    Long id,
+  public TransitiveRelationship<? extends AtomClass> getTransitiveRelationship(Long id,
     Class<? extends TransitiveRelationship<? extends AtomClass>> relationshipClass)
     throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - get transitive relationship " + id);
+    Logger.getLogger(getClass()).debug("Content Service - get transitive relationship " + id);
     if (relationshipClass != null) {
       return getComponent(id, relationshipClass);
     } else {
@@ -1879,25 +1763,21 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public TransitiveRelationship<? extends ComponentHasAttributes> addTransitiveRelationship(
-    TransitiveRelationship<? extends ComponentHasAttributes> rel)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - add transitive relationship " + rel);
+    TransitiveRelationship<? extends ComponentHasAttributes> rel) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - add transitive relationship " + rel);
     // Assign id
     IdentifierAssignmentHandler idHandler = null;
     if (assignIdentifiersFlag) {
       idHandler = getIdentifierAssignmentHandler(rel.getTerminology());
       if (idHandler == null) {
-        throw new Exception(
-            "Unable to find id handler for " + rel.getTerminology());
+        throw new Exception("Unable to find id handler for " + rel.getTerminology());
       }
       String id = idHandler.getTerminologyId(rel);
       rel.setTerminologyId(id);
     }
 
     // Add component
-    final TransitiveRelationship<? extends ComponentHasAttributes> newRel =
-        addComponent(rel);
+    final TransitiveRelationship<? extends ComponentHasAttributes> newRel = addComponent(rel);
 
     return newRel;
   }
@@ -1905,10 +1785,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public void updateTransitiveRelationship(
-    TransitiveRelationship<? extends ComponentHasAttributes> rel)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - update transitive relationship " + rel);
+    TransitiveRelationship<? extends ComponentHasAttributes> rel) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - update transitive relationship " + rel);
 
     // Id assignment should not change
     final IdentifierAssignmentHandler idHandler =
@@ -1918,10 +1796,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
         @SuppressWarnings("unchecked")
         final TransitiveRelationship<? extends ComponentHasAttributes> rel2 =
             getComponent(rel.getId(), rel.getClass());
-        if (!idHandler.getTerminologyId(rel)
-            .equals(idHandler.getTerminologyId(rel2))) {
-          throw new Exception(
-              "Update cannot be used to change object identity.");
+        if (!idHandler.getTerminologyId(rel).equals(idHandler.getTerminologyId(rel2))) {
+          throw new Exception("Update cannot be used to change object identity.");
         }
       } else {
         // set attribute id on update
@@ -1938,8 +1814,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   public void removeTransitiveRelationship(Long id,
     Class<? extends TransitiveRelationship<? extends AtomClass>> relationshipClass)
     throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - remove transitive relationship " + id);
+    Logger.getLogger(getClass()).debug("Content Service - remove transitive relationship " + id);
 
     final TransitiveRelationship<? extends ComponentHasAttributes> rel =
         getComponent(id, relationshipClass);
@@ -1949,10 +1824,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @SuppressWarnings("rawtypes")
   @Override
-  public TreePosition<?> getTreePosition(Long id,
-    Class<? extends TreePosition> treeposClass) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - get tree position " + id);
+  public TreePosition<?> getTreePosition(Long id, Class<? extends TreePosition> treeposClass)
+    throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - get tree position " + id);
     if (treeposClass != null) {
       return getComponent(id, treeposClass);
     } else {
@@ -1972,17 +1846,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public TreePosition<?> addTreePosition(TreePosition<?> treepos)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - add tree position " + treepos);
+  public TreePosition<?> addTreePosition(TreePosition<?> treepos) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - add tree position " + treepos);
     // Assign id
     IdentifierAssignmentHandler idHandler = null;
     if (assignIdentifiersFlag) {
       idHandler = getIdentifierAssignmentHandler(treepos.getTerminology());
       if (idHandler == null) {
-        throw new Exception(
-            "Unable to find id handler for " + treepos.getTerminology());
+        throw new Exception("Unable to find id handler for " + treepos.getTerminology());
       }
       String id = idHandler.getTerminologyId(treepos);
       treepos.setTerminologyId(id);
@@ -1997,20 +1868,16 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public void updateTreePosition(TreePosition<?> treepos) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - update tree position " + treepos);
+    Logger.getLogger(getClass()).debug("Content Service - update tree position " + treepos);
 
     // Id assignment should not change
     final IdentifierAssignmentHandler idHandler =
         getIdentifierAssignmentHandler(treepos.getTerminology());
     if (assignIdentifiersFlag) {
       if (!idHandler.allowIdChangeOnUpdate()) {
-        TreePosition<?> treepos2 =
-            getComponent(treepos.getId(), treepos.getClass());
-        if (!idHandler.getTerminologyId(treepos)
-            .equals(idHandler.getTerminologyId(treepos2))) {
-          throw new Exception(
-              "Update cannot be used to change object identity.");
+        TreePosition<?> treepos2 = getComponent(treepos.getId(), treepos.getClass());
+        if (!idHandler.getTerminologyId(treepos).equals(idHandler.getTerminologyId(treepos2))) {
+          throw new Exception("Update cannot be used to change object identity.");
         }
       } else {
         // set attribute id on update
@@ -2027,10 +1894,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
       "rawtypes"
   })
   @Override
-  public void removeTreePosition(Long id,
-    Class<? extends TreePosition> treeposClass) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - remove tree position " + id);
+  public void removeTreePosition(Long id, Class<? extends TreePosition> treeposClass)
+    throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - remove tree position " + id);
     final TreePosition<?> treepos = getComponent(id, treeposClass);
     removeComponent(id, treepos.getClass());
   }
@@ -2038,21 +1904,18 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public Subset addSubset(Subset subset) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - add subset " + subset);
+    Logger.getLogger(getClass()).debug("Content Service - add subset " + subset);
     // Assign id
     IdentifierAssignmentHandler idHandler = null;
     if (assignIdentifiersFlag) {
       idHandler = getIdentifierAssignmentHandler(subset.getTerminology());
       if (idHandler == null) {
-        throw new Exception(
-            "Unable to find id handler for " + subset.getTerminology());
+        throw new Exception("Unable to find id handler for " + subset.getTerminology());
       }
       subset.setTerminologyId(idHandler.getTerminologyId(subset));
     }
     if (assignIdentifiersFlag && idHandler == null) {
-      throw new Exception(
-          "Unable to find id handler for " + subset.getTerminology());
+      throw new Exception("Unable to find id handler for " + subset.getTerminology());
     }
 
     // Add component
@@ -2063,15 +1926,13 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public void updateSubset(Subset subset) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - update subset " + subset);
+    Logger.getLogger(getClass()).debug("Content Service - update subset " + subset);
     // Id assignment
     final IdentifierAssignmentHandler idHandler =
         getIdentifierAssignmentHandler(subset.getTerminology());
     if (!idHandler.allowIdChangeOnUpdate() && assignIdentifiersFlag) {
       final Subset subset2 = getSubset(subset.getId(), subset.getClass());
-      if (!idHandler.getTerminologyId(subset)
-          .equals(idHandler.getTerminologyId(subset2))) {
+      if (!idHandler.getTerminologyId(subset).equals(idHandler.getTerminologyId(subset2))) {
         throw new Exception("Update cannot be used to change object identity.");
       }
     }
@@ -2084,8 +1945,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
 
   @Override
-  public void removeSubset(Long id, Class<? extends Subset> subsetClass)
-    throws Exception {
+  public void removeSubset(Long id, Class<? extends Subset> subsetClass) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - remove subset " + id);
     Subset subset = null;
     // Remove the component
@@ -2105,8 +1965,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Long id,
     Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
     throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - get subset member " + id);
+    Logger.getLogger(getClass()).debug("Content Service - get subset member " + id);
     if (memberClass != null) {
       return getComponent(id, memberClass);
     } else {
@@ -2123,24 +1982,20 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
-  public SubsetMemberList getSubsetMembers(String terminologyId,
-    String terminology, String version,
+  public SubsetMemberList getSubsetMembers(String terminologyId, String terminology, String version,
     Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
     throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get subset members "
-        + terminologyId + "/" + terminology + "/" + version);
-    List<SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> members =
-        null;
+    Logger.getLogger(getClass()).debug("Content Service - get subset members " + terminologyId + "/"
+        + terminology + "/" + version);
+    List<SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> members = null;
     if (memberClass != null) {
       members =
 
           getComponents(terminologyId, terminology, version, memberClass);
     } else {
-      members = getComponents(terminologyId, terminology, version,
-          AtomSubsetMemberJpa.class);
+      members = getComponents(terminologyId, terminology, version, AtomSubsetMemberJpa.class);
       if (members == null) {
-        members = getComponents(terminologyId, terminology, version,
-            ConceptSubsetMemberJpa.class);
+        members = getComponents(terminologyId, terminology, version, ConceptSubsetMemberJpa.class);
 
       }
     }
@@ -2159,18 +2014,16 @@ public class ContentServiceJpa extends MetadataServiceJpa
     String terminologyId, String terminology, String version, String branch,
     Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
     throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get subset member "
-        + terminologyId + "/" + terminology + "/" + version + "/" + branch);
+    Logger.getLogger(getClass()).debug("Content Service - get subset member " + terminologyId + "/"
+        + terminology + "/" + version + "/" + branch);
     if (memberClass != null) {
-      return getComponent(terminologyId, terminology, version, branch,
-          memberClass);
+      return getComponent(terminologyId, terminology, version, branch, memberClass);
     } else {
       SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member =
-          getComponent(terminologyId, terminology, version, branch,
-              AtomSubsetMemberJpa.class);
+          getComponent(terminologyId, terminology, version, branch, AtomSubsetMemberJpa.class);
       if (member == null) {
-        member = getComponent(terminologyId, terminology, version, branch,
-            ConceptSubsetMemberJpa.class);
+        member =
+            getComponent(terminologyId, terminology, version, branch, ConceptSubsetMemberJpa.class);
       }
       return member;
     }
@@ -2181,21 +2034,18 @@ public class ContentServiceJpa extends MetadataServiceJpa
   public SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> addSubsetMember(
     SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> subsetMember)
     throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - add subset member " + subsetMember);
+    Logger.getLogger(getClass()).debug("Content Service - add subset member " + subsetMember);
     // Assign id
     IdentifierAssignmentHandler idHandler = null;
     if (assignIdentifiersFlag) {
       idHandler = getIdentifierAssignmentHandler(subsetMember.getTerminology());
       if (idHandler == null) {
-        throw new Exception(
-            "Unable to find id handler for " + subsetMember.getTerminology());
+        throw new Exception("Unable to find id handler for " + subsetMember.getTerminology());
       }
       subsetMember.setTerminologyId(idHandler.getTerminologyId(subsetMember));
     }
     if (assignIdentifiersFlag && idHandler == null) {
-      throw new Exception(
-          "Unable to find id handler for " + subsetMember.getTerminology());
+      throw new Exception("Unable to find id handler for " + subsetMember.getTerminology());
     }
 
     // Add component
@@ -2208,8 +2058,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   public void updateSubsetMember(
     SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> subsetMember)
     throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - update subsetMember " + subsetMember);
+    Logger.getLogger(getClass()).debug("Content Service - update subsetMember " + subsetMember);
     // Id assignment
     final IdentifierAssignmentHandler idHandler =
         getIdentifierAssignmentHandler(subsetMember.getTerminology());
@@ -2233,8 +2082,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   public void removeSubsetMember(Long id,
     Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
     throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - remove subsetMember " + id);
+    Logger.getLogger(getClass()).debug("Content Service - remove subsetMember " + id);
     // find and remove the component
     final SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member =
         getComponent(id, memberClass);
@@ -2252,10 +2100,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
-  public AttributeList getAttributes(String terminologyId, String terminology,
-    String version) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get attributes "
-        + terminologyId + "/" + terminology + "/" + version);
+  public AttributeList getAttributes(String terminologyId, String terminology, String version)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get attributes " + terminologyId + "/" + terminology + "/" + version);
     final List<Attribute> attributes =
         getComponents(terminologyId, terminology, version, AttributeJpa.class);
     if (attributes == null) {
@@ -2269,27 +2117,23 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public Attribute getAttribute(String terminologyId, String terminology,
-    String version, String branch) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get attribute "
-        + terminologyId + "/" + terminology + "/" + version + "/" + branch);
-    return getComponent(terminologyId, terminology, version, branch,
-        AttributeJpa.class);
+  public Attribute getAttribute(String terminologyId, String terminology, String version,
+    String branch) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - get attribute " + terminologyId + "/"
+        + terminology + "/" + version + "/" + branch);
+    return getComponent(terminologyId, terminology, version, branch, AttributeJpa.class);
   }
 
   /* see superclass */
   @Override
-  public Attribute addAttribute(Attribute attribute, ComponentInfo component)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - add attribute " + attribute);
+  public Attribute addAttribute(Attribute attribute, ComponentInfo component) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - add attribute " + attribute);
     // Assign id
     IdentifierAssignmentHandler idHandler = null;
     if (assignIdentifiersFlag) {
       idHandler = getIdentifierAssignmentHandler(attribute.getTerminology());
       if (idHandler == null) {
-        throw new Exception(
-            "Unable to find id handler for " + attribute.getTerminology());
+        throw new Exception("Unable to find id handler for " + attribute.getTerminology());
       }
       String id = idHandler.getTerminologyId(attribute, component);
       attribute.setTerminologyId(id);
@@ -2302,10 +2146,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public void updateAttribute(Attribute attribute, ComponentInfo component)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - update attribute " + attribute);
+  public void updateAttribute(Attribute attribute, ComponentInfo component) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - update attribute " + attribute);
 
     // Id assignment should not change
     final IdentifierAssignmentHandler idHandler =
@@ -2315,13 +2157,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
         Attribute attribute2 = getAttribute(attribute.getId());
         if (!idHandler.getTerminologyId(attribute, component)
             .equals(idHandler.getTerminologyId(attribute2, component))) {
-          throw new Exception(
-              "Update cannot be used to change object identity.");
+          throw new Exception("Update cannot be used to change object identity.");
         }
       } else {
         // set attribute id on update
-        attribute
-            .setTerminologyId(idHandler.getTerminologyId(attribute, component));
+        attribute.setTerminologyId(idHandler.getTerminologyId(attribute, component));
       }
     }
     // update component
@@ -2332,8 +2172,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public void removeAttribute(Long id) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - remove attribute " + id);
+    Logger.getLogger(getClass()).debug("Content Service - remove attribute " + id);
     // Remove the component
     removeComponent(id, AttributeJpa.class);
 
@@ -2341,53 +2180,48 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public SearchResultList findConceptSearchResults(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .info("Content Service - find concept search results " + terminology
-            + "/" + version + "/" + query);
-    final SearchResultList results = findSearchResultsForQueryHelper(
-        terminology, version, branch, query, pfs, ConceptJpa.class);
+  public SearchResultList findConceptSearchResults(String terminology, String version,
+    String branch, String query, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass()).info("Content Service - find concept search results " + terminology
+        + "/" + version + "/" + query);
+    final SearchResultList results =
+        findSearchResultsForQueryHelper(terminology, version, branch, query, pfs, ConceptJpa.class);
     return results;
   }
 
   /* see superclass */
   @Override
-  public ConceptList findConcepts(String terminology, String version,
-    String branch, String query, PfsParameter pfs) throws Exception {
-    Logger.getLogger(getClass()).info("Content Service - find concepts "
-        + terminology + "/" + version + "/" + query);
+  public ConceptList findConcepts(String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass())
+        .info("Content Service - find concepts " + terminology + "/" + version + "/" + query);
     int[] totalCt = new int[1];
-    final List<ConceptJpa> results = findForQueryHelper(terminology, version,
-        branch, query, pfs, totalCt, null, ConceptJpa.class);
+    final List<ConceptJpa> results = findForQueryHelper(terminology, version, branch, query, pfs,
+        totalCt, null, ConceptJpa.class);
 
     final ConceptList list = new ConceptListJpa();
-    list.setObjects(
-        results.stream().map(c -> (Concept) c).collect(Collectors.toList()));
+    list.setObjects(results.stream().map(c -> (Concept) c).collect(Collectors.toList()));
     list.setTotalCount(totalCt[0]);
     return list;
   }
 
   /* see superclass */
   @Override
-  public StringList autocompleteConcepts(String terminology, String version,
-    String searchTerm) throws Exception {
-    Logger.getLogger(getClass()).info("Content Service - autocomplete concepts "
-        + terminology + ", " + version + ", " + searchTerm);
-    return autocompleteHelper(terminology, version, searchTerm,
-        ConceptJpa.class);
+  public StringList autocompleteConcepts(String terminology, String version, String searchTerm)
+    throws Exception {
+    Logger.getLogger(getClass()).info("Content Service - autocomplete concepts " + terminology
+        + ", " + version + ", " + searchTerm);
+    return autocompleteHelper(terminology, version, searchTerm, ConceptJpa.class);
   }
 
   /* see superclass */
   @Override
-  public SearchResultList findDescriptorSearchResults(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
-    throws Exception {
-    Logger.getLogger(getClass()).info("Content Service - find descriptors "
-        + terminology + "/" + version + "/" + query);
-    final SearchResultList results = findSearchResultsForQueryHelper(
-        terminology, version, branch, query, pfs, DescriptorJpa.class);
+  public SearchResultList findDescriptorSearchResults(String terminology, String version,
+    String branch, String query, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass())
+        .info("Content Service - find descriptors " + terminology + "/" + version + "/" + query);
+    final SearchResultList results = findSearchResultsForQueryHelper(terminology, version, branch,
+        query, pfs, DescriptorJpa.class);
     for (final SearchResult result : results.getObjects()) {
       result.setType(IdType.DESCRIPTOR);
     }
@@ -2396,30 +2230,27 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public DescriptorList findDescriptors(String terminology, String version,
-    String branch, String query, PfsParameter pfs) throws Exception {
-    Logger.getLogger(getClass()).info("Content Service - find concepts "
-        + terminology + "/" + version + "/" + query);
+  public DescriptorList findDescriptors(String terminology, String version, String branch,
+    String query, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass())
+        .info("Content Service - find concepts " + terminology + "/" + version + "/" + query);
     int[] totalCt = new int[1];
-    final List<DescriptorJpa> results = findForQueryHelper(terminology, version,
-        branch, query, pfs, totalCt, null, DescriptorJpa.class);
+    final List<DescriptorJpa> results = findForQueryHelper(terminology, version, branch, query, pfs,
+        totalCt, null, DescriptorJpa.class);
 
     final DescriptorList list = new DescriptorListJpa();
-    list.setObjects(
-        results.stream().map(c -> (Descriptor) c).collect(Collectors.toList()));
+    list.setObjects(results.stream().map(c -> (Descriptor) c).collect(Collectors.toList()));
     list.setTotalCount(totalCt[0]);
     return list;
   }
 
   /* see superclass */
   @Override
-  public StringList autocompleteDescriptors(String terminology, String version,
-    String searchTerm) throws Exception {
-    Logger.getLogger(getClass())
-        .info("Content Service - autocomplete descriptors " + terminology + ", "
-            + version + ", " + searchTerm);
-    return autocompleteHelper(terminology, version, searchTerm,
-        DescriptorJpa.class);
+  public StringList autocompleteDescriptors(String terminology, String version, String searchTerm)
+    throws Exception {
+    Logger.getLogger(getClass()).info("Content Service - autocomplete descriptors " + terminology
+        + ", " + version + ", " + searchTerm);
+    return autocompleteHelper(terminology, version, searchTerm, DescriptorJpa.class);
   }
 
   /**
@@ -2435,14 +2266,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
    * @return the search result list
    * @throws Exception the exception
    */
-  public <T extends AtomClass> SearchResultList findSearchResultsForQueryHelper(
-    String terminology, String version, String branch, String query,
-    PfsParameter pfs, Class<T> clazz) throws Exception {
+  public <T extends AtomClass> SearchResultList findSearchResultsForQueryHelper(String terminology,
+    String version, String branch, String query, PfsParameter pfs, Class<T> clazz)
+    throws Exception {
     // Prepare results
     int[] totalCt = new int[1];
     Map<Long, Float> scoreMap = new HashMap<>();
-    final List<T> results = findForQueryHelper(terminology, version, branch,
-        query, pfs, totalCt, scoreMap, clazz);
+    final List<T> results =
+        findForQueryHelper(terminology, version, branch, query, pfs, totalCt, scoreMap, clazz);
 
     final SearchResultList list = new SearchResultListJpa();
     list.setTotalCount(totalCt[0]);
@@ -2481,43 +2312,40 @@ public class ContentServiceJpa extends MetadataServiceJpa
    * @return the search result list
    * @throws Exception the exception
    */
-  public <T extends AtomClass> List<T> findForQueryHelper(String terminology,
-    String version, String branch, String query, PfsParameter pfs,
-    int[] totalCt, Map<Long, Float> scoreMap, Class<T> clazz) throws Exception {
+  public <T extends AtomClass> List<T> findForQueryHelper(String terminology, String version,
+    String branch, String query, PfsParameter pfs, int[] totalCt, Map<Long, Float> scoreMap,
+    Class<T> clazz) throws Exception {
 
     // construct return lists for lucene and expression results
     List<T> luceneResults = null;
     SearchResultList exprResults = null;
 
     // construct local pfs
-    final PfsParameter localPfs =
-        pfs == null ? new PfsParameterJpa() : new PfsParameterJpa(pfs);
+    final PfsParameter localPfs = pfs == null ? new PfsParameterJpa() : new PfsParameterJpa(pfs);
 
     // declare search handler
     SearchHandler searchHandler = null;
 
-    if (localPfs.getExpression() != null
-        && !localPfs.getExpression().isEmpty()) {
+    if (localPfs.getExpression() != null && !localPfs.getExpression().isEmpty()) {
 
       // get the results
-      ExpressionHandler exprHandler =
-          getExpressionHandler(terminology, version);
+      ExpressionHandler exprHandler = getExpressionHandler(terminology, version);
       exprResults = exprHandler.resolve(localPfs.getExpression());
 
       // if results found, constuct a query restriction
       if (exprResults.size() > 0) {
-        String exprQueryRestr = (localPfs.getQueryRestriction() != null
-            && !localPfs.getQueryRestriction().isEmpty() ? " AND " : "")
-            + "terminologyId:(";
+        String exprQueryRestr =
+            (localPfs.getQueryRestriction() != null && !localPfs.getQueryRestriction().isEmpty()
+                ? " AND " : "") + "terminologyId:(";
         for (final SearchResult exprResult : exprResults.getObjects()) {
           exprQueryRestr += exprResult.getTerminologyId() + " ";
         }
         // trim last space, close parenthesis and add boost based on count
         exprQueryRestr =
-            exprQueryRestr.substring(0, exprQueryRestr.length() - 1) + ")^"
-                + exprResults.size();
-        localPfs.setQueryRestriction((localPfs.getQueryRestriction() != null
-            ? localPfs.getQueryRestriction() : "") + exprQueryRestr);
+            exprQueryRestr.substring(0, exprQueryRestr.length() - 1) + ")^" + exprResults.size();
+        localPfs.setQueryRestriction(
+            (localPfs.getQueryRestriction() != null ? localPfs.getQueryRestriction() : "")
+                + exprQueryRestr);
       }
     }
 
@@ -2534,8 +2362,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     // if no expression, or expression with results, perform lucene query
     if (exprResults == null || exprResults.size() > 0) {
-      luceneResults = searchHandler.getQueryResults(terminology, version,
-          branch, query, "atoms.nameSort", clazz, localPfs, totalCt, manager);
+      luceneResults = searchHandler.getQueryResults(terminology, version, branch, query,
+          "atoms.nameSort", clazz, localPfs, totalCt, manager);
     }
 
     if (scoreMap != null) {
@@ -2558,9 +2386,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
-  private <T extends AtomClass> SearchResultList findForGeneralQueryHelper(
-    String luceneQuery, String JPQLQuery, String branch, PfsParameter pfs,
-    Class<T> clazz) throws Exception {
+  private <T extends AtomClass> SearchResultList findForGeneralQueryHelper(String luceneQuery,
+    String JPQLQuery, String branch, PfsParameter pfs, Class<T> clazz) throws Exception {
     // Prepare results
     final SearchResultList results = new SearchResultListJpa();
     List<T> classes = null;
@@ -2571,8 +2398,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
     boolean luceneQueryFlag = false;
     if (luceneQuery != null && !luceneQuery.equals("")) {
       SearchHandler searchHandler = getSearchHandler("");
-      luceneQueryClasses.addAll(searchHandler.getQueryResults(null, null,
-          branch, luceneQuery, "atomsName.sort", clazz, pfs, totalCt, manager));
+      luceneQueryClasses.addAll(searchHandler.getQueryResults(null, null, branch, luceneQuery,
+          "atomsName.sort", clazz, pfs, totalCt, manager));
       luceneQueryFlag = true;
     }
 
@@ -2580,12 +2407,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
     final List<T> JPQLQueryClasses = new ArrayList<>();
     if (JPQLQuery != null && !JPQLQuery.equals("")) {
       if (!JPQLQuery.toLowerCase().startsWith("select"))
-        throw new Exception(
-            "The JPQL query did not start with the keyword 'select'. "
-                + JPQLQuery);
+        throw new Exception("The JPQL query did not start with the keyword 'select'. " + JPQLQuery);
       if (JPQLQuery.contains(";"))
-        throw new Exception(
-            "The JPQL query must not contain the ';'. " + JPQLQuery);
+        throw new Exception("The JPQL query must not contain the ';'. " + JPQLQuery);
       javax.persistence.Query hQuery = manager.createQuery(JPQLQuery);
 
       // Support for this is probably in Mysql 5.7.4
@@ -2598,8 +2422,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
           JPQLQueryClasses.add(r);
         }
       } catch (ClassCastException e) {
-        throw new Exception(
-            "The JPQL query returned items of an unexpected type. ", e);
+        throw new Exception("The JPQL query returned items of an unexpected type. ", e);
       }
 
       JPQLQueryFlag = true;
@@ -2628,9 +2451,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
       // Apply PFS sorting manually
       if (pfs != null && pfs.getSortField() != null) {
-        final Method getMethod = clazz
-            .getMethod("get" + pfs.getSortField().substring(0, 1).toUpperCase()
-                + pfs.getSortField().substring(1));
+        final Method getMethod = clazz.getMethod("get"
+            + pfs.getSortField().substring(0, 1).toUpperCase() + pfs.getSortField().substring(1));
         if (getMethod.getReturnType().isAssignableFrom(Comparable.class)) {
           throw new Exception("Referenced sort field is not comparable");
         }
@@ -2639,10 +2461,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
           @Override
           public int compare(AtomClass o1, AtomClass o2) {
             try {
-              final Comparable f1 =
-                  (Comparable) getMethod.invoke(o1, new Object[] {});
-              final Comparable f2 =
-                  (Comparable) getMethod.invoke(o2, new Object[] {});
+              final Comparable f1 = (Comparable) getMethod.invoke(o1, new Object[] {});
+              final Comparable f2 = (Comparable) getMethod.invoke(o2, new Object[] {});
               return f1.compareTo(f2);
             } catch (Exception e) {
               // do nothing
@@ -2700,9 +2520,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
    * @return the string list
    * @throws Exception the exception
    */
-  private <T extends AtomClass> StringList autocompleteHelper(
-    String terminology, String version, String searchTerm, Class<T> clazz)
-    throws Exception {
+  private <T extends AtomClass> StringList autocompleteHelper(String terminology, String version,
+    String searchTerm, Class<T> clazz) throws Exception {
 
     if (terminology == null || version == null || searchTerm == null) {
       return new StringList();
@@ -2710,14 +2529,13 @@ public class ContentServiceJpa extends MetadataServiceJpa
     final String TITLE_EDGE_NGRAM_INDEX = "atoms.edgeNGramName";
     final String TITLE_NGRAM_INDEX = "atoms.nGramName";
 
-    final FullTextEntityManager fullTextEntityManager =
-        Search.getFullTextEntityManager(manager);
-    final QueryBuilder titleQB = fullTextEntityManager.getSearchFactory()
-        .buildQueryBuilder().forEntity(clazz).get();
+    final FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(manager);
+    final QueryBuilder titleQB =
+        fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(clazz).get();
 
     final Query query = titleQB.phrase().withSlop(2).onField(TITLE_NGRAM_INDEX)
-        .andField(TITLE_EDGE_NGRAM_INDEX).boostedTo(5).andField("atoms.name")
-        .boostedTo(5).sentence(searchTerm.toLowerCase()).createQuery();
+        .andField(TITLE_EDGE_NGRAM_INDEX).boostedTo(5).andField("atoms.name").boostedTo(5)
+        .sentence(searchTerm.toLowerCase()).createQuery();
 
     final Query term1 = new TermQuery(new Term("terminology", terminology));
     final Query term2 = new TermQuery(new Term("version", version));
@@ -2754,13 +2572,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public SearchResultList findCodeSearchResults(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
-    throws Exception {
-    Logger.getLogger(getClass()).info("Content Service - find codes "
-        + terminology + "/" + version + "/" + query);
-    final SearchResultList results = findSearchResultsForQueryHelper(
-        terminology, version, branch, query, pfs, CodeJpa.class);
+  public SearchResultList findCodeSearchResults(String terminology, String version, String branch,
+    String query, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass())
+        .info("Content Service - find codes " + terminology + "/" + version + "/" + query);
+    final SearchResultList results =
+        findSearchResultsForQueryHelper(terminology, version, branch, query, pfs, CodeJpa.class);
     for (final SearchResult result : results.getObjects()) {
       result.setType(IdType.CODE);
     }
@@ -2769,43 +2586,40 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public CodeList findCodes(String terminology, String version, String branch,
-    String query, PfsParameter pfs) throws Exception {
-    Logger.getLogger(getClass()).info("Content Service - find concepts "
-        + terminology + "/" + version + "/" + query);
+  public CodeList findCodes(String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass())
+        .info("Content Service - find concepts " + terminology + "/" + version + "/" + query);
     int[] totalCt = new int[1];
-    final List<CodeJpa> results = findForQueryHelper(terminology, version,
-        branch, query, pfs, totalCt, null, CodeJpa.class);
+    final List<CodeJpa> results =
+        findForQueryHelper(terminology, version, branch, query, pfs, totalCt, null, CodeJpa.class);
 
     final CodeList list = new CodeListJpa();
-    list.setObjects(
-        results.stream().map(c -> (Code) c).collect(Collectors.toList()));
+    list.setObjects(results.stream().map(c -> (Code) c).collect(Collectors.toList()));
     list.setTotalCount(totalCt[0]);
     return list;
   }
 
   /* see superclass */
   @Override
-  public StringList autocompleteCodes(String terminology, String version,
-    String searchTerm) throws Exception {
-    Logger.getLogger(getClass()).info("Content Service - autocomplete codes "
-        + terminology + ", " + version + ", " + searchTerm);
+  public StringList autocompleteCodes(String terminology, String version, String searchTerm)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "Content Service - autocomplete codes " + terminology + ", " + version + ", " + searchTerm);
     return autocompleteHelper(terminology, version, searchTerm, CodeJpa.class);
   }
 
   /* see superclass */
   @Override
-  public ConceptList getAllConcepts(String terminology, String version,
-    String branch) {
-    Logger.getLogger(getClass()).debug("Content Service - get all concepts "
-        + terminology + "/" + version + "/" + branch);
+  public ConceptList getAllConcepts(String terminology, String version, String branch) {
+    Logger.getLogger(getClass())
+        .debug("Content Service - get all concepts " + terminology + "/" + version + "/" + branch);
     assert branch != null;
 
     try {
-      final javax.persistence.Query query =
-          manager.createQuery("select a from ConceptJpa a "
-              + "where version = :version " + "and terminology = :terminology "
-              + "and (branch = :branch or branchedTo not like :branchMatch)");
+      final javax.persistence.Query query = manager.createQuery("select a from ConceptJpa a "
+          + "where version = :version " + "and terminology = :terminology "
+          + "and (branch = :branch or branchedTo not like :branchMatch)");
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
       query.setParameter("branch", branch);
@@ -2823,17 +2637,16 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public List<Long> getAllConceptIds(String terminology, String version,
-    String branch) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get all concept ids "
-        + terminology + "/" + version + "/" + branch);
+  public List<Long> getAllConceptIds(String terminology, String version, String branch)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get all concept ids " + terminology + "/" + version + "/" + branch);
     assert branch != null;
 
     final Map<String, String> params = new HashMap<>();
     params.put("terminology", terminology);
     params.put("version", version);
-    return executeSingleComponentIdQuery(null, QueryType.LUCENE, params,
-        ConceptJpa.class, false);
+    return executeSingleComponentIdQuery(null, QueryType.LUCENE, params, ConceptJpa.class, false);
 
   }
 
@@ -2843,33 +2656,31 @@ public class ContentServiceJpa extends MetadataServiceJpa
   public List<Long> getAmbiguousAtomIds(Concept concept) {
     try {
       // collect lower name hash values from all atoms
-      final Set<String> lowerNameHashes = concept.getAtoms().stream()
-          .map(a -> a.getLowerNameHash()).collect(Collectors.toSet());
+      final Set<String> lowerNameHashes =
+          concept.getAtoms().stream().map(a -> a.getLowerNameHash()).collect(Collectors.toSet());
 
       if (lowerNameHashes.isEmpty()) {
         return new ArrayList<>();
       }
 
       // Find lower name hashes that are ambiguous (e.g. in other concepts)
-      final javax.persistence.Query query = manager.createQuery(
-          "select distinct a.lowerNameHash, a.stringClassId from ConceptJpa c join c.atoms a "
+      final javax.persistence.Query query =
+          manager.createQuery("select distinct a.lowerNameHash from ConceptJpa c join c.atoms a "
               + "where c.version = :version and c.terminology = :terminology "
-              + " and a.lowerNameHash in (:lowerNameHashes)"
-              + " and c.id != :conceptId");
+              + " and a.lowerNameHash in (:lowerNameHashes)" + " and c.id != :conceptId");
       query.setParameter("terminology", concept.getTerminology());
       query.setParameter("version", concept.getVersion());
       query.setParameter("conceptId", concept.getId());
       query.setParameter("lowerNameHashes", lowerNameHashes);
       final List<Object[]> results = query.getResultList();
-      final Map<String, String> suiToHash = new HashMap<>();
-      for (final Object[] result : results) {
-        suiToHash.put(result[0].toString(), result[1].toString());
+      final Set<String> ambigLowerNameHashes = new HashSet<>();
+      for (final Object result : results) {
+        ambigLowerNameHashes.add(result.toString());
       }
-      // Return atoms whose suis and lower name hashes were in the map
+      // Return atoms whose lower name hashes were in the set
       return concept.getAtoms().stream()
-          .filter(a -> suiToHash.containsKey(a.getStringClassId()) && suiToHash
-              .get(a.getStringClassId()).equals(a.getLowerNameHash()))
-          .map(a -> a.getId()).collect(Collectors.toList());
+          .filter(a -> ambigLowerNameHashes.contains(a.getLowerNameHash())).map(a -> a.getId())
+          .collect(Collectors.toList());
 
     } catch (NoResultException e) {
       return new ArrayList<>();
@@ -2878,17 +2689,15 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public DescriptorList getAllDescriptors(String terminology, String version,
-    String branch) {
-    Logger.getLogger(getClass()).debug("Content Service - get all descriptors "
-        + terminology + "/" + version + "/" + branch);
+  public DescriptorList getAllDescriptors(String terminology, String version, String branch) {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get all descriptors " + terminology + "/" + version + "/" + branch);
     assert branch != null;
 
     try {
-      final javax.persistence.Query query =
-          manager.createQuery("select a from DescriptorJpa a "
-              + "where version = :version " + "and terminology = :terminology "
-              + "and (branch = :branch or branchedTo not like :branchMatch)");
+      final javax.persistence.Query query = manager.createQuery("select a from DescriptorJpa a "
+          + "where version = :version " + "and terminology = :terminology "
+          + "and (branch = :branch or branchedTo not like :branchMatch)");
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
       query.setParameter("branch", branch);
@@ -2908,33 +2717,30 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
 
   @Override
-  public List<Long> getAllDescriptorIds(String terminology, String version,
-    String branch) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - get all descriptor ids " + terminology + "/"
-            + version + "/" + branch);
+  public List<Long> getAllDescriptorIds(String terminology, String version, String branch)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get all descriptor ids " + terminology + "/" + version + "/" + branch);
     assert branch != null;
 
     final Map<String, String> params = new HashMap<>();
     params.put("terminology", terminology);
     params.put("version", version);
-    return executeSingleComponentIdQuery(null, QueryType.LUCENE, params,
-        DescriptorJpa.class, false);
+    return executeSingleComponentIdQuery(null, QueryType.LUCENE, params, DescriptorJpa.class,
+        false);
   }
 
   /* see superclass */
   @Override
-  public CodeList getAllCodes(String terminology, String version,
-    String branch) {
-    Logger.getLogger(getClass()).debug("Content Service - get all codes "
-        + terminology + "/" + version + "/" + branch);
+  public CodeList getAllCodes(String terminology, String version, String branch) {
+    Logger.getLogger(getClass())
+        .debug("Content Service - get all codes " + terminology + "/" + version + "/" + branch);
     assert branch != null;
 
     try {
-      final javax.persistence.Query query =
-          manager.createQuery("select a from CodeJpa a "
-              + "where version = :version " + "and terminology = :terminology "
-              + "and (branch = :branch or branchedTo not like :branchMatch)");
+      final javax.persistence.Query query = manager.createQuery("select a from CodeJpa a "
+          + "where version = :version " + "and terminology = :terminology "
+          + "and (branch = :branch or branchedTo not like :branchMatch)");
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
       query.setParameter("branch", branch);
@@ -2952,27 +2758,24 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public List<Long> getAllCodeIds(String terminology, String version,
-    String branch) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get all code ids "
-        + terminology + "/" + version + "/" + branch);
+  public List<Long> getAllCodeIds(String terminology, String version, String branch)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - get all code ids " + terminology + "/" + version + "/" + branch);
     assert branch != null;
 
     final Map<String, String> params = new HashMap<>();
     params.put("terminology", terminology);
     params.put("version", version);
-    return executeSingleComponentIdQuery(null, QueryType.LUCENE, params,
-        CodeJpa.class, false);
+    return executeSingleComponentIdQuery(null, QueryType.LUCENE, params, CodeJpa.class, false);
 
   }
 
   /* see superclass */
   @Override
-  public void clearTransitiveClosure(String terminology, String version)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .info("Content Service - Clear transitive closure data for "
-            + terminology + ", " + version);
+  public void clearTransitiveClosure(String terminology, String version) throws Exception {
+    Logger.getLogger(getClass()).info(
+        "Content Service - Clear transitive closure data for " + terminology + ", " + version);
     try {
       if (getTransactionPerOperation()) {
         // remove simple ref set member
@@ -2981,25 +2784,20 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
       javax.persistence.Query query =
           manager.createQuery("DELETE From ConceptTransitiveRelationshipJpa "
-              + " c where terminology = :terminology "
-              + " and version = :version");
+              + " c where terminology = :terminology " + " and version = :version");
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
       int deleteRecords = query.executeUpdate();
       Logger.getLogger(getClass())
-          .info("    ConceptTransitiveRelationshipJpa records deleted = "
-              + deleteRecords);
+          .info("    ConceptTransitiveRelationshipJpa records deleted = " + deleteRecords);
 
-      query =
-          manager.createQuery("DELETE From DescriptorTransitiveRelationshipJpa "
-              + " c where terminology = :terminology "
-              + " and version = :version");
+      query = manager.createQuery("DELETE From DescriptorTransitiveRelationshipJpa "
+          + " c where terminology = :terminology " + " and version = :version");
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
       deleteRecords = query.executeUpdate();
       Logger.getLogger(getClass())
-          .info("    DescriptorTransitiveRelationshipJpa records deleted = "
-              + deleteRecords);
+          .info("    DescriptorTransitiveRelationshipJpa records deleted = " + deleteRecords);
 
       query = manager.createQuery("DELETE From CodeTransitiveRelationshipJpa "
           + " c where terminology = :terminology " + " and version = :version");
@@ -3007,8 +2805,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       query.setParameter("version", version);
       deleteRecords = query.executeUpdate();
       Logger.getLogger(getClass())
-          .info("    CodeTransitiveRelationshipJpa records deleted = "
-              + deleteRecords);
+          .info("    CodeTransitiveRelationshipJpa records deleted = " + deleteRecords);
 
       if (getTransactionPerOperation()) {
         // remove simple ref set member
@@ -3025,27 +2822,22 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public void clearTreePositions(String terminology, String version)
-    throws Exception {
+  public void clearTreePositions(String terminology, String version) throws Exception {
     Logger.getLogger(getClass())
-        .info("Content Service - Clear tree positions data for " + terminology
-            + ", " + version);
+        .info("Content Service - Clear tree positions data for " + terminology + ", " + version);
     try {
       if (getTransactionPerOperation()) {
         // remove simple ref set member
         tx.begin();
       }
 
-      javax.persistence.Query query =
-          manager.createQuery("DELETE From ConceptTreePositionJpa "
-              + " c where terminology = :terminology "
-              + " and version = :version");
+      javax.persistence.Query query = manager.createQuery("DELETE From ConceptTreePositionJpa "
+          + " c where terminology = :terminology " + " and version = :version");
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
       int deleteRecords = query.executeUpdate();
       Logger.getLogger(getClass())
-          .info("    ConceptTransitiveRelationshipJpa records deleted = "
-              + deleteRecords);
+          .info("    ConceptTransitiveRelationshipJpa records deleted = " + deleteRecords);
 
       query = manager.createQuery("DELETE From DescriptorTreePositionJpa "
           + " c where terminology = :terminology " + " and version = :version");
@@ -3053,8 +2845,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       query.setParameter("version", version);
       deleteRecords = query.executeUpdate();
       Logger.getLogger(getClass())
-          .info("    DescriptorTransitiveRelationshipJpa records deleted = "
-              + deleteRecords);
+          .info("    DescriptorTransitiveRelationshipJpa records deleted = " + deleteRecords);
 
       query = manager.createQuery("DELETE From CodeTreePositionJpa "
           + " c where terminology = :terminology " + " and version = :version");
@@ -3062,8 +2853,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       query.setParameter("version", version);
       deleteRecords = query.executeUpdate();
       Logger.getLogger(getClass())
-          .info("    CodeTransitiveRelationshipJpa records deleted = "
-              + deleteRecords);
+          .info("    CodeTransitiveRelationshipJpa records deleted = " + deleteRecords);
 
       if (getTransactionPerOperation()) {
         // remove simple ref set member
@@ -3086,8 +2876,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public IdentifierAssignmentHandler getIdentifierAssignmentHandler(
-    String terminology) throws Exception {
+  public IdentifierAssignmentHandler getIdentifierAssignmentHandler(String terminology)
+    throws Exception {
     if (idHandlerMap.containsKey(terminology)) {
       return idHandlerMap.get(terminology);
     }
@@ -3102,17 +2892,16 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public IdentifierAssignmentHandler newIdentifierAssignmentHandler(
-    String terminology) throws Exception {
+  public IdentifierAssignmentHandler newIdentifierAssignmentHandler(String terminology)
+    throws Exception {
     return ConfigUtility.newStandardHandlerInstanceWithConfiguration(
-        "identifier.assignment.handler", terminology,
-        IdentifierAssignmentHandler.class);
+        "identifier.assignment.handler", terminology, IdentifierAssignmentHandler.class);
   }
 
   /* see superclass */
   @Override
-  public ComputePreferredNameHandler getComputePreferredNameHandler(
-    String terminology) throws Exception {
+  public ComputePreferredNameHandler getComputePreferredNameHandler(String terminology)
+    throws Exception {
     if (pnHandlerMap.containsKey(terminology)) {
       return pnHandlerMap.get(terminology);
     }
@@ -3121,22 +2910,19 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public String getComputedPreferredName(AtomClass atomClass,
-    PrecedenceList list) throws Exception {
+  public String getComputedPreferredName(AtomClass atomClass, PrecedenceList list)
+    throws Exception {
     try {
-      ComputePreferredNameHandler handler =
-          pnHandlerMap.get(atomClass.getTerminology());
+      ComputePreferredNameHandler handler = pnHandlerMap.get(atomClass.getTerminology());
       // look for default if null
       if (handler == null) {
         handler = pnHandlerMap.get(ConfigUtility.DEFAULT);
       }
       if (handler == null) {
-        throw new Exception(
-            "Compute preferred name handler is not configured for DEFAULT or for "
-                + atomClass.getTerminology());
+        throw new Exception("Compute preferred name handler is not configured for DEFAULT or for "
+            + atomClass.getTerminology());
       }
-      final String pn =
-          handler.computePreferredName(atomClass.getAtoms(), list);
+      final String pn = handler.computePreferredName(atomClass.getAtoms(), list);
       return pn;
     } catch (Exception e) {
       if (tx.isActive()) {
@@ -3160,8 +2946,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public Map<String, Integer> getComponentStats(String terminology,
-    String version, String branch) throws Exception {
+  public Map<String, Integer> getComponentStats(String terminology, String version, String branch)
+    throws Exception {
     Logger.getLogger(getClass()).info("Content Service - getComponentStats");
     assert branch != null;
     final Map<String, Integer> stats = new TreeMap<>();
@@ -3172,10 +2958,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
       if (jpaTable.toUpperCase().indexOf("_AUD") != -1) {
         continue;
       }
-      if (!AbstractAbbreviation.class
-          .isAssignableFrom(type.getBindableJavaType())
-          && !AbstractComponent.class
-              .isAssignableFrom(type.getBindableJavaType())) {
+      if (!AbstractAbbreviation.class.isAssignableFrom(type.getBindableJavaType())
+          && !AbstractComponent.class.isAssignableFrom(type.getBindableJavaType())) {
         continue;
       }
       Logger.getLogger(getClass()).info("  " + jpaTable);
@@ -3193,13 +2977,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
       stats.put("Total " + jpaTable, ct);
 
       // Only compute active counts for components
-      if (AbstractComponent.class
-          .isAssignableFrom(type.getBindableJavaType())) {
+      if (AbstractComponent.class.isAssignableFrom(type.getBindableJavaType())) {
         if (terminology != null) {
 
           query = manager.createQuery("select count(*) from " + jpaTable
-              + " where obsolete = 0 and terminology = :terminology "
-              + "and version = :version ");
+              + " where obsolete = 0 and terminology = :terminology " + "and version = :version ");
           query.setParameter("terminology", terminology);
           query.setParameter("version", version);
         } else {
@@ -3223,11 +3005,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
    * @return the components
    */
   @SuppressWarnings("rawtypes")
-  protected <T extends Component> List getComponents(String terminologyId,
-    String terminology, String version, Class<T> clazz) {
+  protected <T extends Component> List getComponents(String terminologyId, String terminology,
+    String version, Class<T> clazz) {
     try {
-      final javax.persistence.Query query = manager.createQuery("select a from "
-          + clazz.getName()
+      final javax.persistence.Query query = manager.createQuery("select a from " + clazz.getName()
           + " a where terminologyId = :terminologyId and version = :version and terminology = :terminology");
       query.setParameter("terminologyId", terminologyId);
       query.setParameter("terminology", terminology);
@@ -3286,16 +3067,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
-  protected <T extends Component> void updateComponent(T newComponent)
-    throws Exception {
+  protected <T extends Component> void updateComponent(T newComponent) throws Exception {
     // Component-specific handling
 
     // check for molecular action flag
     if (isMolecularActionFlag()) {
       final MolecularAction molecularAction = getMolecularAction();
 
-      final T oldComponent = getComponent(newComponent.getId(),
-          (Class<T>) newComponent.getClass());
+      final T oldComponent = getComponent(newComponent.getId(), (Class<T>) newComponent.getClass());
 
       // Create an atomic action when old value is different from new value.
       // For fields annotated with @Column
@@ -3310,10 +3089,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
         final Object newObject = m.invoke(newComponent, new Object[] {});
 
         // Obtain string values
-        final String oldValue = (oldObject == null ? ""
-            : m.invoke(oldComponent, new Object[] {}).toString());
-        final String newValue = (newObject == null ? ""
-            : m.invoke(newComponent, new Object[] {}).toString());
+        final String oldValue =
+            (oldObject == null ? "" : m.invoke(oldComponent, new Object[] {}).toString());
+        final String newValue =
+            (newObject == null ? "" : m.invoke(newComponent, new Object[] {}).toString());
 
         // If different, construct an atomic action and attach to molecular
         // action
@@ -3341,15 +3120,15 @@ public class ContentServiceJpa extends MetadataServiceJpa
       for (final Method m : oneToManyMethods) {
 
         // Obtain the old/new identifier lists
-        final List<?> oldList = new ArrayList<>(
-            (Collection<?>) m.invoke(oldComponent, new Object[] {}));
-        final Set<Long> oldIds = (oldList.stream().map(x -> ((HasId) x).getId())
-            .collect(Collectors.toSet()));
+        final List<?> oldList =
+            new ArrayList<>((Collection<?>) m.invoke(oldComponent, new Object[] {}));
+        final Set<Long> oldIds =
+            (oldList.stream().map(x -> ((HasId) x).getId()).collect(Collectors.toSet()));
 
-        final List<?> newList = new ArrayList<>(
-            (Collection<?>) m.invoke(newComponent, new Object[] {}));
-        final Set<Long> newIds = (newList.stream().map(x -> ((HasId) x).getId())
-            .collect(Collectors.toSet()));
+        final List<?> newList =
+            new ArrayList<>((Collection<?>) m.invoke(newComponent, new Object[] {}));
+        final Set<Long> newIds =
+            (newList.stream().map(x -> ((HasId) x).getId()).collect(Collectors.toSet()));
 
         // Get the collection class name
         String collectionClassName = null;
@@ -3412,8 +3191,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
    * @return the component
    * @throws Exception the exception
    */
-  protected <T extends Component> T getComponent(Long id, Class<T> clazz)
-    throws Exception {
+  protected <T extends Component> T getComponent(Long id, Class<T> clazz) throws Exception {
     if (id == null) {
       return null;
     }
@@ -3435,11 +3213,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
    * @return the component
    */
   @SuppressWarnings("unchecked")
-  protected <T extends Component> T getComponent(String terminologyId,
-    String terminology, String version, String branch, Class<T> clazz) {
+  protected <T extends Component> T getComponent(String terminologyId, String terminology,
+    String version, String branch, Class<T> clazz) {
 
-    final List<T> results =
-        getComponents(terminologyId, terminology, version, clazz);
+    final List<T> results = getComponents(terminologyId, terminology, version, clazz);
     if (results.isEmpty()) {
       Logger.getLogger(getClass()).debug("  no " + clazz.getName());
       return null;
@@ -3470,8 +3247,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
    * @param clazz the clazz
    * @throws Exception the exception
    */
-  protected <T extends Component> void removeComponent(Long id, Class<T> clazz)
-    throws Exception {
+  protected <T extends Component> void removeComponent(Long id, Class<T> clazz) throws Exception {
 
     // check for molecular action flag
     if (isMolecularActionFlag()) {
@@ -3496,40 +3272,34 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public RelationshipList findConceptRelationships(String conceptId,
-    String terminology, String version, String branch, String query,
-    boolean inverseFlag, PfsParameter pfs) throws Exception {
+  public RelationshipList findConceptRelationships(String conceptId, String terminology,
+    String version, String branch, String query, boolean inverseFlag, PfsParameter pfs)
+    throws Exception {
     Logger.getLogger(getClass())
-        .debug("Content Service - find relationships for concept " + conceptId
-            + "/" + terminology + "/" + version + "/" + branch + "/" + query
-            + "/" + inverseFlag);
+        .debug("Content Service - find relationships for concept " + conceptId + "/" + terminology
+            + "/" + version + "/" + branch + "/" + query + "/" + inverseFlag);
 
-    return findRelationshipsForComponentHelper(conceptId, terminology, version,
-        branch, query, inverseFlag, pfs, ConceptRelationshipJpa.class);
+    return findRelationshipsForComponentHelper(conceptId, terminology, version, branch, query,
+        inverseFlag, pfs, ConceptRelationshipJpa.class);
   }
 
   /* see superclass */
   @Override
-  public RelationshipList findComponentInfoRelationships(String componentInfoId,
-    String terminology, String version, IdType type, String branch,
-    String query, boolean inverseFlag, PfsParameter pfs) throws Exception {
+  public RelationshipList findComponentInfoRelationships(String componentInfoId, String terminology,
+    String version, IdType type, String branch, String query, boolean inverseFlag, PfsParameter pfs)
+    throws Exception {
     Logger.getLogger(getClass())
-        .debug("Content Service - find relationships for component info "
-            + componentInfoId + "/" + terminology + "/" + version + "/" + branch
-            + "/" + query + "/" + inverseFlag);
+        .debug("Content Service - find relationships for component info " + componentInfoId + "/"
+            + terminology + "/" + version + "/" + branch + "/" + query + "/" + inverseFlag);
 
     if (inverseFlag) {
-      return findRelationshipsForComponentHelper(componentInfoId, terminology,
-          version, branch,
-          ConfigUtility.isEmpty(query) ? "toType:" + type
-              : query + " AND toType:" + type,
+      return findRelationshipsForComponentHelper(componentInfoId, terminology, version, branch,
+          ConfigUtility.isEmpty(query) ? "toType:" + type : query + " AND toType:" + type,
           inverseFlag, pfs, ComponentInfoRelationshipJpa.class);
 
     } else {
-      return findRelationshipsForComponentHelper(componentInfoId, terminology,
-          version, branch,
-          ConfigUtility.isEmpty(query) ? "fromType:" + type
-              : query + " AND fromType:" + type,
+      return findRelationshipsForComponentHelper(componentInfoId, terminology, version, branch,
+          ConfigUtility.isEmpty(query) ? "fromType:" + type : query + " AND fromType:" + type,
           inverseFlag, pfs, ComponentInfoRelationshipJpa.class);
     }
   }
@@ -3539,35 +3309,30 @@ public class ContentServiceJpa extends MetadataServiceJpa
       "unchecked"
   })
   @Override
-  public RelationshipList findConceptDeepRelationships(String conceptId,
-    String terminology, String version, String branch, String filter,
-    boolean inverseFlag, boolean includeConceptRels, boolean preferredOnly,
-    boolean includeSelfReferential, PfsParameter pfs) throws Exception {
+  public RelationshipList findConceptDeepRelationships(String conceptId, String terminology,
+    String version, String branch, String filter, boolean inverseFlag, boolean includeConceptRels,
+    boolean preferredOnly, boolean includeSelfReferential, PfsParameter pfs) throws Exception {
 
     // TODO: this could probably all be made faster with some more indexing
-    Logger.getLogger(getClass())
-        .debug("Content Service - find deep relationships for concept "
-            + conceptId + "/" + terminology + "/" + version + "/" + filter);
+    Logger.getLogger(getClass()).debug("Content Service - find deep relationships for concept "
+        + conceptId + "/" + terminology + "/" + version + "/" + filter);
 
     // Determine if skipping suppressible (and obsolete by definition)
     final String suppressibleClause = (pfs.getQueryRestriction() != null
-        && pfs.getQueryRestriction().equals("suppressible:false"))
-            ? " and a.suppressible = false " : "";
+        && pfs.getQueryRestriction().equals("suppressible:false")) ? " and a.suppressible = false "
+            : "";
 
     final String relTypeClause = " and a.relationshipType not in ('AQ','QB')";
 
     // Verify no query restriction except for suppressible:false
     if (ConfigUtility.isEmpty(suppressibleClause) && pfs != null
-        && pfs.getQueryRestriction() != null
-        && !pfs.getQueryRestriction().isEmpty()) {
+        && pfs.getQueryRestriction() != null && !pfs.getQueryRestriction().isEmpty()) {
       throw new IllegalArgumentException(
-          "Query restriction is not implemented for this call: "
-              + pfs.getQueryRestriction());
+          "Query restriction is not implemented for this call: " + pfs.getQueryRestriction());
     }
     try {
 
-      final Concept concept =
-          getConcept(conceptId, terminology, version, branch);
+      final Concept concept = getConcept(conceptId, terminology, version, branch);
       final List<Object[]> results = new ArrayList<>();
 
       String queryStr = null;
@@ -3579,10 +3344,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
             + ", a.obsolete, a.suppressible, a.published, a.publishable, "
             + (inverseFlag ? "a.from.name " : "a.to.name ") + ", "
             + (inverseFlag ? "a.from.id " : "a.to.id ") + ", a.workflowStatus "
-            + ", a.lastModifiedBy, a.lastModified "
-            + "from ConceptRelationshipJpa a " + "where "
-            + (inverseFlag ? "a.to" : "a.from") + ".id = :conceptId "
-            + relTypeClause + suppressibleClause;
+            + ", a.lastModifiedBy, a.lastModified " + "from ConceptRelationshipJpa a " + "where "
+            + (inverseFlag ? "a.to" : "a.from") + ".id = :conceptId " + relTypeClause
+            + suppressibleClause;
         query = manager.createQuery(queryStr);
         query.setParameter("conceptId", concept.getId());
         results.addAll(query.getResultList());
@@ -3592,13 +3356,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
           + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId, "
           + "a.obsolete, a.suppressible, a.published, a.publishable, "
           // + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
-          + "c2.name, c2.id " + ", a.workflowStatus "
-          + ", a.lastModifiedBy, a.lastModified "
+          + "c2.name, c2.id " + ", a.workflowStatus " + ", a.lastModifiedBy, a.lastModified "
           + "from AtomRelationshipJpa a, ConceptJpa c2 join c2.atoms ca "
           + "where c2.terminology = :terminology and c2.version = :version and "
-          + (inverseFlag ? "a.from.id in (ca.id) " : "a.to.id in (ca.id) ")
-          + " and " + (inverseFlag ? "a.to" : "a.from") + ".id in (:atomIds)"
-          + relTypeClause + suppressibleClause;
+          + (inverseFlag ? "a.from.id in (ca.id) " : "a.to.id in (ca.id) ") + " and "
+          + (inverseFlag ? "a.to" : "a.from") + ".id in (:atomIds)" + relTypeClause
+          + suppressibleClause;
       query = manager.createQuery(queryStr);
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
@@ -3617,21 +3380,17 @@ public class ContentServiceJpa extends MetadataServiceJpa
           + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId,       "
           + "a.obsolete, a.suppressible, a.published, a.publishable, "
           // + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
-          + "c2.name, c2.id " + ", a.workflowStatus "
-          + ", a.lastModifiedBy, a.lastModified "
+          + "c2.name, c2.id " + ", a.workflowStatus " + ", a.lastModifiedBy, a.lastModified "
           + "from ConceptRelationshipJpa a, ConceptJpa b, AtomJpa c, "
-          + "ConceptJpa d, AtomJpa e, ConceptJpa c2 join c2.atoms ca "
-          + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
-          + "and b.terminologyId = c.conceptId "
+          + "ConceptJpa d, AtomJpa e, ConceptJpa c2 join c2.atoms ca " + "where a."
+          + (inverseFlag ? "to" : "from") + ".id = b.id " + "and b.terminologyId = c.conceptId "
           + "and b.terminology = c.terminology and b.version = c.version "
-          + "and b.name = c.name and c.id in (:atomIds) " + "and a."
-          + (inverseFlag ? "from" : "to") + ".id = d.id "
-          + "and d.terminologyId = e.conceptId "
-          + "and d.terminology = e.terminology and d.version = e.version "
-          + "and d.name = e.name "
+          + "and b.name = c.name and c.id in (:atomIds) " + "and a." + (inverseFlag ? "from" : "to")
+          + ".id = d.id " + "and d.terminologyId = e.conceptId "
+          + "and d.terminology = e.terminology and d.version = e.version " + "and d.name = e.name "
           + "and c2.terminology = :terminology and c2.version = :version and "
-          + (inverseFlag ? "e.id in (ca.id) " : "e.id in (ca.id) ")
-          + relTypeClause + suppressibleClause;
+          + (inverseFlag ? "e.id in (ca.id) " : "e.id in (ca.id) ") + relTypeClause
+          + suppressibleClause;
       query = manager.createQuery(queryStr);
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
@@ -3642,21 +3401,17 @@ public class ContentServiceJpa extends MetadataServiceJpa
           + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId,       "
           + "a.obsolete, a.suppressible, a.published, a.publishable, "
           // + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
-          + "c2.name, c2.id " + ", a.workflowStatus "
-          + ", a.lastModifiedBy, a.lastModified "
+          + "c2.name, c2.id " + ", a.workflowStatus " + ", a.lastModifiedBy, a.lastModified "
           + "from DescriptorRelationshipJpa a, DescriptorJpa b, AtomJpa c, "
-          + "DescriptorJpa d, AtomJpa e, ConceptJpa c2 join c2.atoms ca "
-          + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
-          + "and b.terminologyId = c.descriptorId "
+          + "DescriptorJpa d, AtomJpa e, ConceptJpa c2 join c2.atoms ca " + "where a."
+          + (inverseFlag ? "to" : "from") + ".id = b.id " + "and b.terminologyId = c.descriptorId "
           + "and b.terminology = c.terminology and b.version = c.version "
-          + "and b.name = c.name and c.id in (:atomIds) " + "and a."
-          + (inverseFlag ? "from" : "to") + ".id = d.id "
-          + "and d.terminologyId = e.descriptorId "
-          + "and d.terminology = e.terminology and d.version = e.version "
-          + "and d.name = e.name "
+          + "and b.name = c.name and c.id in (:atomIds) " + "and a." + (inverseFlag ? "from" : "to")
+          + ".id = d.id " + "and d.terminologyId = e.descriptorId "
+          + "and d.terminology = e.terminology and d.version = e.version " + "and d.name = e.name "
           + "and c2.terminology = :terminology and c2.version = :version and "
-          + (inverseFlag ? "e.id in (ca.id) " : "e.id in (ca.id) ")
-          + relTypeClause + suppressibleClause;
+          + (inverseFlag ? "e.id in (ca.id) " : "e.id in (ca.id) ") + relTypeClause
+          + suppressibleClause;
       query = manager.createQuery(queryStr);
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
@@ -3667,21 +3422,17 @@ public class ContentServiceJpa extends MetadataServiceJpa
           + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId,       "
           + "a.obsolete, a.suppressible, a.published, a.publishable, "
           // + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
-          + "c2.name, c2.id " + ", a.workflowStatus "
-          + ", a.lastModifiedBy, a.lastModified "
+          + "c2.name, c2.id " + ", a.workflowStatus " + ", a.lastModifiedBy, a.lastModified "
           + "from CodeRelationshipJpa a, CodeJpa b, AtomJpa c, "
           + "CodeJpa d, AtomJpa e, ConceptJpa c2 join c2.atoms ca " + "where a."
-          + (inverseFlag ? "to" : "from") + ".id = b.id "
-          + "and b.terminologyId = c.codeId "
+          + (inverseFlag ? "to" : "from") + ".id = b.id " + "and b.terminologyId = c.codeId "
           + "and b.terminology = c.terminology and b.version = c.version "
-          + "and b.name = c.name and c.id in (:atomIds) " + "and a."
-          + (inverseFlag ? "from" : "to") + ".id = d.id "
-          + "and d.terminologyId = e.codeId "
-          + "and d.terminology = e.terminology and d.version = e.version "
-          + "and d.name = e.name "
+          + "and b.name = c.name and c.id in (:atomIds) " + "and a." + (inverseFlag ? "from" : "to")
+          + ".id = d.id " + "and d.terminologyId = e.codeId "
+          + "and d.terminology = e.terminology and d.version = e.version " + "and d.name = e.name "
           + "and c2.terminology = :terminology and c2.version = :version and "
-          + (inverseFlag ? "e.id in (ca.id) " : "e.id in (ca.id) ")
-          + relTypeClause + suppressibleClause;
+          + (inverseFlag ? "e.id in (ca.id) " : "e.id in (ca.id) ") + relTypeClause
+          + suppressibleClause;
       query = manager.createQuery(queryStr);
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
@@ -3710,15 +3461,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
         relationship.setTerminology(result[2].toString());
         relationship.setVersion(result[3].toString());
         relationship.setRelationshipType(result[4].toString());
-        relationship.setHierarchical(result[4].toString().equals("CHD")
-            || result[4].toString().equals("subClassOf"));
+        relationship.setHierarchical(
+            result[4].toString().equals("CHD") || result[4].toString().equals("subClassOf"));
         relationship.setAdditionalRelationshipType(result[5].toString());
         relationship.setObsolete(result[7].toString().equals("true"));
         relationship.setSuppressible(result[8].toString().equals("true"));
         relationship.setPublished(result[9].toString().equals("true"));
         relationship.setPublishable(result[10].toString().equals("true"));
-        relationship
-            .setWorkflowStatus(WorkflowStatus.valueOf(result[13].toString()));
+        relationship.setWorkflowStatus(WorkflowStatus.valueOf(result[13].toString()));
         // Force atom-rel demotions to not be equivalent to concept rels.
         // This is a hack, but is required for concept rels and atom rels to
         // both show up on ConceptReports
@@ -3726,12 +3476,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
           relationship.setTerminologyId(String.valueOf(relationship.getId()));
         }
         relationship.setLastModifiedBy(result[14].toString());
-        relationship.setLastModified(
-            new Date(((java.sql.Timestamp) result[15]).getTime()));
+        relationship.setLastModified(new Date(((java.sql.Timestamp) result[15]).getTime()));
 
         // handle self-referential
-        if (includeSelfReferential || !relationship.getFrom().getId()
-            .equals(relationship.getTo().getId())) {
+        if (includeSelfReferential
+            || !relationship.getFrom().getId().equals(relationship.getTo().getId())) {
           conceptRels.add(relationship);
         }
       }
@@ -3741,9 +3490,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
       // Handle preferred only
       if (preferredOnly) {
         //
-        final List<ConceptRelationship> tmpRelList =
-            getComputePreferredNameHandler(terminology).sortRelationships(
-                conceptRels, getPrecedenceList(terminology, version));
+        final List<ConceptRelationship> tmpRelList = getComputePreferredNameHandler(terminology)
+            .sortRelationships(conceptRels, getPrecedenceList(terminology, version));
         final Set<Long> seen = new HashSet<>();
         for (final ConceptRelationship rel : tmpRelList) {
           if (rel.getWorkflowStatus() != WorkflowStatus.DEMOTION && !inverseFlag
@@ -3767,8 +3515,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       pfsLocal.setQueryRestriction(filter);
 
       final int[] totalCt = new int[1];
-      conceptRelList = applyPfsToList(conceptRelList, ConceptRelationship.class,
-          totalCt, pfsLocal);
+      conceptRelList = applyPfsToList(conceptRelList, ConceptRelationship.class, totalCt, pfsLocal);
 
       RelationshipList list = new RelationshipListJpa();
       list.setTotalCount(totalCt[0]);
@@ -3784,32 +3531,27 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public RelationshipList findDescriptorRelationships(String descriptorId,
-    String terminology, String version, String branch, String query,
-    boolean inverseFlag, PfsParameter pfs) throws Exception {
+  public RelationshipList findDescriptorRelationships(String descriptorId, String terminology,
+    String version, String branch, String query, boolean inverseFlag, PfsParameter pfs)
+    throws Exception {
     Logger.getLogger(getClass())
-        .debug("Content Service - find relationships for descriptor "
-            + descriptorId + "/" + terminology + "/" + version + "/" + branch
-            + "/" + query + "/" + inverseFlag);
+        .debug("Content Service - find relationships for descriptor " + descriptorId + "/"
+            + terminology + "/" + version + "/" + branch + "/" + query + "/" + inverseFlag);
 
-    return findRelationshipsForComponentHelper(descriptorId, terminology,
-        version, branch, query, inverseFlag, pfs,
-        DescriptorRelationshipJpa.class);
+    return findRelationshipsForComponentHelper(descriptorId, terminology, version, branch, query,
+        inverseFlag, pfs, DescriptorRelationshipJpa.class);
 
   }
 
   /* see superclass */
   @Override
-  public RelationshipList findCodeRelationships(String codeId,
-    String terminology, String version, String branch, String query,
-    boolean inverseFlag, PfsParameter pfs) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - find relationships for code " + codeId + "/"
-            + terminology + "/" + version + "/" + branch + "/" + query + "/"
-            + inverseFlag);
+  public RelationshipList findCodeRelationships(String codeId, String terminology, String version,
+    String branch, String query, boolean inverseFlag, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - find relationships for code " + codeId
+        + "/" + terminology + "/" + version + "/" + branch + "/" + query + "/" + inverseFlag);
 
-    return findRelationshipsForComponentHelper(codeId, terminology, version,
-        branch, query, inverseFlag, pfs, CodeRelationshipJpa.class);
+    return findRelationshipsForComponentHelper(codeId, terminology, version, branch, query,
+        inverseFlag, pfs, CodeRelationshipJpa.class);
 
   }
 
@@ -3830,10 +3572,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
   @SuppressWarnings({
       "unchecked", "rawtypes"
   })
-  private RelationshipList findRelationshipsForComponentHelper(
-    String terminologyId, String terminology, String version, String branch,
-    String query, boolean inverseFlag, PfsParameter pfs,
-    Class<? extends Relationship> clazz) throws Exception {
+  private RelationshipList findRelationshipsForComponentHelper(String terminologyId,
+    String terminology, String version, String branch, String query, boolean inverseFlag,
+    PfsParameter pfs, Class<? extends Relationship> clazz) throws Exception {
 
     final RelationshipList results = new RelationshipListJpa();
 
@@ -3872,14 +3613,18 @@ public class ContentServiceJpa extends MetadataServiceJpa
     final SearchHandler searchHandler = getSearchHandler(terminology);
     final int[] totalCt = new int[1];
     // pass empty terminology/version because it's handled above
-    results.setObjects((List) searchHandler.getQueryResults("", "", branch,
-        finalQuery, "toNameSort", clazz, pfs, totalCt, manager));
+    results.setObjects((List) searchHandler.getQueryResults("", "", branch, finalQuery,
+        "toNameSort", clazz, pfs, totalCt, manager));
     results.setTotalCount(totalCt[0]);
 
-    for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : results
-        .getObjects()) {
-      getGraphResolutionHandler(terminology).resolve(rel);
-    }
+    // Removed due to NE-611 graph resolver was removing RUIs on inverse
+    // relationships
+    // when approving concepts
+    /*
+     * for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo>
+     * rel : results .getObjects()) {
+     * getGraphResolutionHandler(terminology).resolve(rel); }
+     */
     return results;
 
   }
@@ -3899,9 +3644,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
   @SuppressWarnings({
       "unchecked", "rawtypes"
   })
-  private MappingList findMappingsForComponentHelper(String terminologyId,
-    String terminology, String version, String branch, String query,
-    PfsParameter pfs) throws Exception {
+  private MappingList findMappingsForComponentHelper(String terminologyId, String terminology,
+    String version, String branch, String query, PfsParameter pfs) throws Exception {
 
     if (terminologyId == null || terminologyId.isEmpty()) {
       throw new Exception("Terminology id is required");
@@ -3916,16 +3660,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
       finalQuery.append(" AND ");
     }
 
-    finalQuery.append("fromTerminologyId:"
-        + QueryParserBase.escape(terminologyId) + " AND fromTerminology:"
-        + terminology + " AND fromVersion:" + version);
+    finalQuery.append("fromTerminologyId:" + QueryParserBase.escape(terminologyId)
+        + " AND fromTerminology:" + terminology + " AND fromVersion:" + version);
 
     final SearchHandler searchHandler = getSearchHandler(terminology);
     final int[] totalCt = new int[1];
     // pass empty terminology/version because it's handled above
-    results.setObjects((List) searchHandler.getQueryResults("", "", branch,
-        finalQuery.toString(), "fromNameSort", MappingJpa.class, pfs, totalCt,
-        manager));
+    results.setObjects((List) searchHandler.getQueryResults("", "", branch, finalQuery.toString(),
+        "fromNameSort", MappingJpa.class, pfs, totalCt, manager));
     results.setTotalCount(totalCt[0]);
 
     for (final Mapping mapping : results.getObjects()) {
@@ -3951,9 +3693,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
   @SuppressWarnings({
       "unchecked", "rawtypes"
   })
-  private TreePositionList findTreePositionsHelper(String terminologyId,
-    String terminology, String version, String branch, String query,
-    PfsParameter pfs, Class<? extends TreePosition> clazz) throws Exception {
+  private TreePositionList findTreePositionsHelper(String terminologyId, String terminology,
+    String version, String branch, String query, PfsParameter pfs,
+    Class<? extends TreePosition> clazz) throws Exception {
 
     // Prepare the query string
     final StringBuilder finalQuery = new StringBuilder();
@@ -3964,16 +3706,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
       if (finalQuery.length() > 0) {
         finalQuery.append(" AND ");
       }
-      finalQuery
-          .append("nodeTerminologyId:" + QueryParserBase.escape(terminologyId));
+      finalQuery.append("nodeTerminologyId:" + QueryParserBase.escape(terminologyId));
     }
 
     final SearchHandler searchHandler = getSearchHandler(terminology);
     final int[] totalCt = new int[1];
     final TreePositionList list = new TreePositionListJpa();
-    list.setObjects((List) searchHandler.getQueryResults(terminology, version,
-        branch, finalQuery.toString(), "nodeNameSort", clazz, pfs, totalCt,
-        manager));
+    list.setObjects((List) searchHandler.getQueryResults(terminology, version, branch,
+        finalQuery.toString(), "nodeNameSort", clazz, pfs, totalCt, manager));
     list.setTotalCount(totalCt[0]);
 
     // If the list has <30 entries and all are roman numerals
@@ -3983,8 +3723,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
         && pfs.getSortField().equals("nodeTerminologyId")) {
       boolean nonRomanFound = false;
       for (final TreePosition treepos : list.getObjects()) {
-        if (!ConfigUtility
-            .isRomanNumeral(treepos.getNode().getTerminologyId())) {
+        if (!ConfigUtility.isRomanNumeral(treepos.getNode().getTerminologyId())) {
           nonRomanFound = true;
           break;
         }
@@ -4012,46 +3751,40 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public SearchResultList findCodesForGeneralQuery(String luceneQuery,
-    String JPQLQuery, String branch, PfsParameter pfs) throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Content Service - find codes " + luceneQuery + "/" + JPQLQuery + "/");
-    return findForGeneralQueryHelper(luceneQuery, JPQLQuery, branch, pfs,
-        CodeJpa.class);
+  public SearchResultList findCodesForGeneralQuery(String luceneQuery, String JPQLQuery,
+    String branch, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass())
+        .info("Content Service - find codes " + luceneQuery + "/" + JPQLQuery + "/");
+    return findForGeneralQueryHelper(luceneQuery, JPQLQuery, branch, pfs, CodeJpa.class);
   }
 
   /* see superclass */
 
   @Override
-  public SearchResultList findConceptsForGeneralQuery(String luceneQuery,
-    String JPQLQuery, String branch, PfsParameter pfs) throws Exception {
-    Logger.getLogger(getClass()).info("Content Service - find concepts "
-        + luceneQuery + "/" + JPQLQuery + "/");
-    return findForGeneralQueryHelper(luceneQuery, JPQLQuery, branch, pfs,
-        ConceptJpa.class);
+  public SearchResultList findConceptsForGeneralQuery(String luceneQuery, String JPQLQuery,
+    String branch, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass())
+        .info("Content Service - find concepts " + luceneQuery + "/" + JPQLQuery + "/");
+    return findForGeneralQueryHelper(luceneQuery, JPQLQuery, branch, pfs, ConceptJpa.class);
   }
 
   /* see superclass */
 
   @Override
-  public SearchResultList findDescriptorsForGeneralQuery(String luceneQuery,
-    String JPQLQuery, String branch, PfsParameter pfs) throws Exception {
-    Logger.getLogger(getClass()).info("Content Service - find descriptors "
-        + luceneQuery + "/" + JPQLQuery + "/");
-    return findForGeneralQueryHelper(luceneQuery, JPQLQuery, branch, pfs,
-        DescriptorJpa.class);
+  public SearchResultList findDescriptorsForGeneralQuery(String luceneQuery, String JPQLQuery,
+    String branch, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass())
+        .info("Content Service - find descriptors " + luceneQuery + "/" + JPQLQuery + "/");
+    return findForGeneralQueryHelper(luceneQuery, JPQLQuery, branch, pfs, DescriptorJpa.class);
   }
 
   /* see superclass */
 
   @SuppressWarnings("unchecked")
   @Override
-  public Tree getTreeForTreePosition(TreePosition<?> treePosition)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .info("Content Service - get tree for tree position "
-            + treePosition.getNode().getId() + ", "
-            + treePosition.getAncestorPath());
+  public Tree getTreeForTreePosition(TreePosition<?> treePosition) throws Exception {
+    Logger.getLogger(getClass()).info("Content Service - get tree for tree position "
+        + treePosition.getNode().getId() + ", " + treePosition.getAncestorPath());
 
     Long tpId = treePosition.getNode().getId();
 
@@ -4069,10 +3802,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Tree parentTree = tree;
 
     // Prepare lucene
-    final FullTextEntityManager fullTextEntityManager =
-        Search.getFullTextEntityManager(manager);
-    final SearchFactory searchFactory =
-        fullTextEntityManager.getSearchFactory();
+    final FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(manager);
+    final SearchFactory searchFactory = fullTextEntityManager.getSearchFactory();
     final QueryParser queryParser = new MultiFieldQueryParser(
         IndexUtility.getIndexedFieldNames(clazz, true).toArray(new String[] {}),
         searchFactory.getAnalyzer(clazz));
@@ -4083,9 +3814,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
       final Long partId = Long.parseLong(pathPart);
 
       final StringBuilder finalQuery = new StringBuilder();
-      finalQuery.append("nodeId:" + partId + " AND terminology:"
-          + treePosition.getTerminology() + " AND version:"
-          + treePosition.getVersion() + " AND ");
+      finalQuery.append("nodeId:" + partId + " AND terminology:" + treePosition.getTerminology()
+          + " AND version:" + treePosition.getVersion() + " AND ");
       if (partAncPath.isEmpty()) {
         // query for empty value
         finalQuery.append("NOT ancestorPath:[* TO *]");
@@ -4125,13 +3855,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
       TreePosition<?> treepos = null;
       int ct = 0;
       final String treePositionRela =
-          ConfigUtility.isEmpty(treePosition.getAdditionalRelationshipType())
-              ? "" : treePosition.getAdditionalRelationshipType();
-      for (final TreePosition<?> tp : (List<TreePosition<?>>) fullTextQuery
-          .getResultList()) {
-        final String tpRela =
-            ConfigUtility.isEmpty(tp.getAdditionalRelationshipType()) ? ""
-                : tp.getAdditionalRelationshipType();
+          ConfigUtility.isEmpty(treePosition.getAdditionalRelationshipType()) ? ""
+              : treePosition.getAdditionalRelationshipType();
+      for (final TreePosition<?> tp : (List<TreePosition<?>>) fullTextQuery.getResultList()) {
+        final String tpRela = ConfigUtility.isEmpty(tp.getAdditionalRelationshipType()) ? ""
+            : tp.getAdditionalRelationshipType();
         if (tpRela.equals(treePositionRela)) {
           ct++;
           treepos = tp;
@@ -4140,8 +3868,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
       // original approach
       if (ct != 1) {
-        throw new Exception("Unexpected number of results: " + ct + ", "
-            + partId + ", " + partAncPath + ", " + clazz);
+        throw new Exception("Unexpected number of results: " + ct + ", " + partId + ", "
+            + partAncPath + ", " + clazz);
       }
 
       final Tree partTree = new TreeJpa(treepos);
@@ -4167,14 +3895,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @SuppressWarnings("rawtypes")
   @Override
-  public TreePositionList findTreePositions(String terminologyId,
-    String terminology, String version, String branch, String query,
-    Class<? extends TreePosition> clazz, PfsParameter pfs) throws Exception {
-    Logger.getLogger(getClass())
-        .info("Content Service - find concept tree positions " + terminologyId
-            + "/" + terminology + "/" + version + ", " + query);
-    return findTreePositionsHelper(terminologyId, terminology, version, branch,
-        query, pfs, clazz);
+  public TreePositionList findTreePositions(String terminologyId, String terminology,
+    String version, String branch, String query, Class<? extends TreePosition> clazz,
+    PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass()).info("Content Service - find concept tree positions "
+        + terminologyId + "/" + terminology + "/" + version + ", " + query);
+    return findTreePositionsHelper(terminologyId, terminology, version, branch, query, pfs, clazz);
   }
 
   /* see superclass */
@@ -4182,13 +3908,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
       "rawtypes", "unchecked"
   })
   @Override
-  public TreePositionList findTreePositionChildren(Long nodeId,
-    String terminologyId, String terminology, String version, String branch,
-    Class<? extends TreePosition> clazz, PfsParameter pfs) throws Exception {
+  public TreePositionList findTreePositionChildren(Long nodeId, String terminologyId,
+    String terminology, String version, String branch, Class<? extends TreePosition> clazz,
+    PfsParameter pfs) throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("Content Service - find children of a tree position " + nodeId
-            + ", " + terminologyId + "/" + terminology + "/" + version);
+    Logger.getLogger(getClass()).info("Content Service - find children of a tree position " + nodeId
+        + ", " + terminologyId + "/" + terminology + "/" + version);
 
     final PfsParameter childPfs = new PfsParameterJpa();
     childPfs.setStartIndex(0);
@@ -4196,11 +3921,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
     // get a tree position for each child, for child ct
     TreePositionList tpList = null;
     if (nodeId != null) {
-      tpList = findTreePositionsHelper(null, null, null, branch,
-          "nodeId:" + nodeId, childPfs, clazz);
+      tpList =
+          findTreePositionsHelper(null, null, null, branch, "nodeId:" + nodeId, childPfs, clazz);
     } else {
-      tpList = findTreePositionsHelper(terminologyId, terminology, version,
-          branch, "", childPfs, clazz);
+      tpList =
+          findTreePositionsHelper(terminologyId, terminology, version, branch, "", childPfs, clazz);
     }
     if (tpList.size() == 0) {
       return new TreePositionListJpa();
@@ -4219,8 +3944,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
     final int[] totalCt = new int[1];
 
     final TreePositionList list = new TreePositionListJpa();
-    list.setObjects((List) searchHandler.getQueryResults(terminology, version,
-        branch, query, null, clazz, pfs, totalCt, manager));
+    list.setObjects((List) searchHandler.getQueryResults(terminology, version, branch, query, null,
+        clazz, pfs, totalCt, manager));
     list.setTotalCount(totalCt[0]);
 
     // If the list has <30 entries and all are roman numerals
@@ -4229,8 +3954,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
         && pfs.getSortField().equals("nodeTerminologyId")) {
       boolean nonRomanFound = false;
       for (final TreePosition treepos : list.getObjects()) {
-        if (!ConfigUtility
-            .isRomanNumeral(treepos.getNode().getTerminologyId())) {
+        if (!ConfigUtility.isRomanNumeral(treepos.getNode().getTerminologyId())) {
           nonRomanFound = true;
           break;
         }
@@ -4258,8 +3982,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public GeneralConceptAxiom addGeneralConceptAxiom(GeneralConceptAxiom axiom)
-    throws Exception {
+  public GeneralConceptAxiom addGeneralConceptAxiom(GeneralConceptAxiom axiom) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - add axiom " + axiom);
     // No need to worry about assigning ids.
 
@@ -4269,10 +3992,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public void updateGeneralConceptAxiom(GeneralConceptAxiom axiom)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - update axiom " + axiom);
+  public void updateGeneralConceptAxiom(GeneralConceptAxiom axiom) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - update axiom " + axiom);
     // update component
     updateComponent(axiom);
 
@@ -4289,11 +4010,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public GeneralConceptAxiomList getGeneralConceptAxioms(String terminology,
-    String version, String branch) throws Exception {
+  public GeneralConceptAxiomList getGeneralConceptAxioms(String terminology, String version,
+    String branch) throws Exception {
     Logger.getLogger(getClass())
-        .debug("Content Service - get general concept axioms " + terminology
-            + "/" + version);
+        .debug("Content Service - get general concept axioms " + terminology + "/" + version);
     final javax.persistence.Query query =
         manager.createQuery("select a from GeneralConceptAxiomJpa a where "
             + "version = :version and terminology = :terminology");
@@ -4304,8 +4024,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       query.setParameter("version", version);
       @SuppressWarnings("unchecked")
       final List<GeneralConceptAxiom> m = query.getResultList();
-      final GeneralConceptAxiomListJpa generalConceptAxiomList =
-          new GeneralConceptAxiomListJpa();
+      final GeneralConceptAxiomListJpa generalConceptAxiomList = new GeneralConceptAxiomListJpa();
       generalConceptAxiomList.setObjects(m);
       generalConceptAxiomList.setTotalCount(m.size());
 
@@ -4318,8 +4037,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public ExpressionHandler getExpressionHandler(String terminology,
-    String version) throws Exception {
+  public ExpressionHandler getExpressionHandler(String terminology, String version)
+    throws Exception {
 
     // NOTE: Only ECL expression searching currently supported.
     return new EclExpressionHandler(terminology, version);
@@ -4328,15 +4047,13 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public Mapping addMapping(Mapping mapping) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - add mapping " + mapping);
+    Logger.getLogger(getClass()).debug("Content Service - add mapping " + mapping);
     // Assign id
     IdentifierAssignmentHandler idHandler = null;
     if (assignIdentifiersFlag) {
       idHandler = getIdentifierAssignmentHandler(mapping.getTerminology());
       if (idHandler == null) {
-        throw new Exception(
-            "Unable to find id handler for " + mapping.getTerminology());
+        throw new Exception("Unable to find id handler for " + mapping.getTerminology());
       }
       String id = idHandler.getTerminologyId(mapping);
       mapping.setTerminologyId(id);
@@ -4350,8 +4067,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public void updateMapping(Mapping mapping) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - update mapping " + mapping);
+    Logger.getLogger(getClass()).debug("Content Service - update mapping " + mapping);
 
     // Id assignment should not change
     final IdentifierAssignmentHandler idHandler =
@@ -4359,10 +4075,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
     if (assignIdentifiersFlag) {
       if (!idHandler.allowIdChangeOnUpdate()) {
         Mapping mapping2 = getMapping(mapping.getId());
-        if (!idHandler.getTerminologyId(mapping)
-            .equals(idHandler.getTerminologyId(mapping2))) {
-          throw new Exception(
-              "Update cannot be used to change object identity.");
+        if (!idHandler.getTerminologyId(mapping).equals(idHandler.getTerminologyId(mapping2))) {
+          throw new Exception("Update cannot be used to change object identity.");
         }
       } else {
         // set mapping id on update
@@ -4377,8 +4091,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public void removeMapping(Long id) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - remove mapping " + id);
+    Logger.getLogger(getClass()).debug("Content Service - remove mapping " + id);
     // Remove the component
     removeComponent(id, MappingJpa.class);
 
@@ -4393,18 +4106,16 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public MapSet getMapSet(String terminologyId, String terminology,
-    String version, String branch) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get mapset "
-        + terminologyId + "/" + terminology + "/" + version + "/" + branch);
-    return getComponent(terminologyId, terminology, version, branch,
-        MapSetJpa.class);
+  public MapSet getMapSet(String terminologyId, String terminology, String version, String branch)
+    throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - get mapset " + terminologyId + "/"
+        + terminology + "/" + version + "/" + branch);
+    return getComponent(terminologyId, terminology, version, branch, MapSetJpa.class);
   }
 
   /* see superclass */
   @Override
-  public MapSetList getMapSets(String terminology, String version,
-    String branch) throws Exception {
+  public MapSetList getMapSets(String terminology, String version, String branch) throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Service - get mapsets " + terminology + "/" + version);
     javax.persistence.Query query;
@@ -4442,12 +4153,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public Mapping getMapping(String terminologyId, String terminology,
-    String version, String branch) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get mapping "
-        + terminologyId + "/" + terminology + "/" + version + "/" + branch);
-    return getComponent(terminologyId, terminology, version, branch,
-        MappingJpa.class);
+  public Mapping getMapping(String terminologyId, String terminology, String version, String branch)
+    throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - get mapping " + terminologyId + "/"
+        + terminology + "/" + version + "/" + branch);
+    return getComponent(terminologyId, terminology, version, branch, MappingJpa.class);
   }
 
   /* see superclass */
@@ -4455,10 +4165,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
       "unchecked"
   })
   @Override
-  public MappingList findMappings(Long mapSetId, String query, PfsParameter pfs)
-    throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Service - find mappings " + mapSetId + ", query=" + query);
+  public MappingList findMappings(Long mapSetId, String query, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - find mappings " + mapSetId + ", query=" + query);
 
     final StringBuilder sb = new StringBuilder();
     if (query != null && !query.equals("")) {
@@ -4471,8 +4180,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
 
     int[] totalCt = new int[1];
-    final List<Mapping> list = (List<Mapping>) getQueryResults(sb.toString(),
-        MappingJpa.class, pfs, totalCt);
+    final List<Mapping> list =
+        (List<Mapping>) getQueryResults(sb.toString(), MappingJpa.class, pfs, totalCt);
     final MappingList result = new MappingListJpa();
     result.setTotalCount(totalCt[0]);
     result.setObjects(list);
@@ -4481,55 +4190,44 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public MappingList findConceptMappings(String conceptId, String terminology,
-    String version, String branch, String query, PfsParameter pfs)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - find mappings for concept " + conceptId + "/"
-            + terminology + "/" + version + "/" + branch + "/" + query);
+  public MappingList findConceptMappings(String conceptId, String terminology, String version,
+    String branch, String query, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - find mappings for concept " + conceptId
+        + "/" + terminology + "/" + version + "/" + branch + "/" + query);
 
-    return findMappingsForComponentHelper(conceptId, terminology, version,
-        branch, query, pfs);
+    return findMappingsForComponentHelper(conceptId, terminology, version, branch, query, pfs);
   }
 
   /* see superclass */
   @Override
-  public MappingList findCodeMappings(String codeId, String terminology,
-    String version, String branch, String query, PfsParameter pfs)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - find mappings for code " + codeId + "/"
-            + terminology + "/" + version + "/" + branch + "/" + query);
+  public MappingList findCodeMappings(String codeId, String terminology, String version,
+    String branch, String query, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - find mappings for code " + codeId + "/"
+        + terminology + "/" + version + "/" + branch + "/" + query);
 
-    return findMappingsForComponentHelper(codeId, terminology, version, branch,
-        query, pfs);
+    return findMappingsForComponentHelper(codeId, terminology, version, branch, query, pfs);
   }
 
   /* see superclass */
   @Override
-  public MappingList findDescriptorMappings(String descriptorId,
-    String terminology, String version, String branch, String query,
-    PfsParameter pfs) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - find mappings for descriptor " + descriptorId
-            + "/" + terminology + "/" + version + "/" + branch + "/" + query);
+  public MappingList findDescriptorMappings(String descriptorId, String terminology, String version,
+    String branch, String query, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - find mappings for descriptor "
+        + descriptorId + "/" + terminology + "/" + version + "/" + branch + "/" + query);
 
-    return findMappingsForComponentHelper(descriptorId, terminology, version,
-        branch, query, pfs);
+    return findMappingsForComponentHelper(descriptorId, terminology, version, branch, query, pfs);
   }
 
   /* see superclass */
   @Override
   public MapSet addMapSet(MapSet mapSet) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - add mapSet " + mapSet);
+    Logger.getLogger(getClass()).debug("Content Service - add mapSet " + mapSet);
     // Assign id
     IdentifierAssignmentHandler idHandler = null;
     if (assignIdentifiersFlag) {
       idHandler = getIdentifierAssignmentHandler(mapSet.getTerminology());
       if (idHandler == null) {
-        throw new Exception(
-            "Unable to find id handler for " + mapSet.getTerminology());
+        throw new Exception("Unable to find id handler for " + mapSet.getTerminology());
       }
       String id = idHandler.getTerminologyId(mapSet);
       mapSet.setTerminologyId(id);
@@ -4542,8 +4240,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public void updateMapSet(MapSet mapSet) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - update mapSet " + mapSet);
+    Logger.getLogger(getClass()).debug("Content Service - update mapSet " + mapSet);
 
     // Id assignment should not change
     final IdentifierAssignmentHandler idHandler =
@@ -4551,10 +4248,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
     if (assignIdentifiersFlag) {
       if (!idHandler.allowIdChangeOnUpdate()) {
         MapSet mapSet2 = getMapSet(mapSet.getId());
-        if (!idHandler.getTerminologyId(mapSet)
-            .equals(idHandler.getTerminologyId(mapSet2))) {
-          throw new Exception(
-              "Update cannot be used to change object identity.");
+        if (!idHandler.getTerminologyId(mapSet).equals(idHandler.getTerminologyId(mapSet2))) {
+          throw new Exception("Update cannot be used to change object identity.");
         }
       } else {
         // set mapSet id on update
@@ -4577,11 +4272,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public Map<Long, String> getTerminologyIdMap(String terminology,
-    String version, String branch) throws Exception {
+  public Map<Long, String> getTerminologyIdMap(String terminology, String version, String branch)
+    throws Exception {
     Logger.getLogger(getClass())
-        .debug("Content Service - get id to terminology id map " + terminology
-            + "/" + version);
+        .debug("Content Service - get id to terminology id map " + terminology + "/" + version);
 
     Terminology terminologyObj = getTerminology(terminology, version);
 
@@ -4597,14 +4291,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
         tableName = "DescriptorJpa";
         break;
       default:
-        throw new Exception(
-            "Could not determine organizing class type for terminology");
+        throw new Exception("Could not determine organizing class type for terminology");
 
     }
 
-    javax.persistence.Query query = manager.createQuery(
-        "select a.id, a.terminologyId from " + tableName + " a where "
-            + "version = :version and terminology = :terminology");
+    javax.persistence.Query query = manager.createQuery("select a.id, a.terminologyId from "
+        + tableName + " a where " + "version = :version and terminology = :terminology");
 
     Map<Long, String> idMap = new HashMap<>();
 
@@ -4626,8 +4318,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public Note getNote(Long id, Class<? extends Note> noteClass)
-    throws Exception {
+  public Note getNote(Long id, Class<? extends Note> noteClass) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - get note " + id);
     return manager.find(noteClass, id);
   }
@@ -4636,8 +4327,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   @Override
   public Note addNote(Note note) throws Exception {
 
-    Logger.getLogger(getClass())
-        .debug("Content Service - add userNote " + note.toString());
+    Logger.getLogger(getClass()).debug("Content Service - add userNote " + note.toString());
 
     // Add component
     Note newNote = addHasLastModified(note);
@@ -4678,8 +4368,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public void removeNote(Long id, Class<? extends Note> type) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - remove userNote " + id);
+    Logger.getLogger(getClass()).debug("Content Service - remove userNote " + id);
 
     // check that a molecular action exists
     MolecularAction molecularAction = null;
@@ -4710,15 +4399,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public NoteList findConceptNotes(String query, PfsParameter pfs)
-    throws Exception {
+  public NoteList findConceptNotes(String query, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Service - find concept notes " + query + ", " + pfs);
     final NoteList results = new NoteListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
-    final List<ConceptNoteJpa> luceneResults = searchHandler.getQueryResults(
-        null, null, "", query, "", ConceptNoteJpa.class, pfs, totalCt, manager);
+    final List<ConceptNoteJpa> luceneResults = searchHandler.getQueryResults(null, null, "", query,
+        "", ConceptNoteJpa.class, pfs, totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (final ConceptNoteJpa note : luceneResults) {
       results.getObjects().add(note);
@@ -4728,16 +4416,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public NoteList findDescriptorNotes(String query, PfsParameter pfs)
-    throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Service - find description notes " + query + ", " + pfs);
+  public NoteList findDescriptorNotes(String query, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - find description notes " + query + ", " + pfs);
     final NoteList results = new NoteListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
-    final List<DescriptorNoteJpa> luceneResults =
-        searchHandler.getQueryResults(null, null, "", query, "",
-            DescriptorNoteJpa.class, pfs, totalCt, manager);
+    final List<DescriptorNoteJpa> luceneResults = searchHandler.getQueryResults(null, null, "",
+        query, "", DescriptorNoteJpa.class, pfs, totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (final DescriptorNoteJpa note : luceneResults) {
       results.getObjects().add(note);
@@ -4747,15 +4433,13 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public NoteList findCodeNotes(String query, PfsParameter pfs)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - find code notes " + query + ", " + pfs);
+  public NoteList findCodeNotes(String query, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - find code notes " + query + ", " + pfs);
     final NoteList results = new NoteListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
-    final List<CodeNoteJpa> luceneResults = searchHandler.getQueryResults(null,
-        null, "", query, "", CodeNoteJpa.class, pfs, totalCt, manager);
+    final List<CodeNoteJpa> luceneResults = searchHandler.getQueryResults(null, null, "", query, "",
+        CodeNoteJpa.class, pfs, totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (final CodeNoteJpa note : luceneResults) {
       results.getObjects().add(note);
@@ -4769,16 +4453,13 @@ public class ContentServiceJpa extends MetadataServiceJpa
       "rawtypes", "unchecked"
   })
   @Override
-  public TreePositionList findConceptDeepTreePositions(String terminologyId,
-    String terminology, String version, String branch, String query,
-    PfsParameter pfs) throws Exception {
+  public TreePositionList findConceptDeepTreePositions(String terminologyId, String terminology,
+    String version, String branch, String query, PfsParameter pfs) throws Exception {
 
-    Logger.getLogger(getClass())
-        .debug("Content Service - find tree positions for concept "
-            + terminologyId + "/" + terminology + "/" + version + "/" + query);
+    Logger.getLogger(getClass()).debug("Content Service - find tree positions for concept "
+        + terminologyId + "/" + terminology + "/" + version + "/" + query);
 
-    final Concept concept =
-        this.getConcept(terminologyId, terminology, version, branch);
+    final Concept concept = this.getConcept(terminologyId, terminology, version, branch);
     if (concept == null) {
       return null;
     }
@@ -4786,20 +4467,18 @@ public class ContentServiceJpa extends MetadataServiceJpa
     List<TreePosition> treePositionList = new ArrayList<>();
 
     // Check for atom tree positions
-    final List<String> clauses = concept.getAtoms().stream()
-        .map(a -> "nodeId:" + a.getId()).collect(Collectors.toList());
+    final List<String> clauses =
+        concept.getAtoms().stream().map(a -> "nodeId:" + a.getId()).collect(Collectors.toList());
     if (clauses.isEmpty()) {
       return new TreePositionListJpa();
     }
-    final TreePositionList atomTrees = findTreePositions(null, null, null,
-        Branch.ROOT, ConfigUtility.composeQuery("OR", clauses),
-        AtomTreePositionJpa.class, null);
+    final TreePositionList atomTrees = findTreePositions(null, null, null, Branch.ROOT,
+        ConfigUtility.composeQuery("OR", clauses), AtomTreePositionJpa.class, null);
     final Set<Long> nodesSeen = new HashSet<>();
     final Set<String> terminologiesSeen = new HashSet<>();
     for (final TreePosition tp : atomTrees.getObjects()) {
       // keep the first one encountered
       if (!nodesSeen.contains(tp.getNode().getId())) {
-        System.out.println("  add tp = " + tp);
         treePositionList.add(tp);
       }
       nodesSeen.add(tp.getNode().getId());
@@ -4834,8 +4513,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
         clazz = CodeTreePositionJpa.class;
       }
 
-      final String entry = type + ":" + atom.getTerminology() + ":"
-          + atom.getVersion() + ":" + lterminologyId;
+      final String entry =
+          type + ":" + atom.getTerminology() + ":" + atom.getVersion() + ":" + lterminologyId;
 
       // Try to find it if we haven't seen one yet
       if (!seen.contains(entry)) {
@@ -4845,13 +4524,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
         }
 
         // See if there is a tree position
-        final TreePosition<?> treePos = getFirstTreePosition(lterminologyId,
-            atom.getTerminology(), atom.getVersion(), clazz);
+        final TreePosition<?> treePos =
+            getFirstTreePosition(lterminologyId, atom.getTerminology(), atom.getVersion(), clazz);
         // Increment if so
         if (treePos != null) {
           // handle lazy init
           treePos.setAttributes(new ArrayList<>(0));
-          System.out.println("  add tp = " + treePos);
           treePositionList.add(treePos);
         }
       }
@@ -4864,14 +4542,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
     pfsLocal.setSortField("terminology");
 
     final int[] totalCt = new int[1];
-    treePositionList =
-        applyPfsToList(treePositionList, TreePosition.class, totalCt, pfsLocal);
+    treePositionList = applyPfsToList(treePositionList, TreePosition.class, totalCt, pfsLocal);
 
     // need to copy list again
     final TreePositionList list = new TreePositionListJpa();
     list.setTotalCount(totalCt[0]);
     list.getObjects().addAll((List) treePositionList);
-    System.out.println("  count = " + totalCt[0]);
 
     return list;
 
@@ -4888,15 +4564,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
    * @throws Exception the exception
    */
   @SuppressWarnings("rawtypes")
-  private TreePosition<?> getFirstTreePosition(String terminologyId,
-    String terminology, String version, Class<? extends TreePosition> clazz)
-    throws Exception {
+  private TreePosition<?> getFirstTreePosition(String terminologyId, String terminology,
+    String version, Class<? extends TreePosition> clazz) throws Exception {
     // for each unique entry, get all tree positions
     final PfsParameter singleResultPfs = new PfsParameterJpa();
     singleResultPfs.setStartIndex(0);
     singleResultPfs.setMaxResults(1);
-    final TreePositionList list = findTreePositions(terminologyId, terminology,
-        version, null, null, clazz, singleResultPfs);
+    final TreePositionList list =
+        findTreePositions(terminologyId, terminology, version, null, null, clazz, singleResultPfs);
     if (list.size() > 0) {
       return list.getObjects().get(0);
     }
@@ -4906,8 +4581,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public ValidationResult validateConcept(List<String> validationChecks,
-    Concept concept) {
+  public ValidationResult validateConcept(List<String> validationChecks, Concept concept) {
     final ValidationResult result = new ValidationResultJpa();
     for (final String key : getValidationHandlersMap().keySet()) {
       if (validationChecks.contains(key)) {
@@ -4919,18 +4593,15 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public Set<Long> validateConcepts(Project project, String check,
-    Set<Long> conceptIds) throws Exception {
+  public Set<Long> validateConcepts(Project project, String check, Set<Long> conceptIds)
+    throws Exception {
     Logger.getLogger(getClass()).info("  Validate all concepts");
     final Set<Long> failures = new HashSet<>();
     for (final String key : getValidationHandlersMap().keySet()) {
-      if (project.getValidationChecks().contains(key)
-          && (check == null || check.equals(key))) {
-        final Set<Long> failedCheck =
-            getValidationHandlersMap().get(key).validateConcepts(conceptIds,
-                project.getTerminology(), project.getVersion(), this);
-        Logger.getLogger(getClass())
-            .info("    " + key + " ct = " + failedCheck.size());
+      if (project.getValidationChecks().contains(key) && (check == null || check.equals(key))) {
+        final Set<Long> failedCheck = getValidationHandlersMap().get(key)
+            .validateConcepts(conceptIds, project.getTerminology(), project.getVersion(), this);
+        Logger.getLogger(getClass()).info("    " + key + " ct = " + failedCheck.size());
         failures.addAll(failedCheck);
       }
     }
@@ -4939,8 +4610,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public ValidationResult validateAtom(List<String> validationChecks,
-    Atom atom) {
+  public ValidationResult validateAtom(List<String> validationChecks, Atom atom) {
     final ValidationResult result = new ValidationResultJpa();
     for (final String key : getValidationHandlersMap().keySet()) {
       if (validationChecks.contains(key)) {
@@ -4952,8 +4622,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public ValidationResult validateDescriptor(List<String> validationChecks,
-    Descriptor descriptor) {
+  public ValidationResult validateDescriptor(List<String> validationChecks, Descriptor descriptor) {
     final ValidationResult result = new ValidationResultJpa();
     for (final String key : getValidationHandlersMap().keySet()) {
       if (validationChecks.contains(key)) {
@@ -4965,8 +4634,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public ValidationResult validateCode(List<String> validationChecks,
-    Code code) {
+  public ValidationResult validateCode(List<String> validationChecks, Code code) {
     final ValidationResult result = new ValidationResultJpa();
     for (final String key : getValidationHandlersMap().keySet()) {
       if (validationChecks.contains(key)) {
@@ -4997,18 +4665,16 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
 
     if (pnHandlerMap == null) {
-      throw new Exception(
-          "Preferred name handler did not properly initialize, serious error.");
+      throw new Exception("Preferred name handler did not properly initialize, serious error.");
     }
 
     if (normalizedStringHandler == null) {
-      throw new Exception(
-          "Normalized string handler did not properly initialize, serious error.");
+      throw new Exception("Normalized string handler did not properly initialize, serious error.");
     }
 
     if (!searchHandlerNames.contains(ConfigUtility.ATOMCLASS)) {
-      throw new Exception("search.handler." + ConfigUtility.ATOMCLASS
-          + " expected and does not exist.");
+      throw new Exception(
+          "search.handler." + ConfigUtility.ATOMCLASS + " expected and does not exist.");
     }
   }
 

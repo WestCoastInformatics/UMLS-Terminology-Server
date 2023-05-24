@@ -30,15 +30,16 @@ tsApp
         $scope.selected = $scope.parentWindowScope.selected;
         $scope.lists = $scope.parentWindowScope.lists;
         $scope.user = $scope.parentWindowScope.user;
-        $scope.selected.relationship = null;
         $scope.preferredOnly = true;
+        $scope.relatedConcept = null;
+        $scope.selected.relationships = {};
 
         // Paging variables
         $scope.pageSizes = utilService.getPageSizes();
         $scope.paging = {};
         $scope.paging['relationships'] = utilService.getPaging();
         $scope.paging['relationships'].sortField = 'lastModified';
-        $scope.paging['relationships'].pageSize = 10;
+        $scope.paging['relationships'].pageSize = 20;
         $scope.paging['relationships'].filterFields = {};
         $scope.paging['relationships'].filterFields.toName = 1;
         $scope.paging['relationships'].filterFields.fromName = 1;
@@ -55,7 +56,7 @@ tsApp
 
         // Watch for component changes
         $scope.$watch('selected.component', function() {
-          $scope.selected.relationship = null;
+          $scope.selected.relationships = {};
           $scope.getPagedRelationships();
         });
 
@@ -73,8 +74,15 @@ tsApp
 
         // remove relationship
         $scope.removeRelationshipFromConcept = function(relationship) {
-          metaEditingService.removeRelationship($scope.selected.project.id,
-            $scope.selected.activityId, $scope.selected.component, relationship.id, true);
+        // Because client wanted inverse rels displayed in relationship window
+        // Need to load the related concept to run removeRelationship on.
+            contentService.getConcept(relationship.fromId, $scope.selected.project.id).then(
+                    // Success
+                    function(data) {
+                        metaEditingService.removeRelationship($scope.selected.project.id,
+                                $scope.selected.activityId, data, relationship.id, true);
+
+                   }); 
         }
 
         // Get paged relationships
@@ -100,8 +108,14 @@ tsApp
             });
         }
 
+        $scope.isSelectedRelationships = function() {
+          return Object.keys($scope.selected.relationships).length > 0;
+        }
+        
         $scope.transferConceptToEditor = function() {
-          $scope.parentWindowScope.transferConceptToEditor($scope.selected.relationship.toId);
+          for (var key in $scope.selected.relationships) {
+            $scope.parentWindowScope.transferConceptToEditor($scope.selected.relationships[key].fromId);
+          }
         }
 
         //
@@ -246,15 +260,32 @@ tsApp
         }
 
         // selects an relationship
-        $scope.selectRelationship = function(event, relationship) {
+        /*$scope.selectRelationship = function(event, relationship) {
           $scope.selected.relationship = relationship;
+        };*/
+
+        // indicates if a particular row is selected
+        /*$scope.isRowSelected = function(relationship) {
+          return $scope.selected.relationship && $scope.selected.relationship.id == relationship.id;
+        };*/
+
+        // select/deselect relationship
+        $scope.toggleSelection = function toggleSelection(relationship) {
+          // is currently selected
+          if ($scope.selected.relationships[relationship.id]) {
+            delete $scope.selected.relationships[relationship.id];
+          }
+          // is newly selected
+          else {
+            $scope.selected.relationships[relationship.id] = relationship;
+          }
         };
 
         // indicates if a particular row is selected
         $scope.isRowSelected = function(relationship) {
-          return $scope.selected.relationship && $scope.selected.relationship.id == relationship.id;
-        };
-
+          return $scope.selected.relationships[relationship.id];
+        }
+        
         // returns relationship level
         $scope.getRelationshipLevel = function(rel) {
           if (rel.workflowStatus == 'DEMOTION') {
@@ -304,7 +335,7 @@ tsApp
 
         // Insert modal
         $scope.openInsertModal = function() {
-          if (!$scope.selected.relationship && $scope.lists.concepts.length < 2) {
+          if (!$scope.selected.relationships && $scope.lists.concepts.length < 2) {
             window
               .alert('There is only one concept on the concept list.  Select a \'to\' concept for the relationship.');
             return;
@@ -317,6 +348,9 @@ tsApp
               selected : function() {
                 return $scope.selected;
               },
+              replaceRelationship : function() {
+                  return null;
+                },
               lists : function() {
                 return $scope.lists;
               },
@@ -335,6 +369,39 @@ tsApp
             $scope.getPagedRelationships();
           });
         };
+        
+        // Replace modal
+        $scope.openReplaceModal = function(relationship) {
+          var modalInstance = $uibModal.open({
+            templateUrl : 'app/page/edit/relationships/editRelationship.html',
+            controller : 'EditRelationshipModalCtrl',
+            backdrop : 'static',
+            resolve : {
+              selected : function() {
+                return $scope.selected;
+              },
+              replaceRelationship : function() {
+                return relationship;
+              },
+              lists : function() {
+                return $scope.lists;
+              },
+              user : function() {
+                return $scope.user;
+              },
+              action : function() {
+                return 'Replace';
+              }
+            }
+          });
+
+          modalInstance.result.then(
+          // Success
+          function(data) {       
+            $scope.getPagedRelationships();
+          });
+        };
+        
 
         //
         // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION

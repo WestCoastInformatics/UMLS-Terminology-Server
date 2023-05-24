@@ -555,8 +555,7 @@ tsApp
           }
           for ( var key in itemsToAdd) {
             if (callbacks.hasOwnProperty(key)) {
-              utilService
-                .setError('Error constructing callbacks, name clash for ' + key, callbacks);
+              this.setError('Error constructing callbacks, name clash for ' + key, callbacks);
               return;
             }
             callbacks[key] = itemsToAdd[key];
@@ -612,13 +611,30 @@ tsApp.service('gpService', [ '$timeout', function($timeout) {
         glassPane.messages.splice(index, 1);
       }
     }
-    glassPane.counter--;
+    if (glassPane.counter >= 1) {
+      glassPane.counter--;
+    }
     if (glassPane.counter == 0) {
       $timeout(function() {
         if (glassPane.counter == 0) {
           glassPane.enabled = false;
         }
       }, 100);
+    }
+  };
+  
+  // replaces the current glass pane message
+  this.replaceMessage = function(message) {
+    if (message) {
+      var index = glassPane.messages.length;
+      if (index && index !== -1) {
+        glassPane.messages.splice(index - 1, 1, message);
+      }  
+    } else {
+      var index = glassPane.messages.length;
+      if (index && index !== -1) {
+        glassPane.messages.splice(index - 1, 1);
+      }  
     }
   };
 

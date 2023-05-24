@@ -12,8 +12,13 @@ import javax.persistence.TemporalType;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.DateBridge;
+import org.hibernate.search.annotations.EncodingType;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Resolution;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.helpers.HasLastModified;
@@ -21,7 +26,7 @@ import com.wci.umls.server.helpers.HasLastModified;
 /**
  * Abstract implementation of {@link HasLastModified} for use with JPA.
  */
-@Audited
+//@Audited
 @MappedSuperclass
 public abstract class AbstractHasLastModified implements HasLastModified {
 
@@ -65,6 +70,9 @@ public abstract class AbstractHasLastModified implements HasLastModified {
   }
 
   /* see superclass */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @DateBridge(resolution = Resolution.SECOND, encoding = EncodingType.STRING)
+  @SortableField
   @Override
   public Date getTimestamp() {
     return timestamp;
@@ -78,6 +86,8 @@ public abstract class AbstractHasLastModified implements HasLastModified {
 
   /* see superclass */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @DateBridge(resolution = Resolution.SECOND, encoding = EncodingType.STRING)
+  @SortableField
   @Override
   public Date getLastModified() {
     return lastModified;

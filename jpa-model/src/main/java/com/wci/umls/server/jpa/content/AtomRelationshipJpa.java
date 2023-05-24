@@ -3,24 +3,28 @@
  */
 package com.wci.umls.server.jpa.content;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Analyzer;
@@ -29,12 +33,14 @@ import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Relationship;
 
 /**
@@ -44,21 +50,11 @@ import com.wci.umls.server.model.content.Relationship;
 @Table(name = "atom_relationships", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "atomRelationship")
 public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     implements AtomRelationship {
-
-  /**  The rela map. */
-  @Transient
-  private final Set<String> relaMap = new HashSet<>(Arrays.asList(new String[] {
-      "transliterated_form_of", "british_form_of", "has_alias",
-      "permuted_term_of", "sort_version_of", "common_name_of",
-      "mth_british_form_of", "plain_text_form_of", "expanded_form_of",
-      "mth_has_plain_text_form", "mth_has_xml_form", "mth_expanded_form_of",
-      "entry_version_of", "translation_of"
-  }));
 
   /** The from atom. */
   @ManyToOne(targetEntity = AtomJpa.class, optional = false)
@@ -71,10 +67,19 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
   private Atom to;
 
   /** The alternate terminology ids. */
-  @ElementCollection
+  @ElementCollection(fetch = FetchType.EAGER)
+  @Fetch(FetchMode.JOIN)
   @MapKeyColumn(length = 100)
   @Column(nullable = true, length = 100)
   private Map<String, String> alternateTerminologyIds;
+
+  /** The attributes. */
+  @OneToMany(targetEntity = AttributeJpa.class)
+  @JoinColumn(name = "attributes_id")
+  @JoinTable(name = "atom_relationships_attributes",
+      inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "atom_relationships_id"))
+  private List<Attribute> attributes = null;
 
   /**
    * Instantiates an empty {@link AtomRelationshipJpa}.
@@ -89,15 +94,44 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
    * @param relationship the concept relationship
    * @param collectionCopy the deep copy
    */
-  public AtomRelationshipJpa(AtomRelationship relationship,
-      boolean collectionCopy) {
+  public AtomRelationshipJpa(AtomRelationship relationship, boolean collectionCopy) {
     super(relationship, collectionCopy);
     to = relationship.getTo();
     from = relationship.getFrom();
     if (collectionCopy) {
-      alternateTerminologyIds =
-          new HashMap<>(relationship.getAlternateTerminologyIds());
+      alternateTerminologyIds = new HashMap<>(relationship.getAlternateTerminologyIds());
+      for (final Attribute attribute : relationship.getAttributes()) {
+        getAttributes().add(new AttributeJpa(attribute));
+      }
     }
+  }
+
+  /* see superclass */
+  @Override
+  @XmlElement(type = AttributeJpa.class)
+  public List<Attribute> getAttributes() {
+    if (attributes == null) {
+      attributes = new ArrayList<>(1);
+    }
+    return attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAttributes(List<Attribute> attributes) {
+    this.attributes = attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public Attribute getAttributeByName(String name) {
+    for (final Attribute attribute : getAttributes()) {
+      // If there are more than one, this just returns the first.
+      if (attribute.getName().equals(name)) {
+        return attribute;
+      }
+    }
+    return null;
   }
 
   /* see superclass */
@@ -164,9 +198,11 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
    * @return the from name
    */
   @Fields({
-      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO, analyzer = @Analyzer(definition = "noStopWord")),
+      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO,
+          analyzer = @Analyzer(definition = "noStopWord")),
       @Field(name = "fromNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
+  @SortableField(forField = "fromNameSort")
   public String getFromName() {
     return from == null ? null : from.getName();
   }
@@ -244,6 +280,7 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
       @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
       @Field(name = "toNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
+  @SortableField(forField = "toNameSort")
   public String getToName() {
     return to == null ? null : to.getName();
   }
@@ -269,7 +306,8 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
   /* see superclass */
   @Override
   @FieldBridge(impl = MapKeyValueToCsvBridge.class)
-  @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES,
+      store = Store.NO)
   public Map<String, String> getAlternateTerminologyIds() {
     if (alternateTerminologyIds == null) {
       alternateTerminologyIds = new HashMap<>(2);
@@ -279,22 +317,20 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
 
   /* see superclass */
   @Override
-  public void setAlternateTerminologyIds(
-    Map<String, String> alternateTerminologyIds) {
+  public void setAlternateTerminologyIds(Map<String, String> alternateTerminologyIds) {
     this.alternateTerminologyIds = alternateTerminologyIds;
   }
 
   /* see superclass */
   @Override
-  public Relationship<Atom, Atom> createInverseRelationship(
-    Relationship<Atom, Atom> relationship, String inverseRelType,
-    String inverseAdditionalRelType) throws Exception {
+  public Relationship<Atom, Atom> createInverseRelationship(Relationship<Atom, Atom> relationship,
+    String inverseRelType, String inverseAdditionalRelType) throws Exception {
 
     final AtomRelationship inverseRelationship =
         new AtomRelationshipJpa((AtomRelationship) relationship, false);
 
-    return populateInverseRelationship(relationship, inverseRelationship,
-        inverseRelType, inverseAdditionalRelType);
+    return populateInverseRelationship(relationship, inverseRelationship, inverseRelType,
+        inverseAdditionalRelType);
   }
 
   /* see superclass */
@@ -333,8 +369,8 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
   @Override
   @XmlTransient
   public boolean isShortFormLongForm() {
-    return getRelationshipType().equals("SY")
-        && relaMap.contains(getAdditionalRelationshipType());
+    return getRelationshipType().equals("SY") && (getAdditionalRelationshipType().startsWith("mth_")
+        || getAdditionalRelationshipType().contains("expanded_form"));
   }
 
   // Use superclass toString()

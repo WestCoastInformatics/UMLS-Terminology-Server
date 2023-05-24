@@ -265,6 +265,7 @@ public class AtomJpaUnitTest extends ModelUnitSupport {
     tester.include("language");
     tester.include("workflowStatus");
     tester.include("branch");
+    tester.include("timestamp");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
 

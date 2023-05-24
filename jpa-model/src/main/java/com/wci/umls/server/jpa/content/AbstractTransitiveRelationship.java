@@ -17,7 +17,7 @@ import com.wci.umls.server.model.content.TransitiveRelationship;
  *
  * @param <T> the component type
  */
-@Audited
+//@Audited
 @MappedSuperclass
 public abstract class AbstractTransitiveRelationship<T extends ComponentHasAttributesAndName>
     extends AbstractComponentHasAttributes

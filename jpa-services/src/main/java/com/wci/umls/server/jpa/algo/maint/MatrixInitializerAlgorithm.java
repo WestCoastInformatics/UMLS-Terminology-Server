@@ -144,6 +144,8 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
                       : " AND NOT " + ConfigUtility.composeQuery("OR",
                           new ArrayList<>(needsReviewR))),
               null, ConceptJpa.class, null, new int[1], manager));
+      // Remove any concept that has a validation failure
+      makeReviewed.removeAll(failures);
       checkCancel();
       fireProgressEvent(50, "Found concepts to make reviewed");
       logInfo("  concepts to make reviewed = " + makeReviewed.size());
@@ -286,7 +288,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
           logAndCommit(stepsCompleted, RootService.logCt, RootService.commitCt);
         }
 
-        action.commit();
+        action.commitClearBegin();
 
       } catch (Exception e) {
         action.rollback();

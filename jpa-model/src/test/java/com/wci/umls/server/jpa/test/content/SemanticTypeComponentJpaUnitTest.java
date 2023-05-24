@@ -160,6 +160,7 @@ public class SemanticTypeComponentJpaUnitTest extends ModelUnitSupport {
     tester.include("semanticType");
     tester.include("branch");
     tester.include("workflowStatus");
+    tester.include("timestamp");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
 

@@ -155,7 +155,7 @@ tsApp.controller('AlgorithmModalCtrl', [
       // Error
       function(data) {
         console.debug("This is what is returned in data: " + data);
-        utilService.handleDialogError($scope.errors, 'Query is improperly formed.');
+        utilService.handleDialogError($scope.errors, 'Query is improperly formed: ' + data);
       });
     };
 

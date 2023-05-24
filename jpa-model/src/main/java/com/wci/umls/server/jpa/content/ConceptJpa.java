@@ -7,11 +7,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -35,6 +38,8 @@ import org.hibernate.search.annotations.Store;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.jpa.helpers.CollectionToCsvBridge;
+import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
@@ -56,12 +61,14 @@ import com.wci.umls.server.model.meta.IdType;
     })
 })
 
-@Audited
+//@Audited
 @XmlRootElement(name = "concept")
 @Indexed
 public class ConceptJpa extends AbstractAtomClass implements Concept {
 
   /** The definitions. */
+  @IndexedEmbedded(targetElement = DefinitionJpa.class, includeEmbeddedObjectId=true)
+  @CollectionTable(name = "concepts_definitions", joinColumns = @JoinColumn(name = "concepts_id"))
   @OneToMany(targetEntity = DefinitionJpa.class)
   private List<Definition> definitions = null;
 
@@ -78,11 +85,14 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   private List<ConceptTreePosition> treePositions = null;
 
   /** The component histories. */
+  @IndexedEmbedded(targetElement = ComponentHistoryJpa.class, includeEmbeddedObjectId=true)
+  @CollectionTable(name = "concepts_component_histories", joinColumns = @JoinColumn(name = "concepts_id"))
   @OneToMany(targetEntity = ComponentHistoryJpa.class)
   private List<ComponentHistory> componentHistories = null;
 
   /** The semantic type components. */
-  @IndexedEmbedded(targetElement = SemanticTypeComponentJpa.class)
+  @IndexedEmbedded(targetElement = SemanticTypeComponentJpa.class, includeEmbeddedObjectId=true)
+  @CollectionTable(name = "concepts_semantic_type_components", joinColumns = @JoinColumn(name = "concepts_id"))
   @OneToMany(targetEntity = SemanticTypeComponentJpa.class)
   private List<SemanticTypeComponent> semanticTypes = null;
 
@@ -126,6 +136,20 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @Column(nullable = true)
   private String lastApprovedBy;
 
+  /** The descriptions. */
+  @ManyToMany(targetEntity = AtomJpa.class)
+  @CollectionTable(name = "concepts_atoms", joinColumns = @JoinColumn(name = "concepts_id"))
+  @IndexedEmbedded(targetElement = AtomJpa.class)
+  private List<Atom> atoms = null;
+  
+  /** The attributes. */
+  @OneToMany(targetEntity = AttributeJpa.class)
+  @JoinColumn(name = "attributes_id")
+  @JoinTable(name = "concepts_attributes",
+      inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "concepts_id"))
+  private List<Attribute> attributes = null;
+  
   /**
    * Instantiates an empty {@link ConceptJpa}.
    */
@@ -152,11 +176,16 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     if (collectionCopy) {
       definitions = new ArrayList<>(concept.getDefinitions());
       relationships = new ArrayList<>(concept.getRelationships());
+      inverseRelationships = new ArrayList<>(concept.getInverseRelationships());
       semanticTypes = new ArrayList<>(concept.getSemanticTypes());
       members = new ArrayList<>(concept.getMembers());
       componentHistories = new ArrayList<>(concept.getComponentHistory());
       treePositions = new ArrayList<>(concept.getTreePositions());
       notes = new ArrayList<>(concept.getNotes());
+      atoms = new ArrayList<>(concept.getAtoms());
+      for (final Attribute attribute : concept.getAttributes()) {
+          getAttributes().add(new AttributeJpa(attribute));
+      }
     }
   }
 
@@ -174,6 +203,50 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     setWorkflowStatus(result.getWorkflowStatus());
   }
 
+  /* see superclass */
+  @XmlElement(type = AtomJpa.class)
+  @Override
+  public List<Atom> getAtoms() {
+    if (atoms == null) {
+      atoms = new ArrayList<>();
+    }
+    return atoms;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAtoms(List<Atom> atoms) {
+    this.atoms = atoms;
+  }
+  
+  /* see superclass */
+  @Override
+  @XmlElement(type = AttributeJpa.class)
+  public List<Attribute> getAttributes() {
+    if (attributes == null) {
+      attributes = new ArrayList<>(1);
+    }
+    return attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAttributes(List<Attribute> attributes) {
+    this.attributes = attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public Attribute getAttributeByName(String name) {
+    for (final Attribute attribute : getAttributes()) {
+      // If there are more than one, this just returns the first.
+      if (attribute.getName().equals(name)) {
+        return attribute;
+      }
+    }
+    return null;
+  }
+  
   /**
    * Returns the definitions.
    *

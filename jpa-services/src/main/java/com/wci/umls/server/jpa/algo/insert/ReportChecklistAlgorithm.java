@@ -4,6 +4,8 @@
 package com.wci.umls.server.jpa.algo.insert;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -85,6 +87,10 @@ public class ReportChecklistAlgorithm
       logInfo("  Creating the report table checklists");
       commitClearBegin();
 
+      final File outputFile =
+          new File(getSrcDirFile(), "reportChecklistResults.txt");
+      final PrintWriter out = new PrintWriter(new FileWriter(outputFile));
+
       // Get all terminologies referenced in the sources.src file
       Set<Terminology> terminologies = new HashSet<>();
       terminologies = getReferencedTerminologies();
@@ -100,51 +106,84 @@ public class ReportChecklistAlgorithm
 
         // All four queries start with the same clauses
         final String queryPrefix =
-            "atoms.terminology:" + term + " AND atoms.version:" + version;
+            "select c.id as conceptId from ConceptJpa c join c.atoms a "
+                + "where c.terminology=:projectTerminology and "
+                + "a.terminology='" + term + "' and a.version='" + version
+                + "'";
 
         Checklist checklist = computeChecklist(getProject(),
-            queryPrefix + " AND atoms.workflowStatus:NEEDS_REVIEW",
-            QueryType.LUCENE, "chk_" + term + "_" + version + "_NEEDS_REVIEW",
-            null, true);
-        logInfo("  Created chk_" + term + "_" + version
+            queryPrefix + " AND a.workflowStatus='NEEDS_REVIEW'", QueryType.JPQL,
+            "chk_" + term + "_" + version + "_NEEDS_REVIEW", null, true);
+        String result = "Created chk_" + term + "_" + version
             + "_NEEDS_REVIEW checklist, containing "
-            + checklist.getTrackingRecords().size() + " tracking records.");
-        commitClearBegin();
-        
-        checklist = computeChecklist(getProject(),
-            queryPrefix + " AND atoms.workflowStatus:DEMOTION",
-            QueryType.LUCENE, "chk_" + term + "_" + version + "_DEMOTION", null,
-            true);
-        logInfo("  Created chk_" + term + "_" + version
-            + "_DEMOTION checklist, containing "
-            + checklist.getTrackingRecords().size() + " tracking records.");
-        commitClearBegin();
-        
-        checklist = computeChecklist(getProject(),
-            queryPrefix + " AND atoms.workflowStatus:READY_FOR_PUBLICATION",
-            QueryType.LUCENE,
-            "chk_" + term + "_" + version + "_READY_FOR_PUBLICATION", null,
-            true);
-        logInfo("  Created chk_" + term + "_" + version
-            + "_READY_FOR_PUBLICATION checklist, containing "
-            + checklist.getTrackingRecords().size() + " tracking records.");
+            + checklist.getTrackingRecords().size() + " tracking records.";
+        logInfo("  " + result);
+        out.println(result);
         commitClearBegin();
 
         checklist = computeChecklist(getProject(),
-            queryPrefix + " AND atoms.lastModifiedBy:ENG-*", QueryType.LUCENE,
+            queryPrefix + " AND a.workflowStatus='DEMOTION'", QueryType.JPQL,
+            "chk_" + term + "_" + version + "_DEMOTION", null, true);
+        result = "Created chk_" + term + "_" + version
+            + "_DEMOTION checklist, containing "
+            + checklist.getTrackingRecords().size() + " tracking records.";
+        logInfo("  " + result);
+        out.println(result);
+        commitClearBegin();
+
+        checklist = computeChecklist(getProject(),
+            queryPrefix
+                + " AND (a.workflowStatus='READY_FOR_PUBLICATION' OR a.workflowStatus='PUBLISHED')",
+            QueryType.JPQL,
+            "chk_" + term + "_" + version + "_READY_FOR_PUBLICATION", null,
+            true);
+        result = "Created chk_" + term + "_" + version
+            + "_READY_FOR_PUBLICATION checklist, containing "
+            + checklist.getTrackingRecords().size() + " tracking records.";
+        logInfo("  " + result);
+        out.println(result);
+        commitClearBegin();
+
+        checklist = computeChecklist(getProject(),
+            queryPrefix + " AND a.lastModifiedBy like 'ENG-%'", QueryType.JPQL,
             "chk_" + term + "_" + version + "_MIDMERGES", null, true);
-        logInfo("  Created chk_" + term + "_" + version
+        result = "Created chk_" + term + "_" + version
             + "_MIDMERGES checklist, containing "
-            + checklist.getTrackingRecords().size() + " tracking records.");
+            + checklist.getTrackingRecords().size() + " tracking records.";
+        logInfo("  " + result);
+        out.println(result);
         commitClearBegin();
 
         // Update the progress
         updateProgress();
+        out.println("");
       }
 
       commitClearBegin();
 
       logInfo("Finished " + getName());
+      out.close();
+
+      // Email report checklist count document to people specified by process's
+      // feedback email
+      final String recipients = getProcess().getFeedbackEmail();
+
+      if (!ConfigUtility.isEmpty(recipients)) {
+        final Properties config = ConfigUtility.getConfigProperties();
+        String from;
+        if (config.containsKey("mail.smtp.from")) {
+          from = config.getProperty("mail.smtp.from");
+        } else {
+          from = config.getProperty("mail.smtp.user");
+        }
+
+        ConfigUtility.sendEmail(
+            "Report Checklist Algorithm Complete for Process: "
+                + getProcess().getName(),
+            from, recipients,
+            "Checklist counts attached - please edit and email.", config,
+            outputFile.getAbsolutePath());
+      }
 
     } catch (
 

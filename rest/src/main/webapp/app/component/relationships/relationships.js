@@ -12,8 +12,9 @@ tsApp.directive('relationships', [ function() {
     templateUrl : 'app/component/relationships/relationships.html',
     controller : [
       '$scope',
-      'utilService',
-      function($scope, utilService) {
+      '$window',
+      'utilService',      
+      function($scope, $window, utilService) {
       
         // check callbacks supplied
         if (!$scope.callbacks || !$scope.callbacks.findRelationships) {
@@ -134,9 +135,20 @@ tsApp.directive('relationships', [ function() {
             terminologyId : terminologyId,
             terminology: terminology,
             version : version
-          });
+          });       
         }
-            
+        
+        $scope.displayConcept = function(item) {
+          var currentUrl = window.location.href;
+          var baseUrl = currentUrl.substring(0, currentUrl.indexOf('#') + 1);
+          var newUrl = baseUrl + '/content/report/' + $scope.component.type + '/' + $scope.component.terminology
+            + '/' + item.toId;
+          var title = 'Report-' + $scope.component.terminology + '/' + $scope.component.version + ', '
+            + $scope.component.terminologyId;
+          var newWindow = $window.open(newUrl, title, 'width=500, height=600');
+          newWindow.document.title = title;
+          newWindow.focus();
+        }
 
         // end controller
       } ]

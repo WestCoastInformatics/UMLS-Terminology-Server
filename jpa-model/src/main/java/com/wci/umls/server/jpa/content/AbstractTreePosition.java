@@ -11,6 +11,7 @@ import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
@@ -20,7 +21,7 @@ import com.wci.umls.server.model.content.TreePosition;
  * Abstract JPA and JAXB enabled implementation of {@link TreePosition}.
  * @param <T> the type
  */
-@Audited
+//@Audited
 @MappedSuperclass
 @XmlSeeAlso({
     CodeTreePositionJpa.class, ConceptTreePositionJpa.class,
@@ -31,7 +32,7 @@ public abstract class AbstractTreePosition<T extends ComponentHasAttributesAndNa
 
   /** The additional relationship type. */
   @Column(nullable = true)
-  private String additionalRelationshipType;
+  private String additionalRelationshipType = "";
 
   /** The ancestor path. */
   @Column(nullable = true, length = 4000)
@@ -80,6 +81,7 @@ public abstract class AbstractTreePosition<T extends ComponentHasAttributesAndNa
 
   /* see superclass */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @SortableField(forField = "ancestorPath")
   @Override
   public String getAncestorPath() {
     return ancestorPath;

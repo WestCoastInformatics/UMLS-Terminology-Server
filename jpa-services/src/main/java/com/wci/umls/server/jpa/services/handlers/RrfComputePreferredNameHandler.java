@@ -1,5 +1,5 @@
 /*
- *    Copyright 2017 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,8 +15,11 @@ import java.util.Properties;
 
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.jpa.AbstractConfigurable;
+import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Relationship;
+import com.wci.umls.server.model.meta.Terminology;
+import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 
 /**
@@ -25,12 +29,19 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 public class RrfComputePreferredNameHandler extends AbstractConfigurable
     implements ComputePreferredNameHandler {
 
+  /** The precedenceList lastModifiedDate map. */
+  private static Map<Long, Date> precedenceListLastModifiedMap =
+      new HashMap<>();
+
   /** The tty rank map. */
   private static Map<Long, Map<String, String>> ttyRankMap = new HashMap<>();
 
   /** The terminology rank map. */
   private static Map<Long, Map<String, String>> terminologyRankMap =
       new HashMap<>();
+
+  /** The terminology/versions -> current map. */
+  private static Map<String, Boolean> currentTerminologies = new HashMap<>();
 
   /**
    * Instantiates an empty {@link RrfComputePreferredNameHandler}.
@@ -76,18 +87,18 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
 
     final List<Atom> sortedAtoms = new ArrayList<>(atoms);
     // Get each atom rank
-    final Map<Atom, String> atomRanks = new HashMap<>();
+    final Map<Long, String> atomRanks = new HashMap<>();
     for (final Atom atom : atoms) {
       final String rank = getRank(atom, list);
-      atomRanks.put(atom, rank);
+      atomRanks.put(atom.getId(), rank);
     }
     // Sort by atom rank - this works because atom ranks are designed to be
-    // fixed-length strings that are directly comparable where higher 
+    // fixed-length strings that are directly comparable where higher
     // values are ranked better
     Collections.sort(sortedAtoms, new Comparator<Atom>() {
       @Override
       public int compare(Atom o1, Atom o2) {
-        return atomRanks.get(o2).compareTo(atomRanks.get(o1));
+        return atomRanks.get(o2.getId()).compareTo(atomRanks.get(o1.getId()));
       }
     });
 
@@ -117,21 +128,37 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
           "Unexpected condition, list is not cached - " + list.getId());
     }
 
+    // Add to currentTerminologies, if needed
+    if (!currentTerminologies
+        .containsKey(atom.getTerminology() + atom.getVersion())) {
+      MetadataService service = new MetadataServiceJpa();
+      final Terminology terminology =
+          service.getTerminology(atom.getTerminology(), atom.getVersion());
+      currentTerminologies.put(atom.getTerminology() + atom.getVersion(),
+          terminology.isCurrent());
+      service.close();
+    }
+
     final Map<String, String> ttyRanks = ttyRankMap.get(list.getId());
     // Compute the rank as a fixed length string
-    // [publishable][obsolete][suppressible][tty rank][lrr][SUI][atomId]
+    // [publishable][isCurrent][obsolete][suppressible][tty
+    // rank][lrr][SUI][atomId]
     // Higher values are better.
     if (!atom.getStringClassId().isEmpty()) {
-      return "" +(atom.isPublishable() ? 1 : 0) +(atom.isObsolete() ? 0 : 1)
-          + (atom.isSuppressible() ? 0 : 1)
+      return "" + (atom.isPublishable() ? 1 : 0)
+          + (currentTerminologies.get(atom.getTerminology() + atom.getVersion())
+              ? 1 : 0)
+          + (atom.isObsolete() ? 0 : 1) + (atom.isSuppressible() ? 0 : 1)
           + ttyRanks.get(atom.getTerminology() + "/" + atom.getTermType())
           + atom.getLastPublishedRank()
           + +(10000000000L
               - Long.parseLong(atom.getStringClassId().substring(1)))
           + (100000000000L - atom.getId());
     } else {
-      return "" +(atom.isPublishable() ? 1 : 0) + (atom.isObsolete() ? 0 : 1)
-          + (atom.isSuppressible() ? 0 : 1)
+      return "" + (atom.isPublishable() ? 1 : 0)
+          + (currentTerminologies.get(atom.getTerminology() + atom.getVersion())
+              ? 1 : 0)
+          + (atom.isObsolete() ? 0 : 1) + (atom.isSuppressible() ? 0 : 1)
           + ttyRanks.get(atom.getTerminology() + "/" + atom.getTermType())
           + atom.getLastPublishedRank() + (100000000000L - atom.getId());
     }
@@ -192,10 +219,22 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
       return;
     }
 
-    // Bail if configured already
-    if (ttyRankMap.containsKey(list.getId())) {
-      return;
+    // Bail if configured already and if precedence list hasn't changed since it
+    // was cached
+    if (precedenceListLastModifiedMap.containsKey(list.getId())) {
+      if (precedenceListLastModifiedMap.get(list.getId())
+          .equals(list.getLastModified())) {
+        return;
+      }
+      // If this list has been updated since it was last cached, clear its
+      // values
+      else {
+        removeListFromCaches(list.getId());
+      }
     }
+
+    precedenceListLastModifiedMap.put(list.getId(), list.getLastModified());
+
     // Otherwise, build the TTY map
     final Map<String, String> ttyRanks = list.getTermTypeRankMap();
     ttyRankMap.put(list.getId(), ttyRanks);
@@ -204,6 +243,27 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
     final Map<String, String> terminologyRanks = list.getTerminologyRankMap();
     terminologyRankMap.put(list.getId(), terminologyRanks);
 
+  }
+
+  /* see superclass */
+  @Override
+  public void clearCaches() throws Exception {
+    ttyRankMap.clear();
+    terminologyRankMap.clear();
+    currentTerminologies.clear();
+    precedenceListLastModifiedMap.clear();
+  }
+
+  /**
+   * Remove a single precedence list's content from the caches.
+   *
+   * @param precedenceListId the list id
+   * @throws Exception the exception
+   */
+  public void removeListFromCaches(Long precedenceListId) throws Exception {
+    ttyRankMap.remove(precedenceListId);
+    terminologyRankMap.remove(precedenceListId);
+    precedenceListLastModifiedMap.remove(precedenceListId);
   }
 
   /* see superclass */

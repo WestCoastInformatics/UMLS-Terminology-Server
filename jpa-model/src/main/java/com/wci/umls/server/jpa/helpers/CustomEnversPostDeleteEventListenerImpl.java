@@ -3,7 +3,7 @@
  */
 package com.wci.umls.server.jpa.helpers;
 
-import org.hibernate.envers.configuration.spi.AuditConfiguration;
+import org.hibernate.envers.boot.internal.EnversService;
 import org.hibernate.envers.event.spi.EnversPostDeleteEventListenerImpl;
 
 /**
@@ -25,8 +25,8 @@ public class CustomEnversPostDeleteEventListenerImpl
    * @param enversConfiguration the envers configuration
    */
   public CustomEnversPostDeleteEventListenerImpl(
-      AuditConfiguration enversConfiguration) {
-    super(enversConfiguration);
+      EnversService enversService) {
+    super(enversService);
   }
 
 }

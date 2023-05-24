@@ -197,6 +197,7 @@ public class WorkflowConfigJpaUnitTest extends ModelUnitSupport {
     // Test non analyzed fields
     tester = new IndexedFieldTester(object);
     tester.include("lastModifiedBy");
+    tester.include("lastModified");
     tester.include("type");
     tester.include("mutuallyExclusive");
     tester.include("adminConfig");

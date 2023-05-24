@@ -52,6 +52,9 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
 
   /** The insertion algorithms map. */
   private static Map<String, String> insertionAlgorithmsMap = new HashMap<>();
+  
+  /** The inversion algorithms map. */
+  private static Map<String, String> inversionAlgorithmsMap = new HashMap<>();
 
   /** The maintenance algorithms map. */
   private static Map<String, String> maintenanceAlgorithmsMap = new HashMap<>();
@@ -61,6 +64,9 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
 
   /** The report algorithms map. */
   private static Map<String, String> reportAlgorithmsMap = new HashMap<>();
+
+  /** The autofix algorithms map. */
+  private static Map<String, String> autofixAlgorithmsMap = new HashMap<>();
 
   static {
     init();
@@ -75,7 +81,6 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
       config = ConfigUtility.getConfigProperties();
       final String key = "algorithm.handler";
       for (final String handlerName : config.getProperty(key).split(",")) {
-
         // Add handlers to map
         final Algorithm handlerService =
             ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
@@ -101,6 +106,21 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
     } catch (Exception e) {
       e.printStackTrace();
       insertionAlgorithmsMap = null;
+    }
+    
+    try {
+      config = ConfigUtility.getConfigProperties();
+      final String key = "inversion.algorithm.handler";
+      for (final String handlerName : config.getProperty(key).split(",")) {
+
+        // Pull algorithm from algorithm map, and add to specific algorithm-type
+        // map
+        inversionAlgorithmsMap.put(handlerName, algorithmsMap.get(handlerName));
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      inversionAlgorithmsMap = null;
     }
 
     try {
@@ -145,6 +165,21 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
       e.printStackTrace();
       reportAlgorithmsMap = null;
     }
+    
+    try {
+      config = ConfigUtility.getConfigProperties();
+      final String key = "autofix.algorithm.handler";
+      for (final String handlerName : config.getProperty(key).split(",")) {
+
+        // Pull algorithm from algorithm map, and add to specific algorithm-type
+        // map
+        autofixAlgorithmsMap.put(handlerName, algorithmsMap.get(handlerName));
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      autofixAlgorithmsMap = null;
+    }    
+    
   }
 
   /**
@@ -172,12 +207,16 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
     Map<String, String> algorithmsMap = null;
     if (type.equals("insertion")) {
       algorithmsMap = insertionAlgorithmsMap;
+    } else if (type.equals("inversion")) {
+      algorithmsMap = inversionAlgorithmsMap;
     } else if (type.equals("maintenance")) {
       algorithmsMap = maintenanceAlgorithmsMap;
     } else if (type.equals("release")) {
       algorithmsMap = releaseAlgorithmsMap;
     } else if (type.equals("report")) {
       algorithmsMap = reportAlgorithmsMap;
+    } else if (type.equals("autofix")) {
+      algorithmsMap = autofixAlgorithmsMap;
     } else {
       throw new Exception("invalid type - " + type);
     }
@@ -239,6 +278,11 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
       throw new Exception(
           "Insertion algorithms did not properly initialize, serious error.");
     }
+    
+    if (inversionAlgorithmsMap == null) {
+      throw new Exception(
+          "Inversion algorithms did not properly initialize, serious error.");
+    }
 
     if (maintenanceAlgorithmsMap == null) {
       throw new Exception(
@@ -254,6 +298,11 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
       throw new Exception(
           "Report algorithms did not properly initialize, serious error.");
     }
+    
+    if (autofixAlgorithmsMap == null) {
+      throw new Exception(
+          "Autofix algorithms did not properly initialize, serious error.");
+    }    
   }
 
   /* see superclass */
@@ -655,12 +704,15 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
   /* see superclass */
   @Override
   public String getProcessLog(Long projectId, Long processExecutionId,
-    String query) throws Exception {
+    String query, int limit) throws Exception {
 
     final PfsParameter pfs = new PfsParameterJpa();
     pfs.setStartIndex(0);
     pfs.setAscending(false);
     pfs.setSortField("lastModified");
+    if (limit!=0) {
+      pfs.setMaxResults(limit);
+    }
 
     // Load the processExecution, to get the workId
     ProcessExecution processExecution = getProcessExecution(processExecutionId);
@@ -699,17 +751,17 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
     throws Exception {
 
     // Check the input directories
-    String srcFullPath =
+    String logFullPath =
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + File.separator + processExecution.getInputPath();
+            + File.separator + processExecution.getLogPath();
 
     // If input directory is completely empty, don't throw an error (some
     // processes are fine to run without input directory specified)
-    if (ConfigUtility.isEmpty(srcFullPath)) {
+    if (ConfigUtility.isEmpty(logFullPath)) {
       return;
     }
 
-    final File saveLocation = new File(srcFullPath);
+    final File saveLocation = new File(logFullPath);
     if (!saveLocation.exists()) {
       // bail if location doesn't exist
       return;
@@ -721,12 +773,12 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
     // Create and populate the log
     final String runDate =
         new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-    final File outputFile = new File(srcFullPath, "process."
+    final File outputFile = new File(logFullPath, "process."
         + processExecution.getProcessConfigId() + "." + runDate + ".log");
 
     final PrintWriter out = new PrintWriter(new FileWriter(outputFile));
     String processLog =
-        getProcessLog(projectId, processExecution.getId(), null);
+        getProcessLog(projectId, processExecution.getId(), null, 10000);
     out.print(processLog);
     out.close();
 

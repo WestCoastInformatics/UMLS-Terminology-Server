@@ -18,6 +18,9 @@ import java.util.Set;
 
 import javax.persistence.Query;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.PrecedenceList;
@@ -46,6 +49,7 @@ import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
+// TODO: Auto-generated Javadoc
 /**
  * Abstract support for source-file insertion algorithms.
  */
@@ -85,6 +89,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
   /** The steps completed. */
   private int stepsCompleted = 0;
+  
+  protected boolean requireReload;
 
   /**
    * The atom ID cache. Key = AUI; Value = atomJpa Id
@@ -201,6 +207,9 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    */
   private static Map<String, Terminology> cachedTerminologies = new HashMap<>();
 
+  /** The warning counts. */
+  private static Map<String, Integer> warningCounts = new HashMap<>();
+
   /**
    * Load file into string list.
    *
@@ -252,7 +261,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     }
 
     sources.close();
-    
+
     // If sortField specified, sort.
     if (sortField != null) {
       int sortFieldInt = sortField.intValue();
@@ -269,18 +278,72 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   }
 
   /**
+   * Return count of lines in srcDirFile when rows with SEMANTIC_TYPE, CONTEXT,
+   * SUBSET_MEMBER, XMAP, XMAPTO, XMAPFROM, UMLSCUI are removed
+   *
+   * @param srcDirFile the src dir file
+   * @param fileName the file name
+   * @param keepRegexFilter the keep regex filter
+   * @param skipRegexFilter the skip regex filter
+   * @return the int
+   * @throws Exception the exception
+   */
+  public int filterFileForCount(File srcDirFile, String fileName,
+    String keepRegexFilter, String skipRegexFilter) throws Exception {
+    final String sourcesFile = srcDirFile + File.separator + fileName;
+    BufferedReader sources = null;
+    try {
+      sources = new BufferedReader(new FileReader(sourcesFile));
+    } catch (Exception e) {
+      throw new Exception("File not found: " + sourcesFile);
+    }
+
+    int ct = 0;
+    String linePre = null;
+    while ((linePre = sources.readLine()) != null) {
+      linePre = linePre.replace("\r", "");
+      // Filter rows if defined
+      if (ConfigUtility.isEmpty(keepRegexFilter)
+          && ConfigUtility.isEmpty(skipRegexFilter)) {
+        ct++;
+      } else if (!ConfigUtility.isEmpty(keepRegexFilter)
+          && ConfigUtility.isEmpty(skipRegexFilter)) {
+        if (linePre.matches(keepRegexFilter)) {
+          ct++;
+        }
+      } else if (ConfigUtility.isEmpty(keepRegexFilter)
+          && !ConfigUtility.isEmpty(skipRegexFilter)) {
+        if (!linePre.matches(skipRegexFilter)) {
+          ct++;
+        }
+      } else if (!ConfigUtility.isEmpty(keepRegexFilter)
+          && !ConfigUtility.isEmpty(skipRegexFilter)) {
+        if (linePre.matches(keepRegexFilter)
+            && !linePre.matches(skipRegexFilter)) {
+          ct++;
+        }
+      }
+    }
+
+    sources.close();
+
+    return ct;
+  }
+
+  /**
    * Cache existing atoms' alternateTerminologyIds and IDs.
    *
    * @param terminology the terminology
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
-  private void cacheExistingAtomIds(String terminology) throws Exception {
+  private void cacheExistingAtomIds(String terminology, boolean unpublishable) throws Exception {
 
     // Load alternateTerminologyIds
     Query query = getEntityManager().createQuery(
         "select value(b), a.id from AtomJpa a join a.alternateTerminologyIds b "
-            + "where KEY(b) = :terminology and a.publishable=true");
+            + "where KEY(b) = :terminology "
+            + (unpublishable ? "" : " and a.publishable = true "));
     query.setParameter("terminology", terminology);
 
     List<Object[]> list = query.getResultList();
@@ -294,7 +357,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     query = getEntityManager()
         .createQuery("select a.terminologyId, a.id from AtomJpa a "
             + "WHERE a.terminology = :terminology AND a.terminologyId != '' "
-            + "and a.publishable=true");
+            + (unpublishable ? "" : " and a.publishable = true "));
     query.setParameter("terminology", terminology);
 
     list = query.getResultList();
@@ -395,9 +458,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     final List<String> relationshipPrefixes =
         Arrays.asList("Atom", "Code", "Concept", "Descriptor", "ComponentInfo");
 
-    // Get alternate terminology Ids for ConceptRelationships,
-    // CodeRelationships, and
-    // ComponentInfoRelationships.
+    // Get alternate terminology Ids for AtomRelationships, CodeRelationships,
+    // ConceptRelationships, etc.
     for (String relPrefix : relationshipPrefixes) {
       Query query = getEntityManager().createQuery("select value(b), a.id from "
           + relPrefix + "RelationshipJpa a join a.alternateTerminologyIds b "
@@ -502,10 +564,11 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   }
 
   /**
-   * Cache existing terminologies. Key = Terminology_Version, or just
-   * Terminology if version = "latest". Also cache Key = TerminologyVersion
-   * without the underscore (some terminologies don't follow the normal
-   * convention, e.g. MVX2016_09_07)
+   * Cache existing terminologies. Keys = Terminology_Version, or just
+   * Terminology if version = "latest" or if id_type is ROOT_SOURCE_CUI or
+   * ROOT_CODE_SOURCE. Also cache Key = TerminologyVersion without the
+   * underscore (some terminologies don't follow the normal convention, e.g.
+   * MVX2016_09_07)
    *
    * @throws Exception the exception
    */
@@ -515,14 +578,14 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       // lazy init
       term.getSynonymousNames().size();
       term.getRootTerminology().getTerminology();
-      if (term.getVersion().equals("latest")) {
+      // Add the current version of this terminology to the map, with key=just
+      // terminology
+      if (term.isCurrent()) {
         cachedTerminologies.put(term.getTerminology(), term);
-      } else {
-        cachedTerminologies.put(term.getTerminology() + "_" + term.getVersion(),
-            term);
-        cachedTerminologies.put(term.getTerminology() + term.getVersion(),
-            term);
       }
+      cachedTerminologies.put(term.getTerminology() + "_" + term.getVersion(),
+          term);
+      cachedTerminologies.put(term.getTerminology() + term.getVersion(), term);
     }
   }
 
@@ -563,12 +626,13 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
-  private void cacheExistingConceptIds(String terminology) throws Exception {
+  private void cacheExistingConceptIds(String terminology, boolean unpublishable) throws Exception {
 
     // Skip concepts where terminologyId is blank, no point
     final Query query =
         getEntityManager().createQuery("select c.terminologyId, c.id "
-            + "from ConceptJpa c where terminology = :terminology AND publishable = true "
+            + "from ConceptJpa c where terminology = :terminology " 
+            + (unpublishable ? "" : " AND publishable = true ")
             + "and c.terminologyId != ''");
     query.setParameter("terminology", terminology);
 
@@ -657,6 +721,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
       if (count % commitCt == 0) {
         commitClearBegin();
+        requireReload=true;
       }
 
       cuiPreferredAtomConceptIdCache.put(key + terminologyVersion,
@@ -734,7 +799,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   }
 
   /**
-   * Returns the component.
+   * Gets the component.
    *
    * @param type the type
    * @param terminologyId the terminology id
@@ -743,14 +808,32 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    * @return the component
    * @throws Exception the exception
    */
-  @SuppressWarnings("rawtypes")
   public Component getComponent(String type, String terminologyId,
     String terminology, Class<? extends Relationship<?, ?>> relClass)
+    throws Exception {
+    return getComponent(type, terminologyId, terminology, relClass, false);   
+  }
+  
+
+  /**
+   * Gets the component.
+   *
+   * @param type the type
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param relClass the rel class
+   * @param unpublishable the unpublishable
+   * @return the component
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("rawtypes")
+  public Component getComponent(String type, String terminologyId,
+    String terminology, Class<? extends Relationship<?, ?>> relClass, boolean unpublishable)
     throws Exception {
 
     if (type.equals("AUI")) {
       if (!atomCachedTerms.contains(getProject().getTerminology())) {
-        cacheExistingAtomIds(getProject().getTerminology());
+        cacheExistingAtomIds(getProject().getTerminology(), unpublishable);
       }
       final Long componentId = atomIdCache.get(terminologyId);
       if (componentId == null) {
@@ -774,7 +857,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
     else if (type.equals("SRC_ATOM_ID")) {
       if (!atomCachedTerms.contains(getProject().getTerminology() + "-SRC")) {
-        cacheExistingAtomIds(getProject().getTerminology() + "-SRC");
+        cacheExistingAtomIds(getProject().getTerminology() + "-SRC", unpublishable);
       }
       final Long componentId = atomIdCache.get(terminologyId);
       if (componentId == null) {
@@ -798,7 +881,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
     else if (type.equals("SOURCE_AUI") || type.equals("ROOT_SOURCE_AUI")) {
       if (!atomCachedTerms.contains(terminology)) {
-        cacheExistingAtomIds(terminology);
+        cacheExistingAtomIds(terminology, unpublishable);
       }
       final Long componentId = atomIdCache.get(terminologyId);
       if (componentId == null) {
@@ -838,7 +921,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       return attribute;
     }
 
-    else if (type.equals("CODE_SOURCE") || type.equals("CODE_TERMGROUP")) {
+    else if (type.equals("CODE_ROOT_SOURCE") || type.equals("CODE_SOURCE")
+        || type.equals("CODE_TERMGROUP")) {
       if (!codeCachedTerms.contains(terminology)) {
         cacheExistingCodeIds(terminology);
       }
@@ -850,9 +934,9 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       return getComponent(componentId, CodeJpa.class);
     }
 
-    else if (type.equals("SOURCE_CUI")) {
+    else if (type.equals("SOURCE_CUI") || type.equals("ROOT_SOURCE_CUI")) {
       if (!conceptCachedTerms.contains(terminology)) {
-        cacheExistingConceptIds(terminology);
+        cacheExistingConceptIds(terminology, unpublishable);
       }
       final Long componentId = conceptIdCache.get(terminologyId + terminology);
       if (componentId == null) {
@@ -893,6 +977,26 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       }
       final Long componentId = cuiPreferredAtomConceptIdCache
           .get(terminologyId + processTerminologyVersion);
+      if (componentId == null) {
+        return null;
+      }
+
+      return getComponent(componentId, ConceptJpa.class);
+    }
+
+    else if (type.equals("CUI_PREVIOUS")) {
+      if (terminology != null) {
+        throw new Exception("CUI_PREVIOUS = " + terminologyId
+            + " is associated with a terminology. This should not happen.");
+      }
+      final String processTerminologyPreviousVersion =
+          getProcess().getTerminology() + getPreviousVersion(getProcess().getTerminology());
+      if (!cuiPreferredAtomConceptCachedTerms
+          .contains(processTerminologyPreviousVersion)) {
+        cacheExistingCuiPreferredAtomConceptIds(processTerminologyPreviousVersion);
+      }
+      final Long componentId = cuiPreferredAtomConceptIdCache
+          .get(terminologyId + processTerminologyPreviousVersion);
       if (componentId == null) {
         return null;
       }
@@ -1308,6 +1412,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
         return "BRO";
       case "NT":
         return "RN";
+      case "BNT":
+        return "BRN";
       case "BT":
         return "RB";
       case "BBT":
@@ -1333,6 +1439,22 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     throws Exception {
     logWarn(
         warningMessage + " Could not process the following line:\n\t" + line);
+    updateProgress();
+  }
+
+  /**
+   * Log warn and update.
+   *
+   * @param line the line
+   * @param warningMessage the warning message
+   * @param warningGroup the warning group
+   * @throws Exception the exception
+   */
+  public void logWarnAndUpdate(String line, String warningMessage,
+    String warningGroup) throws Exception {
+    logWarn(
+        warningMessage + " Could not process the following line:\n\t" + line,
+        warningGroup, "");
     updateProgress();
   }
 
@@ -1382,6 +1504,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     descriptorIdCache.clear();
     relCachedTerms.clear();
     relIdCache.clear();
+    warningCounts.clear();
   }
 
   /**
@@ -1404,24 +1527,39 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     final List<String> relationshipPrefixes =
         Arrays.asList("Code", "Concept", "Descriptor", "Atom", "ComponentInfo");
 
+    int count = 0;
+
     logInfo("[SourceLoader] Removing " + getProject().getTerminology() + "-SRC"
         + " Relationship Alternate Terminology Ids from database");
 
     for (final String relPrefix : relationshipPrefixes) {
 
-      final Query query = getEntityManager().createQuery("select a from "
+      final Query query = getEntityManager().createQuery("select a.id from "
           + relPrefix
           + "RelationshipJpa a join a.alternateTerminologyIds b where KEY(b)  = :terminology and a.publishable=true");
       query.setParameter("terminology", getProject().getTerminology() + "-SRC");
 
-      final List<Object[]> list = query.getResultList();
-      for (final Object[] entry : list) {
-        final Relationship<?, ?> relationship = (Relationship<?, ?>) entry[0];
+      final List<Long> list = query.getResultList();
+      logInfo("[SourceLoader] Removing " + list.size() + " " + relPrefix
+          + "RelationshipJpa" + " Alternate Terminology Ids");
+
+      for (final Long id : list) {
+        final Relationship<?, ?> relationship = getRelationship(id,
+            (Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>>) Class
+                .forName("com.wci.umls.server.jpa.content." + relPrefix
+                    + "RelationshipJpa"));
         relationship.getAlternateTerminologyIds()
             .remove(getProject().getTerminology() + "-SRC");
         updateRelationship(relationship);
+        count++;
+
+        if (count % RootService.commitCt == 0) {
+          commitClearBegin();
+        }
       }
+      commitClearBegin();
     }
+
   }
 
   /**
@@ -1458,6 +1596,47 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   }
 
   /**
+   * Returns the merge sets.
+   *
+   * @param srcDirFile the src dir file
+   * @return the merge sets
+   */
+  public List<String> getMergeSets(File srcDirFile) {
+
+    final List<String> mergeSets = new ArrayList<>();
+    final Set<String> mergeSetsUnique = new HashSet<>();
+    List<String> lines = new ArrayList<>();
+    //
+    // Load the mergefacts.src file
+    //
+    try {
+      lines = loadFileIntoStringList(srcDirFile, "mergefacts.src", null, null,
+          null);
+    }
+    // If file not found, return null
+    catch (Exception e) {
+      return null;
+    }
+
+    final int fieldCount = StringUtils.countMatches(lines.get(0), "|") + 1;
+    String fields[] = new String[fieldCount];
+
+    // For this method's purpose, the only field we care about is merge_set, at
+    // index 7
+    for (String line : lines) {
+      FieldedStringTokenizer.split(line, "|", fieldCount, fields);
+      final String mergeSet = fields[7];
+      mergeSetsUnique.add(mergeSet);
+    }
+
+    // Add all of the unique mergeSets referenced in the file to the stringList,
+    // and return
+    mergeSets.addAll(mergeSetsUnique);
+
+    return mergeSets;
+  }
+
+  /**
    * Compute version. Note: the version found in sources.src fields[5] is not
    * always accurate (e.g. RXNORM_2016AA_2016_09_06F shows version of
    * 16AA_160906F). Calculate the version instead. This is also done in the RRF
@@ -1478,6 +1657,39 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     }
 
     return version;
+  }
+
+
+  
+  /**
+   * Log warning to console and the database.
+   *
+   * @param message the message
+   * @param warningGroup the warning group
+   * @param indent the indent
+   * @throws Exception the exception
+   */
+  public void logWarn(String message, String warningGroup, String indent) throws Exception {
+    // Initialize or increment warning count for this particular warning group
+    if (!warningCounts.containsKey(warningGroup)) {
+      warningCounts.put(warningGroup, 0);
+    } else {
+      warningCounts.put(warningGroup, warningCounts.get(warningGroup) + 1);
+    }
+
+    // If we have fired less than 100 of this type of warning, send the warning
+    // as-is
+    if (warningCounts.get(warningGroup) <= 100) {
+      logWarn(message, indent);
+    }
+    // If we have fired 100 of this type of warning, send a message that we
+    // won't be firing any more of this type
+    else if (warningCounts.get(warningGroup) == 101) {
+      logWarn("Limit of 100 " + warningGroup
+          + " warnings has been reached. No further warnings will be displayed in the log.", indent);
+    } else {
+      // Otherwise do nothing
+    }
   }
 
 }

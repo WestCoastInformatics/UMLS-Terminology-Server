@@ -53,8 +53,7 @@ import com.wci.umls.server.helpers.PfsParameter;
 public class IndexUtility {
 
   /** The sort field analyzed map. */
-  public static Map<String, Map<String, Boolean>> sortFieldAnalyzedMap =
-      new HashMap<>();
+  public static Map<String, Map<String, Boolean>> sortFieldAnalyzedMap = new HashMap<>();
 
   /** The string field names map. */
   private static Map<Class<?>, Set<String>> stringFieldNames = new HashMap<>();
@@ -63,44 +62,35 @@ public class IndexUtility {
   private static Map<Class<?>, Set<String>> allFieldNames = new HashMap<>();
 
   /** The all fields map. */
-  private static Map<Class<?>, java.lang.reflect.Field[]> allFields =
-      new HashMap<>();
+  private static Map<Class<?>, java.lang.reflect.Field[]> allFields = new HashMap<>();
 
   /** The all column methods. */
-  private static Map<Class<?>, List<Method>> allColumnGetMethods =
-      new HashMap<>();
+  private static Map<Class<?>, List<Method>> allColumnGetMethods = new HashMap<>();
 
   /** The all column set methods. */
-  private static Map<Class<?>, List<Method>> allColumnSetMethods =
-      new HashMap<>();
+  private static Map<Class<?>, List<Method>> allColumnSetMethods = new HashMap<>();
 
   /** The all @OneToMany methods. */
-  private static Map<Class<?>, List<Method>> allOneToManyGetMethods =
-      new HashMap<>();
+  private static Map<Class<?>, List<Method>> allOneToManyGetMethods = new HashMap<>();
 
   // Initialize the field names maps
   static {
     try {
       final Map<String, Class<?>> reindexMap = new HashMap<>();
-      final String indexProp =
-          ConfigUtility.getConfigProperties().getProperty("index.packages");
-      final String[] packages =
-          indexProp != null ? indexProp.split(";") : new String[] {
-              "com.wci.umls.server"
-          };
+      final String indexProp = ConfigUtility.getConfigProperties().getProperty("index.packages");
+      final String[] packages = indexProp != null ? indexProp.split(";") : new String[] {
+          "com.wci.umls.server"
+      };
       final Reflections reflections =
           new Reflections(new ConfigurationBuilder().forPackages(packages));
-      for (final Class<?> clazz : reflections
-          .getTypesAnnotatedWith(Indexed.class)) {
+      for (final Class<?> clazz : reflections.getTypesAnnotatedWith(Indexed.class)) {
         reindexMap.put(clazz.getSimpleName(), clazz);
       }
       final Class<?>[] classes = reindexMap.values().toArray(new Class<?>[0]);
 
       for (final Class<?> clazz : classes) {
-        stringFieldNames.put(clazz,
-            IndexUtility.getIndexedFieldNames(clazz, true));
-        allFieldNames.put(clazz,
-            IndexUtility.getIndexedFieldNames(clazz, false));
+        stringFieldNames.put(clazz, IndexUtility.getIndexedFieldNames(clazz, true));
+        allFieldNames.put(clazz, IndexUtility.getIndexedFieldNames(clazz, false));
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -116,8 +106,8 @@ public class IndexUtility {
    * @return the indexed field names
    * @throws Exception the exception
    */
-  public static Set<String> getIndexedFieldNames(Class<?> clazz,
-    boolean stringOnly) throws Exception {
+  public static Set<String> getIndexedFieldNames(Class<?> clazz, boolean stringOnly)
+    throws Exception {
 
     // If already initialized, return computed values
     if (stringOnly && stringFieldNames.containsKey(clazz)) {
@@ -150,15 +140,13 @@ public class IndexUtility {
 
       // check for @IndexedEmbedded
       if (m.isAnnotationPresent(IndexedEmbedded.class)) {
-        throw new Exception(
-            "Unable to handle @IndexedEmbedded on methods, specify on field");
+        throw new Exception("Unable to handle @IndexedEmbedded on methods, specify on field");
       }
 
       // determine if there's a fieldBridge (which converts the field)
       boolean hasFieldBridge = false;
       if (m.isAnnotationPresent(Field.class)) {
-        if (!m.getAnnotation(Field.class).bridge().impl().toString()
-            .equals("void")) {
+        if (!m.getAnnotation(Field.class).bridge().impl().toString().equals("void")) {
           hasFieldBridge = true;
         }
       }
@@ -166,15 +154,13 @@ public class IndexUtility {
       // for non-embedded fields, only process strings
       // This is because we're handling string based query here
       // Other fields can always be used with fielded query clauses
-      if (stringOnly && !hasFieldBridge
-          && !m.getReturnType().equals(String.class)) {
+      if (stringOnly && !hasFieldBridge && !m.getReturnType().equals(String.class)) {
         continue;
       }
 
       // check for @Field annotation
       if (m.isAnnotationPresent(Field.class)) {
-        String fieldName =
-            getFieldNameFromMethod(m, m.getAnnotation(Field.class));
+        String fieldName = getFieldNameFromMethod(m, m.getAnnotation(Field.class));
         fieldNames.add(fieldName);
       }
 
@@ -206,14 +192,12 @@ public class IndexUtility {
         } else if (f.isAnnotationPresent(OneToOne.class)) {
           jpaType = f.getAnnotation(OneToOne.class).targetEntity();
         } else {
-          throw new Exception(
-              "Unable to determine jpa type, @IndexedEmbedded must be used with "
-                  + "@OneToOne, @OneToMany, @ManyToOne, or @ManyToMany ");
+          throw new Exception("Unable to determine jpa type, @IndexedEmbedded must be used with "
+              + "@OneToOne, @OneToMany, @ManyToOne, or @ManyToMany ");
 
         }
 
-        for (final String embeddedField : getIndexedFieldNames(jpaType,
-            stringOnly)) {
+        for (final String embeddedField : getIndexedFieldNames(jpaType, stringOnly)) {
           fieldNames.add(f.getName() + "." + embeddedField);
         }
       }
@@ -221,8 +205,7 @@ public class IndexUtility {
       // determine if there's a fieldBridge (which converts the field)
       boolean hasFieldBridge = false;
       if (f.isAnnotationPresent(Field.class)) {
-        if (f.getAnnotation(Field.class).bridge().impl().toString()
-            .equals("void")) {
+        if (f.getAnnotation(Field.class).bridge().impl().toString().equals("void")) {
           hasFieldBridge = true;
         }
       }
@@ -233,8 +216,7 @@ public class IndexUtility {
 
       // check for @Field annotation
       if (f.isAnnotationPresent(Field.class)) {
-        String fieldName =
-            getFieldNameFromField(f, f.getAnnotation(Field.class));
+        String fieldName = getFieldNameFromField(f, f.getAnnotation(Field.class));
         fieldNames.add(fieldName);
       }
 
@@ -302,8 +284,8 @@ public class IndexUtility {
    * @param annotationField the field annotation
    * @return the indexed field name
    */
-  private static String getFieldNameFromField(
-    java.lang.reflect.Field annotatedField, Field annotationField) {
+  private static String getFieldNameFromField(java.lang.reflect.Field annotatedField,
+    Field annotationField) {
     if (annotationField.name() != null && !annotationField.name().isEmpty()) {
       return annotationField.name();
     }
@@ -325,8 +307,8 @@ public class IndexUtility {
     }
 
     if (type.getSuperclass() != null) {
-      java.lang.reflect.Field[] allFieldsArray = ArrayUtils
-          .addAll(getAllFields(type.getSuperclass()), type.getDeclaredFields());
+      java.lang.reflect.Field[] allFieldsArray =
+          ArrayUtils.addAll(getAllFields(type.getSuperclass()), type.getDeclaredFields());
       allFields.put(type, allFieldsArray);
       return allFieldsArray;
     }
@@ -342,8 +324,7 @@ public class IndexUtility {
    * @return the all methods
    * @throws Exception the exception
    */
-  public static List<Method> getAllColumnGetMethods(Class<?> clazz)
-    throws Exception {
+  public static List<Method> getAllColumnGetMethods(Class<?> clazz) throws Exception {
 
     // If already initialized, return computed values
     if (allColumnGetMethods.containsKey(clazz)) {
@@ -375,8 +356,7 @@ public class IndexUtility {
 
       // Try get first - find a getXXX method that takes no parameters
       final String accessorName1 =
-          "get" + field.getName().substring(0, 1).toUpperCase()
-              + field.getName().substring(1);
+          "get" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
       Method getMethod;
       try {
         getMethod = clazz.getMethod(accessorName1, new Class<?>[] {});
@@ -395,8 +375,7 @@ public class IndexUtility {
       }
       // Otherwise, use is - find an isXXX method that takes no parameters
       final String accessorName2 =
-          "is" + field.getName().substring(0, 1).toUpperCase()
-              + field.getName().substring(1);
+          "is" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
       Method isMethod;
       try {
         isMethod = clazz.getMethod(accessorName2, new Class<?>[] {});
@@ -423,8 +402,7 @@ public class IndexUtility {
    * @return the all methods
    * @throws Exception the exception
    */
-  public static List<Method> getAllColumnSetMethods(Class<?> clazz)
-    throws Exception {
+  public static List<Method> getAllColumnSetMethods(Class<?> clazz) throws Exception {
 
     // If already initialized, return computed values
     if (allColumnSetMethods.containsKey(clazz)) {
@@ -455,14 +433,12 @@ public class IndexUtility {
 
       // Try get first - find a setXXX method that takes 1 parameter
       final String accessorName1 =
-          "set" + field.getName().substring(0, 1).toUpperCase()
-              + field.getName().substring(1);
+          "set" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
       Method setMethod = null;
       // Iterate through methods
       for (final Method m : clazz.getMethods()) {
         // Find matching name with 1 paramter
-        if (m.getName().equals(accessorName1)
-            && m.getParameterTypes().length == 1) {
+        if (m.getName().equals(accessorName1) && m.getParameterTypes().length == 1) {
           setMethod = m;
           break;
         }
@@ -488,9 +464,8 @@ public class IndexUtility {
    * @throws NoSuchMethodException the no such method exception
    * @throws SecurityException the security exception
    */
-  public static Map<String, Boolean> getNameAnalyzedPairsFromAnnotation(
-    Class<?> clazz, String sortField)
-    throws NoSuchMethodException, SecurityException {
+  public static Map<String, Boolean> getNameAnalyzedPairsFromAnnotation(Class<?> clazz,
+    String sortField) throws NoSuchMethodException, SecurityException {
     final String key = clazz.getName() + "." + sortField;
     if (sortFieldAnalyzedMap.containsKey(key)) {
       return sortFieldAnalyzedMap.get(key);
@@ -499,32 +474,29 @@ public class IndexUtility {
     // initialize the name->analyzed pair map
     Map<String, Boolean> nameAnalyzedPairs = new HashMap<>();
 
-    Method m = clazz.getMethod("get" + sortField.substring(0, 1).toUpperCase()
-        + sortField.substring(1), new Class<?>[] {});
+    Method m =
+        clazz.getMethod("get" + sortField.substring(0, 1).toUpperCase() + sortField.substring(1),
+            new Class<?>[] {});
 
-    Set<org.hibernate.search.annotations.Field> annotationFields =
-        new HashSet<>();
+    Set<org.hibernate.search.annotations.Field> annotationFields = new HashSet<>();
 
     // check for Field annotation
     if (m.isAnnotationPresent(org.hibernate.search.annotations.Field.class)) {
-      annotationFields
-          .add(m.getAnnotation(org.hibernate.search.annotations.Field.class));
+      annotationFields.add(m.getAnnotation(org.hibernate.search.annotations.Field.class));
     }
 
     // check for Fields annotation
     if (m.isAnnotationPresent(org.hibernate.search.annotations.Fields.class)) {
       // add all specified fields
       for (final org.hibernate.search.annotations.Field f : m
-          .getAnnotation(org.hibernate.search.annotations.Fields.class)
-          .value()) {
+          .getAnnotation(org.hibernate.search.annotations.Fields.class).value()) {
         annotationFields.add(f);
       }
     }
 
     // cycle over discovered fields and put name and analyze == YES into map
     for (final org.hibernate.search.annotations.Field f : annotationFields) {
-      nameAnalyzedPairs.put(f.name(),
-          f.analyze().equals(Analyze.YES) ? true : false);
+      nameAnalyzedPairs.put(f.name(), f.analyze().equals(Analyze.YES) ? true : false);
     }
 
     sortFieldAnalyzedMap.put(key, nameAnalyzedPairs);
@@ -542,8 +514,8 @@ public class IndexUtility {
    * @return the full text query
    * @throws Exception the exception
    */
-  public static FullTextQuery applyPfsToLuceneQuery(final Class<?> clazz,
-    final String query, final PfsParameter pfs, final EntityManager manager) throws Exception {
+  public static FullTextQuery applyPfsToLuceneQuery(final Class<?> clazz, final String query,
+    final PfsParameter pfs, final EntityManager manager) throws Exception {
 
     FullTextQuery fullTextQuery = null;
 
@@ -557,17 +529,14 @@ public class IndexUtility {
       if (pfs.getInactiveOnly()) {
         pfsQuery.append(" AND obsolete:true");
       }
-      if (pfs.getQueryRestriction() != null
-          && !pfs.getQueryRestriction().isEmpty()) {
+      if (pfs.getQueryRestriction() != null && !pfs.getQueryRestriction().isEmpty()) {
         pfsQuery.append(" AND " + pfs.getQueryRestriction());
       }
     }
 
     // Set up the "full text query"
-    final FullTextEntityManager fullTextEntityManager =
-        Search.getFullTextEntityManager(manager);
-    final SearchFactory searchFactory =
-        fullTextEntityManager.getSearchFactory();
+    final FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(manager);
+    final SearchFactory searchFactory = fullTextEntityManager.getSearchFactory();
 
     Query luceneQuery;
     final QueryParser queryParser = new MultiFieldQueryParser(
@@ -583,10 +552,8 @@ public class IndexUtility {
         ? pfsQuery.toString().substring(5) : pfsQuery.toString();
 
     // ONLY log this if in dev mode
-    if ("DEV".equals(
-        ConfigUtility.getConfigProperties().getProperty("deploy.mode"))) {
-      Logger.getLogger(IndexUtility.class)
-          .info("  query = " + finalQuery + ", " + pfs);
+    if ("DEV".equals(ConfigUtility.getConfigProperties().getProperty("deploy.mode"))) {
+      Logger.getLogger(IndexUtility.class).info("  query = " + finalQuery + ", " + pfs);
     }
     try {
       luceneQuery = queryParser.parse(finalQuery);
@@ -594,22 +561,22 @@ public class IndexUtility {
       throw new LocalException("Unable to parse query");
     }
 
-    // Validate query terms
-    luceneQuery = luceneQuery.rewrite(fullTextEntityManager.getSearchFactory()
-        .getIndexReaderAccessor().open(clazz));
-    final Set<Term> terms = new HashSet<>();
-    luceneQuery.extractTerms(terms);
-    for (final Term t : terms) {
-      if (t.field() != null && !t.field().isEmpty() && !IndexUtility
-          .getIndexedFieldNames(clazz, false).contains(t.field())) {
-        throw new ParseException(
-            "Query references invalid field name " + t.field() + ", "
-                + IndexUtility.getIndexedFieldNames(clazz, false));
-      }
-    }
+    // // Validate query terms
+    // luceneQuery =
+    // luceneQuery.rewrite(fullTextEntityManager.getSearchFactory()
+    // .getIndexReaderAccessor().open(clazz));
+    // final Set<Term> terms = new HashSet<>();
+    // luceneQuery.extractTerms(terms);
+    // for (final Term t : terms) {
+    // if (t.field() != null && !t.field().isEmpty() && !IndexUtility
+    // .getIndexedFieldNames(clazz, false).contains(t.field())) {
+    // throw new ParseException(
+    // "Query references invalid field name " + t.field() + ", "
+    // + IndexUtility.getIndexedFieldNames(clazz, false));
+    // }
+    // }
 
-    fullTextQuery =
-        fullTextEntityManager.createFullTextQuery(luceneQuery, clazz);
+    fullTextQuery = fullTextEntityManager.createFullTextQuery(luceneQuery, clazz);
 
     if (pfs != null) {
       // if start index and max results are set, set paging
@@ -622,17 +589,15 @@ public class IndexUtility {
           && pfs.getSortField().equals("RANDOM")) {
 
         // Randomly sort
-        final Sort sort =
-            new Sort(new SortField("", new FieldComparatorSource() {
+        final Sort sort = new Sort(new SortField("", new FieldComparatorSource() {
 
-              @Override
-              public FieldComparator<Long> newComparator(String fieldname,
-                int numHits, int sortPos, boolean reversed) throws IOException {
-                return new RandomOrderFieldComparator(numHits, fieldname, null,
-                    null);
-              }
+          @Override
+          public FieldComparator<Long> newComparator(String fieldname, int numHits, int sortPos,
+            boolean reversed) throws IOException {
+            return new RandomOrderFieldComparator(numHits, fieldname, null);
+          }
 
-            }));
+        }));
 
         fullTextQuery.setSort(sort);
 
@@ -667,14 +632,13 @@ public class IndexUtility {
           // otherwise, check preconditions
           else {
 
-            final Map<String, Boolean> nameToAnalyzedMap = IndexUtility
-                .getNameAnalyzedPairsFromAnnotation(clazz, sortFieldName);
+            final Map<String, Boolean> nameToAnalyzedMap =
+                IndexUtility.getNameAnalyzedPairsFromAnnotation(clazz, sortFieldName);
 
             // check existence of the annotated get[SortFieldName]() method
             if (nameToAnalyzedMap.size() == 0) {
               throw new Exception(clazz.getName()
-                  + " does not have declared, annotated method for field "
-                  + sortFieldName);
+                  + " does not have declared, annotated method for field " + sortFieldName);
             }
 
             // first, check explicit [SortFieldName]Sort index
@@ -686,8 +650,7 @@ public class IndexUtility {
             // next check the default name (rendered as ""), if not analyzed,
             // use
             // this as sort
-            else if (nameToAnalyzedMap.get("") != null
-                && nameToAnalyzedMap.get("").equals(false)) {
+            else if (nameToAnalyzedMap.get("") != null && nameToAnalyzedMap.get("").equals(false)) {
               sortFieldStr = sortFieldName;
             }
 
@@ -703,21 +666,16 @@ public class IndexUtility {
           SortField sortField = null;
 
           // check for LONG fields
-          if (sortFieldStr.equals("lastModified")
-              || sortFieldStr.equals("effectiveTime")
-              || sortFieldStr.equals("timestamp")
-              || (sortFieldStr.toLowerCase().endsWith("id")
+          if ((sortFieldStr.toLowerCase().endsWith("id")
                   && !sortFieldStr.toLowerCase().endsWith("terminologyid"))
-              || sortFieldStr.toLowerCase().endsWith("idsort") && !sortFieldStr
-                  .toLowerCase().endsWith("terminologyidsort")) {
-            sortField = new SortField(sortFieldStr, SortField.Type.LONG,
-                !pfs.isAscending());
+              || sortFieldStr.toLowerCase().endsWith("idsort")
+                  && !sortFieldStr.toLowerCase().endsWith("terminologyidsort")) {
+            sortField = new SortField(sortFieldStr, SortField.Type.LONG, !pfs.isAscending());
           }
 
           // otherwise, sort by STRING value
           else {
-            sortField = new SortField(sortFieldStr, SortField.Type.STRING,
-                !pfs.isAscending());
+            sortField = new SortField(sortFieldStr, SortField.Type.STRING, !pfs.isAscending());
           }
 
           // add the field
@@ -740,8 +698,7 @@ public class IndexUtility {
    * @return the all methods
    * @throws Exception the exception
    */
-  public static List<Method> getAllCollectionGetMethods(Class<?> clazz)
-    throws Exception {
+  public static List<Method> getAllCollectionGetMethods(Class<?> clazz) throws Exception {
 
     // If already initialized, return computed values
     if (allOneToManyGetMethods.containsKey(clazz)) {
@@ -767,8 +724,7 @@ public class IndexUtility {
 
       // Try get first - find a getXXX method that takes no parameters
       final String accessorName1 =
-          "get" + field.getName().substring(0, 1).toUpperCase()
-              + field.getName().substring(1);
+          "get" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
       Method getMethod;
       try {
         getMethod = clazz.getMethod(accessorName1, new Class<?>[] {});

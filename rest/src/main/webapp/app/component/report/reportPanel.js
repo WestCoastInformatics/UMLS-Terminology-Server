@@ -7,11 +7,12 @@ tsApp.directive('reportPanel', [
       restrict : 'A',
       scope : {
         selected : '=',
+        lists : '=',
         callbacks : '='
       },
       templateUrl : 'app/component/report/reportPanel.html',
-      controller : [ '$scope', '$window', 'reportService', 'utilService', 'securityService',
-        function($scope, $window, reportService, utilService, securityService) {
+      controller : [ '$scope', '$window', 'reportService', 'utilService', 'securityService','metadataService','contentService',
+        function($scope, $window, reportService, utilService, securityService, metadataService, contentService) {
 
           // Scope vars
           $scope.report = null;
@@ -24,8 +25,10 @@ tsApp.directive('reportPanel', [
               function() {
                 console.debug('selected.component', $scope.selected.component,
                   $scope.selected.project);
-                $scope.tId = $scope.selected.component.terminologyId == $scope.selected.component.id ? 
-                  '' : $scope.selected.component.terminologyId;
+                if ($scope.selected.component) {
+                  $scope.tId = $scope.selected.component.terminologyId == $scope.selected.component.id ? 
+                    '' : $scope.selected.component.terminologyId;
+                }
               });
             
           // open report window
@@ -37,7 +40,7 @@ tsApp.directive('reportPanel', [
             $scope.mode = mode;
             securityService.saveProperty($scope.user.userPreferences, 'reportModeTab', $scope.mode);
           }
-
+         
         } ]
 
     };

@@ -136,6 +136,14 @@ public class StampingAlgorithm extends AbstractAlgorithm {
             action.setConceptId(concept.getId());
             action.setConceptId2(null);
             action.setLastModifiedBy(getLastModifiedBy());
+            // For worklist Reviewers, all concepts should be marked as being
+            // approved by the latest Author, not the Reviewer
+            if (worklist != null && worklist.getReviewers().size() != 0) {
+              int authorCount = worklist.getAuthors().size();
+              String mostRecentAuthor =
+                  worklist.getAuthors().get(authorCount - 1);
+              action.setLastModifiedBy("S-" + mostRecentAuthor);
+            }
             action.setLastModified(concept.getLastModified().getTime());
             action.setOverrideWarnings(true);
             action.setTransactionPerOperation(false);
@@ -143,8 +151,9 @@ public class StampingAlgorithm extends AbstractAlgorithm {
             action.setChangeStatusFlag(true);
 
             // Perform the action
-            final ValidationResult validationResult = action
-                .performMolecularAction(action, getLastModifiedBy(), true, false);
+            final ValidationResult validationResult =
+                action.performMolecularAction(action, getLastModifiedBy(), true,
+                    false);
 
             // If the action failed, bail out now.
             if (!validationResult.isValid()) {

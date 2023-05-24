@@ -1,6 +1,6 @@
 // Workflow Service
 var workflowUrl = 'workflow';
-tsApp.service('workflowService', [
+tsApp.service('workflowService', [ 
   '$http',
   '$q',
   'Upload',
@@ -899,7 +899,7 @@ tsApp.service('workflowService', [
         },
         // error
         function(response) {
-          utilService.handleError(response);
+          //utilService.handleError(response);
           gpService.decrement();
           deferred.reject(response.data);
         });
@@ -924,7 +924,7 @@ tsApp.service('workflowService', [
         },
         // error
         function(response) {
-          utilService.handleError(response);
+          //utilService.handleError(response);
           gpService.decrement();
           deferred.reject(response.data);
         });
@@ -1065,15 +1065,16 @@ tsApp.service('workflowService', [
       $http.post(url, '').then(
       // success
       function(response) {
-        console.debug('  successful regenerate bin');
+        console.debug('  successful regenerate bin ', gpService.getGlassPane().counter);
         gpService.decrement('Regenerating bin...');
         deferred.resolve(response.data);
       },
       // error
       function(response) {
-        utilService.handleError(response);
-        gpService.decrement('Regenerating bin...');
-        deferred.reject(response.data);
+        // if this times out and fails, progress monitoring will keep it running
+        // and end gracefully
+        //utilService.handleError(response);
+        //deferred.reject(response.data);
       });
       return deferred.promise;
     };
@@ -1084,7 +1085,7 @@ tsApp.service('workflowService', [
       var deferred = $q.defer();
 
       // find tracking records
-      gpService.increment('Regenerating bins...');
+      gpService.increment('Regenerating bins...  DO NOT refresh browser.');
       $http
         .post(
           workflowUrl + '/bin/regenerate/all?projectId=' + projectId + '&type=' + workflowBinType,
@@ -1092,17 +1093,30 @@ tsApp.service('workflowService', [
         // success
         function(response) {
           console.debug('  successful regenerate bins');
-          gpService.decrement('Regenerating bins...');
+          gpService.decrement('Regenerating bins...  DO NOT refresh browser.');
           deferred.resolve(response.data);
         },
         // error
         function(response) {
-          utilService.handleError(response);
-          gpService.decrement('Regenerating bins...');
-          deferred.reject(response.data);
+          // if this times out and fails, progress monitoring will keep it running
+          // and end gracefully
+          //utilService.handleError(response);
+          //gpService.decrement('Regenerating bins...  DO NOT refresh browser.');
+          //deferred.reject(response.data);
         });
+      
       return deferred.promise;
     };
+    
+    // decrement the glass pane
+    this.decrementGlassPane= function(message) {
+      gpService.decrement(message);
+    }
+
+    // replace the glass pane message
+    this.updateGlassPaneMessage = function(message) {
+      gpService.replaceMessage(message);
+    }
 
     // clear bin
     this.clearBin = function(projectId, id) {
@@ -1169,9 +1183,11 @@ tsApp.service('workflowService', [
       },
       // error
       function(response) {
-        utilService.handleError(response);
-        gpService.decrement();
-        deferred.reject(response.data);
+        // if this times out and fails, progress monitoring will keep it running
+        // and end gracefully
+        //utilService.handleError(response);
+        //gpService.decrement();
+        //deferred.reject(response.data);
       });
       return deferred.promise;
     };
@@ -1232,6 +1248,28 @@ tsApp.service('workflowService', [
       return deferred.promise;
     };
 
+    // run autofix
+    this.runAutofix = function(projectId, bin) {
+      console.debug('create autofix process', projectId, bin);
+      var deferred = $q.defer();
+
+      gpService.increment('Creating autofixing process...');
+      var url = workflowUrl + '/runautofix?projectId=' + projectId;
+      $http.post(url, bin).then(
+      // success
+      function(response) {
+        console.debug('  autofix process creation successful ', gpService.getGlassPane().counter);
+        gpService.decrement('Creating autofixing process...');
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };    
+    
     // Export checklist
     this.exportChecklist = function(projectId, id, name) {
       console.debug('exportChecklist', projectId, id, name);
@@ -1481,5 +1519,87 @@ tsApp.service('workflowService', [
       });
       return deferred.promise;
     };
+    
+    // find if bin is still progressing through specified process
+    this.getProcessProgress = function(process, projectId) {
+      console.debug('getProcessProgress');
+      // Setup deferred
+      var deferred = $q.defer();
+
+      $http.post(workflowUrl + '/lookup/progress?process=' + process, projectId).then(
+      // success
+      function(response) {
+        console.debug('  process progress returned ');
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
+    
+    // gets the validation result from a completed process run
+    this.getProcessResult = function(projectId, process) {
+      console.debug('getProcessResult');
+      // Setup deferred
+      var deferred = $q.defer();
+
+      $http.get(workflowUrl + '/process/results/' + projectId + '?process=' + process).then(
+      // success
+      function(response) {
+        console.debug('  process results returned ');
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };   
+    
+    // find all bins that are still progressing through specified bulk process
+    this.getBulkProcessProgress = function(projectId, binNames) {
+      console.debug('getBulkProcessProgress');
+      // Setup deferred
+      var deferred = $q.defer();
+
+      $http.post(workflowUrl + '/lookup/progress/bulk?projectId=' + projectId, binNames).then(
+      // success
+      function(response) {
+        console.debug('  process progress returned ');
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
+    // gets the validation results from a completed bulk process run
+    this.getBulkProcessResults = function(projectId, process) {
+      console.debug('getBulkProcessProgress');
+      // Setup deferred
+      var deferred = $q.defer();
+
+      $http.get(workflowUrl + '/process/results/bulk/' + projectId + '?process=' + process).then(
+      // success
+      function(response) {
+        console.debug('  process results returned ');
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
     // end
   } ]);

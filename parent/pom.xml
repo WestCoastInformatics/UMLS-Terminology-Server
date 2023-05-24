@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
@@ -54,13 +55,10 @@
     <releaseVersion>${project.version}</releaseVersion>
 
     <!-- Set third-party dependency versions -->
-    <hibernate.version>4.3.9.Final</hibernate.version>
-    <hibernate.em.version>4.3.9.Final</hibernate.em.version>
-    <hibernate.search.version>5.1.1.Final</hibernate.search.version>
-    <hibernate.entitymanager.version>4.1.0.Final</hibernate.entitymanager.version>
+    <hibernate.version>5.6.8.Final</hibernate.version>
+    <hibernate.search.version>5.11.10.Final</hibernate.search.version>
     <hibernate.validator.version>5.0.1.Final</hibernate.validator.version>
-    <jersey.version>2.23.1</jersey.version>
-    <jackson.version>2.4.5</jackson.version>
+    <jersey.version>2.33</jersey.version>
   </properties>
 
   <dependencyManagement>
@@ -105,11 +103,8 @@
       </dependency>
 
       <!-- JPA dependencies -->
-      <dependency>
-        <groupId>javax.transaction</groupId>
-        <artifactId>jta</artifactId>
-        <version>1.1</version>
-      </dependency>
+      <!-- <dependency> <groupId>javax.transaction</groupId> <artifactId>jta</artifactId> 
+        <version>1.1</version> </dependency> -->
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-core</artifactId>
@@ -117,8 +112,8 @@
       </dependency>
       <dependency>
         <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-entitymanager</artifactId>
-        <version>${hibernate.em.version}</version>
+        <artifactId>hibernate-envers</artifactId>
+        <version>${hibernate.version}</version>
       </dependency>
       <dependency>
         <groupId>org.hibernate</groupId>
@@ -130,41 +125,36 @@
         <artifactId>hibernate-search-orm</artifactId>
         <version>${hibernate.search.version}</version>
       </dependency>
-      <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-envers</artifactId>
-        <version>${hibernate.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-validator</artifactId>
-        <version>${hibernate.validator.version}</version>
-      </dependency>
+      <!-- <dependency> <groupId>org.hibernate</groupId> <artifactId>hibernate-envers</artifactId> 
+        <version>${hibernate.version}</version> </dependency> <dependency> <groupId>org.hibernate</groupId> 
+        <artifactId>hibernate-validator</artifactId> <version>${hibernate.validator.version}</version> 
+        </dependency> -->
       <dependency>
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-queryparser</artifactId>
-        <version>4.10.0</version>
+        <version>5.5.5</version>
       </dependency>
       <dependency>
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-suggest</artifactId>
-        <version>4.10.0</version>
+        <version>5.5.5</version>
       </dependency>
       <dependency>
         <groupId>mysql</groupId>
         <artifactId>mysql-connector-java</artifactId>
-        <version>5.1.35</version>
+        <version>8.0.17</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-log4j12</artifactId>
-        <version>1.7.10</version>
+        <version>1.7.36</version>
       </dependency>
 
       <dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-plugin-api</artifactId>
         <version>3.2.5</version>
+        <scope>provided></scope>
       </dependency>
 
       <dependency>
@@ -177,13 +167,13 @@
       <dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-resources-plugin</artifactId>
-        <version>2.7</version>
+        <version>3.2.0</version>
       </dependency>
 
       <dependency>
         <groupId>org.apache.maven.shared</groupId>
         <artifactId>maven-invoker</artifactId>
-        <version>2.2</version>
+        <version>3.2.0</version>
       </dependency>
 
       <!-- Websocket API -->
@@ -203,8 +193,8 @@
         <version>${jersey.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.glassfish.jersey.media</groupId>
-        <artifactId>jersey-media-json-jackson</artifactId>
+        <groupId>org.glassfish.jersey.core</groupId>
+        <artifactId>jersey-common</artifactId>
         <version>${jersey.version}</version>
       </dependency>
       <!-- Keep this to launch the servlet -->
@@ -223,6 +213,16 @@
         <artifactId>jersey-media-multipart</artifactId>
         <version>${jersey.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.glassfish.jersey.media</groupId>
+        <artifactId>jersey-media-json-jackson</artifactId>
+        <version>${jersey.version}</version>
+      </dependency>
+<dependency>
+    <groupId>org.glassfish.jersey.inject</groupId>
+    <artifactId>jersey-hk2</artifactId>
+    <version>${jersey.version}</version>
+</dependency>
 
       <dependency>
         <groupId>io.swagger</groupId>
@@ -260,7 +260,7 @@
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
-        <version>11.0.1</version>
+        <version>31.1-jre</version>
       </dependency>
       <dependency>
         <groupId>org.reflections</groupId>
@@ -303,26 +303,33 @@
       <dependency>
         <groupId>cglib</groupId>
         <artifactId>cglib</artifactId>
-        <version>2.2.2</version>
+        <version>3.3.0</version>
       </dependency>
 
       <dependency>
         <groupId>com.sun.mail</groupId>
         <artifactId>javax.mail</artifactId>
-        <version>1.5.2</version>
+        <version>1.6.2</version>
+      </dependency>
+
+      <!-- Zip utility -->
+      <dependency>
+        <groupId>net.lingala.zip4j</groupId>
+        <artifactId>zip4j</artifactId>
+        <version>2.8.0</version>
       </dependency>
 
       <!-- Apache commons-lang3 - for FastDateTime -->
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
-        <version>3.3.2</version>
+        <version>3.12.0</version>
       </dependency>
 
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
-        <version>2.5</version>
+        <version>2.8.0</version>
       </dependency>
 
       <dependency>
@@ -344,6 +351,15 @@
         <version>4.5.1</version>
       </dependency>
 
+
+      <!-- <dependency> <groupId>com.fasterxml.jackson.core</groupId> <artifactId>jackson-core</artifactId> 
+        <version>${jackson.version}</version> </dependency> <dependency> <groupId>com.fasterxml.jackson.core</groupId> 
+        <artifactId>jackson-annotations</artifactId> <version>${jackson.version}</version> 
+        </dependency> -->
+      <!-- <dependency> <groupId>com.fasterxml.jackson.core</groupId> <artifactId>jackson-databind</artifactId> 
+        <version>${jackson.version}</version> </dependency> -->
+
+
     </dependencies>
   </dependencyManagement>
 
@@ -358,7 +374,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-plugin-plugin</artifactId>
-          <version>3.3</version>
+          <version>3.6.4</version>
         </plugin>
 
         <plugin>
@@ -376,23 +392,23 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.2</version>
+          <version>3.10.1</version>
           <configuration>
-            <source>1.8</source>
-            <target>1.8</target>
+            <source>11</source>
+            <target>11</target>
           </configuration>
         </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
-          <version>2.7</version>
+          <version>3.2.0</version>
         </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.18.1</version>
+          <version>3.0.0-M6</version>
           <configuration>
             <skipTests>false</skipTests>
           </configuration>
@@ -401,19 +417,13 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-war-plugin</artifactId>
-          <version>2.6</version>
+          <version>3.3.2</version>
         </plugin>
 
-        <plugin>
-          <groupId>external.atlassian.jgitflow</groupId>
-          <artifactId>jgitflow-maven-plugin</artifactId>
-          <version>1.0-m1.1</version>
-          <configuration>
-            <autoVersionSubmodules>true</autoVersionSubmodules>
-            <enableSshAgent>true</enableSshAgent>
-            <noDeploy>true</noDeploy>
-          </configuration>
-        </plugin>
+        <!-- <plugin> <groupId>external.atlassian.jgitflow</groupId> <artifactId>jgitflow-maven-plugin</artifactId> 
+          <version>1.0-m1.1</version> <configuration> <autoVersionSubmodules>true</autoVersionSubmodules> 
+          <enableSshAgent>true</enableSshAgent> <noDeploy>true</noDeploy> </configuration> 
+          </plugin> -->
 
         <!-- Properties plugin, for loading properties from a file -->
         <plugin>
@@ -441,7 +451,7 @@
         <plugin>
           <groupId>org.sonatype.plugins</groupId>
           <artifactId>nexus-staging-maven-plugin</artifactId>
-          <version>1.6.7</version>
+          <version>1.6.8</version>
           <extensions>true</extensions>
           <configuration>
             <serverId>ossrh</serverId>
@@ -481,7 +491,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.10.3</version>
+            <version>3.4.0</version>
             <configuration>
               <tags>
                 <tag>
@@ -517,7 +527,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.6</version>
+            <version>3.0.1</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
@@ -533,8 +543,8 @@
     </profile>
   </profiles>
 
-  <!-- configure Maven to deploy to the OSSRH Nexus Repository Manager with the Nexus 
-    Staging Maven plugin (see plugins) -->
+  <!-- configure Maven to deploy to the OSSRH Nexus Repository Manager with 
+    the Nexus Staging Maven plugin (see plugins) -->
   <distributionManagement>
     <repository>
       <id>ossrh</id>

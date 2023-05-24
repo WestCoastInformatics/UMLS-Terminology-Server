@@ -22,11 +22,11 @@
   <thead>
     <tr>
       <th class="col-md-4 col-xs-4"><span
-          ng-click="setSortField('relationships','toName')">From Name</span> <span
-          ng-bind="getSortIndicator('relationships','toName')"></span></th>
+          ng-click="setSortField('relationships','fromName')">From Name</span> <span
+          ng-bind="getSortIndicator('relationships','fromName')"></span></th>
       <th class="col-md-1 col-xs-1"><span
-          ng-click="setSortField('relationships','toId')"> Concept</span> <span
-          ng-bind="getSortIndicator('relationships','toId')"></span></th>
+          ng-click="setSortField('relationships','fromId')"> Concept</span> <span
+          ng-bind="getSortIndicator('relationships','fromId')"></span></th>
       <th class="col-md-2 col-xs-2"><span
           ng-click="setSortField('relationships','relationshipType')">Rel
           Type</span> <span
@@ -47,10 +47,13 @@
   </thead>
   <tbody>
     <tr ng-repeat="relationship in pagedRelationships"
-      ng-click="selectRelationship($event, relationship)"
       class="{{getRelationshipClass(relationship)}}"
       ng-class="{selected: isRowSelected(relationship)}">
-      <td>{{relationship.fromName}}</td>
+      <td ng-click="toggleSelection(relationship)">
+        <input type="checkbox" value="{{relationship.fromName}}"
+          ng-checked="isRowSelected(relationship)">&nbsp;
+        {{relationship.fromName}}
+      </td>
       <td>{{relationship.fromId}}</td>
       <td>{{relationship.relationshipType}}&nbsp;
         {{relationship.additionalRelationshipType}}</td>
@@ -58,8 +61,13 @@
       <td>{{relationship.terminology}}</td>
       <td>{{relationship.lastModifiedBy}}</td>
       <td class="nobreak">
-
-        <i
+<!-- 
+        <i  style="margin-right: 5px"
+          ng-show="relationship.level != 'S' && relationship.workflowStatus != 'DEMOTION' && selected.project.editingEnabled"
+          ng-click="openReplaceModal(relationship); $event.stopPropagation()"
+          title="Replace" class="noul glyphicon glyphicon-retweet"></i>
+ -->          
+        <i   
           confirm="Are you sure you want to remove the relationship ({{relationship.name}})?"
           ng-show="relationship.level != 'S' && relationship.workflowStatus != 'DEMOTION' && selected.project.editingEnabled"
           ng-click="removeRelationshipFromConcept(relationship); $event.stopPropagation()"
@@ -85,7 +93,7 @@
         title="Show preferred only">
       <span>Show preferred only</span>
       <button ng-click="transferConceptToEditor()"
-        ng-disabled="!selected.relationship || editingDisabled()"
+        ng-disabled="!isSelectedRelationships() || editingDisabled()"
         title="Transfer concept to editor" class="btn btn-xs btn-primary">Transfer</button>
       <button ng-click="openMergeModal()" ng-disabled="editingDisabled()"
         title="Merge" class="btn btn-xs btn-primary">Merge</button>

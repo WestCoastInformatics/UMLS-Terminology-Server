@@ -8,6 +8,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
@@ -113,6 +116,8 @@ public class RunMetamorphoSysAlgorithm
     final File mmsysReleaseDat = new File(config.getProperty("source.data.dir")
         + "/" + getProcess().getInputPath() + "/" + getProcess().getVersion()
         + "/MMSYS/release.dat");
+    // TODO - rename old release folder to new release.
+    // If that doesn't work, copy over, then remove old after running metamorophoSys.
     final File mmsysReleaseConfigDat =
         new File(config.getProperty("source.data.dir") + "/"
             + getProcess().getInputPath() + "/" + getProcess().getVersion()
@@ -143,6 +148,11 @@ public class RunMetamorphoSysAlgorithm
     FileUtils.fileWrite(releaseDat.getPath(), data.toString());
     FileUtils.fileWrite(metaReleaseDat.getPath(), data.toString());
     FileUtils.fileWrite(mmsysReleaseDat.getPath(), data.toString());
+    final File mmsysReleaseConfigVersion = new File(config.getProperty("source.data.dir")
+        + "/" + getProcess().getInputPath() + "/" + getProcess().getVersion()
+        + "/MMSYS/config/" + getProcess().getVersion());
+    mmsysReleaseConfigVersion.mkdirs();
+    mmsysReleaseConfigDat.createNewFile();
     FileUtils.fileWrite(mmsysReleaseConfigDat.getPath(), data.toString());
     updateProgress();
 
@@ -217,6 +227,8 @@ public class RunMetamorphoSysAlgorithm
           false);
     } else {
       // If fails as solaris, try as linux
+      // Make sure file has full permissions
+      Files.setPosixFilePermissions(Paths.get(pathRelease.getPath() + "/MMSYS/jre/linux/bin/java"), PosixFilePermissions.fromString("rwxrwxrwx"));
       ConfigUtility.exec(new String[] {
           pathRelease.getPath() + "/MMSYS/jre/linux/bin/java",
           "-Djava.awt.headless=true",
@@ -237,9 +249,9 @@ public class RunMetamorphoSysAlgorithm
 
     updateProgress();
 
-    // Copy the files MRDOC, MRCOLS, MRFILES, release.dat
+    // Copy the files MRDOC, MRCOLS, MRFILES, MRSAB, release.dat
     for (final String file : new String[] {
-        "MRDOC.RRF", "MRFILES.RRF", "MRCOLS.RRF", "release.dat"
+        "MRDOC.RRF", "MRFILES.RRF", "MRCOLS.RRF", "MRSAB.RRF", "release.dat"
     }) {
       FileUtils.copyFileToDirectory(
           new File(pathRelease.getPath() + "/METASUBSET", file),

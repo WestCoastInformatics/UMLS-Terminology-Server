@@ -114,5 +114,11 @@ tsApp.run([ 'securityService', function(securityService) {
     'EDITOR5' : true,
     'ADMINISTRATOR' : true
   });
+  securityService.addPermission('AutofixMidValidation', {
+	    'REVIEWER' : false,
+	    'AUTHOR' : false,
+	    'EDITOR5' : false,
+	    'ADMINISTRATOR' : true
+	  });
 
 } ]);

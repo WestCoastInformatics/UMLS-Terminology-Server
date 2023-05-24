@@ -1,11 +1,13 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2020 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.rest;
 
 import com.wci.umls.server.helpers.KeyValuePairLists;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
+import com.wci.umls.server.helpers.meta.TermTypeList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.helpers.meta.AdditionalRelationshipTypeListJpa;
@@ -37,8 +39,8 @@ public interface MetadataServiceRest {
    * @return the all metadata
    * @throws Exception if anything goes wrong
    */
-  public KeyValuePairLists getAllMetadata(String terminology, String version,
-    String authToken) throws Exception;
+  public KeyValuePairLists getAllMetadata(String terminology, String version, String authToken)
+    throws Exception;
 
   /**
    * Returns all terminologies and all versions.
@@ -48,8 +50,7 @@ public interface MetadataServiceRest {
    * @throws Exception if anything goes wrong
    */
 
-  public TerminologyList getCurrentTerminologies(String authToken)
-    throws Exception;
+  public TerminologyList getCurrentTerminologies(String authToken) throws Exception;
 
   /**
    * Gets the terminology information for a terminology.
@@ -60,8 +61,8 @@ public interface MetadataServiceRest {
    * @return the terminology information
    * @throws Exception the exception
    */
-  public Terminology getTerminology(String terminology, String version,
-    String authToken) throws Exception;
+  public Terminology getTerminology(String terminology, String version, String authToken)
+    throws Exception;
 
   /**
    * Gets the default precedence list.
@@ -72,8 +73,8 @@ public interface MetadataServiceRest {
    * @return the default precedence list
    * @throws Exception the exception
    */
-  public PrecedenceList getDefaultPrecedenceList(String terminology,
-    String version, String authToken) throws Exception;
+  public PrecedenceList getDefaultPrecedenceList(String terminology, String version,
+    String authToken) throws Exception;
 
   /**
    * Add precedence list.
@@ -83,8 +84,8 @@ public interface MetadataServiceRest {
    * @return the precedence list
    * @throws Exception the exception
    */
-  public PrecedenceList addPrecedenceList(PrecedenceListJpa precedenceList,
-    String authToken) throws Exception;
+  public PrecedenceList addPrecedenceList(PrecedenceListJpa precedenceList, String authToken)
+    throws Exception;
 
   /**
    * Update precedence list.
@@ -93,8 +94,8 @@ public interface MetadataServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void updatePrecedenceList(PrecedenceListJpa precedenceList,
-    String authToken) throws Exception;
+  public void updatePrecedenceList(PrecedenceListJpa precedenceList, String authToken)
+    throws Exception;
 
   /**
    * Remove precedence list.
@@ -113,8 +114,7 @@ public interface MetadataServiceRest {
    * @return the precedence list
    * @throws Exception the exception
    */
-  public PrecedenceList getPrecedenceList(Long precedenceListId,
-    String authToken) throws Exception;
+  public PrecedenceList getPrecedenceList(Long precedenceListId, String authToken) throws Exception;
 
   /**
    * Returns the semantic types.
@@ -125,9 +125,8 @@ public interface MetadataServiceRest {
    * @return the semantic types
    * @throws Exception the exception
    */
-  public SemanticTypeList getSemanticTypes(String terminology, String version,
-    String authToken) throws Exception;
-
+  public SemanticTypeList getSemanticTypes(String terminology, String version, String authToken)
+    throws Exception;
 
   /**
    * Removes the term type.
@@ -138,7 +137,8 @@ public interface MetadataServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void removeTermType(String type, String terminology, String version, String authToken) throws Exception;
+  public void removeTermType(String type, String terminology, String version, String authToken)
+    throws Exception;
 
   /**
    * Removes the attribute name.
@@ -149,7 +149,8 @@ public interface MetadataServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void removeAttributeName(String type, String terminology, String version, String authToken) throws Exception;
+  public void removeAttributeName(String type, String terminology, String version, String authToken)
+    throws Exception;
 
   /**
    * Removes the relationship type.
@@ -160,7 +161,8 @@ public interface MetadataServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void removeRelationshipType(String type, String terminology, String version, String authToken) throws Exception;
+  public void removeRelationshipType(String type, String terminology, String version,
+    String authToken) throws Exception;
 
   /**
    * Removes the additional relationship type.
@@ -171,8 +173,8 @@ public interface MetadataServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void removeAdditionalRelationshipType(String type, String terminology, String version, String authToken)
-		throws Exception;
+  public void removeAdditionalRelationshipType(String type, String terminology, String version,
+    String authToken) throws Exception;
 
   /**
    * Gets the root terminology.
@@ -194,8 +196,20 @@ public interface MetadataServiceRest {
    * @return the term type
    * @throws Exception the exception
    */
-  public TermType getTermType(String type, String terminology, String version,
-    String authToken) throws Exception;
+  public TermType getTermType(String type, String terminology, String version, String authToken)
+    throws Exception;
+
+  /**
+   * Returns the term types.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return the term types
+   * @throws Exception the exception
+   */
+  public TermTypeList getTermTypes(String terminology, String version, String authToken)
+    throws Exception;
 
   /**
    * Gets the attribute name.
@@ -207,8 +221,8 @@ public interface MetadataServiceRest {
    * @return the attribute name
    * @throws Exception the exception
    */
-  public AttributeName getAttributeName(String type, String terminology,
-    String version, String authToken) throws Exception;
+  public AttributeName getAttributeName(String type, String terminology, String version,
+    String authToken) throws Exception;
 
   /**
    * Gets the relationship type.
@@ -220,8 +234,8 @@ public interface MetadataServiceRest {
    * @return the relationship type
    * @throws Exception the exception
    */
-  public RelationshipType getRelationshipType(String type, String terminology,
-    String version, String authToken) throws Exception;
+  public RelationshipType getRelationshipType(String type, String terminology, String version,
+    String authToken) throws Exception;
 
   /**
    * Gets the additional relationship type.
@@ -233,8 +247,20 @@ public interface MetadataServiceRest {
    * @return the additional relationship type
    * @throws Exception the exception
    */
-  public AdditionalRelationshipType getAdditionalRelationshipType(String type,
-    String terminology, String version, String authToken) throws Exception;
+  public AdditionalRelationshipType getAdditionalRelationshipType(String type, String terminology,
+    String version, String authToken) throws Exception;
+
+  /**
+   * Returns the additional relationship types.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return the additional relationship types
+   * @throws Exception the exception
+   */
+  public AdditionalRelationshipTypeList getAdditionalRelationshipTypes(String terminology,
+    String version, String authToken) throws Exception;
 
   /**
    * Update additional relationship type.
@@ -284,8 +310,7 @@ public interface MetadataServiceRest {
    * @throws Exception the exception
    */
   public AdditionalRelationshipType addAdditionalRelationshipType(
-    AdditionalRelationshipTypeListJpa addRelTypeList, String authToken)
-    throws Exception;
+    AdditionalRelationshipTypeListJpa addRelTypeList, String authToken) throws Exception;
 
   /**
    * Add relationship type.
@@ -306,8 +331,8 @@ public interface MetadataServiceRest {
    * @return the attribute name
    * @throws Exception the exception
    */
-  public AttributeName addAttributeName(AttributeNameJpa attributeName,
-    String authToken) throws Exception;
+  public AttributeName addAttributeName(AttributeNameJpa attributeName, String authToken)
+    throws Exception;
 
   /**
    * Add term type.
@@ -326,8 +351,8 @@ public interface MetadataServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void updateRootTerminology(RootTerminologyJpa rootTerminology,
-    String authToken) throws Exception;
+  public void updateRootTerminology(RootTerminologyJpa rootTerminology, String authToken)
+    throws Exception;
 
   /**
    * Update terminology.
@@ -336,6 +361,5 @@ public interface MetadataServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void updateTerminology(TerminologyJpa terminology, String authToken)
-    throws Exception;
+  public void updateTerminology(TerminologyJpa terminology, String authToken) throws Exception;
 }

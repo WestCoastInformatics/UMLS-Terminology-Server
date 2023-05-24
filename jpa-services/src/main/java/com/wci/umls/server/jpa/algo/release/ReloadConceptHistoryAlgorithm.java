@@ -13,18 +13,28 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.persistence.Query;
+
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.ComponentHistoryJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptSubsetMember;
+import com.wci.umls.server.model.content.Definition;
+import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
+
+import com.wci.umls.server.model.content.ConceptTreePosition;
+import com.wci.umls.server.model.content.ConceptRelationship;
 
 /**
  * Algorithm for reloading concept history.
@@ -76,6 +86,17 @@ public class ReloadConceptHistoryAlgorithm
           "Specified input directory does not exist = " + mrPath);
     }
 
+    // Makes sure editing is turned off before continuing
+    if(getProject().isEditingEnabled()){
+      throw new LocalException("Editing is turned on - disable before continuing.");
+    }
+    
+    // Makes sure automations are turned off before continuing
+    if(getProject().isAutomationsEnabled()){
+      throw new LocalException("Automations are turned on - disable before continuing.");
+    }
+    
+    
     return result;
   }
 
@@ -99,7 +120,7 @@ public class ReloadConceptHistoryAlgorithm
     final Set<String> dbConceptsWithHistories = new HashSet<>();
 
     final javax.persistence.Query jpaQuery = getEntityManager().createQuery(
-        "select c.terminologyId from ConceptJpa c where c.componentHistories is not empty");
+        "select c.terminologyId from ConceptJpa c where size(c.componentHistories) > 0");
 
     final List<String> conceptsTerminologyIds = jpaQuery.getResultList();
 
@@ -107,6 +128,8 @@ public class ReloadConceptHistoryAlgorithm
       dbConceptsWithHistories.add(terminologyId);
     }
 
+    logInfo("dbConceptsWithHistories: " + dbConceptsWithHistories.size());
+    
     //
     // Load the MRCUI.RRF file
     //
@@ -133,6 +156,8 @@ public class ReloadConceptHistoryAlgorithm
       // Add the line to this CUI's entry in the map
       cuiHistoryLines.get(cui1).add(line);
     }
+    logInfo("cuiHistoryLines: " + cuiHistoryLines.size());
+    logInfo("dbConceptsWithHistories not in MRCUI: " + dbConceptsWithHistories.size());
 
     // Set the number of steps to the number of concepts referenced in MRCUI
     setSteps(cuiHistoryLines.keySet().size());
@@ -153,12 +178,8 @@ public class ReloadConceptHistoryAlgorithm
       Concept concept = getConcept(cui1, getProject().getTerminology(),
           getProject().getVersion(), Branch.ROOT);
 
-      // If no concept exists, create a new unpublishable concept
-      // Also fire warning, since this should really not happen
+      // If no concept exists (due to a merge, etc., create a new unpublishable concept
       if (concept == null) {
-
-        logWarn("WARNING: Concept could not be found for " + cui1
-            + ".  Creating placeholder concept.");
 
         concept = new ConceptJpa();
         concept.setPublishable(false);
@@ -205,6 +226,11 @@ public class ReloadConceptHistoryAlgorithm
             break;
           }
 
+          // Ignore SUBX cases
+          if (fields[2].equals("SUBX")) {
+            break;
+          }
+          
           // Handle DEL cases
           if (fields[2].equals("DEL")) {
             if (cui1History.getAssociatedRelease().equals(fields[1])
@@ -229,10 +255,11 @@ public class ReloadConceptHistoryAlgorithm
 
       // Anything remaining in the histories needs to be removed and deleted
       // from the concept
-      for (final ComponentHistory cui1History : cui1Histories) {
+      for (final ComponentHistory cui1History : cui1Histories) {       
         concept.getComponentHistory().remove(cui1History);
-        updateConcept(concept);
         removeComponentHistory(cui1History.getId());
+        updateConcept(concept);
+//        commitClearBegin();
         componentHistoryDeletedCount++;
       }
 
@@ -248,16 +275,16 @@ public class ReloadConceptHistoryAlgorithm
         history.setPublishable(true);
         history.setTerminology(getProject().getTerminology());
         history.setTerminologyId(fields[0]);
-        history.setVersion(getProject().getVersion());
+        history.setVersion(getProcess().getVersion());
 
         if (!fields[5].isEmpty()) {
-          final Concept concept2 =
+          /*final Concept concept2 =
               getConcept(fields[5], getProject().getTerminology(),
                   getProject().getVersion(), Branch.ROOT);
           if (concept2 == null) {
             throw new Exception("Unexpected dead CUIs " + fields[5]);
-          }
-          history.setReferencedTerminologyId(concept2.getTerminologyId());
+          }*/
+          history.setReferencedTerminologyId(fields[5]);
         }
         history.setRelationshipType(fields[2]);
         history.setAdditionalRelationshipType(fields[3]);
@@ -272,9 +299,10 @@ public class ReloadConceptHistoryAlgorithm
 
       // Update the progress
       updateProgress();
+      commitClearBegin();
     }
 
-    // Anything concept remaining in the dbConceptsWithHistories map needs to
+    // Any concept remaining in the dbConceptsWithHistories map needs to
     // have its histories removed.
     for (final String cui : dbConceptsWithHistories) {
       final Concept concept = getConcept(cui, getProject().getTerminology(),
@@ -290,6 +318,51 @@ public class ReloadConceptHistoryAlgorithm
 
     commitClearBegin();
 
+    // Get concepts without atoms and remove them if they don't have a CUI1 in MRCUI.RRF
+    Query query = getEntityManager().createQuery("select c1.id from "
+        + "ConceptJpa c1 where c1.terminology = :terminology and c1.id NOT IN (select c2.id from ConceptJpa c2 JOIN c2.atoms)"); 
+    query.setParameter("terminology", "NCIMTH");
+    
+    List<Object> list = query.getResultList();
+    int conceptsRemoved = 0;
+    for (final Object entry : list) {
+      final Long id = Long.valueOf(entry.toString());
+      Concept testConcept = getConcept(id);
+      if (!cuiHistoryLines.keySet().contains(testConcept.getTerminologyId())) {
+        for (Definition def : testConcept.getDefinitions()) {
+          removeDefinition(def.getId());
+        }
+        for (Attribute att : testConcept.getAttributes()) {
+          removeAttribute(att.getId());
+        }
+        for (ConceptRelationship rel : testConcept.getInverseRelationships()) {
+          removeRelationship(rel.getId(), rel.getClass());
+        }
+        for (ConceptRelationship rel : testConcept.getRelationships()) {
+          removeRelationship(rel.getId(), rel.getClass());
+        }
+        for (SemanticTypeComponent sty : testConcept.getSemanticTypes()) {
+          removeSemanticTypeComponent(sty.getId());
+        }
+        for (ComponentHistory history : testConcept.getComponentHistory()) {
+          removeComponentHistory(history.getId());
+        }
+        for (ConceptSubsetMember member : testConcept.getMembers()) {
+          removeSubsetMember(member.getId(), member.getClass());
+        }
+        for (ConceptTreePosition treePos : testConcept.getTreePositions()) {
+          removeTreePosition(treePos.getId(), treePos.getClass());
+        }
+        testConcept.setNotes(null);
+        updateConcept(testConcept);
+        removeConcept(testConcept.getId());
+        commitClearBegin();
+        conceptsRemoved++;
+      }
+    }
+    commitClearBegin();
+    logInfo("Concepts removed: " + conceptsRemoved);
+       
     fireProgressEvent(100, "Finished - 100%");
     logInfo("  placeholder concepts created = " + conceptCreatedCount);
     logInfo("  component histories created = " + componentHistoryCreatedCount);

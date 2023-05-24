@@ -29,7 +29,7 @@ import com.wci.umls.server.model.meta.UsageType;
 @Table(name = "term_types", uniqueConstraints = @UniqueConstraint(columnNames = {
     "abbreviation", "terminology"
 }))
-@Audited
+//@Audited
 @XmlRootElement(name = "termType")
 public class TermTypeJpa extends AbstractAbbreviation implements TermType {
 

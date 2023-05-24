@@ -1,9 +1,16 @@
 
 <!-- C1 -->
 <div class="col-md-6 col-xs-12">
-  <h4 ng-show="selected.bin && lists.records.totalCount>0">Bin:
+  <h4 ng-show="selected.bin && lists.records.totalCount>0 && 
+    type != 'Checklist' && type != 'Worklist'">Bin:
     {{selected.bin.name}}&nbsp;({{lists.records.totalCount}})</h4>
-
+  <h4 ng-show="lists.records.totalCount>0 && 
+    type == 'Checklist'">Checklist:
+    {{lists.records[0].checklistName}}&nbsp;({{lists.records.totalCount}})</h4>
+  <h4 ng-show="lists.records.totalCount>0 && 
+    type == 'Worklist'">Worklist:
+    {{lists.records[0].worklistName}}&nbsp;({{lists.records.totalCount}})</h4>
+        
   <div pager paging="paging" count="lists.records.totalCount"
     callbacks="paging.callbacks"></div>
 

@@ -23,10 +23,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.DateBridge;
+import org.hibernate.search.annotations.EncodingType;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Resolution;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.EnumBridge;
 import org.hibernate.search.bridge.builtin.LongBridge;
@@ -100,6 +104,10 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
   @JoinColumn(nullable = false, name = "workflowConfig_id")
   private WorkflowConfig workflowConfig;
 
+  /** The autofix. */
+  @Column(nullable = false)
+  private String autofix;  
+  
   /**
    * Instantiates a new workflow bin definition jpa.
    */
@@ -125,6 +133,7 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
     enabled = def.isEnabled();
     required = def.isRequired();
     workflowConfig = def.getWorkflowConfig();
+    autofix = def.getAutofix();
   }
 
   /* see superclass */
@@ -141,6 +150,9 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @DateBridge(resolution = Resolution.SECOND, encoding = EncodingType.STRING)
+  @SortableField
   public Date getLastModified() {
     return lastModified;
   }
@@ -302,6 +314,19 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
     workflowConfig.setId(id);
   }
 
+  /* see superclass */
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getAutofix() {
+    return autofix;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAutofix(String autofix) {
+    this.autofix = autofix;
+  }    
+  
   /* see superclass */
   @Override
   public int hashCode() {

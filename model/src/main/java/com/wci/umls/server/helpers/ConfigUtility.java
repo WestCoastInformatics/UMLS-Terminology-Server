@@ -32,13 +32,20 @@ import java.util.Scanner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
 import javax.mail.Authenticator;
+import javax.mail.BodyPart;
 import javax.mail.Message;
+import javax.mail.Multipart;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
@@ -109,7 +116,7 @@ public class ConfigUtility {
 
   /** The Constant DATE_FORMAT4. */
   public final static FastDateFormat DATE_FORMAT4 =
-      FastDateFormat.getInstance("yyyy-MM-dd hh:mm:ss");
+      FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
 
   /** The Constant DATE_FORMAT5. */
   public final static FastDateFormat DATE_FORMAT5 =
@@ -117,7 +124,7 @@ public class ConfigUtility {
 
   /** The Constant DATE_FORMAT4. */
   public final static FastDateFormat DATE_YYYYMMDDHHMMSS =
-      FastDateFormat.getInstance("yyyyMMddhhmmss");
+      FastDateFormat.getInstance("yyyyMMddHHmmss");
 
   /** The Constant PUNCTUATION. */
   public final static String PUNCTUATION =
@@ -834,6 +841,69 @@ public class ConfigUtility {
     Transport.send(msg);
   }
 
+  /**
+   * Sends email with attachment.
+   *
+   * @param subject the subject
+   * @param from the from
+   * @param recipients the recipients
+   * @param body the body
+   * @param details the details
+   * @param attachmentFileName the attachment file name
+   * @throws Exception the exception
+   */
+  public static void sendEmail(String subject, String from, String recipients,
+    String body, Properties details, String attachmentFileName) throws Exception {
+    // avoid sending mail if disabled
+    if ("false".equals(details.getProperty("mail.enabled"))) {
+      // do nothing
+      return;
+    }
+    Session session = null;
+    if ("true".equals(config.get("mail.smtp.auth"))) {
+      Authenticator auth = new SMTPAuthenticator();
+      session = Session.getInstance(details, auth);
+    } else {
+      session = Session.getInstance(details);
+    }
+
+    Multipart multipart = new MimeMultipart();
+
+    MimeMessage msg = new MimeMessage(session);
+    msg.setSubject(subject);
+    msg.setFrom(new InternetAddress(from));
+    final String[] recipientsArray = recipients.split(";");
+    for (final String recipient : recipientsArray) {
+      msg.addRecipient(Message.RecipientType.TO,
+          new InternetAddress(recipient));
+    }
+    
+    // Create the message part
+    BodyPart messageBodyPart = new MimeBodyPart();
+    
+    if (body.contains("<html")) {
+      messageBodyPart.setContent(body.toString(), "text/html; charset=utf-8");
+    } else {
+      messageBodyPart.setText(body.toString());
+    }
+    
+    multipart.addBodyPart(messageBodyPart);
+
+    // Part two is attachment
+    messageBodyPart = new MimeBodyPart();
+    DataSource source = new FileDataSource(attachmentFileName);
+    messageBodyPart.setDataHandler(new DataHandler(source));
+    messageBodyPart.setFileName(attachmentFileName);
+    multipart.addBodyPart(messageBodyPart);
+
+    // Send the complete message parts
+    msg.setContent(multipart);    
+    
+    // Send message
+    Transport.send(msg);
+  }
+  
+  
   /**
    * SMTPAuthenticator.
    */

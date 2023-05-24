@@ -43,8 +43,7 @@ import com.wci.umls.server.model.content.Component;
  * Implementation of an algorithm to update publishable but not published to
  * published
  */
-public class UpdatePublishedAlgorithm
-    extends AbstractInsertMaintReleaseAlgorithm {
+public class UpdatePublishedAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   /**
    * Instantiates an empty {@link UpdatePublishedAlgorithm}.
@@ -94,20 +93,17 @@ public class UpdatePublishedAlgorithm
 
     try {
 
-      logInfo(
-          "[Update Published] Setting publishable and not published components to published.");
+      logInfo("[Update Published] Setting publishable and not published components to published.");
       commitClearBegin();
 
       // Find all publishable and not published components and abbreviations
       final List<Class> componentClassList =
-          new ArrayList<>(Arrays.asList(AtomRelationshipJpa.class,
-              AtomSubsetMemberJpa.class, AtomSubsetJpa.class, AtomJpa.class,
-              AttributeJpa.class, CodeRelationshipJpa.class, CodeJpa.class,
-              ComponentHistoryJpa.class, ComponentInfoRelationshipJpa.class,
-              ConceptRelationshipJpa.class, ConceptSubsetMemberJpa.class,
-              ConceptSubsetJpa.class, ConceptJpa.class, DefinitionJpa.class,
-              DescriptorRelationshipJpa.class, DescriptorJpa.class,
-              GeneralConceptAxiomJpa.class, LexicalClassJpa.class,
+          new ArrayList<>(Arrays.asList(AtomRelationshipJpa.class, AtomSubsetMemberJpa.class,
+              AtomSubsetJpa.class, AtomJpa.class, AttributeJpa.class, CodeRelationshipJpa.class,
+              CodeJpa.class, ComponentHistoryJpa.class, ComponentInfoRelationshipJpa.class,
+              ConceptRelationshipJpa.class, ConceptSubsetMemberJpa.class, ConceptSubsetJpa.class,
+              ConceptJpa.class, DefinitionJpa.class, DescriptorRelationshipJpa.class,
+              DescriptorJpa.class, GeneralConceptAxiomJpa.class, LexicalClassJpa.class,
               MappingJpa.class, MapSetJpa.class, SemanticTypeComponentJpa.class,
               StringClassJpa.class));
 
@@ -115,13 +111,18 @@ public class UpdatePublishedAlgorithm
 
       for (final Class clazz : componentClassList) {
         logInfo("  Update " + clazz.getSimpleName());
-        Query query =
-            manager.createQuery("SELECT a.id FROM " + clazz.getSimpleName()
-                + " a WHERE published = false AND publishable = true");
+        Query query = manager.createQuery("SELECT a.id FROM " + clazz.getSimpleName()
+            + " a WHERE published = false AND publishable = true");
+        // Add the number of objects returned to the steps, so we can log and
+        // commit periodically
+        setSteps(getSteps() + query.getResultList().size());
+
         for (final Long id : (List<Long>) query.getResultList()) {
           final Component component = getComponent(id, clazz);
           component.setPublished(true);
           updateComponent(component);
+          // Update the progress
+          updateProgress();
         }
         commitClearBegin();
 

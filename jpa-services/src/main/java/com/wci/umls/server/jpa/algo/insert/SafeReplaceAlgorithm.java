@@ -13,6 +13,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -26,8 +27,10 @@ import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractMergeAlgorithm;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
+import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -151,6 +154,7 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
     // If terminology is set, run the query once for that terminology.
 
     List<Long[]> atomIdPairArray = new ArrayList<>();
+    List<Long> updatedAtomIds = new ArrayList<>();
 
     if (ConfigUtility.isEmpty(terminology)) {
 
@@ -222,12 +226,16 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
       final Atom oldAtom = getAtom(oldAtomId);
       final Atom newAtom = getAtom(newAtomId);
 
-      // Update newAtom's alternateTerminologyIds
-      for (final Map.Entry<String, String> oldAltTermId : oldAtom
-          .getAlternateTerminologyIds().entrySet()) {
-        newAtom.getAlternateTerminologyIds().put(oldAltTermId.getKey(),
-            oldAltTermId.getValue());
-      }
+      // DON'T update the alternetTerminologyIds
+      // New atom has unique AUI, so NCIMTH shouldn't change
+      // And NCIMTH-SRC id is release-specific, and shouldn't be pulled from
+      // old atom.
+      // // Update newAtom's alternateTerminologyIds
+      // for (final Map.Entry<String, String> oldAltTermId : oldAtom
+      // .getAlternateTerminologyIds().entrySet()) {
+      // newAtom.getAlternateTerminologyIds().put(oldAltTermId.getKey(),
+      // oldAltTermId.getValue());
+      // }
 
       // Update obsolete and suppresible.
       // If old atom was suppresed by an editor and new atom is unsuppressed,
@@ -264,6 +272,7 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
 
           // Update the related atom
           updateAtom(relatedAtom);
+          updatedAtomIds.add(relatedAtom.getId());
 
           // Save the demotion and inverseDemotion Ids, to delete later
           removeRelationshipIds.add(rel.getId());
@@ -273,6 +282,7 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
 
       // Once all demotions are removed, update the newAtom
       updateAtom(newAtom);
+      updatedAtomIds.add(newAtom.getId());
 
       // Delete any demotions that were removed from atoms
       for (Long relId : removeRelationshipIds) {
@@ -290,6 +300,24 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
 
     commitClearBegin();
 
+    // If any atoms were updated, update their containing concepts as well, to
+    // get the concepts' indexes up to date
+      if (updatedAtomIds.size() > 0) {
+      query = "SELECT DISTINCT c.id " + "FROM ConceptJpa c JOIN c.atoms a "
+          + "WHERE a.id in (" + StringUtils.join(updatedAtomIds, ',') + ") ";
+
+      List<Long> conceptIds = new ArrayList<>();
+      conceptIds.addAll(executeSingleComponentIdQuery(query, QueryType.JPQL,
+          getDefaultQueryParams(getProject()), ConceptJpa.class, false));
+
+      for (final Long conceptId : conceptIds) {
+        final Concept concept = getConcept(conceptId);
+        updateConcept(concept);
+      }
+
+      commitClearBegin();
+    }
+    
     logInfo("  new atoms safe-replaced = " + safeReplacedAtomIds.size());
     logInfo("Finished " + getName());
 

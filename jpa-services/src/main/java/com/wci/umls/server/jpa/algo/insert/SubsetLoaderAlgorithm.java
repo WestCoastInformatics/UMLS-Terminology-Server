@@ -172,6 +172,9 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       handler.rollback();
       handler.close();
       throw e;
+    } finally {
+      // Clear the caches to free up memory
+      clearCaches();
     }
 
   }
@@ -446,8 +449,9 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       addedSubsetMembers.put(subsetMemberIdKey, member.getId());
     }
 
-    // TODO: handle the "update "case - e.g. obsolete, suppressible, version if we're reusing the member
-    
+    // TODO: handle the "update "case - e.g. obsolete, suppressible, version if
+    // we're reusing the member
+
     // Always make an attribute, even if it's an entry for JUST a membership
     final Attribute memberAtt = new AttributeJpa();
 
@@ -457,7 +461,7 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     newAttribute.setName(fields[3]);
     newAttribute.setValue(fields[4]);
     newAttribute.setTerminology(referencedTerminology.getTerminology());
-    newAttribute.setTerminologyId("");
+    newAttribute.setTerminologyId(fields[12]);
 
     // Compute attribute identity
     final String subsetAtui =
@@ -467,11 +471,12 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     memberAtt.getAlternateTerminologyIds().put(getProject().getTerminology(),
         subsetAtui);
 
-    // TODO: check whether this attribute is already connected to the subset member
+    // TODO: check whether this attribute is already connected to the subset
+    // member
     // and if so reuse it (e.g. update suppressible, obsolete, version)
-    
+
     // No terminology id for the member attribute
-    memberAtt.setTerminologyId("");
+    memberAtt.setTerminologyId(fields[12]);
 
     memberAtt.setTerminology(referencedTerminology.getTerminology());
     memberAtt.setVersion(referencedTerminology.getVersion());

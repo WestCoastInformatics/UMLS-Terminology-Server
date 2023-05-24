@@ -23,6 +23,7 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
 
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.Note;
@@ -1758,6 +1759,57 @@ public class WorkflowClientRest extends RootClientRest
     // converting to object
     return ConfigUtility.getGraphForJson(resultString,
         WorkflowEpochListJpa.class);
+  }
+
+  @Override
+  public void runAutofix(Long projectId, WorkflowBinJpa workflowBin, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).debug("Workflow Client - autofix bin "
+        + projectId + ", " + workflowBin.getName());
+
+    validateNotEmpty(projectId, "projectId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/workflow/runautofix?projectId=" + projectId);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.json(workflowBin));
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+    
+  }
+
+  @Override
+  public Boolean getProcessProgress(Long projectId, String process,
+    String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public ValidationResult getProcessResults(Long projectId, String process,
+    String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+
+  @Override
+  public ValidationResult getBulkProcessResults(Long projectId, String process,
+    String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public StringList getBulkProcessProgress(String[] binNames, Long projectId,
+    String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

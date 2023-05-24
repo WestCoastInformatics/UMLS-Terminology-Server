@@ -5,6 +5,7 @@ tsApp.controller('WorkflowCtrl', [
   '$location',
   '$uibModal',
   '$window',
+  '$interval',
   'utilService',
   'websocketService',
   'tabService',
@@ -14,7 +15,7 @@ tsApp.controller('WorkflowCtrl', [
   'metadataService',
   'workflowService',
   'reportService',
-  function($scope, $http, $location, $uibModal, $window, utilService, websocketService, tabService,
+  function($scope, $http, $location, $uibModal, $window, $interval, utilService, websocketService, tabService,
     configureService, securityService, projectService, metadataService, workflowService,
     reportService) {
     console.debug("configure WorkflowCtrl");
@@ -28,6 +29,11 @@ tsApp.controller('WorkflowCtrl', [
     tabService.setSelectedTabByLabel('Workflow');
 
     $scope.pageSizes = utilService.getPageSizes();
+    
+    // Progress tracking
+    $scope.lookupInterval = null;
+    $scope.binsInProcessProgress = [];
+    $scope.binsProcessCompleted = [];
 
     // Selected variables
     $scope.selected = {
@@ -66,6 +72,28 @@ tsApp.controller('WorkflowCtrl', [
       open : false
     } ];
 
+    // clear and reload records to avoid stale ones appearing
+    $scope.$watch('groups[0].open', function(isOpen){
+      if (isOpen) {
+        console.log('Bins group was opened'); 
+        $scope.lists.records = null;
+      }    
+    });
+    $scope.$watch('groups[1].open', function(isOpen){
+      if (isOpen) {
+        console.log('Checklists group was opened'); 
+        $scope.lists.records = null;
+        websocketService.fireChecklistChange($scope.selected.project);
+      }    
+    });
+    $scope.$watch('groups[2].open', function(isOpen){
+      if (isOpen) {
+        console.log('Worklists group was opened'); 
+        $scope.lists.records = null;
+        websocketService.fireWorklistChange($scope.selected.project);
+      }    
+    });
+    
     // Handle worklist actions
     $scope.$on('termServer::binsChange', function(event, project) {
       if (project.id == $scope.selected.project.id) {
@@ -98,7 +126,6 @@ tsApp.controller('WorkflowCtrl', [
         getPagedList : getPagedList
       };
     }
-    $scope.resetRecordPaging();
 
     $scope.resetBinPaging = function() {
       $scope.paging['bins'] = utilService.getPaging();
@@ -135,6 +162,14 @@ tsApp.controller('WorkflowCtrl', [
       if ($scope.selected.config) {
         $scope.getBins($scope.selected.project.id, $scope.selected.config, $scope.selected.bin);
       }
+      $scope.user.userPreferences.properties['workflowConfigType'] = $scope.selected.config.type;
+      securityService.updateUserPreferences($scope.user.userPreferences);
+      
+      // when config type is switched, reset bin paging back to page 1
+      $scope.resetBinPaging();
+      $scope.user.userPreferences.properties['workflowBinPaging'] = JSON
+      .stringify($scope.paging['bins']);
+      securityService.updateUserPreferences($scope.user.userPreferences);
     }
 
     // Retrieve all bins with project and type
@@ -157,7 +192,16 @@ tsApp.controller('WorkflowCtrl', [
               $scope.selectBin(filtered[0]);
             }
           }
-          $scope.resetBinPaging();
+          var paging = $scope.paging['bins'];
+          
+          //if (recoverPreferences){
+            paging = JSON.parse($scope.user.userPreferences.properties['workflowBinPaging']);
+            angular.copy(paging, $scope.paging['bins']);
+            $scope.paging['bins'].callbacks = {
+              getPagedList : getPagedBins
+            };
+          //} 
+          //$scope.resetBinPaging();
           $scope.getPagedBins();
         });
       }
@@ -213,6 +257,11 @@ tsApp.controller('WorkflowCtrl', [
 
     }
 
+    // update project
+    $scope.updateProject = function(project) {
+    	projectService.updateProject(project);
+    }
+    
     // Retrieve all projects
     $scope.getProjects = function() {
 
@@ -367,12 +416,18 @@ tsApp.controller('WorkflowCtrl', [
         // Select the MUTUALLY_EXCLUSIVE config if available.
         // If not, select the first config in the list.
         var selectConfig = $scope.lists.configs[0];
+        var userSelectedConfig = $scope.user.userPreferences.properties['workflowConfigType'];
         for (var i = 0; i < $scope.lists.configs.length; i++) {
           if ($scope.lists.configs[i].type == 'MUTUALLY_EXCLUSIVE') {
             selectConfig = $scope.lists.configs[i];
           }
+          if ($scope.lists.configs[i].type == userSelectedConfig) {
+            selectConfig = $scope.lists.configs[i];
+            break;
+          }
         }
         $scope.setConfig(selectConfig);
+        
       });
     };
 
@@ -386,6 +441,7 @@ tsApp.controller('WorkflowCtrl', [
         return;
       }
 
+      $scope.resetRecordPaging();
       if (clusterType && clusterType == 'default') {
         $scope.paging['records'].filter = ' NOT clusterType:[* TO *]';
       } else if (clusterType && clusterType != 'all') {
@@ -393,8 +449,10 @@ tsApp.controller('WorkflowCtrl', [
       } else if (clusterType == 'all') {
         $scope.paging['records'].filter = '';
       }
-      $scope.resetRecordPaging();
       getPagedList();
+      $scope.user.userPreferences.properties['workflowBinPaging'] = JSON
+      .stringify($scope.paging['bins']);
+      securityService.updateUserPreferences($scope.user.userPreferences);
     };
 
     // This needs to be a function so it can be scoped properly for the
@@ -445,21 +503,69 @@ tsApp.controller('WorkflowCtrl', [
 
     // Regenerate single bin
     $scope.regenerateBin = function(bin) {
-    	// Get confirmation before regenerating
-   		var	regenerate = confirm('This bin took ' + bin.creationTime/1000 + ' seconds to process last time it was run. \n\n Are you sure you want to regenerate now?');
-    	if (regenerate == true) {
-    		// send both id and name
+      
+      if (!$scope.selected.project.editingEnabled) {
+        window.alert("Bin cannot be regenerated while editing is disabled.");
+        return;
+      }
+    	  // Get confirmation before regenerating
+   		   var	 regenerate = confirm('This bin took ' + bin.creationTime/1000 + ' seconds to process last time it was run. \n\n Are you sure you want to regenerate now?');
+   		 
+   		   if (regenerate == true && bin.creationTime/1000 > 30) {
+   		     regenerate = confirm('DO NOT refresh your screen during bin regeneration. \n\n No other operations will be allowed until the bin is complete. \n\n Are you ready to continue?');
+   		   }
+      if (regenerate == true) {
+      		    // send both id and name
     	      workflowService.regenerateBin($scope.selected.project.id, bin.id, bin.name,
     	    	        $scope.selected.config.type).then(
     	    	      // Success
     	    	      function(data) {
     	    	        $scope.getBins($scope.selected.project.id, $scope.selected.config, bin);
+    	    	        // Once the bin is finished processing 
+                // stop the lookup
+                $interval.cancel($scope.lookupInterval);
+                $scope.lookupInterval = null;
     	    	      });
-    	}
+    	      
+    	      
+    	      $scope.startProcessProgressLookup = function(process) { 
+            // Start if not already running
+            if (!$scope.lookupInterval) {
+              $scope.lookupInterval = $interval(function() {
+                $scope.refreshProcessProgress(process);
+              }, 2000);
+            }
+          } 
+    	      
+    	      $scope.startProcessProgressLookup(bin.name);
+    	      
+    	   
+          // Refresh Process progress
+          $scope.refreshProcessProgress = function(process) {
+                             
+            workflowService.getProcessProgress(process, $scope.selected.project.id).then(
+            // Success
+            function(data) {
+              
+              // Once bin is finished processing (i.e. process progress returns false), 
+              // stop the lookup
+              if(data === false){
+                $interval.cancel($scope.lookupInterval);
+                $scope.lookupInterval = null;
+                workflowService.decrementGlassPane('Regenerating bin...');
+                $scope.getBins($scope.selected.project.id, $scope.selected.config, bin);
+              }
+            })};
+    	  }
     };
 
     // Regenerate bins
     $scope.regenerateBins = function() {
+
+      // Clear out process progress lists
+      $scope.binsInProcessProgress = [];
+      $scope.binsProcessCompleted = [];
+      
       workflowService.clearBins($scope.selected.project.id, $scope.selected.config.type).then(
         // Success
         function(data) {
@@ -469,8 +575,62 @@ tsApp.controller('WorkflowCtrl', [
               function(data) {
                 $scope.getBins($scope.selected.project.id, $scope.selected.config,
                   $scope.selected.bin);
+                  
               });
-        });
+          // Start lookup for process progress
+          $scope.startProcessProgressLookup = function(binNames) {
+            
+              // Start if not already running
+              if (!$scope.lookupInterval) {
+                $scope.lookupInterval = $interval(function() {
+                  $scope.refreshProcessProgress(binNames);
+                }, 2000);
+              }
+          }   
+          var binNames = [];
+          for (var i = 0; i < $scope.lists.bins.length; i++) {
+            binNames.push($scope.lists.bins[i].name); 
+          }
+          $scope.startProcessProgressLookup(binNames);
+          
+          // Refresh Process progress
+          $scope.refreshProcessProgress = function(binNames) {
+                             
+            workflowService.getBulkProcessProgress($scope.selected.project.id, binNames).then(
+            // Success
+            function(data) {
+              var binsStillInProgress = [];
+              for(var i=0; i <  data.strings.length; i++){
+                binsStillInProgress.push(data.strings[i]);
+              }
+              
+              var completed = binNames.length - binsStillInProgress.length;
+              workflowService.updateGlassPaneMessage('Regenerating bins...  ' + 
+                completed + ' out of ' + binNames.length + ' completed.');
+              
+              // Any time a bin finishes processing, update in-progress and completed lists
+              if($scope.binsInProcessProgress.length !== binsStillInProgress.length){
+                for(var i=0; i < $scope.binsInProcessProgress.length; i++){
+                  if(!binsStillInProgress.includes($scope.binsInProcessProgress[i])){
+                    $scope.binsProcessCompleted.push($scope.binsInProcessProgress[i]);
+                    
+                  }
+                }
+                
+                $scope.binsInProcessProgress = binsStillInProgress;
+              }
+              
+              // Once all bins are finished processing (i.e. the in-progress list comes back empty), 
+              // stop the lookup and get the validation results
+              if(data.strings.length === 0){
+                $interval.cancel($scope.lookupInterval);
+                $scope.lookupInterval = null;
+                workflowService.updateGlassPaneMessage(null);
+                workflowService.decrementGlassPane();
+              } 
+            });
+          }
+      });
     };
 
     // Recompute concept status
@@ -537,18 +697,34 @@ tsApp.controller('WorkflowCtrl', [
       console.debug('saveAccordionStatus', $scope.groups);
       $scope.user.userPreferences.properties['workflowGroups'] = JSON.stringify($scope.groups);
       securityService.updateUserPreferences($scope.user.userPreferences);
-    }
+    };
 
     // Indicate whether user has permission
     $scope.hasPermissions = function(action) {
       return securityService.hasPermissions(action);
-    }
+    };
 
     // Export a workflow config
     $scope.exportWorkflow = function() {
       workflowService.exportWorkflow($scope.selected.project.id, $scope.selected.config.id);
-    }
+    };
 
+    // Run autofix on a bin
+    $scope.runAutofix = function(lbin) {
+      console.log('Creating autofix process for bin');     	
+      workflowService.runAutofix($scope.selected.project.id, lbin).then(
+    	      // Success
+    	      function(data) {
+    	        // Go to process page, autofix section
+    	          securityService.saveProperty($scope.user.userPreferences, 'processType',
+    	          'Autofix');
+    	          securityService.saveProperty($scope.user.userPreferences, 'processMode',
+                  'Config');
+    	    	  tabService.setSelectedTabByLabel('Process');
+    	      });
+    };
+
+    
     //
     // MODALS
     //

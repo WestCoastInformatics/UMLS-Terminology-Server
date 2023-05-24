@@ -4,6 +4,7 @@
 package com.wci.umls.server.jpa.services;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,12 +13,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import javax.persistence.NoResultException;
 
 import org.apache.log4j.Logger;
 import org.apache.lucene.queryparser.classic.QueryParserBase;
+
+import static java.lang.Math.toIntExact;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
@@ -26,6 +30,7 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.SearchResultList;
@@ -40,12 +45,14 @@ import com.wci.umls.server.jpa.helpers.TrackingRecordListJpa;
 import com.wci.umls.server.jpa.helpers.WorkflowConfigListJpa;
 import com.wci.umls.server.jpa.helpers.WorklistListJpa;
 import com.wci.umls.server.jpa.workflow.ChecklistJpa;
+import com.wci.umls.server.jpa.workflow.ChecklistNoteJpa;
 import com.wci.umls.server.jpa.workflow.TrackingRecordJpa;
 import com.wci.umls.server.jpa.workflow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.workflow.WorkflowBinJpa;
 import com.wci.umls.server.jpa.workflow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.workflow.WorkflowEpochJpa;
 import com.wci.umls.server.jpa.workflow.WorklistJpa;
+import com.wci.umls.server.jpa.workflow.WorklistNoteJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
@@ -74,6 +81,17 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
   private Set<Long> atomIdsForTrackingRecordNeedsReview = null;
 
+  /** The process in progress map. */
+  static Map<String, Boolean> processInProgressMap = new ConcurrentHashMap<>();
+  
+  /** The process validation result map. */
+  /*
+   * Store process validation results so they can be sent to the UI once the
+   * process is complete
+   */
+  static Map<String, ValidationResult> processValidationResultMap =
+      new ConcurrentHashMap<>();
+  
   static {
     init();
   }
@@ -592,6 +610,9 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     WorkflowBinDefinition definition, int rank, Set<Long> conceptsSeen,
     Map<Long, String> conceptIdWorklistNameMap) throws Exception {
     Logger.getLogger(getClass()).info("Regenerate bin " + definition.getName());
+    
+    // start progress monitoring
+    startProcess(project.getId(), definition.getName());
 
     setTransactionPerOperation(false);
     final Date startDate = new Date();
@@ -610,6 +631,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     bin.setTerminologyId("");
     bin.setTimestamp(new Date());
     bin.setType(definition.getWorkflowConfig().getType());
+    bin.setAutofix(definition.getAutofix());
     addWorkflowBin(bin);
 
     // Bail if the definition is not enabled
@@ -680,11 +702,16 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
         // Load the concept ids involved
         final StringBuilder conceptNames = new StringBuilder();
+        Set<String> terms = new HashSet<>();
         for (final Long conceptId : clusterIdConceptIdsMap.get(clusterId)) {
           final Concept concept = getConcept(conceptId);
           record.getOrigConceptIds().add(conceptId);
           // collect all the concept names for the indexed data
-          conceptNames.append(concept.getName()).append(" ");
+          for (Atom atom : concept.getAtoms()) {
+            terms.addAll(Arrays.asList(atom.getName().toLowerCase().split(" ")));
+          }
+          terms.addAll(Arrays.asList(concept.getName().toLowerCase().split(" ")));
+         
 
           // Set cluster type if a concept has an STY associated with a cluster
           // type in the project
@@ -721,6 +748,9 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
           }
 
         }
+        for (String term : terms) {
+          conceptNames.append(term).append(" ");
+        }
         record.setIndexedData(conceptNames.toString());
 
         addTrackingRecord(record);
@@ -740,6 +770,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     bin.setCreationTime(new Date().getTime() - startDate.getTime());
     updateWorkflowBin(bin);
 
+    // finish progress monitoring
+    finishProcess(project.getId(), definition.getName());
     return bin;
 
   }
@@ -758,6 +790,9 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
             composeQuery(project, "")
                 + (type == null ? "" : " AND type:" + type),
             "", WorkflowBinJpa.class, null, totalCt, manager);
+    Logger.getLogger(getClass())
+        .info("Workflow Service - get workflow bins results: " + manager + "*"
+            + results);
     return new ArrayList<WorkflowBin>(results);
 
   }
@@ -816,6 +851,18 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       for (final TrackingRecord record : worklist.getTrackingRecords()) {
         removeTrackingRecord(record.getId());
       }
+
+      final List<Note> worklistNotesCopies = new ArrayList<>();
+      for (final Note note : worklist.getNotes()) {
+        worklistNotesCopies.add(new WorklistNoteJpa((WorklistNoteJpa) note));
+      }
+
+      worklist.getNotes().clear();
+
+      for (final Note note : worklistNotesCopies) {
+        removeNote(note.getId(), WorklistNoteJpa.class);
+      }
+
     }
 
     // Remove the component
@@ -913,6 +960,17 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       for (final TrackingRecord record : checklist.getTrackingRecords()) {
         removeTrackingRecord(record.getId());
       }
+
+      final List<Note> checklistNotesCopies = new ArrayList<>();
+      for (final Note note : checklist.getNotes()) {
+        checklistNotesCopies.add(new ChecklistNoteJpa((ChecklistNoteJpa) note));
+      }
+
+      checklist.getNotes().clear();
+
+      for (final Note note : checklistNotesCopies) {
+        removeNote(note.getId(), ChecklistNoteJpa.class);
+      }
     }
 
     // Remove the component
@@ -978,8 +1036,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       if (checklist.getName().equals(name)
           && checklist.getProject().equals(project)) {
         if (override) {
-          removeChecklist(checklist.getId(), true);
-          commitClearBegin();
+           removeChecklist(checklist.getId(), true);
+           commitClearBegin();
         } else {
           throw new LocalException(
               "A checklist for project " + project.getName() + " with name "
@@ -1036,23 +1094,32 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       record.setTimestamp(new Date());
       record.setVersion(project.getVersion());
       final StringBuilder sb = new StringBuilder();
+      Set<String> terms  = new HashSet<>();
       for (final Long conceptId : entries.get(clusterId)) {
         final Concept concept = getConcept(conceptId);
         record.getComponentIds().addAll(concept.getAtoms().stream()
             .map(a -> a.getId()).collect(Collectors.toSet()));
         if (!record.getOrigConceptIds().contains(concept.getId())) {
-          sb.append(concept.getName()).append(" ");
+          for (Atom atom : concept.getAtoms()) {
+            terms.addAll(Arrays.asList(atom.getName().toLowerCase().split(" ")));
+          }
+          terms.addAll(Arrays.asList(concept.getName().toLowerCase().split(" ")));
         }
+        
         record.getOrigConceptIds().add(concept.getId());
 
       }
-
+      for (String term : terms) {
+        sb.append(term).append(" ");
+      }
       record.setIndexedData(sb.toString());
       record.setWorkflowStatus(computeTrackingRecordStatus(record, true));
       final TrackingRecord newRecord = addTrackingRecord(record);
 
       // Add the record to the checklist.
       checklist.getTrackingRecords().add(newRecord);
+
+      silentIntervalCommit(toIntExact(i), logCt, commitCt);
     }
 
     // Add the checklist
@@ -1232,12 +1299,12 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
   }
 
   @Override
-  public void lookupTrackingRecordConcepts(TrackingRecord record)
+  public TrackingRecord lookupTrackingRecordConcepts(TrackingRecord record)
     throws Exception {
 
     // Bail if no atom components.
     if (record.getComponentIds().size() == 0) {
-      return;
+      return record;
     }
 
     // Create a query
@@ -1252,6 +1319,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       record.getConcepts().add(new ConceptJpa(concept, false));
     }
 
+    return record;
   }
 
   /**
@@ -1299,5 +1367,53 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       throw new Exception(
           "Workflow action handler did not properly initialize, serious error.");
     }
+  }
+  
+  /* see superclass */
+  @Override
+  public void startProcess(Long projectId, String process) throws Exception {
+    processInProgressMap.put(projectId + "|" + process, true);
+  }
+
+  /* see superclass */
+  @Override
+  public void finishProcess(Long projectId, String process)
+    throws Exception {
+    processInProgressMap.remove(projectId + "|" + process);
+  }
+
+  /* see superclass */
+  @Override
+  public Boolean getProcessProgressStatus(Long projectId, String process)
+    throws Exception {
+    if (processInProgressMap.containsKey(projectId + "|" + process)) {
+      return true;
+    }
+    return false;
+  }
+  
+
+  /* see superclass */
+  @Override
+  public void setProcessValidationResult(Long projectId, String process,
+    ValidationResult validationResult) throws Exception {
+
+    processValidationResultMap.put(projectId + "|" + process, validationResult);
+  }
+
+  /* see superclass */
+  @Override
+  public ValidationResult getProcessValidationResult(Long projectId,
+    String process) throws Exception {
+
+    return processValidationResultMap.get(projectId + "|" + process);
+  }
+
+  /* see superclass */
+  @Override
+  public void removeProcessValidationResult(Long projectId, String process)
+    throws Exception {
+
+    processValidationResultMap.remove(projectId + "|" + process);
   }
 }

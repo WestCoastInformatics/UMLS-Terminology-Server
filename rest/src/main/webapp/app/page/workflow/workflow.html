@@ -22,6 +22,11 @@
         <span class="alert alert-danger"> DISCONNECTED</span>
         <button class="btn btn-xs btn-primary" ng-click="reconnect()">Reconnect</button>
       </span>
+      <br />
+      <span ng-show="selected.projectRole != 'AUTHOR'">Editing enabled 
+        <input type="checkbox" ng-model="selected.project.editingEnabled"
+        ng-change="updateProject(selected.project)">
+      </span>
       <span ng-show="selected.project && !selected.project.editingEnabled"
         style="display: block;" class="alert alert-danger">Editing is
         disabled.</span>
@@ -132,9 +137,10 @@
                     ng-change="toggleEnable(bin);" ng-model="bin.enabled"></input>
                   <i ng-click="openEditBinModal(bin)" ng-show="bin.enabled"
                     title="Edit Bin" class="noul glyphicon glyphicon-pencil"></i>
-                  <i ng-click="regenerateBin(bin)" ng-show="bin.enabled"
-                    title="Regenerate Bin"
-                    class="noul glyphicon glyphicon-repeat"></i>
+                  <i ng-click="selectBin(bin, 'all'); regenerateBin(bin); $event.stopPropagation()" ng-show="bin.enabled && selected.config.type != 'MUTUALLY_EXCLUSIVE'"
+                    title="Regenerate Bin" class="noul glyphicon glyphicon-repeat"></i>
+                  <i ng-click="runAutofix(bin)" ng-show="bin.enabled && hasPermissions('AutofixMidValidation') && bin.autofix != ''"
+                    title="Run Autofix" class="noul glyphicon glyphicon-wrench"></i>  
                   <i ng-click="openCloneBinModal(bin)" ng-show="bin.enabled"
                     title="Clone Bin" class="noul glyphicon glyphicon-copy"></i>
                   <i ng-click="removeBin(bin); $event.stopPropagation()"
@@ -161,9 +167,10 @@
               <td>{{stats.stats.assigned}}</td>
               <td>{{stats.stats.unassigned}}</td>
               <td class="nobreak">
-                <i ng-show="stats.clusterType == 'all' && bin.enabled && hasPermissions('CreateChecklist')"
-                  ng-click="regenerateBin(bin)" ng-show="bin.enabled"
+                <i ng-show="stats.clusterType == 'all' && bin.enabled && hasPermissions('CreateChecklist') && selected.config.type != 'MUTUALLY_EXCLUSIVE'"
+                  ng-click="regenerateBin(bin)"
                   title="Regenerate Bin" class="noul glyphicon glyphicon-repeat"></i>
+                &nbsp;                  
                 <i
                   ng-show="stats.clusterType != 'all' && bin.enabled && hasPermissions('CreateChecklist')"
                   ng-click="openAddChecklistModal(bin, stats.clusterType, 'Add', null); $event.stopPropagation()"

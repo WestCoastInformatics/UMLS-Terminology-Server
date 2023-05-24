@@ -36,7 +36,7 @@ import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
  */
 @Entity
 @Table(name = "user_preferences")
-@Audited
+//@Audited
 @XmlRootElement(name = "userPreferences")
 public class UserPreferencesJpa implements UserPreferences {
 

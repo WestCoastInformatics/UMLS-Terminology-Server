@@ -142,6 +142,7 @@ public class Rf2DeltaSourceDataHandler extends AbstractSourceDataHandler {
       sourceDataService.unregisterSourceDataAlgorithm(sourceData.getId());
       sourceDataService.updateSourceData(sourceData);
       sourceDataService.close();
+      algo.close();
     }
   }
 

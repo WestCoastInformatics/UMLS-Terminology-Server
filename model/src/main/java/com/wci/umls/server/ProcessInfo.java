@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2019 West Coast Informatics, LLC
  */
 package com.wci.umls.server;
 
@@ -102,4 +102,18 @@ public interface ProcessInfo<T extends AlgorithmInfo<?>>
    * @param inputPath the input path
    */
   public void setInputPath(String inputPath); 
+  
+  /**
+   * Returns the log path.
+   *
+   * @return the log path
+   */
+  public String getLogPath();
+  
+  /**
+   * Sets the log path.
+   *
+   * @param logPath the log path
+   */
+  public void setLogPath(String logPath);
 }

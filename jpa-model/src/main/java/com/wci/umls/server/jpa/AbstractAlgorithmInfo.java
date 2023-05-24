@@ -38,7 +38,7 @@ import com.wci.umls.server.Project;
  * JPA and JAXB enabled implementation of {@link AlgorithmInfo}.
  * @param <T> the process info type (e.g. config or execution)
  */
-@Audited
+//@Audited
 @MappedSuperclass
 @XmlSeeAlso({
     AlgorithmConfigJpa.class, AlgorithmExecutionJpa.class

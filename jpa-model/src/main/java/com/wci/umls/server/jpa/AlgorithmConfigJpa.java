@@ -30,7 +30,7 @@ import com.wci.umls.server.ProcessConfig;
  */
 @Entity
 @Table(name = "algorithm_configs")
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "algorithmConfig")
 public class AlgorithmConfigJpa extends AbstractAlgorithmInfo<ProcessConfig>

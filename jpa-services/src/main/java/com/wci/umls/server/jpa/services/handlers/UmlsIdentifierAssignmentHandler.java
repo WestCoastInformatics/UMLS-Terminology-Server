@@ -17,6 +17,7 @@ import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.AbstractConfigurable;
@@ -210,9 +211,14 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
       try {
         final javax.persistence.Query query = service.getEntityManager()
             .createQuery("select max(terminologyId) from ConceptJpa "
-                + "where terminology = :terminology "
+                + "  where terminology = :terminology "
                 + "  and version = :version "
-                + "  and terminologyId like :prefix");
+                + "  and terminologyId like :prefix "
+                + "  and length(terminologyId) = "
+                + "  (SELECT MAX(LENGTH(terminologyId)) FROM  ConceptJpa"
+                + "  where terminology = :terminology "
+                + "  and version = :version "
+                + "  and terminologyId like :prefix)");
         query.setParameter("terminology", concept.getTerminology());
         query.setParameter("version", concept.getVersion());
         query.setParameter("prefix", prefixMap.get("CUI") + "%");
@@ -222,14 +228,28 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
         conceptId = conceptId2 != null ? conceptId2 : conceptId;
       } catch (NoResultException e) {
         conceptId = 0L;
-      } finally {
-        service.close();
-      }
+      } 
+      
       // Set the maxConceptId
       maxConceptId = conceptId;
+      
+      // Try looking up concept with CUI = CUIprefix + (maxConceptId + 1), to
+      // ensure that maxConceptId is truly the max
+      final Concept testConcept =
+          service.getConcept(prefixMap.get("CUI") + (maxConceptId + 1),
+              concept.getTerminology(), concept.getVersion(), Branch.ROOT);
+
+      service.close();
+      
+      if (testConcept != null) {
+        throw new Exception("max CUI lookup failure: " + prefixMap.get("CUI")
+            + maxConceptId + " is not the maximum CUI");
+      }
+
       Logger.getLogger(getClass())
           .info("Initializing max CUI = " + maxConceptId);
     }
+
     final long result = ++maxConceptId;
     return convertId(result, "CUI");
   }
@@ -759,7 +779,7 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
     Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship,
     String inverseRelType, String inverseAdditionalRelType) throws Exception {
 
-    if (!relationship.isPublishable()) {
+    if (!relationship.isPublishable() && !inverseRelType.startsWith("B")) {
       return "";
     }
     // Return the id if it's already a RUI

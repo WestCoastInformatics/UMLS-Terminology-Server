@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <project
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-  xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <!-- Module Metadata -->
   <parent>
@@ -27,7 +28,7 @@
     <deploy.title>UMLS Terminology Server</deploy.title>
     <deploy.link>http://www.westcoastinformatics.com</deploy.link>
     <deploy.password.reset></deploy.password.reset>
-    <deploy.footer.copyright>(c)2016</deploy.footer.copyright>
+    <deploy.footer.copyright>(c)2019</deploy.footer.copyright>
     <deploy.feedback.email>info@westcoastinformatics.com</deploy.feedback.email>
     <deploy.presented.by>Presented by West Coast Informatics, LLC</deploy.presented.by>
     <deploy.enabled.tabs>content,metadata,workflow</deploy.enabled.tabs>
@@ -65,10 +66,6 @@
 
     <!-- JPA dependencies -->
     <dependency>
-      <groupId>javax.transaction</groupId>
-      <artifactId>jta</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
     </dependency>
@@ -78,19 +75,7 @@
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-envers</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
       <artifactId>hibernate-search-orm</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-entitymanager</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-validator</artifactId>
     </dependency>
     <dependency>
       <groupId>mysql</groupId>
@@ -125,6 +110,10 @@
       <groupId>org.glassfish.jersey.media</groupId>
       <artifactId>jersey-media-multipart</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.inject</groupId>
+      <artifactId>jersey-hk2</artifactId>
+	</dependency>
 
     <dependency>
       <groupId>io.swagger</groupId>

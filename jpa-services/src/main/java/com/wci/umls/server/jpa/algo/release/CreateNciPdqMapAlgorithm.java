@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa.algo.release;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -42,6 +43,7 @@ import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
+import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
 /**
@@ -146,11 +148,13 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
           atom.setPublishable(false);
           updateAtom(atom);
         }
-        // Turn the code off too
-        final Code code = getCode(atom.getCodeId(), atom.getTerminology(),
-            atom.getVersion(), Branch.ROOT);
-        code.setPublishable(false);
-        updateCode(code);
+        /*
+         * // Turn the code off too final Code code = getCode(atom.getCodeId(),
+         * atom.getTerminology(), atom.getVersion(), Branch.ROOT);
+         * code.setPublishable(false); updateCode(code); // Turn off the code
+         * attributes also for (Attribute att : code.getAttributes()) {
+         * att.setPublishable(false); updateAttribute(att, code); }
+         */
       }
       concept.setPublishable(false);
       updateConcept(concept);
@@ -159,11 +163,40 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
       // of "pre production"
     }
 
+    // added this section to mark old code and it's attributes unpublishable
+    // because section above not working
+    List<Code> pdqNciMappingCodes = new ArrayList<>();
+    Query jpaQuery = getEntityManager().createQuery("select a.id from "
+        + "CodeJpa a "
+        + "where a.terminology = :terminology and a.name like :name or name = 'name' and a.publishable = true");
+    jpaQuery.setParameter("name", "PDQ%to NCI%Mappings");
+    jpaQuery.setParameter("terminology", "PDQ");
+    List<Object> codeList = jpaQuery.getResultList();
+    // get codes
+    for (final Object entry : codeList) {
+      final Long id = Long.valueOf(entry.toString());
+      Code code = getCode(id);
+      pdqNciMappingCodes.add(code);
+
+    }
+
+    for (Code code : pdqNciMappingCodes) {
+      code.setPublishable(false);
+      updateCode(code);
+      // turn off all attributes for old code
+      for (Attribute att : code.getAttributes()) {
+        att.setPublishable(false);
+        updateAttribute(att, code);
+      }
+    }
+
+    commitClearBegin();
+
     // 2b. Make any other PDQ map sets unpublishable
 
     query = "SELECT DISTINCT m FROM MapSetJpa m "
         + "WHERE m.terminology=:terminology and m.publishable=true";
-    Query jpaQuery = getEntityManager().createQuery(query);
+    jpaQuery = getEntityManager().createQuery(query);
     jpaQuery.setParameter("terminology", "PDQ");
 
     @SuppressWarnings("unchecked")
@@ -271,7 +304,8 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
 
     // 5b. Create a "code" for the PDQ/XM atom
     Code code = new CodeJpa();
-    code.setName("name"); // TODO
+    code.setName("PDQ_" + pdq.getVersion() + " to NCI_" + nci.getVersion()
+        + " Mappings");
     code.setTerminology(pdq.getTerminology());
     code.setVersion(pdq.getVersion());
     code.setTerminologyId("100001");
@@ -350,6 +384,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
       code.getAttributes().add(attribute);
       updateCode(code);
     }
+    commitClearBegin();
 
     // 8. Create mappings
     // * query: join PDQ->NCI in the same project concept, both publishable
@@ -436,6 +471,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
       updateProgress();
     }
     updateMapSet(mapSet);
+    commitClearBegin();
 
     fireProgressEvent(100, "Finished - 100%");
     logInfo("  mapping count = " + objectCt);
@@ -471,6 +507,9 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
    */
   public void updateProgress() throws Exception {
     stepsCompleted++;
+
+    logAndCommit(stepsCompleted, RootService.logCt, RootService.commitCt);
+
     int currentProgress = (int) ((100.0 * stepsCompleted / steps));
     if (currentProgress > previousProgress) {
       checkCancel();

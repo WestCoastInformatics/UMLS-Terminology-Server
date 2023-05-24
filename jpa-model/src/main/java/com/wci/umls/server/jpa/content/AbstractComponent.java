@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, Inc
  */
 package com.wci.umls.server.jpa.content;
 
@@ -27,7 +27,7 @@ import com.wci.umls.server.model.meta.IdType;
 /**
  * Abstract implementation of {@link ComponentHasAttributes} for use with JPA.
  */
-@Audited
+//@Audited
 @MappedSuperclass
 @XmlSeeAlso({
     ConceptJpa.class

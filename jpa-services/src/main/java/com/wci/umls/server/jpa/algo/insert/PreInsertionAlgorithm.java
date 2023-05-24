@@ -4,18 +4,29 @@
 package com.wci.umls.server.jpa.algo.insert;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.FileStore;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.NumberFormat;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.NoResultException;
+import javax.persistence.Query;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
@@ -58,9 +69,9 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         ConfigUtility.getConfigProperties().getProperty("source.data.dir") + "/"
             + getProcess().getInputPath();
 
-    final Path realPath = Paths.get(srcFullPath).toRealPath();    
+    final Path realPath = Paths.get(srcFullPath).toRealPath();
     setSrcDirFile(new File(realPath.toString()));
-    
+
     if (!getSrcDirFile().exists()) {
       throw new LocalException(
           "Specified input directory does not exist - " + srcFullPath);
@@ -74,6 +85,93 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     checkFileExist(srcFullPath, "relationships.src");
     checkFileExist(srcFullPath, "sources.src");
     checkFileExist(srcFullPath, "termgroups.src");
+
+    // Checking for UMLS-specific files.
+    if (getProcess().getTerminology().equals("MTH")) {
+      checkFileExist(srcFullPath, "umlscui.txt");
+      checkFileExist(srcFullPath, "bequeathal.relationships.src");
+    }
+
+    // Ensure permissions are sufficient to write files
+    try {
+      final File outputFile = new File(srcFullPath, "testFile.txt");
+
+      final PrintWriter out = new PrintWriter(new FileWriter(outputFile));
+      out.print("Test");
+      out.close();
+
+      // Remove test file
+      outputFile.delete();
+    } catch (Exception e) {
+      throw new LocalException("Unable to write files to " + srcFullPath
+          + " - update permissions before continuing insertion.");
+    }
+
+    // Makes sure editing is turned off before continuing
+    if(getProject().isEditingEnabled()){
+      throw new LocalException("Editing is turned on - disable before continuing insertion.");
+    }
+    
+    // Makes sure automations are turned off before continuing
+    if(getProject().isAutomationsEnabled()){
+      throw new LocalException("Automations are turned on - disable before continuing insertion.");
+    }
+    
+    //
+    // Check for duplicate source atom ids
+    //
+
+    // Lookup all existing source atom ids from the database
+    logInfo("[PreInsertionAlgorithm] Loading Source Atom Ids from database");
+    
+    String query = "select value(b) from AtomJpa a join a.alternateTerminologyIds b "
+        + "where KEY(b) = :terminology ";
+    
+    javax.persistence.Query jpaQuery =
+      getEntityManager().createQuery(query);
+    jpaQuery.setParameter("terminology", getProject().getTerminology() + "-SRC");
+
+    List<Object> list = jpaQuery.getResultList();
+    Set<String> existingSourceAtomIds = new HashSet<>();
+    for (Object entry : list) {
+      existingSourceAtomIds.add(entry.toString());
+    }
+    
+    // Check each of the classes_atoms source lines
+    List<String> srcLines = loadFileIntoStringList(getSrcDirFile(), "classes_atoms.src",
+        null, null, null);
+    
+    String fields[] = new String[14];
+
+    for (String line : srcLines) {
+      FieldedStringTokenizer.split(line, "|", 14, fields);
+      if (existingSourceAtomIds.contains(fields[0])) {
+        validationResult.addError("ERROR: classes_atoms.src references a SRC atom id " + fields[0]
+            + " that is already contained in the database.");
+        break;
+      }
+    }
+
+    // check sufficient disk space (for now, if less than ~20GB)
+    NumberFormat nf = NumberFormat.getNumberInstance();
+    Path root = Paths.get("");
+
+    try {
+      FileStore store = Files.getFileStore(root);
+
+      logInfo("[PreInsertionAlgorithm] Checking sufficient disk space on " + root.toAbsolutePath()
+          + ": available=" + store.getUsableSpace() + ", total="
+          + nf.format(store.getTotalSpace()));
+
+      if (store.getUsableSpace() < 20000000000L) {
+        validationResult
+            .addError("ERROR: Insufficient disk space: " + nf.format(store.getUsableSpace()));
+        return validationResult;
+      }
+
+    } catch (IOException e) {
+      validationResult.addError("ERROR: error querying space: " + e.toString());
+    }
 
     return validationResult;
   }
@@ -199,7 +297,7 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           manager.createQuery("select max(a.id) from ConceptSubsetJpa a ");
       final Long conceptSubsetId2 = (Long) query.getSingleResult();
       conceptSubsetId =
-          conceptSubsetId2 != null ? conceptSubsetId2 : conceptSubsetId;
+          conceptSubsetId2 != null ? conceptSubsetId2 : 0L;
     } catch (NoResultException e) {
       conceptSubsetId = 0L;
     }
@@ -224,7 +322,8 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   public void reset() throws Exception {
     logInfo("Starting RESET " + getName());
     // n/a - No reset
-    logInfo("Finished RESET " + getName());  }
+    logInfo("Finished RESET " + getName());
+  }
 
   /* see superclass */
   @Override

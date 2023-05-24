@@ -8,7 +8,8 @@ tsApp.directive('recordsTable', [ function() {
       selected : '=',
       lists : '=',
       user : '=',
-      paging : '='
+      paging : '=',
+      type : '='
     },
     templateUrl : 'app/component/records/recordsTable.html',
     controller : [ '$scope', 'utilService', 'metadataService', 'contentService',

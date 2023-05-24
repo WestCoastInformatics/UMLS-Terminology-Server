@@ -139,21 +139,27 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     // Copy atoms in "from" concept.
     // Also, if any atom has a demotion to the "to" concept, remove it, and
     // create a copy for later deletion.
+    // Keep track of each remaining demoted atom id pairs for later
     final List<Atom> fromAtomsCopies = new ArrayList<>();
+    final Map<Long, Long> demotionAtomIdPairs = new HashMap<>();
     final List<AtomRelationship> demotionCopies = new ArrayList<>();
     for (final Atom atom : getFromConcept().getAtoms()) {
       Atom atomCopy = new AtomJpa(atom, true);
       fromAtomsCopies.add(atomCopy);
       for (final AtomRelationship atomRel : new ArrayList<AtomRelationship>(
           atom.getRelationships())) {
-        if (atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)
-            && getToConcept().getAtoms().contains(atomRel.getTo())) {
-          if(atomCopy.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)){
-            atomCopy.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+        if (atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+          if (getToConcept().getAtoms().contains(atomRel.getTo())) {
+            if (atomCopy.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+              atomCopy.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+            }
+            atomCopy.getRelationships().remove(atomRel);
+            updateAtom(atomCopy);
+            demotionCopies.add(new AtomRelationshipJpa(atomRel, false));
+          } else {
+            demotionAtomIdPairs.put(atomRel.getFrom().getId(),
+                atomRel.getTo().getId());
           }
-          atomCopy.getRelationships().remove(atomRel);
-          updateAtom(atomCopy);
-          demotionCopies.add(new AtomRelationshipJpa(atomRel, false));
         }
       }
     }
@@ -161,18 +167,23 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     // If any atom in the toConcept has a demotion to the "from" concept, remove
     // it, update the atom, and create a copy of the demotion for later
     // deletion.
+    // Keep track of each remaining demoted atom id pairs for later
     for (final Atom atom : getToConcept().getAtoms()) {
       for (final AtomRelationship atomRel : new ArrayList<AtomRelationship>(
           atom.getRelationships())) {
-        if (atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)
-            && getFromConcept().getAtoms().contains(atomRel.getTo())) {
-          Atom atomCopy = new AtomJpa(atom, true);
-          if(atomCopy.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)){
-            atomCopy.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+        if (atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+          if (getFromConcept().getAtoms().contains(atomRel.getTo())) {
+            Atom atomCopy = new AtomJpa(atom, true);
+            if (atomCopy.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+              atomCopy.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+            }
+            atomCopy.getRelationships().remove(atomRel);
+            updateAtom(atomCopy);
+            demotionCopies.add(new AtomRelationshipJpa(atomRel, false));
+          } else {
+            demotionAtomIdPairs.put(atomRel.getFrom().getId(),
+                atomRel.getTo().getId());
           }
-          atomCopy.getRelationships().remove(atomRel);
-          updateAtom(atomCopy);
-          demotionCopies.add(new AtomRelationshipJpa(atomRel, false));
         }
       }
     }
@@ -347,6 +358,67 @@ public class MergeMolecularAction extends AbstractMolecularAction {
         final Concept concept = new ConceptJpa(rel.getFrom(), true);
         concept.getRelationships().add(rel);
         conceptsChanged.add(concept);
+      }
+    }
+
+    // If new combined concept has both a concept relationship and a demotion to
+    // another concept, remove the demotion
+    if (!demotionAtomIdPairs.isEmpty()) {
+      // Get all of the atoms contained by related concepts
+      final Set<Long> relatedConceptsAtomIds = new HashSet<>();
+      for (ConceptRelationship conceptRelationship : getToConcept()
+          .getRelationships()) {
+        for (Atom atom : conceptRelationship.getTo().getAtoms()) {
+          relatedConceptsAtomIds.add(atom.getId());
+        }
+      }
+
+      // For each atom demotion relationship, if the destination atom is
+      // in a concept that has a concept-level relationship with this one,
+      // remove the demotion
+      for (Long fromAtomId : demotionAtomIdPairs.keySet()) {
+        Long toAtomId = demotionAtomIdPairs.get(fromAtomId);
+        if (relatedConceptsAtomIds.contains(toAtomId)) {
+          final Atom fromAtom = getAtom(fromAtomId);
+          final Atom toAtom = getAtom(toAtomId);
+          AtomRelationship fromDemotionRelationship = null;
+          AtomRelationship toDemotionRelationship = null;
+
+          for (AtomRelationship atomRelationship : fromAtom
+              .getRelationships()) {
+            if (atomRelationship.getTo().getId().equals(toAtomId)) {
+              fromDemotionRelationship = atomRelationship;
+              break;
+            }
+          }
+          for (AtomRelationship atomRelationship : toAtom.getRelationships()) {
+            if (atomRelationship.getTo().getId().equals(fromAtomId)) {
+              toDemotionRelationship = atomRelationship;
+              break;
+            }
+          }
+
+          if(fromDemotionRelationship == null || toDemotionRelationship == null){
+            logWarn("Unexpected null demotion relationship between atoms " + fromAtomId + " and " + toAtomId);
+            continue;
+          }
+          
+          if (fromAtom.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+            fromAtom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+          }
+          fromAtom.getRelationships().remove(fromDemotionRelationship);
+          updateAtom(fromAtom);
+          removeRelationship(fromDemotionRelationship.getId(),
+              fromDemotionRelationship.getClass());
+
+          if (toAtom.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+            toAtom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+          }
+          toAtom.getRelationships().remove(toDemotionRelationship);
+          updateAtom(toAtom);
+          removeRelationship(toDemotionRelationship.getId(),
+              toDemotionRelationship.getClass());
+        }
       }
     }
 

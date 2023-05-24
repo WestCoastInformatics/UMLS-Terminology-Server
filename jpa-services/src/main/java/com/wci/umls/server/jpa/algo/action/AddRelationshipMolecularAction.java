@@ -143,10 +143,17 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
         getConcept().getRelationships())) {
       if (rel.getTo().getId().equals(relationship.getTo().getId())) {
 
-        // Remove the relationship from the concepts
+        ConceptRelationship existinginverseRelationship =
+            (ConceptRelationship) getInverseRelationship(
+                getProject().getTerminology(), getProject().getVersion(), rel);
+
+        // Remove the existing relationship from the concepts
         removeById(getConcept().getRelationships(), rel.getId());
+        removeById(getConcept().getInverseRelationships(),
+            existinginverseRelationship.getId());
         removeById(getConcept2().getRelationships(),
-            getInverseRelationship(getProject().getTerminology(), getProject().getVersion(), rel).getId());
+            existinginverseRelationship.getId());
+        removeById(getConcept2().getInverseRelationships(), rel.getId());
 
         // Update Concepts
         updateConcept(getConcept());
@@ -154,8 +161,8 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
 
         // Remove the relationships
         removeRelationship(rel.getId(), rel.getClass());
-        removeRelationship(getInverseRelationship(getProject().getTerminology(), getProject().getVersion(), rel).getId(), rel.getClass());
-
+        removeRelationship(existinginverseRelationship.getId(), rel.getClass());
+        
         // Change status of the source and target concept
         if (getChangeStatusFlag()) {
           getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);

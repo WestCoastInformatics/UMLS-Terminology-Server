@@ -10,6 +10,7 @@ tsApp
       '$q',
       '$uibModal',
       '$window',
+      'hotkeys',
       'tabService',
       'utilService',
       'configureService',
@@ -22,7 +23,7 @@ tsApp
       'contentService',
       'reportService',
       'metaEditingService',
-      function($scope, $location, $window, $interval, $q, $uibModal, $window, tabService,
+      function($scope, $location, $window, $interval, $q, $uibModal, $window, hotkeys, tabService,
         utilService, configureService, securityService, websocketService, workflowService,
         configureService, projectService, metadataService, contentService, reportService,
         metaEditingService) {
@@ -170,6 +171,15 @@ tsApp
 
         });
 
+        hotkeys.bindTo($scope).add({
+          combo: 'ctrl+z',
+          description: 'Approve/Next',
+          callback: function() {
+            $scope.approveNext();
+          }
+        });
+        
+        
         // reconnect
         $scope.reconnect = function() {
           $window.location.reload();
@@ -187,7 +197,7 @@ tsApp
 
           // one starts
           // changed concept is the selected one
-          if ($scope.selected.component.id == concept.id) {
+          if ($scope.selected.component && $scope.selected.component.id == concept.id) {
             contentService.getConcept(concept.id, $scope.selected.project.id).then(
             // Success - concept exists
             function(data) {
@@ -293,32 +303,41 @@ tsApp
         // Set worklist mode
         $scope.setWorklistMode = function(mode) {
           $scope.selected.worklistMode = mode;
-          $scope.getWorklists();
+          $scope.getWorklists(true);
           securityService.saveProperty($scope.user.userPreferences, 'worklistModeTab',
             $scope.selected.worklistMode);
         }
 
         // Get $scope.lists.worklists
         // switch based on type
-        $scope.getWorklists = function(worklist) {
-          getWorklists(worklist);
+        $scope.getWorklists = function(recoverPreferences) {
+          getWorklists(recoverPreferences);
         }
-        function getWorklists(worklist) {
+        function getWorklists(recoverPreferences) {
           $scope.clearLists();
           if ($scope.selected.worklistMode == 'Available') {
-            $scope.getAvailableWorklists();
+            $scope.getAvailableWorklists(recoverPreferences);
           } else if ($scope.selected.worklistMode == 'Assigned') {
-            $scope.getAssignedWorklists();
+            $scope.getAssignedWorklists(recoverPreferences);
           } else if ($scope.selected.worklistMode == 'Done') {
-            $scope.getDoneWorklists();
+            $scope.getDoneWorklists(recoverPreferences);
           } else if ($scope.selected.worklistMode == 'Checklists') {
-            $scope.getChecklists();
+            $scope.getChecklists(recoverPreferences);
           }
         }
 
         // Get all available worklists with project and type
-        $scope.getAvailableWorklists = function() {
+        $scope.getAvailableWorklists = function(recoverPreferences) {
           var paging = $scope.paging['worklists'];
+          
+          if (recoverPreferences) {
+            paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPaging']);
+            angular.copy(paging, $scope.paging['worklists']);
+            $scope.paging['worklists'].callbacks = {
+              getPagedList : getWorklists
+            };            
+          }
+          
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
             maxResults : paging.pageSize,
@@ -343,7 +362,7 @@ tsApp
                 if ($scope.user.userPreferences.properties['editWorklist']) {
                   for (var i = 0; i < $scope.lists.worklists.length; i++) {
                     if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklist']) {
-                      $scope.selectWorklist($scope.lists.worklists[i]);
+                      $scope.selectWorklist($scope.lists.worklists[i], recoverPreferences);
                     }
                     ;
                   }
@@ -365,8 +384,17 @@ tsApp
         };
 
         // Get assigned worklists with project and type
-        $scope.getAssignedWorklists = function() {
+        $scope.getAssignedWorklists = function(recoverPreferences) {
           var paging = $scope.paging['worklists'];
+          
+          if (recoverPreferences) {
+            paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPaging']);
+            angular.copy(paging, $scope.paging['worklists']);
+            $scope.paging['worklists'].callbacks = {
+              getPagedList : getWorklists
+            };            
+          }
+          
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
             maxResults : paging.pageSize,
@@ -392,7 +420,7 @@ tsApp
                 if ($scope.user.userPreferences.properties['editWorklist']) {
                   for (var i = 0; i < $scope.lists.worklists.length; i++) {
                     if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklist']) {
-                      $scope.selectWorklist($scope.lists.worklists[i]);
+                      $scope.selectWorklist($scope.lists.worklists[i], recoverPreferences);
                     }
                     ;
                   }
@@ -413,8 +441,17 @@ tsApp
         };
 
         // Get done worklists with project and type
-        $scope.getDoneWorklists = function() {
+        $scope.getDoneWorklists = function(recoverPreferences) {
           var paging = $scope.paging['worklists'];
+          
+          if (recoverPreferences) {
+            paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPaging']);
+            angular.copy(paging, $scope.paging['worklists']);
+            $scope.paging['worklists'].callbacks = {
+              getPagedList : getWorklists
+            };            
+          }
+          
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
             maxResults : paging.pageSize,
@@ -440,7 +477,7 @@ tsApp
                 if ($scope.user.userPreferences.properties['editWorklist']) {
                   for (var i = 0; i < $scope.lists.worklists.length; i++) {
                     if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklist']) {
-                      $scope.selectWorklist($scope.lists.worklists[i]);
+                      $scope.selectWorklist($scope.lists.worklists[i], recoverPreferences);
                     }
                     ;
                   }
@@ -461,8 +498,17 @@ tsApp
         };
 
         // Find checklists
-        $scope.getChecklists = function() {
+        $scope.getChecklists = function(recoverPreferences) {
           var paging = $scope.paging['worklists'];
+          
+          if (recoverPreferences) {
+            paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPaging']);
+            angular.copy(paging, $scope.paging['worklists']);
+            $scope.paging['worklists'].callbacks = {
+              getPagedList : getWorklists
+            };            
+          }
+          
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
             maxResults : paging.pageSize,
@@ -487,7 +533,7 @@ tsApp
                 if ($scope.user.userPreferences.properties['editWorklist']) {
                   for (var i = 0; i < $scope.lists.worklists.length; i++) {
                     if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklist']) {
-                      $scope.selectWorklist($scope.lists.worklists[i]);
+                      $scope.selectWorklist($scope.lists.worklists[i], recoverPreferences);
                     }
                     ;
                   }
@@ -511,7 +557,7 @@ tsApp
           // save the change
           securityService.saveRole($scope.user.userPreferences, $scope.selected.projectRole);
           // $scope.resetPaging();
-          $scope.getWorklists();
+          $scope.getWorklists(true);
         }
 
         // Set the project
@@ -550,6 +596,12 @@ tsApp
 
         }
 
+        // update project
+        $scope.updateProject = function(project) {
+        	projectService.updateProject(project);
+        }
+
+        
         $scope.getAllMetadata = function() {
           // Initialize metadata - this also sets the model
           metadataService.getAllMetadata($scope.selected.project.terminology,
@@ -596,13 +648,19 @@ tsApp
 
         // Selects a worklist (setting $scope.selected.worklist).
         // Looks up current release info and records.
-        $scope.selectWorklist = function(worklist) {
+        $scope.selectWorklist = function(worklist, recoverPreferences) {
           $scope.selected.worklist = worklist;
           $scope.selected.component = null;
           if ($scope.value == 'Worklist') {
             $scope.parseStateHistory(worklist);
           }
-          $scope.getRecords(worklist, true);
+          if ($scope.user.userPreferences.properties['editWorklist'] == $scope.selected.worklist.id 
+            && $scope.user.userPreferences.properties['editRecord'] > 0) {
+            $scope.getRecords(false, recoverPreferences);
+          } else {
+            $scope.paging['records'].page = 1;
+            $scope.getRecords(true);
+          }
           // Set activity id
           $scope.selected.activityId = worklist.name;
           $scope.user.userPreferences.properties['editWorklist'] = $scope.selected.worklist.id;
@@ -659,6 +717,7 @@ tsApp
           for (var i = 0; i < $scope.lists.records.length - 1; i++) {
             if (record.id == $scope.lists.records[i].id) {
               $scope.selectRecord($scope.lists.records[++i]);
+              $scope.getRecords();
               return;
             }
           }
@@ -791,11 +850,19 @@ tsApp
         };
 
         // Get $scope.lists.records
-        $scope.getRecords = function(selectFirst) {
-          getRecords(selectFirst);
+        $scope.getRecords = function(selectFirst, recoverPreferences) {
+          getRecords(selectFirst, recoverPreferences);
         }
-        function getRecords(selectFirst) {
+        function getRecords(selectFirst, recoverPreferences) {
           var paging = $scope.paging['records'];
+          
+          if (recoverPreferences){
+            paging = JSON.parse($scope.user.userPreferences.properties['editRecordPaging']);
+            angular.copy(paging, $scope.paging['records']);
+            $scope.paging['records'].callbacks = {
+              getPagedList : getRecords
+            };
+          } 
 
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
@@ -836,7 +903,7 @@ tsApp
 
               // select previously selected record if saved in user
               // preferences
-              if ($scope.user.userPreferences.properties['editRecord'] & !selectFirst) {
+              if ($scope.user.userPreferences.properties['editRecord'] > 0 && !selectFirst) {
                 for (var i = 0; i < $scope.lists.records.length; i++) {
                   if (needToSelectRecord(i)) {
                     $scope.selectRecord($scope.lists.records[i]);
@@ -905,6 +972,20 @@ tsApp
           // Success
           function(data) {
             // No need to reload worklist it won't be on assigned page anymore
+            $scope.getWorklists();
+          });
+        };
+        
+        // reassign worklist
+        $scope.reassignWorklist = function(worklist) {
+          var role = $scope.selected.projectRole;
+          if (worklist.reviewers.length == 0) {
+            role = 'AUTHOR';
+          }
+          workflowService.performWorkflowAction($scope.selected.project.id, worklist.id,
+            $scope.user.userName, role, 'REASSIGN').then(
+          // Success
+          function(data) {
             $scope.getWorklists();
           });
         };
@@ -1020,7 +1101,10 @@ tsApp
             function(data) {
               successCt++;
               if (successCt == lastIndex) {
-                $scope.getRecords();
+                // removed this to resolve issue where approve/next was not reliably updating
+                // the concepts listed on the worklist page - likely due to race condition of
+                // $scope.getRecords() getting called for a second time in $scope.selectNextRecord(..)
+                //$scope.getRecords();
                 $scope.selectNextRecord($scope.selected.record);
               }
             });
@@ -1140,7 +1224,6 @@ tsApp
 
         // open relationships editor window
         $scope.openRelationshipsWindow = function(width, height) {
-
           var newUrl = utilService.composeUrl('/edit/relationships');
           window.$windowScope = $scope;
           if (width == null && height == null
@@ -1418,7 +1501,20 @@ tsApp
           });
         }
 
-        // Add time modal
+        // No time entry modal for reviewing finishing
+        $scope.finishWorklist = function(worklist) {
+          console.debug('openFinishWorkflowModal ', worklist);
+
+          workflowService.performWorkflowAction($scope.selected.project.id, worklist.id, $scope.user.userName,
+            $scope.selected.projectRole, 'FINISH').then(
+          // Success
+          function(data) {
+            $scope.getWorklists();
+          });
+
+        };
+
+        // Add time entry modal for author finishing
         $scope.openFinishWorkflowModal = function(lworklist) {
           console.debug('openFinishWorkflowModal ', lworklist);
 
@@ -1449,7 +1545,6 @@ tsApp
           });
 
         };
-
         // Move modal
         $scope.openMoveModal = function() {
 

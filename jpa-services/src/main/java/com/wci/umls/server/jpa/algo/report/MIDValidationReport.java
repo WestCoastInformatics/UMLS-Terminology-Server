@@ -3,7 +3,9 @@
  */
 package com.wci.umls.server.jpa.algo.report;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +17,7 @@ import javax.persistence.Query;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractReportAlgorithm;
@@ -67,10 +70,10 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
     final Map<String, String> queries = new TreeMap<>();
 
     // collect queries from "MID_VALIDATION" workflow config
-    final WorkflowConfig config =
+    final WorkflowConfig workflowConfig =
         getWorkflowConfig(getProject(), "MID_VALIDATION");
-    if (config != null) {
-      for (final WorkflowBinDefinition definition : config
+    if (workflowConfig != null) {
+      for (final WorkflowBinDefinition definition : workflowConfig
           .getWorkflowBinDefinitions()) {
         if (definition.getQueryType() != QueryType.SQL) {
           throw new Exception(
@@ -80,13 +83,15 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
           throw new Exception(
               "Check with duplicate name: " + definition.getName());
         }
-        queries.put(definition.getName(), definition.getQuery());
+        if (definition.isEnabled()) {
+          queries.put(definition.getName(), definition.getQuery());
+        }
       }
     }
-    final WorkflowConfig config2 =
+    final WorkflowConfig workflowConfig2 =
         getWorkflowConfig(getProject(), "MID_VALIDATION_OTHER");
-    if (config2 != null) {
-      for (final WorkflowBinDefinition definition : config2
+    if (workflowConfig2 != null) {
+      for (final WorkflowBinDefinition definition : workflowConfig2
           .getWorkflowBinDefinitions()) {
         if (definition.getQueryType() != QueryType.SQL) {
           throw new Exception(
@@ -96,7 +101,9 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
           throw new Exception(
               "Check with duplicate name: " + definition.getName());
         }
-        queries.put(definition.getName(), definition.getQuery());
+        if (definition.isEnabled()) {
+          queries.put(definition.getName(), definition.getQuery());
+        }
       }
     }
 
@@ -107,11 +114,11 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
       String queryStr = queries.get(name);
       logInfo("  " + name + " = " + queryStr);
       checkCancel();
-      fireProgressEvent((int) (ct * 100.0 / totalCt), "Running " + name);
+      fireProgressEvent((int) (ct++ * 100.0 / totalCt), "Running " + name);
       try {
         // Get and execute query (truncate any trailing semi-colon)
         final Query query = manager.createNativeQuery(queryStr);
-        query.setParameter("terminology", getProject().getTerminology());
+        //query.setParameter("terminology", getProject().getTerminology());
         if (queryStr.contains(":terminology")) {
           query.setParameter("terminology", getProject().getTerminology());
         }
@@ -150,7 +157,8 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
       final StringBuilder msg = new StringBuilder();
       msg.append("\r\n");
       msg.append(
-          "MID Validation has found some issues with the following checks:\r\n");
+          "MID Validation has found some issues with the following checks on " +
+              InetAddress.getLocalHost().getHostName() + ":\r\n");
       msg.append("\r\n");
 
       for (final String key : errors.keySet()) {
@@ -160,15 +168,54 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
           msg.append("    " + result).append("\r\n");
         }
         if (errors.get(key).size() > 9) {
-          msg.append("    ... ");
+          msg.append("    ... ").append("\r\n");
           // the true count is not known because setMaxResults(10) is used.
         }
-
+        msg.append("\r\n");
       }
       logInfo("  SEND EMAIL");
+      
+      // Send email if configured.
+      if (!ConfigUtility.isEmpty(getEmail())) {
+        String from = null;
+        if (config.containsKey("mail.smtp.from")) {
+          from = config.getProperty("mail.smtp.from");
+        } else {
+          from = config.getProperty("mail.smtp.user");
+        }
+        try {
+          String server = InetAddress.getLocalHost().getHostName();
+          String title = "MEME Mid Validation Report - "
+              + ConfigUtility.DATE_YYYYMMDD.format(new Date()) + " (" + server + ")";
+          ConfigUtility.sendEmail(
+              title, from, getEmail(), msg.toString(), config);
+        } catch (Exception e) {
+          e.printStackTrace();
+          // do nothing - this just means email couldn't be sent
+        }
+      }
 
     } else {
       logInfo("  NO errors");
+      
+      // Send email if configured.
+      if (!ConfigUtility.isEmpty(getEmail())) {
+        String from = null;
+        if (config.containsKey("mail.smtp.from")) {
+          from = config.getProperty("mail.smtp.from");
+        } else {
+          from = config.getProperty("mail.smtp.user");
+        }
+        try {
+          ConfigUtility.sendEmail(
+              "MEME Mid Validation Report - "
+                  + ConfigUtility.DATE_YYYYMMDD.format(new Date()),
+              from, getEmail(), "No errors found!", config);
+        } catch (Exception e) {
+          e.printStackTrace();
+          // do nothing - this just means email couldn't be sent
+        }
+      }      
     }
 
     logInfo("Done ...");

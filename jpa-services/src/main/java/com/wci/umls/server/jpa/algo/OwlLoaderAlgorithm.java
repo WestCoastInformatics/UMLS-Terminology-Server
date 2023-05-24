@@ -590,6 +590,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // add inferred rels to the same concepts.
     logInfo("  Add inferred restriction relationships");
     classifier.addInferredRelationships(this);
+    classifier.close();
     commitClearBegin();
 
   }

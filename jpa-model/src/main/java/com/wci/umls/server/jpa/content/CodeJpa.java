@@ -6,10 +6,14 @@ package com.wci.umls.server.jpa.content;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -24,6 +28,8 @@ import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
 
 import com.wci.umls.server.helpers.Note;
+import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeRelationship;
 import com.wci.umls.server.model.content.CodeTreePosition;
@@ -40,7 +46,7 @@ import com.wci.umls.server.model.meta.IdType;
         "terminology", "version", "id"
     })
 })
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "code")
 public class CodeJpa extends AbstractAtomClass implements Code {
@@ -68,6 +74,19 @@ public class CodeJpa extends AbstractAtomClass implements Code {
   @Column(nullable = true)
   List<String> labels;
 
+  /** The descriptions. */
+  @ManyToMany(targetEntity = AtomJpa.class)
+  @CollectionTable(name = "codes_atoms", joinColumns = @JoinColumn(name = "codes_id"))
+  @IndexedEmbedded(targetElement = AtomJpa.class)
+  private List<Atom> atoms = null;
+
+  /** The attributes. */
+  @OneToMany(targetEntity = AttributeJpa.class)
+  @JoinColumn(name = "attributes_id")
+  @JoinTable(name = "codes_attributes", inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "codes_id"))
+  private List<Attribute> attributes = null;
+
   /**
    * Instantiates a new code jpa.
    */
@@ -88,7 +107,55 @@ public class CodeJpa extends AbstractAtomClass implements Code {
     if (collectionCopy) {
       relationships = new ArrayList<>(code.getRelationships());
       treePositions = new ArrayList<>(code.getTreePositions());
+      atoms = new ArrayList<>(code.getAtoms());
+      for (final Attribute attribute : code.getAttributes()) {
+        getAttributes().add(new AttributeJpa(attribute));
+      }
     }
+  }
+
+  /* see superclass */
+  @XmlElement(type = AtomJpa.class)
+  @Override
+  public List<Atom> getAtoms() {
+    if (atoms == null) {
+      atoms = new ArrayList<>();
+    }
+    return atoms;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAtoms(List<Atom> atoms) {
+    this.atoms = atoms;
+  }
+
+  /* see superclass */
+  @Override
+  @XmlElement(type = AttributeJpa.class)
+  public List<Attribute> getAttributes() {
+    if (attributes == null) {
+      attributes = new ArrayList<>(1);
+    }
+    return attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAttributes(List<Attribute> attributes) {
+    this.attributes = attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public Attribute getAttributeByName(String name) {
+    for (final Attribute attribute : getAttributes()) {
+      // If there are more than one, this just returns the first.
+      if (attribute.getName().equals(name)) {
+        return attribute;
+      }
+    }
+    return null;
   }
 
   /* see superclass */

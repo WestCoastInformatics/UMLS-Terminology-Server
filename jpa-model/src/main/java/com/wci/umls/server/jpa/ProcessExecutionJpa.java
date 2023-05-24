@@ -22,10 +22,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.DateBridge;
+import org.hibernate.search.annotations.EncodingType;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Resolution;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
@@ -38,7 +42,7 @@ import com.wci.umls.server.ProcessExecution;
  */
 @Entity
 @Table(name = "process_executions")
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "processExecution")
 public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
@@ -79,6 +83,11 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   /** The input path. */
   @Column(nullable = true)
   private String inputPath;
+  
+  /** The log path. */
+  @Column(nullable = true)
+  private String logPath;
+
 
   /** Has the algorithm had a warning fired during its execution. */
   @Column(nullable = false)
@@ -118,6 +127,7 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
     steps = new ArrayList<>(exec.getSteps());
     type = exec.getType();
     inputPath = exec.getInputPath();
+    logPath = exec.getLogPath();
     executionInfo = new HashMap<>(exec.getExecutionInfo());
     warning = exec.isWarning();
   }
@@ -134,11 +144,14 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
     processConfigId = config.getId();
     type = config.getType();
     inputPath = config.getInputPath();
+    logPath = config.getLogPath();
   }
 
   /* see superclass */
-  @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @DateBridge(resolution = Resolution.SECOND, encoding = EncodingType.STRING)
+  @SortableField
+  @Override
   public Date getStartDate() {
     return startDate;
   }
@@ -150,8 +163,10 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   }
 
   /* see superclass */
-  @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @DateBridge(resolution = Resolution.SECOND, encoding = EncodingType.STRING)
+  @SortableField
+  @Override
   public Date getStopDate() {
     return stopDate;
   }
@@ -163,8 +178,10 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   }
 
   /* see superclass */
-  @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @DateBridge(resolution = Resolution.SECOND, encoding = EncodingType.STRING)
+  @SortableField
+  @Override
   public Date getFinishDate() {
     return finishDate;
   }
@@ -176,8 +193,10 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   }
 
   /* see superclass */
-  @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @DateBridge(resolution = Resolution.SECOND, encoding = EncodingType.STRING)
+  @SortableField
+  @Override
   public Date getFailDate() {
     return failDate;
   }
@@ -331,5 +350,15 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
         + ", steps=" + steps + ", workId=" + workId + ", processConfigId="
         + processConfigId + ", type=" + type + "] " + super.toString();
 
+  }
+
+  @Override
+  public String getLogPath() {
+    return logPath;
+  }
+
+  @Override
+  public void setLogPath(String logPath) {
+    this.logPath = logPath;
   }
 }

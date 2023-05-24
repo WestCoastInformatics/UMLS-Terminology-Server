@@ -38,7 +38,7 @@ tsApp.controller('WorklistModalCtrl', [
         return;
       }
       if ($scope.numberOfWorklists > 10
-        && !$window.confirm('Are you sure you want to create ' + $scope.numberOfWorklists
+        && !window.confirm('Are you sure you want to create ' + $scope.numberOfWorklists
           + ' worklists?')) {
         return;
       }
@@ -63,7 +63,7 @@ tsApp.controller('WorklistModalCtrl', [
       var pfs = {
         maxResults : $scope.clusterCt,
         startIndex : $scope.skipClusterCt,
-        sortField : $scope.sortorder
+        sortField : $scope.sortOrder
       };
 
       // Create worklist

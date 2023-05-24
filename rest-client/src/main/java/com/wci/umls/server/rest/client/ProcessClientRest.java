@@ -877,4 +877,11 @@ public class ProcessClientRest extends RootClientRest
     return Integer.parseInt(resultString);
   }
 
+  @Override
+  public ProcessConfig cloneProcessConfig(Long projectId,
+    ProcessConfigJpa process, String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 }

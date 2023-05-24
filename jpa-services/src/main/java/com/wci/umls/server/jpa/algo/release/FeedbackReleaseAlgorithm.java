@@ -4,11 +4,14 @@
 package com.wci.umls.server.jpa.algo.release;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
 import com.wci.umls.server.AlgorithmParameter;
+import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
@@ -81,7 +84,7 @@ public class FeedbackReleaseAlgorithm
     //
     // Load the MRCONSO.RRF file in the mr/[version]/META folder
     //
-    final List<String> lines =
+    final List<String> lines = 
         loadFileIntoStringList(mrDirFile, "MRCONSO.RRF", null, null, null);
 
     // Set the number of steps to the number of lines to be processed
@@ -123,8 +126,12 @@ public class FeedbackReleaseAlgorithm
       // Albumin|0|N|256|
 
       // Get the atom
-      final Atom atom = (Atom) getComponent("AUI", fields[7], fields[12], null);
-
+      final Atom atom = (Atom) getComponent("AUI", fields[7], null, null, true);
+      if (atom == null) {
+        //throw new Exception("Unexpected dead AUI " + fields[7]);
+        updateProgress();
+        continue;
+      }
       boolean atomChanged = false;
 
       // Update the alternate concept id
@@ -166,6 +173,11 @@ public class FeedbackReleaseAlgorithm
       updateProgress();
     }
 
+    // indicate that the current release process is complete
+    ReleaseInfo releaseInfo = getCurrentReleaseInfo(getProject().getTerminology());
+    releaseInfo.setReleaseFinishDate(new Date());
+    releaseInfo.setPublished(true);
+    updateReleaseInfo(releaseInfo);
     commitClearBegin();
 
     fireProgressEvent(100, "Finished - 100%");

@@ -53,7 +53,7 @@ tsApp
           algorithms : [],
           projects : [],
           projectRoles : [],
-          processTypes : [ 'Insertion', 'Maintenance', 'Release', 'Report' ],
+          processTypes : [ 'Insertion', 'Inversion', 'Maintenance', 'Release', 'Report', 'Autofix' ],
           algorithmConfigTypes : [],
           modes : [ 'Config', 'Execution' ]
         }
@@ -401,6 +401,16 @@ tsApp
           });
         }
 
+        // Clone a process, then reread them
+        $scope.cloneProcess = function(process) {
+          processService.cloneProcessConfig($scope.selected.project.id,
+            process).then(
+          // Success
+          function(data) {
+            $scope.getProcesses();
+          });
+        }
+        
         // enable/disable
         $scope.toggleEnable = function(algorithm) {
 

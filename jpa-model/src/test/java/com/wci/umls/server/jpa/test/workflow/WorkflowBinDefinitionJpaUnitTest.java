@@ -135,6 +135,7 @@ public class WorkflowBinDefinitionJpaUnitTest extends ModelUnitSupport {
     tester.include("enabled");
     tester.include("required");
     tester.include("workflowConfig");
+    tester.include("autofix");
     assertTrue(tester.testNotNullFields());
   }
 
@@ -155,12 +156,14 @@ public class WorkflowBinDefinitionJpaUnitTest extends ModelUnitSupport {
     // Test non analyzed fields
     tester = new IndexedFieldTester(object);
     tester.include("lastModifiedBy");
+    tester.include("lastModified");
     tester.include("name");
     tester.include("editable");
     tester.include("enabled");
     tester.include("required");
     tester.include("queryType");
     tester.include("workflowConfigId");
+    tester.include("autofix");
     assertTrue(tester.testNotAnalyzedIndexedFields());
   }
 

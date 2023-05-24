@@ -18,15 +18,15 @@ import com.wci.umls.server.model.content.ComponentHasAttributes;
 /**
  * Abstract implementation of {@link ComponentHasAttributes} for use with JPA.
  */
-@Audited
+//@Audited 
 @MappedSuperclass
 public abstract class AbstractComponentHasAttributes extends AbstractComponent
     implements ComponentHasAttributes {
 
   /** The attributes. */
-  @OneToMany(targetEntity = AttributeJpa.class)
+  //@OneToMany(targetEntity = AttributeJpa.class)
   // @IndexedEmbedded(targetElement = AttributeJpa.class)
-  private List<Attribute> attributes = null;
+  //private List<Attribute> attributes = null;
 
   /**
    * Instantiates an empty {@link AbstractComponentHasAttributes}.
@@ -46,28 +46,10 @@ public abstract class AbstractComponentHasAttributes extends AbstractComponent
       boolean collectionCopy) {
     super(component);
 
-    if (collectionCopy) {
-      for (final Attribute attribute : component.getAttributes()) {
-        getAttributes().add(new AttributeJpa(attribute));
-      }
-    }
+    
   }
 
-  /* see superclass */
-  @Override
-  @XmlElement(type = AttributeJpa.class)
-  public List<Attribute> getAttributes() {
-    if (attributes == null) {
-      attributes = new ArrayList<>(1);
-    }
-    return attributes;
-  }
 
-  /* see superclass */
-  @Override
-  public void setAttributes(List<Attribute> attributes) {
-    this.attributes = attributes;
-  }
 
   /* see superclass */
   @Override

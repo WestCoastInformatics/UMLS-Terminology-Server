@@ -12,6 +12,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -25,10 +27,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.DateBridge;
+import org.hibernate.search.annotations.EncodingType;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Resolution;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
@@ -51,7 +57,8 @@ import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 public class WorkflowBinJpa implements WorkflowBin {
 
   /** The id. */
-  @TableGenerator(name = "EntityIdGenWorkflow", table = "table_generator_wf", pkColumnValue = "Entity")
+  @TableGenerator(name = "EntityIdGenWorkflow", table = "table_generator_wf",
+      pkColumnValue = "Entity")
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGenWorkflow")
   private Long id;
@@ -98,7 +105,7 @@ public class WorkflowBinJpa implements WorkflowBin {
   private String type = "MUTUALLY_EXCLUSIVE";
 
   /** The rank. */
-  @Column(nullable = false)
+  @Column(name="[rank]", nullable = false)
   private int rank;
 
   /** The editable flag. */
@@ -115,6 +122,12 @@ public class WorkflowBinJpa implements WorkflowBin {
 
   /** The tracking records. */
   @OneToMany(targetEntity = TrackingRecordJpa.class)
+  @JoinColumn(name = "trackingRecords_id")
+  @JoinTable(name = "workflow_bins_tracking_records",
+  inverseJoinColumns = @JoinColumn(name = "trackingRecords_id"),
+  joinColumns = @JoinColumn(name = "workflow_bins_id"))
+  // @CollectionTable(name = "workflow_bins_tracking_records",
+  // joinColumns = @JoinColumn(name = "trackingRecords_id"))
   private List<TrackingRecord> trackingRecords = new ArrayList<>();
 
   /** The creation time. */
@@ -128,6 +141,10 @@ public class WorkflowBinJpa implements WorkflowBin {
   /** The project. */
   @ManyToOne(targetEntity = ProjectJpa.class, optional = false)
   private Project project;
+
+  /** The autofix. */
+  @Column(nullable = false)
+  private String autofix;
 
   /**
    * The stats - intended only for JAXB serialization and reporting, not
@@ -166,6 +183,7 @@ public class WorkflowBinJpa implements WorkflowBin {
     required = bin.isRequired();
     creationTime = bin.getCreationTime();
     clusterCt = bin.getClusterCt();
+    autofix = bin.getAutofix();
     project = bin.getProject();
     stats = new ArrayList<>(bin.getStats());
     if (collectionCopy) {
@@ -187,6 +205,7 @@ public class WorkflowBinJpa implements WorkflowBin {
     editable = def.isEditable();
     enabled = def.isEnabled();
     required = def.isRequired();
+    autofix = def.getAutofix();
   }
 
   /* see superclass */
@@ -203,6 +222,9 @@ public class WorkflowBinJpa implements WorkflowBin {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @DateBridge(resolution = Resolution.SECOND, encoding = EncodingType.STRING)
+  @SortableField
   public Date getLastModified() {
     return lastModified;
   }
@@ -278,6 +300,7 @@ public class WorkflowBinJpa implements WorkflowBin {
 
   /* see superclass */
   @Override
+  @Column(name = "[rank]", nullable = false)
   public int getRank() {
     return rank;
   }
@@ -460,20 +483,30 @@ public class WorkflowBinJpa implements WorkflowBin {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getAutofix() {
+    return autofix;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAutofix(String autofix) {
+    this.autofix = autofix;
+  }
+
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result =
-        prime * result + ((description == null) ? 0 : description.hashCode());
+    result = prime * result + ((description == null) ? 0 : description.hashCode());
     result = prime * result + (editable ? 1231 : 1237);
     result = prime * result + (enabled ? 1231 : 1237);
     result = prime * result + (required ? 1231 : 1237);
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + rank;
-    result =
-        prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result = prime * result
-        + ((terminologyId == null) ? 0 : terminologyId.hashCode());
+    result = prime * result + ((terminology == null) ? 0 : terminology.hashCode());
+    result = prime * result + ((terminologyId == null) ? 0 : terminologyId.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
@@ -533,13 +566,12 @@ public class WorkflowBinJpa implements WorkflowBin {
   /* see superclass */
   @Override
   public String toString() {
-    return "WorkflowBinJpa [id=" + id + ", lastModified=" + lastModified
-        + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
-        + ", name=" + name + ", description=" + description + ", terminologyId="
-        + terminologyId + ", terminology=" + terminology + ", version="
-        + version + ", type=" + type + ", rank=" + rank + ", editable="
-        + editable + ", required=" + required + ", creationTime=" + creationTime
-        + ", stats=" + stats + ", enabled=" + enabled + "]";
+    return "WorkflowBinJpa [id=" + id + ", lastModified=" + lastModified + ", lastModifiedBy="
+        + lastModifiedBy + ", timestamp=" + timestamp + ", name=" + name + ", description="
+        + description + ", terminologyId=" + terminologyId + ", terminology=" + terminology
+        + ", version=" + version + ", type=" + type + ", rank=" + rank + ", editable=" + editable
+        + ", required=" + required + ", creationTime=" + creationTime + ", stats=" + stats
+        + ", enabled=" + enabled + "]";
   }
 
 }

@@ -17,7 +17,7 @@ import com.wci.umls.server.model.meta.GeneralMetadataEntry;
  */
 @Entity
 @Table(name = "general_metadata_entries")
-@Audited
+//@Audited
 @XmlRootElement(name = "generalMetadataEntry")
 public class GeneralMetadataEntryJpa extends AbstractAbbreviation implements
     GeneralMetadataEntry {

@@ -27,7 +27,6 @@ import org.apache.lucene.search.spell.PlainTextDictionary;
 import org.apache.lucene.search.spell.SpellChecker;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
 import org.hibernate.search.engine.ProjectionConstants;
 import org.hibernate.search.jpa.FullTextQuery;
 
@@ -46,8 +45,7 @@ import com.wci.umls.server.services.handlers.SearchHandler;
  * Default implementation of {@link SearchHandler}. This provides an algorithm
  * to aide in lucene searches of atom classes (Concept, Descriptor, Code)
  */
-public class AtomClassSearchHandler extends AbstractConfigurable
-    implements SearchHandler {
+public class AtomClassSearchHandler extends AbstractConfigurable implements SearchHandler {
 
   /** The acronym expansion map. */
   private Map<String, Set<String>> acronymExpansionMap = new HashMap<>();
@@ -64,8 +62,8 @@ public class AtomClassSearchHandler extends AbstractConfigurable
 
     // Initialize acronyms map
     if (p.containsKey("acronymsFile")) {
-      final BufferedReader in = new BufferedReader(
-          new FileReader(new File(p.getProperty("acronymsFile"))));
+      final BufferedReader in =
+          new BufferedReader(new FileReader(new File(p.getProperty("acronymsFile"))));
       String line;
       while ((line = in.readLine()) != null) {
         String[] tokens = FieldedStringTokenizer.split(line, "\t");
@@ -83,34 +81,29 @@ public class AtomClassSearchHandler extends AbstractConfigurable
     if (p.containsKey("spellingFile") && p.containsKey("spellingIndex")) {
       // expect properties to have "spellingFile" and "spellingIndex"
       final File dir = new File(p.getProperty("spellingIndex"));
-      final Directory directory = FSDirectory.open(dir);
-      spellChecker =
-          new SpellChecker(directory, new LuceneLevenshteinDistance());
-      final IndexWriterConfig indexWriterConfig =
-          new IndexWriterConfig(Version.LATEST, new WhitespaceAnalyzer());
+      final Directory directory = FSDirectory.open(dir.toPath());
+      spellChecker = new SpellChecker(directory, new LuceneLevenshteinDistance());
+      final IndexWriterConfig indexWriterConfig = new IndexWriterConfig(new WhitespaceAnalyzer());
       spellChecker.indexDictionary(
-          new PlainTextDictionary(new File(p.getProperty("spellingFile"))),
+          new PlainTextDictionary(new File(p.getProperty("spellingFile")).toPath()),
           indexWriterConfig, false);
 
     } else {
-      throw new Exception(
-          "Required property spellingFile or spellingIndex not present.");
+      throw new Exception("Required property spellingFile or spellingIndex not present.");
     }
   }
 
   /* see superclass */
   @Override
-  public <T extends HasId> List<T> getQueryResults(String terminology,
-    String version, String branch, String query, String literalField,
-    Class<T> clazz, PfsParameter pfs, int[] totalCt, EntityManager manager)
-    throws Exception {
+  public <T extends HasId> List<T> getQueryResults(String terminology, String version,
+    String branch, String query, String literalField, Class<T> clazz, PfsParameter pfs,
+    int[] totalCt, EntityManager manager) throws Exception {
 
-    final FullTextQuery fullTextQuery = helper(terminology, version, branch,
-        query, literalField, clazz, pfs, totalCt, manager);
+    final FullTextQuery fullTextQuery =
+        helper(terminology, version, branch, query, literalField, clazz, pfs, totalCt, manager);
 
     // Retrieve the scores for the returned objects
-    fullTextQuery.setProjection(ProjectionConstants.SCORE,
-        ProjectionConstants.THIS);
+    fullTextQuery.setProjection(ProjectionConstants.SCORE, ProjectionConstants.THIS);
     final List<T> classes = new ArrayList<>();
 
     @SuppressWarnings("unchecked")
@@ -129,8 +122,7 @@ public class AtomClassSearchHandler extends AbstractConfigurable
       Float normScore = Math.min(1, Float.valueOf(score.toString()));
 
       // bump up relevance of exact match on terminology id
-      if (literalQuery != null
-          && literalQuery.equals(((AbstractComponent) t).getTerminologyId())) {
+      if (literalQuery != null && literalQuery.equals(((AbstractComponent) t).getTerminologyId())) {
         normScore = 1.0f;
       }
 
@@ -143,12 +135,12 @@ public class AtomClassSearchHandler extends AbstractConfigurable
 
   /* see superclass */
   @Override
-  public List<Long> getIdResults(String terminology, String version,
-    String branch, String query, String literalField, Class<?> clazz,
-    PfsParameter pfs, int[] totalCt, EntityManager manager) throws Exception {
+  public List<Long> getIdResults(String terminology, String version, String branch, String query,
+    String literalField, Class<?> clazz, PfsParameter pfs, int[] totalCt, EntityManager manager)
+    throws Exception {
 
-    final FullTextQuery fullTextQuery = helper(terminology, version, branch,
-        query, literalField, clazz, pfs, totalCt, manager);
+    final FullTextQuery fullTextQuery =
+        helper(terminology, version, branch, query, literalField, clazz, pfs, totalCt, manager);
 
     // Retrieve the scores for the returned objects
     fullTextQuery.setProjection(ProjectionConstants.ID);
@@ -179,9 +171,9 @@ public class AtomClassSearchHandler extends AbstractConfigurable
    * @return the full text query
    * @throws Exception the exception
    */
-  public FullTextQuery helper(String terminology, String version, String branch,
-    String query, String literalField, Class<?> clazz, PfsParameter pfs,
-    int[] totalCt, EntityManager manager) throws Exception {
+  public FullTextQuery helper(String terminology, String version, String branch, String query,
+    String literalField, Class<?> clazz, PfsParameter pfs, int[] totalCt, EntityManager manager)
+    throws Exception {
 
     // check assumption: class queried must extend AbstractAtomClass
     if (!AbstractAtomClass.class.isAssignableFrom(clazz)) {
@@ -193,8 +185,7 @@ public class AtomClassSearchHandler extends AbstractConfigurable
     // field
     String normalizedField = null;
     if (literalField != null && literalField.endsWith("Sort")) {
-      normalizedField =
-          literalField.substring(0, literalField.length() - 4) + "Norm";
+      normalizedField = literalField.substring(0, literalField.length() - 4) + "Norm";
     }
 
     // Build a quote-stripped query for use in literal and norm fields
@@ -243,8 +234,8 @@ public class AtomClassSearchHandler extends AbstractConfigurable
       // search the normalized and literal fields with the quoted literal
       // (unescaped) query
       if (normalizedField != null) {
-        parsedQuery += " OR " + normalizedField + ":\""
-            + ConfigUtility.normalize(literalQuery) + "\"^5.0";
+        parsedQuery +=
+            " OR " + normalizedField + ":\"" + ConfigUtility.normalize(literalQuery) + "\"^5.0";
       }
       if (literalField != null) {
         parsedQuery += " OR " + literalField + ":\"" + literalQuery + "\"^5.0";
@@ -264,8 +255,8 @@ public class AtomClassSearchHandler extends AbstractConfigurable
       if (acronymExpansionMap.containsKey(fixedQuery)) {
         for (final String expansion : acronymExpansionMap.get(fixedQuery)) {
           if (normalizedField != null) {
-            parsedQuery += " OR " + normalizedField + ":\""
-                + ConfigUtility.normalize(expansion) + "\"^5.0";
+            parsedQuery +=
+                " OR " + normalizedField + ":\"" + ConfigUtility.normalize(expansion) + "\"^5.0";
           }
           if (literalField != null) {
             parsedQuery += " OR " + literalField + ":\"" + expansion + "\"^5.0";
@@ -288,27 +279,23 @@ public class AtomClassSearchHandler extends AbstractConfigurable
             }
             correctedQuery.append(token);
           } else {
-            String[] suggestions =
-                spellChecker.suggestSimilar(token.toLowerCase(), 5, .8f);
+            String[] suggestions = spellChecker.suggestSimilar(token.toLowerCase(), 5, .8f);
             if (suggestions.length > 0) {
               flag = true;
               if (correctedQuery.length() != 0) {
                 correctedQuery.append(" ");
               }
-              correctedQuery
-                  .append(FieldedStringTokenizer.join(suggestions, " "));
+              correctedQuery.append(FieldedStringTokenizer.join(suggestions, " "));
             }
           }
         }
         if (flag) {
           // add name norm and name sort with appropriate weightings
           if (normalizedField != null) {
-            parsedQuery += " OR " + normalizedField + ":\""
-                + correctedQuery.toString() + "\"^5.0";
+            parsedQuery += " OR " + normalizedField + ":\"" + correctedQuery.toString() + "\"^5.0";
           }
           if (literalField != null) {
-            parsedQuery += " OR " + literalField + ":\""
-                + correctedQuery.toString() + "\"^5.0";
+            parsedQuery += " OR " + literalField + ":\"" + correctedQuery.toString() + "\"^5.0";
           }
         }
       }
@@ -328,8 +315,7 @@ public class AtomClassSearchHandler extends AbstractConfigurable
       }
     } else if (parsedQuery.contains(" OR ")) {
       // Use parens
-      finalQuery.append("(").append(parsedQuery).append(")")
-          .append(terminologyClause);
+      finalQuery.append("(").append(parsedQuery).append(")").append(terminologyClause);
     } else {
       // Don't use parens
       finalQuery.append(parsedQuery).append(terminologyClause);
@@ -340,8 +326,7 @@ public class AtomClassSearchHandler extends AbstractConfigurable
     StringBuilder fieldedQuery = null;
     if (fixedQuery.contains(":")) {
       fieldedQuery = new StringBuilder();
-      fieldedQuery.append("(").append(fixedQuery).append(")")
-          .append(terminologyClause);
+      fieldedQuery.append("(").append(fixedQuery).append(")").append(terminologyClause);
     }
 
     // Construct the full text query and perform the search
@@ -350,8 +335,8 @@ public class AtomClassSearchHandler extends AbstractConfigurable
     // if fielded, try fielded query first
     if (fieldedQuery != null) {
       try {
-        fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz,
-            fieldedQuery.toString(), pfs, manager);
+        fullTextQuery =
+            IndexUtility.applyPfsToLuceneQuery(clazz, fieldedQuery.toString(), pfs, manager);
       } catch (ParseException | LocalException | IllegalArgumentException e) {
         fullTextQuery = null;
       }
@@ -362,14 +347,14 @@ public class AtomClassSearchHandler extends AbstractConfigurable
 
       // try the parsed query
       try {
-        fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz,
-            finalQuery.toString(), pfs, manager);
+        fullTextQuery =
+            IndexUtility.applyPfsToLuceneQuery(clazz, finalQuery.toString(), pfs, manager);
       }
 
       // If there's a parse exception, try the literal query
       catch (ParseException | LocalException | IllegalArgumentException e) {
-        fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz,
-            escapedQuery + terminologyClause, pfs, manager);
+        fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, escapedQuery + terminologyClause,
+            pfs, manager);
       }
     }
 
@@ -379,15 +364,14 @@ public class AtomClassSearchHandler extends AbstractConfigurable
 
     // Only look to other algorithms if this is NOT a potential fielded query
     // and the query exists
-    if (fixedQuery != null && !fixedQuery.isEmpty()
-        && !fixedQuery.contains(":")) {
+    if (fixedQuery != null && !fixedQuery.isEmpty() && !fixedQuery.contains(":")) {
 
       // If at this point there are zero results,
       // Run the query through acronym expansion
       if (totalCt[0] == 0) {
         // use wordInd tokenization
-        String[] tokens = FieldedStringTokenizer.split(fixedQuery,
-            " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
+        String[] tokens =
+            FieldedStringTokenizer.split(fixedQuery, " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
         StringBuilder newQuery = new StringBuilder();
         boolean found = false;
         for (final String token : tokens) {
@@ -398,8 +382,7 @@ public class AtomClassSearchHandler extends AbstractConfigurable
           if (acronymExpansionMap.containsKey(token.toUpperCase())) {
             found = true;
             List<String> tempList = new ArrayList<>();
-            tempList.add(
-                "\"" + acronymExpansionMap.get(token.toUpperCase()) + "\"");
+            tempList.add("\"" + acronymExpansionMap.get(token.toUpperCase()) + "\"");
             newQuery.append(FieldedStringTokenizer.join(tempList, " "));
           } else {
             newQuery.append(token);
@@ -417,8 +400,8 @@ public class AtomClassSearchHandler extends AbstractConfigurable
       // Run the query through spelling correction
       if (totalCt[0] == 0) {
         // use wordInd tokenization
-        String[] tokens = FieldedStringTokenizer.split(fixedQuery,
-            " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
+        String[] tokens =
+            FieldedStringTokenizer.split(fixedQuery, " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
         StringBuilder newQuery = new StringBuilder();
         newQuery.append("(");
         boolean found = false;
@@ -429,8 +412,7 @@ public class AtomClassSearchHandler extends AbstractConfigurable
           if (spellChecker.exist(token.toLowerCase())) {
             newQuery.append(token);
           } else if (!token.isEmpty()) {
-            String[] suggestions =
-                spellChecker.suggestSimilar(token.toLowerCase(), 5, .8f);
+            String[] suggestions = spellChecker.suggestSimilar(token.toLowerCase(), 5, .8f);
             found = suggestions.length > 0;
             newQuery.append(FieldedStringTokenizer.join(suggestions, " "));
           }
@@ -450,8 +432,8 @@ public class AtomClassSearchHandler extends AbstractConfigurable
       // e.g. a* b* c*
       if (totalCt[0] == 0) {
         // use wordInd tokenization
-        String[] tokens = FieldedStringTokenizer.split(fixedQuery,
-            " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
+        String[] tokens =
+            FieldedStringTokenizer.split(fixedQuery, " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
         StringBuilder newQuery = new StringBuilder();
         newQuery.append("(");
         for (final String token : tokens) {

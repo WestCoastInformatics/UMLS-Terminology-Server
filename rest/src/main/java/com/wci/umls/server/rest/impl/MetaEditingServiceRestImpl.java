@@ -165,7 +165,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
           IdType.SEMANTIC_TYPE.toString(),
           action.getSemanticTypeComponent().getId(), action.getConcept());
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
       return validationResult;
 
@@ -248,7 +248,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
           IdType.SEMANTIC_TYPE.toString(),
           action.getSemanticTypeComponent().getId(), action.getConcept());
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
       return validationResult;
 
@@ -334,7 +334,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
           IdType.ATTRIBUTE.toString(), action.getAttribute().getId(),
           action.getConcept());
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
       return validationResult;
 
@@ -417,7 +417,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
           IdType.ATTRIBUTE.toString(), action.getAttribute().getId(),
           action.getConcept());
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
       return validationResult;
 
@@ -502,7 +502,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event = new ChangeEventJpa("adding an atom", authToken,
           IdType.ATOM.toString(), action.getAtom().getId(),
           action.getConcept());
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
       return validationResult;
 
@@ -584,7 +584,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
           IdType.ATTRIBUTE.toString(), action.getAtom().getId(),
           action.getConcept());
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
       return validationResult;
 
@@ -664,7 +664,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event = new ChangeEventJpa("updating an atom",
           authToken, IdType.ATOM.toString(), action.getAtom().getId(),
           action.getConcept());
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
       return validationResult;
 
@@ -731,7 +731,12 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       relationship.setInferred(true);
       relationship.setSuppressible(false);
       relationship.setObsolete(false);
-
+      
+      // If RelGroup is null, set to blank
+      if (relationship.getGroup() == null){
+        relationship.setGroup("");
+      }
+      
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
@@ -762,7 +767,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
           IdType.RELATIONSHIP.toString(), action.getRelationship().getId(),
           action.getConcept());
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
       return validationResult;
 
@@ -843,6 +848,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         relationship.setInferred(true);
         relationship.setSuppressible(false);
         relationship.setObsolete(false);
+        
+        // If RelGroup is null, set to blank
+        if (relationship.getGroup() == null){
+          relationship.setGroup("");
+        }
 
         // Configure the action
         action.setProject(project);
@@ -885,7 +895,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         final ChangeEvent event = new ChangeEventJpa(action.getName(),
             authToken, IdType.RELATIONSHIP.toString(),
             action.getRelationship().getId(), action.getConcept());
-        sendChangeEvent(event);
+        sendChangeEvent(userName, event);
 
         // Reload the fromConcept for next pass
         Concept fromConcept = action.getConcept(conceptId);
@@ -975,7 +985,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
           IdType.RELATIONSHIP.toString(),
           action.getDemotionRelationship().getId(), action.getConcept());
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
       return validationResult;
 
@@ -1063,7 +1073,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
           IdType.RELATIONSHIP.toString(), action.getRelationship().getId(),
           action.getConcept());
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
       return validationResult;
 
@@ -1148,7 +1158,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event2 = new ChangeEventJpa(action.getName(), authToken,
           IdType.CONCEPT.toString(), action.getFromConcept().getId(),
           action.getFromConcept());
-      sendChangeEvents(event2, event);
+      sendChangeEvents(userName, event2, event);
 
       return validationResult;
 
@@ -1235,7 +1245,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event2 = new ChangeEventJpa(action.getName(), authToken,
           IdType.CONCEPT.toString(), action.getFromConcept().getId(),
           action.getFromConcept());
-      sendChangeEvents(event, event2);
+      sendChangeEvents(userName, event, event2);
 
       return validationResult;
 
@@ -1328,7 +1338,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event2 = new ChangeEventJpa(action.getName(), authToken,
           IdType.CONCEPT.toString(), action.getToConcept().getId(),
           action.getToConcept());
-      sendChangeEvents(event, event2);
+      sendChangeEvents(userName, event, event2);
 
       return validationResult;
 
@@ -1407,7 +1417,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
           IdType.CONCEPT.toString(), action.getConcept().getId(),
           action.getConcept());
-      sendChangeEvent(event);
+      sendChangeEvent(userName, event);
 
       return validationResult;
 
@@ -1511,7 +1521,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
             authToken, IdType.CONCEPT.toString(), null, concept2);
         events.add(event2);
       }
-      sendChangeEvents(events.toArray(new ChangeEvent[] {}));
+      sendChangeEvents(userName, events.toArray(new ChangeEvent[] {}));
 
       return validationResult;
 
@@ -1616,7 +1626,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
             authToken, IdType.CONCEPT.toString(), null, concept2);
         events.add(event2);
       }
-      sendChangeEvents(events.toArray(new ChangeEvent[] {}));
+      sendChangeEvents(userName, events.toArray(new ChangeEvent[] {}));
 
       return validationResult;
 

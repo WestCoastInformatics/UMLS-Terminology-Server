@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -1508,6 +1509,27 @@ public abstract class RootServiceJpa implements RootService {
         service.close();
       }
 
+      // If this project is set up with validation checks that no user should
+      // ever be able to override, add those back to errors, and remove from
+      // warnings
+      final String unoverridableCheckString =
+          ConfigUtility.getConfigProperties()
+              .getProperty("validation.service.handler.unoverridableChecks");
+      if (unoverridableCheckString != null) {
+        final List<String> unoverridableCheckList =
+            Arrays.asList(unoverridableCheckString.split(","));
+        for (final String message : new HashSet<String>(
+            validationResult.getWarnings())) {
+          for (final String checkName : unoverridableCheckList) {
+            if (message.contains(checkName)) {
+              validationResult.getWarnings().remove(message);
+              validationResult.getErrors().add(message);
+              break;
+            }
+          }
+        }
+      }
+
       // Check again in case all errors were turned into warnings and we're
       // overriding warnings
       if (!validationResult.isValid()
@@ -1536,7 +1558,7 @@ public abstract class RootServiceJpa implements RootService {
     // Perform post-action maintenance on affected concept(s)
     // DO this in a separate transaction - maybe some issues with
     if (performMaintanence) {
-      action.postActionMaintenance();
+      action.postActionMaintenance(batchMode);
     }
 
     // no errors/warnings at this point.
@@ -1830,10 +1852,14 @@ public abstract class RootServiceJpa implements RootService {
     }
 
     // check for correct number and type of returned objects
+    // only look up to the first case of FROM, to avoid problems with nested
+    // queries
     if (!query.toUpperCase().replaceAll("[\\n\\r]", "")
-        .matches("SELECT.*ID.*FROM.*")
+        .substring(0, query.toUpperCase().indexOf("FROM"))
+        .matches("SELECT.*ID.*")
         || query.toUpperCase().replaceAll("[\\n\\r]", "")
-            .matches("SELECT.*ID.*ID.*FROM.*")) {
+            .substring(0, query.toUpperCase().indexOf("FROM"))
+            .matches("SELECT.*ID.*ID.*")) {
       throw new LocalException(
           "Query must be constructed to return a single id");
     }
@@ -2131,8 +2157,8 @@ public abstract class RootServiceJpa implements RootService {
     }
 
     // Handle SQL and JPQL queries here
-    // Check for JPQL/SQL errors
-
+    // Check for JPQL/SQL errors  
+    
     boolean conceptQuery = false;
     boolean dualConceptQuery = false;
     boolean clusterQuery = false;
@@ -2165,6 +2191,7 @@ public abstract class RootServiceJpa implements RootService {
     if (queryType == QueryType.SQL) {
       jpaQuery = getEntityManager().createNativeQuery(query);
     } else if (queryType == QueryType.JPQL) {
+//      query = query.replace(jpaObjectName.toLowerCase(), jpaObjectName);
       jpaQuery = getEntityManager().createQuery(query);
     } else {
       throw new Exception("Unsupported query type " + queryType);
@@ -2268,7 +2295,7 @@ public abstract class RootServiceJpa implements RootService {
     final List<Object[]> list = jpaQuery.getResultList();
     final List<Long[]> results = new ArrayList<>();
     for (final Object[] entry : list) {
-      final Long clusterId = new Long(Long.parseLong(entry[0].toString()));// Long.valueOf(entry[0].toString());
+      final Long clusterId = Long.valueOf(entry[0].toString());
       final Long conceptId = Long.valueOf(entry[1].toString());
 
       final Long[] result = new Long[] {
@@ -2324,7 +2351,7 @@ public abstract class RootServiceJpa implements RootService {
 
     // Handle SQL and JPQL queries here
     // Check for JPQL/SQL errors
-
+    
     boolean conceptQuery = false;
     boolean dualConceptQuery = false;
     boolean clusterQuery = false;
@@ -2344,9 +2371,9 @@ public abstract class RootServiceJpa implements RootService {
 
     // Modify query to get the total count of items
     if (!query.toLowerCase().contains("distinct")) {
-      query = query.toLowerCase().replaceFirst("[\\n\\r]", " ")
+      query = query.replaceFirst("[\\n\\r]", " ")
           .replaceFirst("[\\n\\r]", " ");
-      query = query.replaceFirst("select.* from", "select count(*) from ");
+      query = query.replaceFirst("[Ss][Ee][Ll][Ee][Cc][Tt].* [Ff][Rr][Oo][Mm]", "select count(*) from ");
     } else {
       return executeClusteredConceptQuery(query, queryType, params, false)
           .size();
@@ -2367,6 +2394,7 @@ public abstract class RootServiceJpa implements RootService {
     if (queryType == QueryType.SQL) {
       jpaQuery = getEntityManager().createNativeQuery(query);
     } else if (queryType == QueryType.JPQL) {
+      //query = query.replace(jpaObjectName.toLowerCase(), jpaObjectName);
       jpaQuery = getEntityManager().createQuery(query);
     } else {
       throw new Exception("Unsupported query type " + queryType);
@@ -2382,7 +2410,15 @@ public abstract class RootServiceJpa implements RootService {
     Logger.getLogger(getClass()).info("  query = " + query);
 
     final List<Object> list = jpaQuery.getResultList();
-    return ((BigInteger) list.get(0)).intValue();
+    if(list.get(0).getClass() == BigInteger.class){
+      return ((BigInteger) list.get(0)).intValue();
+    }
+    else if (list.get(0).getClass() == Long.class){
+      return ((Long)list.get(0)).intValue();
+    }
+    else{
+      throw new Exception("Unhandled object type:" + list.get(0).getClass().toString());
+    }
 
   }
 
@@ -2486,7 +2522,7 @@ public abstract class RootServiceJpa implements RootService {
     }
     // Iterate through all children, add and recurse
     for (final Long chd : parChd.get(par)) {
-      if(!result.contains(chd)){
+      if (!result.contains(chd)) {
         getDescendants(chd, parChd, result);
       }
       result.add(chd);

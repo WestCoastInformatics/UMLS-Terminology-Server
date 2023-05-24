@@ -156,18 +156,18 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
       List<Long[]> atomIdPairs = executeComponentIdPairQuery(query, queryType,
           params, AtomJpa.class, false);
       statsMap.put("atomPairsReturnedByQuery", atomIdPairs.size());
-      
+
       logInfo("  atom pairs returned by query count = "
           + statsMap.get("atomPairsReturnedByQuery"));
       commitClearBegin();
-      
+
       // Remove all atom pairs caught by the filters
       final List<Pair<Long, Long>> filteredAtomIdPairs =
           applyFilters(atomIdPairs, params, filterQueryType, filterQuery,
               newAtomsOnly, statsMap);
       statsMap.put("atomPairsRemainingAfterFilters",
           filteredAtomIdPairs.size());
-      
+
       logInfo("  atom pairs removed by filters count = "
           + statsMap.get("atomPairsRemovedByFilters"));
       logInfo("  atom pairs remaining after filters count = "
@@ -219,6 +219,9 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
     } catch (Exception e) {
       logError("Unexpected problem - " + e.getMessage());
       throw e;
+    } finally {
+      // Clear the caches to free up memory
+      clearCaches();
     }
   }
 
@@ -231,33 +234,34 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
   @Override
   public void reset() throws Exception {
     logInfo("Starting RESET " + getName());
-    // Collect any merges previously performed, and UNDO them in reverse order
-    final PfsParameter pfs = new PfsParameterJpa();
-    pfs.setAscending(false);
-    pfs.setSortField("lastModified");
-    final MolecularActionList molecularActions =
-        findMolecularActions(null, getProject().getTerminology(),
-            getProject().getVersion(), "activityId:" + getActivityId(), pfs);
-
-    for (MolecularAction molecularAction : molecularActions.getObjects()) {
-      // Create and set up an undo action
-      final UndoMolecularAction undoAction = new UndoMolecularAction();
-
-      // Configure and run the undo action
-      undoAction.setProject(getProject());
-      undoAction.setActivityId(molecularAction.getActivityId());
-      undoAction.setConceptId(null);
-      undoAction.setConceptId2(molecularAction.getComponentId2());
-      undoAction.setLastModifiedBy(molecularAction.getLastModifiedBy());
-      undoAction.setTransactionPerOperation(false);
-      undoAction.setMolecularActionFlag(false);
-      undoAction.setChangeStatusFlag(true);
-      undoAction.setMolecularActionId(molecularAction.getId());
-      undoAction.setForce(false);
-      undoAction.performMolecularAction(undoAction, getLastModifiedBy(), false, false);
-      
-      undoAction.close();
-    }
+//    // Collect any merges previously performed, and UNDO them in reverse order
+//    final PfsParameter pfs = new PfsParameterJpa();
+//    pfs.setAscending(false);
+//    pfs.setSortField("lastModified");
+//    final MolecularActionList molecularActions =
+//        findMolecularActions(null, getProject().getTerminology(),
+//            getProject().getVersion(), "activityId:" + getActivityId(), pfs);
+//
+//    for (MolecularAction molecularAction : molecularActions.getObjects()) {
+//      // Create and set up an undo action
+//      final UndoMolecularAction undoAction = new UndoMolecularAction();
+//
+//      // Configure and run the undo action
+//      undoAction.setProject(getProject());
+//      undoAction.setActivityId(molecularAction.getActivityId());
+//      undoAction.setConceptId(null);
+//      undoAction.setConceptId2(molecularAction.getComponentId2());
+//      undoAction.setLastModifiedBy(molecularAction.getLastModifiedBy());
+//      undoAction.setTransactionPerOperation(false);
+//      undoAction.setMolecularActionFlag(false);
+//      undoAction.setChangeStatusFlag(true);
+//      undoAction.setMolecularActionId(molecularAction.getId());
+//      undoAction.setForce(false);
+//      undoAction.performMolecularAction(undoAction, getLastModifiedBy(), false,
+//          false);
+//
+//      undoAction.close();
+//    }
     logInfo("Finished RESET " + getName());
   }
 
@@ -359,8 +363,10 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
     param = new AlgorithmParameterJpa("Filter Query Type", "filterQueryType",
         "The language the filter query is written in", "e.g. JPQL", 200,
         AlgorithmParameter.Type.ENUM, "");
-    param.setPossibleValues(EnumSet.allOf(QueryType.class).stream()
+    List<String> possibleValues = new ArrayList<>(Arrays.asList(""));
+    possibleValues.addAll(EnumSet.allOf(QueryType.class).stream()
         .map(e -> e.toString()).collect(Collectors.toList()));
+    param.setPossibleValues(possibleValues);
     params.add(param);
 
     // filter query

@@ -30,7 +30,7 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
 @Table(name = "semantic_type_components", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "semanticTypeComponent")
 public class SemanticTypeComponentJpa extends AbstractComponent

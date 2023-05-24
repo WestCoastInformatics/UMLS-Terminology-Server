@@ -165,6 +165,13 @@ tsApp.run([
                 controller : 'SemanticTypesCtrl',
                 reloadOnSearch : false
               });
+              
+              console.debug('Route enabled: /edit/codeConcepts');
+              $routeProviderReference.when('/edit/codeConcepts', {
+                templateUrl : 'app/page/edit/codeConcepts/codeConcepts.html',
+                controller : 'CodeConceptsCtrl',
+                reloadOnSearch : false
+              });
 
               console.debug('Route enabled: /edit/atoms');
               $routeProviderReference.when('/edit/atoms', {
@@ -210,6 +217,17 @@ tsApp.run([
               });
             }
 
+            // Process page
+            if (appConfig['deploy.enabled.tabs']
+              && appConfig['deploy.enabled.tabs'].split(',').indexOf('inversion') != -1) {
+              console.debug('Route enabled: /inversion');
+              $routeProviderReference.when('/inversion', {
+                templateUrl : 'app/page/inversion/inversion.html',
+                controller : 'InversionCtrl',
+                reloadOnSearch : false
+              });
+            }
+            
             // These routes are always enabled
             // Content with mode set (e.g. 'simple' for component report)
             console

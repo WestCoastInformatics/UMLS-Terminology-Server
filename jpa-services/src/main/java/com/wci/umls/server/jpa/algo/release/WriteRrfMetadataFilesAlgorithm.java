@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 import javax.persistence.Query;
 
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.PrecedenceList;
@@ -31,7 +30,6 @@ import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.CodeVariantType;
@@ -182,15 +180,18 @@ public class WriteRrfMetadataFilesAlgorithm
 
     final Set<Terminology> terminologies =
         new HashSet<>(getCurrentTerminologies().getObjects());
-    // Add in non-current terminologies referred to by map sets
-    for (final MapSet mapset : getMapSets(null, null, Branch.ROOT)
-        .getObjects()) {
-      final Terminology mapsetTerm =
-          getTerminology(mapset.getToTerminology(), mapset.getToVersion());
-      if (!mapsetTerm.isCurrent()) {
-        terminologies.add(mapsetTerm);
-      }
-    }
+    // 5/23/2018 Decision to relax the constraint in NCI-META that map set “to”
+    // terminologies must have entries in MRSAB
+    
+    // // Add in non-current terminologies referred to by map sets
+    // for (final MapSet mapset : getMapSets(null, null, Branch.ROOT)
+    // .getObjects()) {
+    // final Terminology mapsetTerm =
+    // getTerminology(mapset.getToTerminology(), mapset.getToVersion());
+    // if (!mapsetTerm.isCurrent()) {
+    // terminologies.add(mapsetTerm);
+    // }
+    // }
 
     // progress monitoring
     for (final Terminology term : terminologies) {
@@ -353,15 +354,16 @@ public class WriteRrfMetadataFilesAlgorithm
       // 16 CXTY FULL, NOSIB, IGNORE-RELA, MULTIPLE
       if (rhtFlag) {
         sb.append("FULL");
-        if (!term.isIncludeSiblings()) {
-          sb.append("-NOSIB");
-        }
+        // NM-172 - remove NOSIB and MULTIPLE from CXTY
+//        if (!term.isIncludeSiblings()) {
+//          sb.append("-NOSIB");
+//        }
         if (term.getRootTerminology().isPolyhierarchy()) {
           sb.append("-MULTIPLE");
         }
-        if (!term.getRootTerminology().isHierarchyComputable()) {
-          sb.append("-IGNORE-RELA");
-        }
+//        if (!term.getRootTerminology().isHierarchyComputable()) {
+//          sb.append("-IGNORE-RELA");
+//        }
       }
       sb.append("|");
 
@@ -556,6 +558,9 @@ public class WriteRrfMetadataFilesAlgorithm
     for (final AdditionalRelationshipType rela : getAdditionalRelationshipTypes(
         getProject().getTerminology(), getProject().getVersion())
             .getObjects()) {
+      if(!rela.isPublishable()){
+        continue;
+      }
       StringBuilder sb = new StringBuilder();
       sb.append("RELA").append("|");
       sb.append(rela.getAbbreviation()).append("|");

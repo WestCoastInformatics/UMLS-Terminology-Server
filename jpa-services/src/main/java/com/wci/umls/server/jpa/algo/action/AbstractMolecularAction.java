@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2019 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.action;
 
@@ -26,6 +26,7 @@ import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.jpa.actions.MolecularActionJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.services.ReportServiceJpa;
 import com.wci.umls.server.jpa.services.helper.IndexUtility;
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.MolecularAction;
@@ -630,9 +631,10 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
   /**
    * Post action maintenance.
    *
+   * @param batchMode the batch mode
    * @throws Exception the exception
    */
-  public void postActionMaintenance() throws Exception {
+  public void postActionMaintenance(boolean batchMode) throws Exception {
 
     final Set<Concept> concepts = new HashSet<>();
     if (getConcept() != null) {
@@ -642,9 +644,19 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
       concepts.add(getConcept(getConcept2().getId()));
     }
 
+    // Molecular actions can cause the ConceptReport's context cache to be out
+    // of date. Clear the cache for each affected concept.
+    for (final Concept c : concepts) {
+      if (c != null) {
+        ReportServiceJpa.clearCachedContextsForConcept(c.getId());
+      }
+    }
+
     // Start a new action that doesn't create molecular/atomic actions
-    beginTransaction();
-    setMolecularActionFlag(false);
+    if (!batchMode) {
+      beginTransaction();
+      setMolecularActionFlag(false);
+    }
 
     // Only concepts that exist and contain atoms will need to go through this
     // process
@@ -666,7 +678,8 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
         if (records != null) {
           for (final TrackingRecord record : records.getObjects()) {
             if (!recordsSeen.contains(record.getId())) {
-              final WorkflowStatus status = computeTrackingRecordStatus(record, false);
+              final WorkflowStatus status =
+                  computeTrackingRecordStatus(record, false);
               if (record.getWorkflowStatus() != status) {
                 record.setWorkflowStatus(status);
                 updateTrackingRecord(record);
@@ -686,7 +699,10 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
         updateConcept(c);
       }
     }
-    commit();
+
+    if (!batchMode) {
+      commit();
+    }
   }
 
   /* see superclass */

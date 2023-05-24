@@ -24,7 +24,7 @@ import com.wci.umls.server.model.content.ComponentHistory;
 @Table(name = "component_histories", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @XmlRootElement(name = "componentHistory")
 public class ComponentHistoryJpa extends AbstractComponent
     implements ComponentHistory {

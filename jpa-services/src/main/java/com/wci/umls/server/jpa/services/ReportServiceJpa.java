@@ -1,5 +1,5 @@
 /*
- *    Copyright 2017 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services;
 
@@ -414,9 +414,15 @@ public class ReportServiceJpa extends HistoryServiceJpa
         new ArrayList<>(0);
     // Handle concept rels
     if (concept != null) {
+      // For concept relationships, sort by relationshipType
+      // This is a bit of a hack to ensure that Bequeathal rels take precedence
+      // over other rel types
+      PfsParameter pfs = new PfsParameterJpa();
+      pfs.setAscending(true);
+      pfs.setSortField("relationshipType");
       relList = findConceptDeepRelationships(concept.getTerminologyId(),
           concept.getTerminology(), concept.getVersion(), Branch.ROOT, null,
-          true, true, true, false, new PfsParameterJpa()).getObjects();
+          true, true, false, false, pfs).getObjects();
     }
 
     // Handle descriptor rels
@@ -450,9 +456,10 @@ public class ReportServiceJpa extends HistoryServiceJpa
         if (!rel.isPublishable()) {
           sb.append("{");
         }
-        sb.append(handleHtmlSymbols(rel.getFrom().getName()))
-            .append("[SFO]/[LFO]")
+        sb.append(handleHtmlSymbols(rel.getFrom().getName())).append(" ")
+            .append("[SFO]/[LFO]").append(" ")
             .append(handleHtmlSymbols(rel.getTo().getName()));
+        sb.append(" ");
         sb.append("[").append(getTerminologyAndVersion(rel)).append("]")
             .append(lineEnd);
         if (!rel.isPublishable()) {
@@ -468,9 +475,11 @@ public class ReportServiceJpa extends HistoryServiceJpa
     for (final Relationship<?, ?> relationship : relList) {
       final ConceptRelationship rel = (ConceptRelationship) relationship;
       if (rel.getWorkflowStatus() == WorkflowStatus.DEMOTION
-          && !(rel.getRelationshipType().equals("PAR")
-              || rel.getRelationshipType().equals("CHD")
-              || rel.getRelationshipType().equals("SIB"))) {
+		/*  Removed per Lori's request 9/27/2021
+		 * && !(rel.getRelationshipType().equals("PAR") ||
+		 * rel.getRelationshipType().equals("CHD") ||
+		 * rel.getRelationshipType().equals("SIB"))
+		 */) {
         usedFromIds.add(rel.getFrom().getTerminologyId());
         demotionRelationships.add(rel);
       }
@@ -542,9 +551,9 @@ public class ReportServiceJpa extends HistoryServiceJpa
 
     // Reviewed Related Concepts
     final List<ConceptRelationship> reviewedRelatedConcepts = new ArrayList<>();
+    int ct = 0;
     for (final Relationship<?, ?> relationship : relList) {
       final ConceptRelationship rel = (ConceptRelationship) relationship;
-      int ct = 0;
       if ((rel.getWorkflowStatus() == WorkflowStatus.READY_FOR_PUBLICATION
           || rel.getWorkflowStatus() == WorkflowStatus.PUBLISHED)
           && !usedFromIds.contains(rel.getFrom().getTerminologyId()) && ct < 20
@@ -563,6 +572,10 @@ public class ReportServiceJpa extends HistoryServiceJpa
     if (reviewedRelatedConcepts.size() > 0) {
       sb.append("REVIEWED RELATED CONCEPT(S)").append(lineEnd);
       sb.append(getRelationshipsReport(reviewedRelatedConcepts));
+      if (ct >= 20) {
+        sb.append("*** Reviewed related concepts were truncated.").append(lineEnd);
+        sb.append("*** Reference the relationship panel for the full list.").append(lineEnd);
+      }
     }
 
     // Context Relationships
@@ -713,9 +726,9 @@ public class ReportServiceJpa extends HistoryServiceJpa
   }
 
   private Object handleHtmlSymbols(String name) {
-    name.replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("'",
-        "&apos;");
-    return name;
+    final String name2 = name.replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+        .replaceAll("'", "&apos;");
+    return name2;
   }
 
   /**
@@ -849,11 +862,38 @@ public class ReportServiceJpa extends HistoryServiceJpa
       sb.append("|");
       sb.append(getTerminologyAndVersion(rel));
       sb.append("|");
-      sb.append(rel.getLastModifiedBy());
+      // Print responsible entity
+      // For demotions and c-level rels, this is the editor who most recently
+      // modified the rel.
+      // For s-level rels, this is the terminology/version of the insertion that
+      // created it
+      if (rel.getWorkflowStatus() == WorkflowStatus.DEMOTION
+          || rel.getTerminology().equals(rel.getTo().getTerminology())) {
+        sb.append(rel.getLastModifiedBy());
+      } else {
+        sb.append(getTerminologyAndVersion(rel));
+      }
+
       sb.append("]");
 
       sb.append(" {");
-      sb.append(rel.getFrom().getId());
+      
+      // add hyperlink to the target concept id
+      String baseUrl = "";
+      try {
+        baseUrl = ConfigUtility.getConfigProperties()
+            .getProperty("base.url");
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      String newUrl = baseUrl + "/index.html#/content/report/CONCEPT/NCIMTH/"
+          + rel.getFrom().getId();
+      sb.append("<a href=\"" + newUrl
+          + "\" target=\"_blank\" onClick=\"window.open('" + newUrl
+          + "','','resizable,height=800,width=600'); return false;\">"
+          + rel.getFrom().getId() + "</a>");
+
+      //
       sb.append("}");
 
       // Print relationship_level
@@ -976,6 +1016,18 @@ public class ReportServiceJpa extends HistoryServiceJpa
   private void cacheContexts(Long conceptId, String contexts) {
     synchronized (conceptContextsCache) {
       conceptContextsCache.put(conceptId, contexts);
+    }
+  }
+
+  /**
+   * Clear cache contexts for concept.
+   *
+   * @param conceptId the concept id
+   */
+  @SuppressWarnings("static-method")
+  public static void clearCachedContextsForConcept(Long conceptId) {
+    synchronized (conceptContextsCache) {
+      conceptContextsCache.remove(conceptId);
     }
   }
 

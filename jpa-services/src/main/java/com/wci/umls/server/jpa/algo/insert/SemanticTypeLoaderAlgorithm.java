@@ -25,6 +25,7 @@ import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 
 /**
@@ -103,7 +104,7 @@ public class SemanticTypeLoaderAlgorithm
       final Query query = manager
           .createQuery("select a.id, c.id from ConceptJpa c join c.atoms a "
               + "where c.terminology = :terminology "
-              + "  and c.version = :version and c.publishable = true ");
+              + "  and c.version = :version");
       query.setParameter("terminology", getProject().getTerminology());
       query.setParameter("version", getProject().getVersion());
       final Map<Long, Long> atomConceptMap = new HashMap<>();
@@ -151,8 +152,9 @@ public class SemanticTypeLoaderAlgorithm
         // 49|C47666|S|Chemical_Formula|C19H32N2O5.C4H11N|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||875b4a03f8dedd9de05d6e9e4a440401|
 
         // Load the referenced atom, or preferred atom of atomClass object
+        // MTH insertions require unpublishable as well as publishable comonents to be loaded
         final Component component = getComponent(fields[10], fields[1],
-            getCachedTerminologyName(fields[11]), null);
+            getCachedTerminologyName(fields[11]), null, getProcess().getTerminology().equals("MTH") ? true : false);
         if (component == null) {
           logWarnAndUpdate(line,
               "Warning - could not find Component for type: " + fields[10]
@@ -178,6 +180,11 @@ public class SemanticTypeLoaderAlgorithm
         // Get the concept associated with the loaded atom
         final Concept concept = getConcept(atomConceptMap.get(atom.getId()));
 
+        if(concept == null) {
+          logWarnAndUpdate(line, "Warning - atom " + atom.getId() + " is not assigned to any concept.");
+          continue;
+        }
+        
         // If concept has a semantic type already matching this value, move on
         // otherwise add a new semantic type.
         boolean componentContainsSty = false;
