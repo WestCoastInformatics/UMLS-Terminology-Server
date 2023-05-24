@@ -9,13 +9,15 @@
  */
 package com.wci.umls.server.jpa.algo.release;
 
+import static java.util.Collections.reverseOrder;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -59,10 +61,7 @@ public class CreateRrfStatisticsAlgorithm extends AbstractAlgorithm {
   
   /**  The sty stats writer. */
   private BufferedWriter styStatsWriter = null;
-  
-  /**  The source overlap stats writer. */
-  private BufferedWriter sourceOverlapStatsWriter = null;
-  
+ 
   /**  The attribute stats writer. */
   private BufferedWriter attributeStatsWriter = null;
   
@@ -108,9 +107,9 @@ public class CreateRrfStatisticsAlgorithm extends AbstractAlgorithm {
     relStatsWriter = new BufferedWriter(new FileWriter(new File(statsDir, "relStats.txt")));
     ttyStatsWriter = new BufferedWriter(new FileWriter(new File(statsDir, "ttyStats.txt")));
     styStatsWriter = new BufferedWriter(new FileWriter(new File(statsDir, "styStats.txt")));
-    sourceOverlapStatsWriter = new BufferedWriter(new FileWriter(new File(statsDir, "sourceOverlapStats.txt")));
     attributeStatsWriter = new BufferedWriter(new FileWriter(new File(statsDir, "attributeStats.txt")));
    
+    // create source overlap statistics
     createMRCONSOSourceOverlapStatistics();
     
     // cache data needed for semantic type statistics
@@ -128,13 +127,17 @@ public class CreateRrfStatisticsAlgorithm extends AbstractAlgorithm {
     relStatsWriter.close();
     ttyStatsWriter.close();
     styStatsWriter.close();
-    sourceOverlapStatsWriter.close();
     attributeStatsWriter.close();
     
     logInfo("Finished " + getName());
 
   }
   
+  /**
+   * Creates the attribute statistics.
+   *
+   * @throws Exception the exception
+   */
   private void createAttributeStatistics() throws Exception {
     final String attributesFile = pathMeta + File.separator + "MRSAT.RRF";
     BufferedReader attributes = null;
@@ -183,6 +186,11 @@ public class CreateRrfStatisticsAlgorithm extends AbstractAlgorithm {
   
 
   
+  /**
+   * Creates the rel statistics.
+   *
+   * @throws Exception the exception
+   */
   private void createRelStatistics() throws Exception {
     final String relationshipsFile = pathMeta + File.separator + "MRREL.RRF";
     BufferedReader relationships = null;
@@ -226,6 +234,11 @@ public class CreateRrfStatisticsAlgorithm extends AbstractAlgorithm {
     
   }
   
+  /**
+   * Creates the MRCONSO source overlap statistics.
+   *
+   * @throws Exception the exception
+   */
   private void createMRCONSOSourceOverlapStatistics() throws Exception {
     final String atomsFile = pathMeta + File.separator + "MRCONSO.RRF";
     BufferedReader atoms = null;
@@ -238,6 +251,7 @@ public class CreateRrfStatisticsAlgorithm extends AbstractAlgorithm {
     String line = null;
     String[] fields = new String[18];
     Map<String, Set<Pair<String, Integer>>> sourceSourceOverlapMap = new HashMap<>();
+    Map<String, Integer> sourceTotalConceptsMap = new HashMap<>();
     Set<String> conceptSources = new HashSet<>();
 
     // initialize loop
@@ -249,6 +263,7 @@ public class CreateRrfStatisticsAlgorithm extends AbstractAlgorithm {
 
     while ((line = atoms.readLine()) != null) {
       FieldedStringTokenizer.split(line, "|", 18, fields);
+      
 
       // collect sources with atoms contributing to this concept
       if (currentId.equals(fields[0])) {
@@ -257,9 +272,23 @@ public class CreateRrfStatisticsAlgorithm extends AbstractAlgorithm {
         atoms.reset();
         currentId = fields[0];
 
-        // process current concept
+
         List<String> conceptSourcesList = new ArrayList<String>();
         conceptSourcesList.addAll(conceptSources);
+        
+        // increment sourceTotalConceptsMap
+        for (int i = 0; i < conceptSourcesList.size(); i++) {
+          String src = conceptSourcesList.get(i);
+          if (sourceTotalConceptsMap.containsKey(src)) {
+            Integer conceptCt = sourceTotalConceptsMap.get(src);        
+            sourceTotalConceptsMap.remove(src);
+            sourceTotalConceptsMap.put(src, ++conceptCt);
+          } else {
+            sourceTotalConceptsMap.put(src, 1);
+          }
+        }
+        
+        // process current concept
 
         // for each source increment count for all other co-occuring sources
         for (int i = 0; i < conceptSourcesList.size(); i++) {
@@ -306,7 +335,49 @@ public class CreateRrfStatisticsAlgorithm extends AbstractAlgorithm {
       atoms.mark(3000);
     }
 
+    // write out txt files
     for (Entry<String, Set<Pair<String, Integer>>> entry : sourceSourceOverlapMap.entrySet()) {
+      
+      File srcDir = new File(statsDir, entry.getKey());
+      if (!srcDir.exists()){
+        srcDir.mkdir();
+      }
+      logInfo("src dir:" + srcDir);
+      
+      BufferedWriter overlapStatsWriter =
+          new BufferedWriter(new FileWriter(new File(srcDir, entry.getKey() + ".txt")));
+
+      List<Pair<String, Integer>> sortedResults = entry.getValue().stream()
+          .sorted(reverseOrder(Map.Entry.comparingByValue()))
+          .collect(Collectors.toList());
+
+      logInfo(entry.getKey() + " | " + sortedResults.toString());
+      
+      StringBuilder report = new StringBuilder();
+      for (Pair<String, Integer> pair : sortedResults) {
+        report.append(pair.getLeft());
+        report.append("|");
+        report.append(pair.getRight().toString());
+        report.append("/");
+        report.append(sourceTotalConceptsMap.get(entry.getKey()));
+        
+        float total_marks = sourceTotalConceptsMap.get(entry.getKey());
+        float scored = pair.getRight().floatValue();
+        float percentage = (scored / total_marks) ;
+        DecimalFormat decFormat = new DecimalFormat("#%");
+        
+        report.append("|");
+        report.append(decFormat.format(percentage));
+        report.append(System.getProperty("line.separator"));
+
+      }
+
+      overlapStatsWriter.write(report.toString());
+      overlapStatsWriter.close();
+    }
+    
+    
+    /**for (Entry<String, Set<Pair<String, Integer>>> entry : sourceSourceOverlapMap.entrySet()) {
       logInfo(entry.getKey() + " | " + entry.getValue());
       BufferedWriter overlapStatsWriter = new BufferedWriter(new FileWriter(new File(statsDir, entry.getKey() + ".txt")));
       for (Pair<String, Integer> pair : entry.getValue()) {
@@ -316,10 +387,15 @@ public class CreateRrfStatisticsAlgorithm extends AbstractAlgorithm {
         overlapStatsWriter.newLine();
       }
       overlapStatsWriter.close();
-    }
+    }*/
     atoms.close();
   }
   
+  /**
+   * Creates the MRCONSO related statistics.
+   *
+   * @throws Exception the exception
+   */
   private void createMRCONSORelatedStatistics() throws Exception {
     final String atomsFile = pathMeta + File.separator + "MRCONSO.RRF";
     BufferedReader atoms = null;
@@ -395,6 +471,11 @@ public class CreateRrfStatisticsAlgorithm extends AbstractAlgorithm {
     
   }
 
+  /**
+   * Cache concept stys.
+   *
+   * @throws Exception the exception
+   */
   private void cacheConceptStys() throws Exception {
 
     final String stysFile = pathMeta + File.separator + "MRSTY.RRF";
@@ -405,25 +486,22 @@ public class CreateRrfStatisticsAlgorithm extends AbstractAlgorithm {
       throw new Exception("File not found: " + stysFile);
     }
 
-    String linePre = null;
     String line = null;
     String[] fields = new String[6];
     
     // cache concept/sty combos for use later when iterating through MRCONSO
     while ((line = stys.readLine()) != null) {
-      if (line != null) {
         FieldedStringTokenizer.split(line, "|", 6, fields);
         
         if (conceptStyMap.containsKey(fields[0])) {
-          Set currentStys = conceptStyMap.get(fields[0]);
+          Set<String> currentStys = conceptStyMap.get(fields[0]);
           currentStys.add(fields[1]);
           conceptStyMap.put(fields[0], currentStys);
         } else {
           Set<String> currentStys = new HashSet<>();
           currentStys.add(fields[1]);
           conceptStyMap.put(fields[0], currentStys);
-        }
-      }         
+        }      
     }
 
   }
@@ -433,17 +511,7 @@ public class CreateRrfStatisticsAlgorithm extends AbstractAlgorithm {
   public void reset() throws Exception {
     logInfo("Starting RESET " + getName());
 
-    // Remove the output zip file
-    final File path = new File(config.getProperty("source.data.dir") + "/"
-        + getProcess().getInputPath());
-    logInfo("  path " + path);
-
-    final String filename = getProcess().getVersion() + ".zip";
-    final File zipFile =
-        new File(path, getProcess().getVersion() + "/" + filename);
-    if (zipFile.exists()) {
-      FileUtils.fileDelete(zipFile.getAbsolutePath());
-    }
+    
     logInfo("Finished RESET " + getName());
   }
 
