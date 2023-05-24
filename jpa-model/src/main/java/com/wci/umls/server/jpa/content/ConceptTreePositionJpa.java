@@ -3,10 +3,15 @@
  */
 package com.wci.umls.server.jpa.content;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
@@ -21,9 +26,11 @@ import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptTreePosition;
 
@@ -34,7 +41,7 @@ import com.wci.umls.server.model.content.ConceptTreePosition;
 @Table(name = "concept_tree_positions", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "conceptTreePosition")
 public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
@@ -44,6 +51,14 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
   @ManyToOne(targetEntity = ConceptJpa.class, fetch = FetchType.EAGER, optional = false)
   @JoinColumn(nullable = false)
   private Concept node;
+
+  /** The attributes. */
+  @OneToMany(targetEntity = AttributeJpa.class)
+  @JoinColumn(name = "attributes_id")
+  @JoinTable(name = "concept_tree_positions_attributes",
+      inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "concept_tree_positions_id"))
+  private List<Attribute> attributes = null;
 
   /**
    * Instantiates an empty {@link ConceptTreePositionJpa}.
@@ -62,6 +77,39 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
   public ConceptTreePositionJpa(ConceptTreePosition treepos, boolean collectionCopy) {
     super(treepos, collectionCopy);
     node = treepos.getNode();
+    if (collectionCopy) {
+      for (final Attribute attribute : treepos.getAttributes()) {
+        getAttributes().add(new AttributeJpa(attribute));
+      }
+    }
+  }
+
+  /* see superclass */
+  @Override
+  @XmlElement(type = AttributeJpa.class)
+  public List<Attribute> getAttributes() {
+    if (attributes == null) {
+      attributes = new ArrayList<>(1);
+    }
+    return attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAttributes(List<Attribute> attributes) {
+    this.attributes = attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public Attribute getAttributeByName(String name) {
+    for (final Attribute attribute : getAttributes()) {
+      // If there are more than one, this just returns the first.
+      if (attribute.getName().equals(name)) {
+        return attribute;
+      }
+    }
+    return null;
   }
 
   @XmlTransient
@@ -105,9 +153,11 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
    * @return the node name
    */
   @Fields({
-      @Field(name = "nodeName", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord")),
+      @Field(name = "nodeName", index = Index.YES, store = Store.NO, analyze = Analyze.YES,
+          analyzer = @Analyzer(definition = "noStopWord")),
       @Field(name = "nodeNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
+  @SortableField(forField = "nodeNameSort")
   public String getNodeName() {
     return node == null ? null : node.getName();
   }
@@ -194,11 +244,8 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result =
-        prime
-            * result
-            + ((node == null || node.getTerminologyId() == null) ? 0 : node
-                .getTerminologyId().hashCode());
+    result = prime * result + ((node == null || node.getTerminologyId() == null) ? 0
+        : node.getTerminologyId().hashCode());
     return result;
   }
 

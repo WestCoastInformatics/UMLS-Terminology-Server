@@ -3,7 +3,9 @@
  */
 package com.wci.umls.server.jpa.content;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Column;
@@ -11,10 +13,13 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -28,10 +33,12 @@ import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Relationship;
@@ -45,12 +52,12 @@ import com.wci.umls.server.model.content.Relationship;
         "terminologyId", "terminology", "version", "id"
     })
 })
-@Audited
+//@Audited
 @Indexed
 
 @XmlRootElement(name = "conceptRelationship")
-public class ConceptRelationshipJpa extends
-    AbstractRelationship<Concept, Concept> implements ConceptRelationship {
+public class ConceptRelationshipJpa extends AbstractRelationship<Concept, Concept>
+    implements ConceptRelationship {
 
   /** The from concept. */
   @ManyToOne(targetEntity = ConceptJpa.class, optional = false)
@@ -70,6 +77,14 @@ public class ConceptRelationshipJpa extends
   @Column(nullable = true, length = 100)
   private Map<String, String> alternateTerminologyIds; // index
 
+  /** The attributes. */
+  @OneToMany(targetEntity = AttributeJpa.class)
+  @JoinColumn(name = "attributes_id")
+  @JoinTable(name = "concept_relationships_attributes",
+      inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "concept_relationships_id"))
+  private List<Attribute> attributes = null;
+
   /**
    * Instantiates an empty {@link ConceptRelationshipJpa}.
    */
@@ -84,15 +99,44 @@ public class ConceptRelationshipJpa extends
    * @param relationship the relationship
    * @param collectionCopy the deep copy
    */
-  public ConceptRelationshipJpa(ConceptRelationship relationship,
-      boolean collectionCopy) {
+  public ConceptRelationshipJpa(ConceptRelationship relationship, boolean collectionCopy) {
     super(relationship, collectionCopy);
     to = relationship.getTo();
     from = relationship.getFrom();
     if (collectionCopy) {
-      alternateTerminologyIds =
-          new HashMap<>(relationship.getAlternateTerminologyIds());
+      alternateTerminologyIds = new HashMap<>(relationship.getAlternateTerminologyIds());
+      for (final Attribute attribute : relationship.getAttributes()) {
+        getAttributes().add(new AttributeJpa(attribute));
+      }
     }
+  }
+
+  /* see superclass */
+  @Override
+  @XmlElement(type = AttributeJpa.class)
+  public List<Attribute> getAttributes() {
+    if (attributes == null) {
+      attributes = new ArrayList<>(1);
+    }
+    return attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAttributes(List<Attribute> attributes) {
+    this.attributes = attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public Attribute getAttributeByName(String name) {
+    for (final Attribute attribute : getAttributes()) {
+      // If there are more than one, this just returns the first.
+      if (attribute.getName().equals(name)) {
+        return attribute;
+      }
+    }
+    return null;
   }
 
   /* see superclass */
@@ -203,9 +247,11 @@ public class ConceptRelationshipJpa extends
    * @return the from term
    */
   @Fields({
-      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO, analyzer = @Analyzer(definition = "noStopWord")),
+      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO,
+          analyzer = @Analyzer(definition = "noStopWord")),
       @Field(name = "fromNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
+  @SortableField(forField = "fromNameSort")
   public String getFromName() {
     return from == null ? null : from.getName();
   }
@@ -333,6 +379,7 @@ public class ConceptRelationshipJpa extends
       @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
       @Field(name = "toNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
+  @SortableField(forField = "toNameSort")
   public String getToName() {
     return to == null ? null : to.getName();
   }
@@ -352,7 +399,8 @@ public class ConceptRelationshipJpa extends
   /* see superclass */
   @Override
   @FieldBridge(impl = MapKeyValueToCsvBridge.class)
-  @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES,
+      store = Store.NO)
   public Map<String, String> getAlternateTerminologyIds() {
     if (alternateTerminologyIds == null) {
       alternateTerminologyIds = new HashMap<>(2);
@@ -362,8 +410,7 @@ public class ConceptRelationshipJpa extends
 
   /* see superclass */
   @Override
-  public void setAlternateTerminologyIds(
-    Map<String, String> alternateTerminologyIds) {
+  public void setAlternateTerminologyIds(Map<String, String> alternateTerminologyIds) {
     this.alternateTerminologyIds = alternateTerminologyIds;
   }
 
@@ -375,8 +422,8 @@ public class ConceptRelationshipJpa extends
     final ConceptRelationship inverseRelationship =
         new ConceptRelationshipJpa((ConceptRelationship) relationship, false);
 
-    return populateInverseRelationship(relationship, inverseRelationship,
-        inverseRelType, inverseAdditionalRelType);
+    return populateInverseRelationship(relationship, inverseRelationship, inverseRelType,
+        inverseAdditionalRelType);
   }
 
   /* see superclass */

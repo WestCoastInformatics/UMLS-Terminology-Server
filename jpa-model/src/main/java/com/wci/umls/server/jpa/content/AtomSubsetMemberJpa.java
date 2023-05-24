@@ -3,11 +3,17 @@
  */
 package com.wci.umls.server.jpa.content;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -19,12 +25,14 @@ import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomSubset;
 import com.wci.umls.server.model.content.AtomSubsetMember;
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.SubsetMember;
 
 /**
@@ -35,7 +43,7 @@ import com.wci.umls.server.model.content.SubsetMember;
 @Table(name = "atom_subset_members", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "atomMember")
 public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
@@ -50,6 +58,13 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
   @ManyToOne(targetEntity = AtomSubsetJpa.class, optional = false)
   @JoinColumn(nullable = false)
   private AtomSubset subset;
+
+  /** The attributes. */
+  @OneToMany(targetEntity = AttributeJpa.class)
+  @JoinColumn(name = "attributes_id")
+  @JoinTable(name = "atom_subsets_attributes", inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "atom_subsets_id"))
+  private List<Attribute> attributes = null;
 
   /**
    * Instantiates an empty {@link AtomSubsetMemberJpa}.
@@ -68,6 +83,39 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
     super(copy, collectionCopy);
     subset = copy.getSubset();
     member = copy.getMember();
+    if (collectionCopy) {
+      for (final Attribute attribute : copy.getAttributes()) {
+        getAttributes().add(new AttributeJpa(attribute));
+      }
+    }
+  }
+
+  /* see superclass */
+  @Override
+  @XmlElement(type = AttributeJpa.class)
+  public List<Attribute> getAttributes() {
+    if (attributes == null) {
+      attributes = new ArrayList<>(1);
+    }
+    return attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAttributes(List<Attribute> attributes) {
+    this.attributes = attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public Attribute getAttributeByName(String name) {
+    for (final Attribute attribute : getAttributes()) {
+      // If there are more than one, this just returns the first.
+      if (attribute.getName().equals(name)) {
+        return attribute;
+      }
+    }
+    return null;
   }
 
   /* see superclass */
@@ -178,9 +226,11 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
    * @return the member name
    */
   @Fields({
-      @Field(index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord")),
+      @Field(index = Index.YES, store = Store.NO, analyze = Analyze.YES,
+          analyzer = @Analyzer(definition = "noStopWord")),
       @Field(name = "memberNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
+  @SortableField(forField = "memberNameSort")
   public String getMemberName() {
     return member == null ? null : member.getName();
   }
@@ -304,7 +354,8 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
    *
    * @return the subset name
    */
-  @Field(index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord"))
+  @Field(index = Index.YES, store = Store.NO, analyze = Analyze.YES,
+      analyzer = @Analyzer(definition = "noStopWord"))
   public String getSubsetName() {
     return subset == null ? null : subset.getName();
   }
@@ -331,12 +382,10 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + ((member == null) ? 0 : member.hashCode());
-    result =
-        prime * result + ((member == null || member.getTerminologyId() == null)
-            ? 0 : member.getTerminologyId().hashCode());
-    result =
-        prime * result + ((subset == null || subset.getTerminologyId() == null)
-            ? 0 : subset.getTerminologyId().hashCode());
+    result = prime * result + ((member == null || member.getTerminologyId() == null) ? 0
+        : member.getTerminologyId().hashCode());
+    result = prime * result + ((subset == null || subset.getTerminologyId() == null) ? 0
+        : subset.getTerminologyId().hashCode());
     return result;
   }
 
@@ -361,8 +410,7 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
     } else if (member.getTerminologyId() == null) {
       if (other.member != null && other.member.getTerminologyId() != null)
         return false;
-    } else if (!member.getTerminologyId()
-        .equals(other.member.getTerminologyId()))
+    } else if (!member.getTerminologyId().equals(other.member.getTerminologyId()))
       return false;
     if (subset == null) {
       if (other.subset != null)
@@ -370,8 +418,7 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
     } else if (subset.getTerminologyId() == null) {
       if (other.subset != null && other.subset.getTerminologyId() != null)
         return false;
-    } else if (!subset.getTerminologyId()
-        .equals(other.subset.getTerminologyId()))
+    } else if (!subset.getTerminologyId().equals(other.subset.getTerminologyId()))
       return false;
     return true;
   }

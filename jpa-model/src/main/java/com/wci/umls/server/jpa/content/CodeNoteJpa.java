@@ -28,7 +28,7 @@ import com.wci.umls.server.model.content.Code;
  */
 @Entity
 @Table(name = "code_notes")
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "codeNote")
 public class CodeNoteJpa extends AbstractNote {

@@ -21,7 +21,7 @@ import com.wci.umls.server.model.meta.SemanticType;
  */
 @Entity
 @Table(name = "semantic_types")
-@Audited
+//@Audited
 @XmlRootElement(name = "semanticType")
 public class SemanticTypeJpa extends AbstractAbbreviation implements
     SemanticType {

@@ -32,7 +32,7 @@ import com.wci.umls.server.ProcessConfig;
 @Table(name = "process_configs", uniqueConstraints = @UniqueConstraint(columnNames = {
     "name", "project_id"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "processConfig")
 public class ProcessConfigJpa extends AbstractProcessInfo<AlgorithmConfig>

@@ -3,15 +3,21 @@
  */
 package com.wci.umls.server.jpa.content;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Fetch;
@@ -22,6 +28,7 @@ import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Definition;
 
 /**
@@ -31,7 +38,7 @@ import com.wci.umls.server.model.content.Definition;
 @Table(name = "definitions", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @XmlRootElement(name = "definition")
 public class DefinitionJpa extends AbstractComponentHasAttributes
     implements Definition {
@@ -46,6 +53,14 @@ public class DefinitionJpa extends AbstractComponentHasAttributes
   @Column(nullable = true)
   private Map<String, String> alternateTerminologyIds;
 
+  /** The attributes. */
+  @OneToMany(targetEntity = AttributeJpa.class)
+  @JoinColumn(name = "attributes_id")
+  @JoinTable(name = "definitions_attributes",
+      inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "definitions_id"))
+  private List<Attribute> attributes = null;
+  
   /**
    * Instantiates an empty {@link DefinitionJpa}.
    */
@@ -64,7 +79,41 @@ public class DefinitionJpa extends AbstractComponentHasAttributes
     value = definition.getValue();
     alternateTerminologyIds =
         new HashMap<>(definition.getAlternateTerminologyIds());
+    
+    if (collectionCopy) {
+        for (final Attribute attribute : definition.getAttributes()) {
+            getAttributes().add(new AttributeJpa(attribute));
+        }
+      }
   }
+
+  /* see superclass */
+@Override
+@XmlElement(type = AttributeJpa.class)
+public List<Attribute> getAttributes() {
+  if (attributes == null) {
+    attributes = new ArrayList<>(1);
+  }
+  return attributes;
+}
+
+/* see superclass */
+@Override
+public void setAttributes(List<Attribute> attributes) {
+  this.attributes = attributes;
+}
+
+/* see superclass */
+@Override
+public Attribute getAttributeByName(String name) {
+  for (final Attribute attribute : getAttributes()) {
+    // If there are more than one, this just returns the first.
+    if (attribute.getName().equals(name)) {
+      return attribute;
+    }
+  }
+  return null;
+}
 
   /* see superclass */
   @Override

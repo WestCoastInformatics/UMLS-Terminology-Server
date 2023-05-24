@@ -5,7 +5,6 @@ package com.wci.umls.server.jpa.algo;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,7 +24,6 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
-import org.apache.lucene.util.Version;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
@@ -36,27 +34,10 @@ import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.content.AtomJpa;
-import com.wci.umls.server.jpa.content.AtomTransitiveRelationshipJpa;
-import com.wci.umls.server.jpa.content.CodeJpa;
-import com.wci.umls.server.jpa.content.CodeTransitiveRelationshipJpa;
-import com.wci.umls.server.jpa.content.ConceptJpa;
-import com.wci.umls.server.jpa.content.ConceptTransitiveRelationshipJpa;
-import com.wci.umls.server.jpa.content.DescriptorJpa;
-import com.wci.umls.server.jpa.content.DescriptorTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.handlers.expr.EclConceptFieldNames;
-import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.AtomTransitiveRelationship;
-import com.wci.umls.server.model.content.Code;
-import com.wci.umls.server.model.content.CodeTransitiveRelationship;
-import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
-import com.wci.umls.server.model.content.ConceptTransitiveRelationship;
-import com.wci.umls.server.model.content.Descriptor;
-import com.wci.umls.server.model.content.DescriptorTransitiveRelationship;
-import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.RootService;
@@ -120,9 +101,8 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
   @SuppressWarnings("unchecked")
   public void compute() throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("Computing expression constraint language indexes for "
-            + getTerminology() + ", " + getVersion());
+    Logger.getLogger(getClass()).info("Computing expression constraint language indexes for "
+        + getTerminology() + ", " + getVersion());
 
     if (getTerminology() == null) {
       throw new Exception("Must specify terminology");
@@ -142,10 +122,10 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
     }
 
     // remove (if exists) and create the directory
-    ConfigUtility.createExpressionIndexDirectory(getTerminology(),
-        getVersion());
-    directory = new NIOFSDirectory(new File(ConfigUtility
-        .getExpressionIndexDirectoryName(getTerminology(), getVersion())));
+    ConfigUtility.createExpressionIndexDirectory(getTerminology(), getVersion());
+    directory = new NIOFSDirectory(
+        new File(ConfigUtility.getExpressionIndexDirectoryName(getTerminology(), getVersion()))
+            .toPath());
 
     // get entity manager for direct queries
     EntityManager manager = getEntityManager();
@@ -155,13 +135,11 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
     //
     // Cache concept hibernate id -> terminologyId
     //
-    Logger.getLogger(getClass())
-        .info("Constructing id to terminology id map...");
+    Logger.getLogger(getClass()).info("Constructing id to terminology id map...");
 
     // construct and execute query
-    query = manager
-        .createQuery("select c.id, c.terminologyId from ConceptJpa c where "
-            + "version = :version and terminology = :terminology");
+    query = manager.createQuery("select c.id, c.terminologyId from ConceptJpa c where "
+        + "version = :version and terminology = :terminology");
     query.setParameter("terminology", getTerminology());
     query.setParameter("version", getVersion());
     results = query.getResultList();
@@ -192,9 +170,8 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
     Logger.getLogger(getClass()).info("Caching subset member information...");
 
     // construct and execute query
-    query = manager.createQuery(
-        "select s.id, s.terminologyId from ConceptSubsetJpa s where "
-            + "version = :version and terminology = :terminology");
+    query = manager.createQuery("select s.id, s.terminologyId from ConceptSubsetJpa s where "
+        + "version = :version and terminology = :terminology");
     query.setParameter("terminology", getTerminology());
     query.setParameter("version", getVersion());
     results = query.getResultList();
@@ -205,15 +182,14 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
     results.clear();
 
     // construct and execute query
-    query = manager.createQuery(
-        "select s.member.id, s.subset.id from ConceptSubsetMemberJpa s where "
+    query =
+        manager.createQuery("select s.member.id, s.subset.id from ConceptSubsetMemberJpa s where "
             + "version = :version and terminology = :terminology");
     query.setParameter("terminology", getTerminology());
     query.setParameter("version", getVersion());
     results = query.getResultList();
 
-    Logger.getLogger(getClass())
-        .info("  " + results.size() + " subset members retrieved");
+    Logger.getLogger(getClass()).info("  " + results.size() + " subset members retrieved");
 
     // cycle over results
     for (final Object[] o : results) {
@@ -232,14 +208,12 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
     }
     results.clear();
     Logger.getLogger(getClass())
-        .info("  Finished caching subset information for "
-            + subsetMap.keySet().size() + " subsets and "
-            + subsetMemberMap.keySet().size() + " concepts");
+        .info("  Finished caching subset information for " + subsetMap.keySet().size()
+            + " subsets and " + subsetMemberMap.keySet().size() + " concepts");
 
     Logger.getLogger(getClass()).info("  Configuring index writer...");
 
-    IndexWriterConfig config =
-        new IndexWriterConfig(Version.LATEST, new StandardAnalyzer());
+    IndexWriterConfig config = new IndexWriterConfig(new StandardAnalyzer());
 
     iwriter = new IndexWriter(directory, config);
 
@@ -254,14 +228,12 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
     // cycle over concepts
     do {
       pfs.setStartIndex(pos);
-      concepts = findConceptSearchResults(getTerminology(), getVersion(),
-          Branch.ROOT, null, pfs);
+      concepts = findConceptSearchResults(getTerminology(), getVersion(), Branch.ROOT, null, pfs);
       this.clear();
 
       // logging content on first retrieval
       if (pos == 0) {
-        Logger.getLogger(getClass())
-            .info("    " + concepts.getTotalCount() + " total concepts");
+        Logger.getLogger(getClass()).info("    " + concepts.getTotalCount() + " total concepts");
       }
 
       for (final SearchResult sr : concepts.getObjects()) {
@@ -269,18 +241,15 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
         iwriter.addDocument(getConceptDocument(c));
       }
       pos += concepts.size();
-      Logger.getLogger(getClass())
-          .info("  " + pos + "/" + relationshipCt + "/" + ancestorCt + "/"
-              + subsetCt
-              + " concepts/relationships/ancestors/members processed");
+      Logger.getLogger(getClass()).info("  " + pos + "/" + relationshipCt + "/" + ancestorCt + "/"
+          + subsetCt + " concepts/relationships/ancestors/members processed");
 
     } while (pos < concepts.getTotalCount());
 
     Logger.getLogger(getClass()).info("Closing index writer...");
     iwriter.close();
 
-    Logger.getLogger(getClass())
-        .info("ECL Index writing finished successfully.");
+    Logger.getLogger(getClass()).info("ECL Index writing finished successfully.");
   }
 
   /**
@@ -293,11 +262,9 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
     Logger.getLogger(getClass()).info("  Load hierarchical relationships");
     final javax.persistence.Query query = manager
         .createQuery("select r.from.id, r.to.id from ConceptRelationshipJpa "
-            + " r where obsolete = 0 and inferred = 1 "
-            + "and terminology = :terminology " + "and version = :version "
-            + "and hierarchical = 1")
-        .setParameter("terminology", getTerminology())
-        .setParameter("version", getVersion());
+            + " r where obsolete = 0 and inferred = 1 " + "and terminology = :terminology "
+            + "and version = :version " + "and hierarchical = 1")
+        .setParameter("terminology", getTerminology()).setParameter("version", getVersion());
 
     @SuppressWarnings("unchecked")
     final List<Object[]> rels = query.getResultList();
@@ -327,8 +294,7 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
     }
 
     else {
-      Logger.getLogger(getClass())
-          .info("  concepts with descendants = " + parChd.size());
+      Logger.getLogger(getClass()).info("  concepts with descendants = " + parChd.size());
     }
     manager.clear();
 
@@ -369,8 +335,8 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
    * @return the descendants
    * @throws Exception the exception
    */
-  private Set<Long> getDescendants(Long par, Map<Long, Set<Long>> parChd,
-    List<Long> ancPath) throws Exception {
+  private Set<Long> getDescendants(Long par, Map<Long, Set<Long>> parChd, List<Long> ancPath)
+    throws Exception {
 
     Set<Long> descendants = new HashSet<>();
     // If cached, return them
@@ -419,12 +385,11 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
 
     // write the basic fields
     conceptDoc.add(new StringField("type", idType.toString(), Field.Store.YES));
-    conceptDoc.add(new LongField(EclConceptFieldNames.INTERNAL_ID,
-        concept.getId(), Field.Store.YES));
-    conceptDoc.add(new StringField(EclConceptFieldNames.ID,
-        concept.getTerminologyId().toString(), Field.Store.YES));
-    conceptDoc.add(new StringField(EclConceptFieldNames.NAME, concept.getName(),
+    conceptDoc
+        .add(new LongField(EclConceptFieldNames.INTERNAL_ID, concept.getId(), Field.Store.YES));
+    conceptDoc.add(new StringField(EclConceptFieldNames.ID, concept.getTerminologyId().toString(),
         Field.Store.YES));
+    conceptDoc.add(new StringField(EclConceptFieldNames.NAME, concept.getName(), Field.Store.YES));
 
     // write the relationships
     for (final ConceptRelationship relationship : concept.getRelationships()) {
@@ -440,21 +405,17 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
 
     // write the ancestors
     if (ancestorMap.get(concept.getTerminologyId()) != null) {
-      for (final String ancestor : ancestorMap
-          .get(concept.getTerminologyId())) {
+      for (final String ancestor : ancestorMap.get(concept.getTerminologyId())) {
         ancestorCt++;
-        conceptDoc.add(new StringField(EclConceptFieldNames.ANCESTOR, ancestor,
-            Field.Store.NO));
+        conceptDoc.add(new StringField(EclConceptFieldNames.ANCESTOR, ancestor, Field.Store.NO));
       }
     }
 
     // write the subsets
     if (subsetMemberMap.get(concept.getTerminologyId()) != null) {
-      for (final String subset : subsetMemberMap
-          .get(concept.getTerminologyId())) {
+      for (final String subset : subsetMemberMap.get(concept.getTerminologyId())) {
         subsetCt++;
-        conceptDoc.add(new StringField(EclConceptFieldNames.MEMBER_OF, subset,
-            Field.Store.NO));
+        conceptDoc.add(new StringField(EclConceptFieldNames.MEMBER_OF, subset, Field.Store.NO));
       }
     }
 

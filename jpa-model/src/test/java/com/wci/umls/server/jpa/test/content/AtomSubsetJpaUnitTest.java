@@ -180,6 +180,7 @@ public class AtomSubsetJpaUnitTest extends ModelUnitSupport {
     tester.include("terminology");
     tester.include("version");
     tester.include("branch");
+    tester.include("timestamp");
     assertTrue(tester.testNotAnalyzedIndexedFields());
   }
 

@@ -30,7 +30,7 @@ import com.wci.umls.server.model.workflow.Checklist;
  */
 @Entity
 @Table(name = "checklist_notes")
-@Audited
+//@Audited
 @XmlRootElement(name = "checklistNote")
 public class ChecklistNoteJpa extends AbstractNote {
 

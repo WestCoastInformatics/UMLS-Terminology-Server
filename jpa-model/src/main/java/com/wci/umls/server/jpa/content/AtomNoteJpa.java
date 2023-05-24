@@ -25,7 +25,7 @@ import com.wci.umls.server.model.content.Atom;
  */
 @Entity
 @Table(name = "atom_notes")
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "atomNote")
 public class AtomNoteJpa extends AbstractNote {

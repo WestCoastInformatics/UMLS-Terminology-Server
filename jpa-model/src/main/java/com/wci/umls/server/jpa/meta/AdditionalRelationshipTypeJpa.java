@@ -26,7 +26,7 @@ import com.wci.umls.server.model.meta.AdditionalRelationshipType;
     // constraint works in MySQL when using standard utf8 collation/charset
     "abbreviation", "terminology", "id"
 }))
-@Audited
+//@Audited
 @XmlRootElement(name = "additionalRelationshipType")
 public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
     implements AdditionalRelationshipType {

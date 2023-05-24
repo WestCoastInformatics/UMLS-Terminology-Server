@@ -14,7 +14,7 @@ import com.wci.umls.server.model.content.Subset;
 /**
  * Abstract JPA and JAXB enabled implementation of {@link Subset}.
  */
-@Audited
+//@Audited
 @MappedSuperclass
 @XmlSeeAlso({
     AtomSubsetJpa.class, ConceptSubsetJpa.class

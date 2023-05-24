@@ -304,7 +304,7 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
     // get the concepts' indexes up to date
       if (updatedAtomIds.size() > 0) {
       query = "SELECT DISTINCT c.id " + "FROM ConceptJpa c JOIN c.atoms a "
-          + "WHERE a.id in (" + StringUtils.join(updatedAtomIds, ',') + ")) ";
+          + "WHERE a.id in (" + StringUtils.join(updatedAtomIds, ',') + ") ";
 
       List<Long> conceptIds = new ArrayList<>();
       conceptIds.addAll(executeSingleComponentIdQuery(query, QueryType.JPQL,

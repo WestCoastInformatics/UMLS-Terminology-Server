@@ -25,7 +25,7 @@ import com.wci.umls.server.model.meta.PropertyChain;
 @Table(name = "property_chains", uniqueConstraints = @UniqueConstraint(columnNames = {
     "abbreviation", "terminology"
 }))
-@Audited
+//@Audited
 @XmlRootElement(name = "propertyChain")
 public class PropertyChainJpa extends AbstractAbbreviation
     implements PropertyChain {

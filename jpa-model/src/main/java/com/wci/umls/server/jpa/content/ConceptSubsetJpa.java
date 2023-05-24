@@ -12,6 +12,8 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -29,6 +31,7 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
@@ -41,7 +44,7 @@ import com.wci.umls.server.model.content.Subset;
 @Table(name = "concept_subsets", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @XmlRootElement(name = "conceptSubset")
 public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
 
@@ -64,6 +67,14 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
   @Column(nullable = true, length = 100)
   private Map<String, String> alternateTerminologyIds;
 
+  /** The attributes. */
+  @OneToMany(targetEntity = AttributeJpa.class)
+  @JoinColumn(name = "attributes_id")
+  @JoinTable(name = "concept_subsets_attributes",
+      inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "concept_subsets_id"))
+  private List<Attribute> attributes = null;
+  
   /**
    * Instantiates an empty {@link ConceptSubsetJpa}.
    */
@@ -86,9 +97,40 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
 
     if (collectionCopy) {
       members = new ArrayList<>(subset.getMembers());
+      for (final Attribute attribute : subset.getAttributes()) {
+          getAttributes().add(new AttributeJpa(attribute));
+			 }
     }
 
   }
+
+  /* see superclass */
+@Override
+@XmlElement(type = AttributeJpa.class)
+public List<Attribute> getAttributes() {
+  if (attributes == null) {
+    attributes = new ArrayList<>(1);
+  }
+  return attributes;
+}
+
+/* see superclass */
+@Override
+public void setAttributes(List<Attribute> attributes) {
+  this.attributes = attributes;
+}
+
+/* see superclass */
+@Override
+public Attribute getAttributeByName(String name) {
+  for (final Attribute attribute : getAttributes()) {
+    // If there are more than one, this just returns the first.
+    if (attribute.getName().equals(name)) {
+      return attribute;
+    }
+  }
+  return null;
+}
 
   /* see superclass */
   @XmlElement(type = ConceptSubsetMemberJpa.class)

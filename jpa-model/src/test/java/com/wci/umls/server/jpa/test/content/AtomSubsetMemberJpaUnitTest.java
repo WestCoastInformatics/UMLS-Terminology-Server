@@ -284,6 +284,7 @@ public class AtomSubsetMemberJpaUnitTest extends ModelUnitSupport {
     tester.include("memberVersion");
 
     tester.include("memberNameSort");
+    tester.include("timestamp");
     assertTrue(tester.testNotAnalyzedIndexedFields());
   }
   /**

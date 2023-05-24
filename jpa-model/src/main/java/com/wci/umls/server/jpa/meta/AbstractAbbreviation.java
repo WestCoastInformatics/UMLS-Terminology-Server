@@ -14,7 +14,7 @@ import com.wci.umls.server.model.meta.Abbreviation;
 /**
  * Abstract implementation of {@link Abbreviation} for use with JPA.
  */
-@Audited
+//@Audited
 @MappedSuperclass
 public abstract class AbstractAbbreviation extends AbstractHasLastModified
     implements Abbreviation {

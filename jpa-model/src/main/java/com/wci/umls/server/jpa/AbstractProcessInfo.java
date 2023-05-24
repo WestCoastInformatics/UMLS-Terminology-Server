@@ -19,10 +19,14 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.DateBridge;
+import org.hibernate.search.annotations.EncodingType;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Resolution;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
@@ -34,7 +38,7 @@ import com.wci.umls.server.Project;
  * JPA and JAXB enabled implementation of {@link ProcessInfo}.
  * @param <T> the algorithm info type (e.g. config or execution)
  */
-@Audited
+//@Audited
 @MappedSuperclass
 @XmlSeeAlso({
     ProcessConfigJpa.class, ProcessExecutionJpa.class
@@ -126,6 +130,8 @@ public abstract class AbstractProcessInfo<T extends AlgorithmInfo<?>>
   /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @DateBridge(resolution = Resolution.SECOND, encoding = EncodingType.STRING)
+  @SortableField
   public Date getLastModified() {
     return lastModified;
   }
@@ -167,6 +173,7 @@ public abstract class AbstractProcessInfo<T extends AlgorithmInfo<?>>
       @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
       @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
+  @SortableField(forField = "nameSort")
   public String getName() {
     return name;
   }

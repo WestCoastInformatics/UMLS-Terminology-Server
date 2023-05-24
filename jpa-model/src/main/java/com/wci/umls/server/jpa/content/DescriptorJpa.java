@@ -6,10 +6,14 @@ package com.wci.umls.server.jpa.content;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -24,6 +28,8 @@ import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
 
 import com.wci.umls.server.helpers.Note;
+import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
@@ -41,27 +47,30 @@ import com.wci.umls.server.model.meta.IdType;
         "terminology", "version", "id"
     })
 })
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "descriptor")
 public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
 
   /** The definitions. */
   @OneToMany(orphanRemoval = true, targetEntity = DefinitionJpa.class)
+  @CollectionTable(name = "descriptors_definitions",
+      joinColumns = @JoinColumn(name = "descriptors_id"))
   private List<Definition> definitions = new ArrayList<>(1);
 
   /** The relationships. */
-  @OneToMany(mappedBy = "from", orphanRemoval = true, targetEntity = DescriptorRelationshipJpa.class)
+  @OneToMany(mappedBy = "from", orphanRemoval = true,
+      targetEntity = DescriptorRelationshipJpa.class)
   private List<DescriptorRelationship> relationships = new ArrayList<>(1);
 
   /** The tree positions. */
-  @OneToMany(mappedBy = "node", orphanRemoval = true, targetEntity = DescriptorTreePositionJpa.class)
+  @OneToMany(mappedBy = "node", orphanRemoval = true,
+      targetEntity = DescriptorTreePositionJpa.class)
   private List<DescriptorTreePosition> treePositions = new ArrayList<>(1);
 
   /** The inverse relationships. */
   @OneToMany(mappedBy = "to", orphanRemoval = true, targetEntity = DescriptorRelationshipJpa.class)
-  private List<DescriptorRelationship> inverseRelationships =
-      new ArrayList<>(1);
+  private List<DescriptorRelationship> inverseRelationships = new ArrayList<>(1);
 
   /** The labels. */
   @ElementCollection(fetch = FetchType.EAGER)
@@ -73,6 +82,19 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
   @OneToMany(mappedBy = "descriptor", targetEntity = DescriptorNoteJpa.class)
   @IndexedEmbedded(targetElement = DescriptorNoteJpa.class)
   private List<Note> notes = new ArrayList<>();
+
+  /** The descriptions. */
+  @ManyToMany(targetEntity = AtomJpa.class)
+  @CollectionTable(name = "descriptors_atoms", joinColumns = @JoinColumn(name = "descriptors_id"))
+  @IndexedEmbedded(targetElement = AtomJpa.class)
+  private List<Atom> atoms = null;
+
+  /** The attributes. */
+  @OneToMany(targetEntity = AttributeJpa.class)
+  @JoinColumn(name = "attributes_id")
+  @JoinTable(name = "descriptors_attributes", inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "descriptors_id"))
+  private List<Attribute> attributes = null;
 
   /**
    * Instantiates a new descriptor jpa.
@@ -96,7 +118,55 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
       definitions = new ArrayList<>(descriptor.getDefinitions());
       relationships = new ArrayList<>(descriptor.getRelationships());
       treePositions = new ArrayList<>(descriptor.getTreePositions());
+      atoms = new ArrayList<>(descriptor.getAtoms());
+      for (final Attribute attribute : descriptor.getAttributes()) {
+        getAttributes().add(new AttributeJpa(attribute));
+      }
     }
+  }
+
+  /* see superclass */
+  @XmlElement(type = AtomJpa.class)
+  @Override
+  public List<Atom> getAtoms() {
+    if (atoms == null) {
+      atoms = new ArrayList<>();
+    }
+    return atoms;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAtoms(List<Atom> atoms) {
+    this.atoms = atoms;
+  }
+
+  /* see superclass */
+  @Override
+  @XmlElement(type = AttributeJpa.class)
+  public List<Attribute> getAttributes() {
+    if (attributes == null) {
+      attributes = new ArrayList<>(1);
+    }
+    return attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAttributes(List<Attribute> attributes) {
+    this.attributes = attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public Attribute getAttributeByName(String name) {
+    for (final Attribute attribute : getAttributes()) {
+      // If there are more than one, this just returns the first.
+      if (attribute.getName().equals(name)) {
+        return attribute;
+      }
+    }
+    return null;
   }
 
   /* see superclass */

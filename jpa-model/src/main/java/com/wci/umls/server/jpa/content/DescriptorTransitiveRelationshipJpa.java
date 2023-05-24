@@ -3,17 +3,24 @@
  */
 package com.wci.umls.server.jpa.content;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorTransitiveRelationship;
 
@@ -25,10 +32,9 @@ import com.wci.umls.server.model.content.DescriptorTransitiveRelationship;
 @Table(name = "descriptor_transitive_rels", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @XmlRootElement(name = "descriptorTransitiveRel")
-public class DescriptorTransitiveRelationshipJpa
-    extends AbstractTransitiveRelationship<Descriptor>
+public class DescriptorTransitiveRelationshipJpa extends AbstractTransitiveRelationship<Descriptor>
     implements DescriptorTransitiveRelationship {
 
   /** The super type. */
@@ -40,6 +46,14 @@ public class DescriptorTransitiveRelationshipJpa
   @ManyToOne(targetEntity = DescriptorJpa.class, fetch = FetchType.EAGER, optional = false)
   @JoinColumn(nullable = false)
   private Descriptor subType;
+
+  /** The attributes. */
+  @OneToMany(targetEntity = AttributeJpa.class)
+  @JoinColumn(name = "attributes_id")
+  @JoinTable(name = "descriptor_transitive_rels_attributes",
+      inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "descriptor_transitive_rels_id"))
+  private List<Attribute> attributes = null;
 
   /**
    * Instantiates an empty {@link DescriptorTransitiveRelationshipJpa}.
@@ -55,11 +69,44 @@ public class DescriptorTransitiveRelationshipJpa
    * @param relationship the relationship
    * @param collectionCopy the deep copy
    */
-  public DescriptorTransitiveRelationshipJpa(
-      DescriptorTransitiveRelationship relationship, boolean collectionCopy) {
+  public DescriptorTransitiveRelationshipJpa(DescriptorTransitiveRelationship relationship,
+      boolean collectionCopy) {
     super(relationship, collectionCopy);
     superType = relationship.getSuperType();
     subType = relationship.getSubType();
+    if (collectionCopy) {
+      for (final Attribute attribute : relationship.getAttributes()) {
+        getAttributes().add(new AttributeJpa(attribute));
+      }
+    }
+  }
+
+  /* see superclass */
+  @Override
+  @XmlElement(type = AttributeJpa.class)
+  public List<Attribute> getAttributes() {
+    if (attributes == null) {
+      attributes = new ArrayList<>(1);
+    }
+    return attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAttributes(List<Attribute> attributes) {
+    this.attributes = attributes;
+  }
+
+  /* see superclass */
+  @Override
+  public Attribute getAttributeByName(String name) {
+    for (final Attribute attribute : getAttributes()) {
+      // If there are more than one, this just returns the first.
+      if (attribute.getName().equals(name)) {
+        return attribute;
+      }
+    }
+    return null;
   }
 
   /* see superclass */
@@ -317,8 +364,7 @@ public class DescriptorTransitiveRelationshipJpa
       return false;
     if (getClass() != obj.getClass())
       return false;
-    DescriptorTransitiveRelationshipJpa other =
-        (DescriptorTransitiveRelationshipJpa) obj;
+    DescriptorTransitiveRelationshipJpa other = (DescriptorTransitiveRelationshipJpa) obj;
     if (subType == null) {
       if (other.subType != null)
         return false;

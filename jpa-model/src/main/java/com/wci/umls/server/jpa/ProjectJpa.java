@@ -20,6 +20,8 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.MapKeyClass;
 import javax.persistence.MapKeyJoinColumn;
 import javax.persistence.OneToMany;
@@ -36,11 +38,15 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.DateBridge;
+import org.hibernate.search.annotations.EncodingType;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Resolution;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
@@ -56,6 +62,7 @@ import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.jpa.helpers.UserMapUserNameBridge;
 import com.wci.umls.server.jpa.helpers.UserRoleBridge;
 import com.wci.umls.server.jpa.helpers.UserRoleMapAdapter;
+import com.wci.umls.server.jpa.workflow.TrackingRecordJpa;
 
 /**
  * JPA and JAXB enabled implementation of {@link Project}.
@@ -64,7 +71,7 @@ import com.wci.umls.server.jpa.helpers.UserRoleMapAdapter;
 @Table(name = "projects", uniqueConstraints = @UniqueConstraint(columnNames = {
     "name", "description"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "project")
 public class ProjectJpa implements Project {
@@ -151,13 +158,21 @@ public class ProjectJpa implements Project {
   private Map<User, UserRole> userRoleMap;
 
   /** The validation checks. */
-  @Column(nullable = true)
-  @ElementCollection
-  @CollectionTable(name = "project_validation_checks")
+  //@Column(nullable = true)
+  //@ElementCollection
+  //@CollectionTable(name = "project_validation_checks")
+  @ElementCollection(fetch = FetchType.LAZY)
+  // @Fetch(FetchMode.JOIN)
+  @JoinColumn(nullable = true)
+  @CollectionTable(name = "project_validation_checks", joinColumns = @JoinColumn(name = "projectJpa_id"))
   private List<String> validationChecks = new ArrayList<>();
 
   /** The validation data. */
   @OneToMany(targetEntity = TypeKeyValueJpa.class)
+  @JoinColumn(name = "validationData_id")
+  @JoinTable(name = "projects_type_key_values",
+      inverseJoinColumns = @JoinColumn(name = "validationData_id"),
+      joinColumns = @JoinColumn(name = "projects_id"))
   private List<TypeKeyValue> validationData = null;
 
   /** The prec list. */
@@ -238,6 +253,8 @@ public class ProjectJpa implements Project {
 
   /* see superclass */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @DateBridge(resolution = Resolution.SECOND, encoding = EncodingType.STRING)
+  @SortableField
   @Override
   public Date getLastModified() {
     return lastModified;
@@ -305,6 +322,7 @@ public class ProjectJpa implements Project {
       @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
       @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
+  @SortableField(forField = "nameSort")
   public String getName() {
     return name;
   }

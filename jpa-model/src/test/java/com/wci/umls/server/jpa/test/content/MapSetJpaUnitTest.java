@@ -222,6 +222,7 @@ public class MapSetJpaUnitTest extends ModelUnitSupport {
     tester.include("fromVersion");
     tester.include("toTerminology");
     tester.include("toVersion");
+    tester.include("timestamp");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
   }

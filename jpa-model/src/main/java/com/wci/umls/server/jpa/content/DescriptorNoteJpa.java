@@ -25,7 +25,7 @@ import com.wci.umls.server.model.content.Descriptor;
  */
 @Entity
 @Table(name = "descriptor_notes")
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "descriptorNote")
 public class DescriptorNoteJpa extends AbstractNote {

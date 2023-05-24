@@ -26,7 +26,7 @@ import com.wci.umls.server.model.content.GeneralConceptAxiom;
 @Table(name = "general_concept_axioms", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "generalConceptAxiom")
 public class GeneralConceptAxiomJpa extends AbstractComponent implements

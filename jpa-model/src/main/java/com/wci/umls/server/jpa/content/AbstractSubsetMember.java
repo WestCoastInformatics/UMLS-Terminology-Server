@@ -18,7 +18,7 @@ import com.wci.umls.server.model.content.SubsetMember;
  * @param <T> the member type
  * @param <S> the subset type
  */
-@Audited
+//@Audited
 @MappedSuperclass
 @XmlSeeAlso({
     AtomSubsetMemberJpa.class, ConceptSubsetMemberJpa.class
@@ -40,7 +40,7 @@ public abstract class AbstractSubsetMember<T extends ComponentHasAttributesAndNa
    * @param collectionCopy the deep copy
    */
   public AbstractSubsetMember(SubsetMember<T, S> member,
-      boolean collectionCopy) {
+    boolean collectionCopy) {
     super(member, collectionCopy);
   }
 

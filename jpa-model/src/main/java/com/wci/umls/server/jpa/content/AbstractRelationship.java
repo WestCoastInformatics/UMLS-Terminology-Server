@@ -15,6 +15,7 @@ import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.EnumBridge;
 
@@ -28,7 +29,7 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
  * @param <S> the left hand side of the relationship
  * @param <T> the right hand side of the relationship
  */
-@Audited
+//@Audited
 @MappedSuperclass
 @XmlSeeAlso({
     CodeRelationshipJpa.class, ConceptRelationshipJpa.class,
@@ -100,6 +101,7 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
   /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @SortableField
   public String getRelationshipType() {
     return relationshipType;
   }
@@ -113,6 +115,7 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
   /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @SortableField
   public String getAdditionalRelationshipType() {
     return additionalRelationshipType;
   }
@@ -126,6 +129,7 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
   /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @SortableField
   public String getGroup() {
     return group;
   }
@@ -234,8 +238,10 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
             + relationship);
     if (relationship != null && inverseRelationship != null) {
       inverseRelationship.setId(null);
-      // Need to duplicate the TerminologyId from the source relationship.
+      // Need to duplicate the TerminologyId from theAbs source relationship.
       inverseRelationship.setTerminologyId(relationship.getTerminologyId());
+      inverseRelationship.setTerminology(relationship.getTerminology());
+      inverseRelationship.setVersion(relationship.getVersion());
       inverseRelationship.setFrom((S) relationship.getTo());
       inverseRelationship.setTo((T) relationship.getFrom());
       inverseRelationship.setRelationshipType(inverseRelType);

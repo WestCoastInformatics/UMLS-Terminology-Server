@@ -23,7 +23,7 @@ import com.wci.umls.server.model.meta.RelationshipType;
 @Table(name = "relationship_types", uniqueConstraints = @UniqueConstraint(columnNames = {
     "abbreviation", "terminology"
 }))
-@Audited
+//@Audited
 @XmlRootElement(name = "relationshipType")
 public class RelationshipTypeJpa extends AbstractAbbreviation
     implements RelationshipType {

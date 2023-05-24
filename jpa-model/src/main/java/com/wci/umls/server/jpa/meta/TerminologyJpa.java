@@ -41,7 +41,7 @@ import com.wci.umls.server.model.meta.Terminology;
 @Table(name = "terminologies", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminology", "version"
 }))
-@Audited
+//@Audited
 @XmlRootElement(name = "terminology")
 public class TerminologyJpa extends AbstractHasLastModified
     implements Terminology {

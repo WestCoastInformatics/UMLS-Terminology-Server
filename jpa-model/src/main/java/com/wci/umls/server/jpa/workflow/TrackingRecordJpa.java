@@ -31,11 +31,15 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.DateBridge;
+import org.hibernate.search.annotations.EncodingType;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Resolution;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.EnumBridge;
 import org.hibernate.search.bridge.builtin.LongBridge;
@@ -185,6 +189,9 @@ public class TrackingRecordJpa implements TrackingRecord {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @DateBridge(resolution = Resolution.SECOND, encoding = EncodingType.STRING)
+  @SortableField
   public Date getLastModified() {
     return lastModified;
   }
@@ -262,6 +269,7 @@ public class TrackingRecordJpa implements TrackingRecord {
       @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO, bridge = @FieldBridge(impl = LongBridge.class)),
       @Field(name = "clusterIdSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
+  @SortableField(forField = "clusterIdSort")
   public Long getClusterId() {
     return clusterId;
   }
@@ -350,7 +358,8 @@ public class TrackingRecordJpa implements TrackingRecord {
   @Fields({
       @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
       @Field(name = "indexedDataSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  })
+  })	
+  @SortableField(forField = "indexedDataSort")
   @Override
   public String getIndexedData() {
     return indexedData;

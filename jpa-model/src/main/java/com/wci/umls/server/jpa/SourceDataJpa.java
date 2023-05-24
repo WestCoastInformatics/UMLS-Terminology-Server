@@ -23,11 +23,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.DateBridge;
+import org.hibernate.search.annotations.EncodingType;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Resolution;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.EnumBridge;
 import org.hibernate.search.bridge.builtin.LongBridge;
@@ -42,7 +46,7 @@ import com.wci.umls.server.SourceDataFile;
 @Table(name = "source_data", uniqueConstraints = @UniqueConstraint(columnNames = {
     "name", "terminology", "version"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "data")
 public class SourceDataJpa implements SourceData {
@@ -153,7 +157,10 @@ public class SourceDataJpa implements SourceData {
    *
    * @return the last modified
    */
-  @Override
+  @Override  
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @DateBridge(resolution = Resolution.SECOND, encoding = EncodingType.STRING)
+  @SortableField
   public Date getLastModified() {
     return this.lastModified;
   }
@@ -220,6 +227,7 @@ public class SourceDataJpa implements SourceData {
       @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
       @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
+  @SortableField(forField = "nameSort")
   public String getName() {
     return this.name;
   }

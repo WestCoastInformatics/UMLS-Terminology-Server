@@ -19,11 +19,15 @@ import javax.persistence.TemporalType;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.DateBridge;
+import org.hibernate.search.annotations.EncodingType;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Resolution;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.EnumBridge;
 import org.hibernate.search.bridge.builtin.LongBridge;
@@ -35,7 +39,7 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
  * JPA enabled scored implementation of {@link TypeKeyValue}.
  */
 @Entity
-@Audited
+//@Audited
 @Table(name = "type_key_values")
 @Indexed
 public class TypeKeyValueJpa implements TypeKeyValue, Comparable<TypeKeyValue> {
@@ -155,6 +159,7 @@ public class TypeKeyValueJpa implements TypeKeyValue, Comparable<TypeKeyValue> {
       @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
       @Field(name = "keySort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
+  @SortableField(forField = "keySort")
   @Override
   public String getKey() {
     return key;
@@ -181,6 +186,8 @@ public class TypeKeyValueJpa implements TypeKeyValue, Comparable<TypeKeyValue> {
   
   /* see superclass */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @DateBridge(resolution = Resolution.SECOND, encoding = EncodingType.STRING)
+  @SortableField
   @Override
   public Date getLastModified() {
     return lastModified;

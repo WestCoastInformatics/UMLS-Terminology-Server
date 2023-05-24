@@ -354,15 +354,16 @@ public class WriteRrfMetadataFilesAlgorithm
       // 16 CXTY FULL, NOSIB, IGNORE-RELA, MULTIPLE
       if (rhtFlag) {
         sb.append("FULL");
-        if (!term.isIncludeSiblings()) {
-          sb.append("-NOSIB");
-        }
+        // NM-172 - remove NOSIB and MULTIPLE from CXTY
+//        if (!term.isIncludeSiblings()) {
+//          sb.append("-NOSIB");
+//        }
         if (term.getRootTerminology().isPolyhierarchy()) {
           sb.append("-MULTIPLE");
         }
-        if (!term.getRootTerminology().isHierarchyComputable()) {
-          sb.append("-IGNORE-RELA");
-        }
+//        if (!term.getRootTerminology().isHierarchyComputable()) {
+//          sb.append("-IGNORE-RELA");
+//        }
       }
       sb.append("|");
 

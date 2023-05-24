@@ -3,7 +3,9 @@
  */
 package com.wci.umls.server.jpa.content;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Column;
@@ -13,9 +15,12 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -29,10 +34,12 @@ import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.meta.IdType;
@@ -44,7 +51,7 @@ import com.wci.umls.server.model.meta.IdType;
 @Table(name = "mappings", uniqueConstraints = @UniqueConstraint(columnNames = {
     "fromTerminologyId", "toTerminologyId", "terminology", "version", "id"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "mapping")
 public class MappingJpa extends AbstractComponentHasAttributes
@@ -86,7 +93,7 @@ public class MappingJpa extends AbstractComponentHasAttributes
   private String group;
 
   /** The rank. */
-  @Column(nullable = true)
+  @Column(name="[rank]", nullable = true)
   private String rank;
 
   /** The from name. */
@@ -111,6 +118,14 @@ public class MappingJpa extends AbstractComponentHasAttributes
   @Column(nullable = true)
   private Map<String, String> alternateTerminologyIds;
 
+  /** The attributes. */
+  @OneToMany(targetEntity = AttributeJpa.class)
+  @JoinColumn(name = "attributes_id")
+  @JoinTable(name = "mappings_attributes",
+      inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "mappings_id"))
+  private List<Attribute> attributes = null;
+  
   /**
    * Instantiates an empty {@link MappingJpa}.
    */
@@ -140,8 +155,41 @@ public class MappingJpa extends AbstractComponentHasAttributes
     relationshipType = mapping.getRelationshipType();
     additionalRelationshipType = mapping.getAdditionalRelationshipType();
     alternateTerminologyIds = new HashMap<>(mapping.getAlternateTerminologyIds());
+    
+    if (collectionCopy) {
+        for (final Attribute attribute : mapping.getAttributes()) {
+            getAttributes().add(new AttributeJpa(attribute));
+        }
+      }
   }
 
+  /* see superclass */
+@Override
+@XmlElement(type = AttributeJpa.class)
+public List<Attribute> getAttributes() {
+  if (attributes == null) {
+    attributes = new ArrayList<>(1);
+  }
+  return attributes;
+}
+
+/* see superclass */
+@Override
+public void setAttributes(List<Attribute> attributes) {
+  this.attributes = attributes;
+}
+
+/* see superclass */
+@Override
+public Attribute getAttributeByName(String name) {
+  for (final Attribute attribute : getAttributes()) {
+    // If there are more than one, this just returns the first.
+    if (attribute.getName().equals(name)) {
+      return attribute;
+    }
+  }
+  return null;
+}
   /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
@@ -177,6 +225,7 @@ public class MappingJpa extends AbstractComponentHasAttributes
       @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO, analyzer = @Analyzer(definition = "noStopWord")),
       @Field(name = "fromNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
+  @SortableField(forField = "fromNameSort")
   @Override
   public String getFromName() {
     return fromName;
@@ -245,6 +294,7 @@ public class MappingJpa extends AbstractComponentHasAttributes
       @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO, analyzer = @Analyzer(definition = "noStopWord")),
       @Field(name = "toNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
+  @SortableField(forField = "toNameSort")
   @Override
   public String getToName() {
     return toName;
@@ -312,6 +362,7 @@ public class MappingJpa extends AbstractComponentHasAttributes
 
   /* see superclass */
   @Override
+  @Column(name = "[rank]", nullable = false)
   public String getRank() {
     return rank;
   }

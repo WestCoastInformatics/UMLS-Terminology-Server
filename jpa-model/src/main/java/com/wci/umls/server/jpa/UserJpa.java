@@ -33,6 +33,7 @@ import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.SortableField;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.EnumBridge;
 import org.hibernate.search.bridge.builtin.LongBridge;
@@ -52,7 +53,7 @@ import com.wci.umls.server.jpa.helpers.ProjectRoleMapAdapter;
 @Table(name = "users", uniqueConstraints = @UniqueConstraint(columnNames = {
     "userName"
 }))
-@Audited
+//@Audited
 @Indexed
 @XmlRootElement(name = "user")
 public class UserJpa implements User {
@@ -65,6 +66,8 @@ public class UserJpa implements User {
 
   /** The user name. */
   @Column(nullable = false, unique = true)
+  @Field
+  @SortableField(forField = "userName")
   private String userName;
 
   /** The name. */
@@ -163,6 +166,7 @@ public class UserJpa implements User {
       @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
       @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
+  @SortableField(forField = "nameSort")
   public String getName() {
     return name;
   }

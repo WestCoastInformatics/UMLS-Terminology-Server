@@ -268,6 +268,7 @@ public class MappingJpaUnitTest extends ModelUnitSupport {
     tester.include("fromversion");
     tester.include("toversion");
     tester.include("mapsetterminologyid");
+    tester.include("timestamp");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
   }

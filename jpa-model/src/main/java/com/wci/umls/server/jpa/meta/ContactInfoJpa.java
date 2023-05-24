@@ -23,7 +23,7 @@ import com.wci.umls.server.model.meta.ContactInfo;
  */
 @Entity
 @Table(name = "contact_info")
-@Audited
+//@Audited
 @XmlRootElement(name = "contactInfo")
 public class ContactInfoJpa implements ContactInfo {
 
