@@ -439,6 +439,23 @@ public class ReportServiceJpa extends HistoryServiceJpa
               comp.getVersion(), Branch.ROOT, null, true, null).getObjects();
     }
 
+    // Rough-sort so project-terminology relationships come before others
+    List<Relationship<? extends ComponentInfo, ? extends ComponentInfo>> sortedRelList =
+        new ArrayList<>(0);
+    for (final Relationship<?, ?> relationship : relList) {
+      if(relationship.getTerminology().equals(project.getTerminology())) {
+        sortedRelList.add(relationship);
+      }
+    }
+    for (final Relationship<?, ?> relationship : relList) {
+      if(!relationship.getTerminology().equals(project.getTerminology())) {
+        sortedRelList.add(relationship);
+      }
+    }
+    
+    relList.clear();
+    relList.addAll(sortedRelList);
+    
     // Lexical Relationships
     final List<AtomRelationship> lexicalRelationships = new ArrayList<>();
     // double for loop over atoms and then each atom's relationships
