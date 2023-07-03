@@ -16,6 +16,7 @@ tsApp.controller('BinModalCtrl', [
     console.debug("configure BinModalCtrl", bin, action);
 
     // Scope vars
+ 	// TEMP COMMENT TO TEST DEPLOY PROCESS
     $scope.action = action;
     $scope.bin = bin;
     $scope.definition = {
