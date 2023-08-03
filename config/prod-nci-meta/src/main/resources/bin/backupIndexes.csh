@@ -2,6 +2,7 @@
 set rootdir = `dirname $0`
 set abs_rootdir = `cd $rootdir && pwd`
 setenv MEME_HOME $abs_rootdir:h
+setenv S3_BUCKET s3://nci-evs-meme
 
 echo "--------------------------------------------------------"
 echo "Starting `/bin/date`"
@@ -34,16 +35,31 @@ if ($enabled == "true") then
 cd $MEME_HOME/archive/indexes
 echo `pwd`
 set dayofweek=`date +"%a"`
-set z="$MEME_HOME/archive/indexes"
-foreach i (`ls $z`)
-     if ($i =~ *$dayofweek*) then
-       echo "matched:" $i
-       rm -rf $i
-     endif
-end
-set todaysdate=`date +"%Y%m%d_%a"`
-mkdir $MEME_HOME/archive/indexes/indexes_$todaysdate
-cp -R /local/content/MEME/MEME5/ncim/data/indexes/* $MEME_HOME/archive/indexes/indexes_$todaysdate
+set todaysdate=`date +"%a_%Y%m%d"`
+echo "todaysdate: $todaysdate"
+
+mkdir $MEME_HOME/archive/indexes/$todaysdate
+cp -R /local/content/MEME/MEME5/ncim/data/indexes/* $MEME_HOME/archive/indexes/$todaysdate
+
+cd $MEME_HOME/archive/indexes/$todaysdate
+tar -zcvf $todaysdate.tgz *
+
+
+    set fileExists = `aws s3api list-objects-v2 --bucket nci-evs-meme --max-items 10 --prefix indexes/$dayofweek --output json | jq -r '.Contents | .[] |[.Key]' | grep $dayofweek | wc -l `
+    if ($fileExists == 1) then
+            echo "INFO: replacing $dayofweek indexes file"
+	# remove last week's file from s3
+        set lastWeekFile = `aws s3api list-objects-v2 --bucket nci-evs-meme --max-items 10 --prefix indexes/$dayofweek --output json | jq -r '.Contents | .[0] |[.Key][0]' | grep $dayofweek |  perl -pe 's/"//g;'`
+	echo "INFO: lastWeekFile to remove: $lastWeekFile"
+	aws s3 rm $S3_BUCKET/$lastWeekFile
+    else
+        echo "INFO: no previous $dayofweek indexes file"
+    endif
+    aws s3 cp $todaysdate.tgz $S3_BUCKET/indexes/$todaysdate.tgz
+
+    rm $todaysdate.tgz
+    rm -rf $MEME_HOME/archive/indexes/$todaysdate
+
 
 else
     echo "  DISABLED"

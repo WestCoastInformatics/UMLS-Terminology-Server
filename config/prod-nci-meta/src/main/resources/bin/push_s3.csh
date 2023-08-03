@@ -67,8 +67,8 @@ if ($INV_OR_MR == 'inv') then
     if ($fileExists == 1) then
 	    echo "ERROR: File inv/sources/$SOURCE_NAME.tar.gz already exists in bucket"
 	    exit 1
-	endif
-	tar -zcvf $SOURCE_NAME.tgz $SOURCE_NAME
+    endif
+    tar -zcvf $SOURCE_NAME.tgz $SOURCE_NAME
     aws s3 cp $SOURCE_NAME.tgz $S3_BUCKET/inv/sources/$SOURCE_NAME.tgz
 else if ($INV_OR_MR == 'ncim') then
 	set fileExists = `aws s3api head-object --bucket nci-evs-meme --key mr/ncim/$SOURCE_NAME/$SOURCE_NAME.zip | grep Metadata | wc -l `
