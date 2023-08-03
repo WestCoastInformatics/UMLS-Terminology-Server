@@ -194,19 +194,24 @@ public class CreateEfficientAncestorBequeathalAlgorithm extends AbstractInsertMa
       
       for (Concept cpt : deletedCuis) {
         Set<String> pathResults = computeTransitiveClosure(cpt.getTerminologyId(),relMap,"");
-        for (String result : pathResults) {
-          //System.out.println("path: " + result);
-          // this returns things like .CUI1.CUI2.CUI3.CUI4 => bequeathal rel is
-          // CUI1=>CUI4
-          String[] tokens = FieldedStringTokenizer.split(result, ".");
-          StringBuffer sb = new StringBuffer();
-          sb.append("").append("|");
-          sb.append("C").append("|");
-          sb.append(tokens[1]).append("|");
-          sb.append("BBT").append("|").append("|");
-          sb.append(tokens[tokens.length -1]).append("|");
-          sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI|NCIMTH|SOURCE_CUI|NCIMTH|||").append("\n");
-          System.out.println(sb.toString());
+        
+        if (pathResults != null) {
+          for (String result : pathResults) {
+
+            // System.out.println("path: " + result);
+            // this returns things like .CUI1.CUI2.CUI3.CUI4 => bequeathal rel
+            // is
+            // CUI1=>CUI4
+            String[] tokens = FieldedStringTokenizer.split(result, ".");
+            StringBuffer sb = new StringBuffer();
+            sb.append("").append("|");
+            sb.append("C").append("|");
+            sb.append(tokens[1]).append("|");
+            sb.append("BBT").append("|").append("|");
+            sb.append(tokens[tokens.length - 1]).append("|");
+            sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI|NCIMTH|SOURCE_CUI|NCIMTH|||").append("\n");
+            System.out.print(sb.toString());
+          }
         }
         
         
@@ -240,6 +245,10 @@ public class CreateEfficientAncestorBequeathalAlgorithm extends AbstractInsertMa
     }
 
     Set<String> results = new HashSet<>();
+    List<RelObject> relObjs = relMap.get(cui);
+    if (relObjs == null) {
+      return null;
+    }
     for (RelObject rel : relMap.get(cui)) {
       // String cui1 = rel[0].toString();
       String cui2 = rel.getCui2();
