@@ -158,15 +158,15 @@ public class CreateEfficientAncestorBequeathalAlgorithm extends AbstractInsertMa
       // compute atom rels used in deletedCuis, NCBI first
       List <RelObject> rels = new ArrayList<>();
       Map<String,  List<RelObject>> relMap = new HashMap<>();
-      /**Query relQuery = getEntityManager().createNativeQuery(
+      Query relQuery = getEntityManager().createNativeQuery(
           "select c1.terminologyId cui1, c2.terminologyId cui2, c2.publishable " +
           "FROM atom_relationships r, concepts_atoms ca1, concepts_atoms ca2, concepts c1, concepts c2 " +
            "WHERE   r.terminology = 'NCBI'  AND r.to_id = ca1.atoms_id  AND r.from_id = ca2.atoms_id " +
           " AND c1.id = ca1.concepts_id  AND c2.id = ca2.concepts_id " + 
-          " AND c1.terminology='NCIMTH' AND c2.terminology='NCIMTH' AND r.relationshipType = 'PAR'"); */
+          " AND c1.terminology='NCIMTH' AND c2.terminology='NCIMTH' AND r.relationshipType = 'PAR'"); 
       //relQuery.setParameter("terminology",getProcess().getTerminology());
-      Query relQuery = getEntityManager().createNativeQuery(
-          "select cui1, cui2, publishable from relMap");
+      //Query relQuery = getEntityManager().createNativeQuery(
+      //    "select cui1, cui2, publishable from relMap");
       List<Object[]> results = relQuery.getResultList();
       for (final Object[] entry : results) {
         final String fromCui = entry[0].toString();
