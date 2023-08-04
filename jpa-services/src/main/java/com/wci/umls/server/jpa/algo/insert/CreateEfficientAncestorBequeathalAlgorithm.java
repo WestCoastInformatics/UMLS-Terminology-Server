@@ -7,6 +7,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,16 +21,12 @@ import javax.persistence.Query;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
-import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
-import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.ConceptRelationship;
 
 /**
  * In effort to reduce deleted_cuis, create bequeathals to the live parent 
@@ -37,6 +34,9 @@ import com.wci.umls.server.model.content.ConceptRelationship;
  */
 public class CreateEfficientAncestorBequeathalAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
+  // currently, algorithm with address one terminology at a time - indicate here
+  private String terminologyParam = null;
+  
   /**
    * Instantiates an empty {@link CreateEfficientAncestorBequeathalAlgorithm}.
    * @throws Exception if anything goes wrong
@@ -145,6 +145,7 @@ public class CreateEfficientAncestorBequeathalAlgorithm extends AbstractInsertMa
       //list.add("30310940");
       //list.add("30311007");
       //list.add("30311025");
+      //setSteps(4);
       
       int index = 1;
       for (final Object entry : list) {
@@ -155,16 +156,16 @@ public class CreateEfficientAncestorBequeathalAlgorithm extends AbstractInsertMa
         c.getRelationships().size();
       } 
       
-      // compute atom rels used in deletedCuis, NCBI first
+      // compute atom rels used in deletedCuis, for given terminology e.g. NCBI
       List <RelObject> rels = new ArrayList<>();
       Map<String,  List<RelObject>> relMap = new HashMap<>();
       Query relQuery = getEntityManager().createNativeQuery(
           "select c1.terminologyId cui1, c2.terminologyId cui2, c2.publishable " +
           "FROM atom_relationships r, concepts_atoms ca1, concepts_atoms ca2, concepts c1, concepts c2 " +
-           "WHERE   r.terminology = 'NCBI'  AND r.to_id = ca1.atoms_id  AND r.from_id = ca2.atoms_id " +
+           "WHERE   r.terminology = :terminology  AND r.to_id = ca1.atoms_id  AND r.from_id = ca2.atoms_id " +
           " AND c1.id = ca1.concepts_id  AND c2.id = ca2.concepts_id " + 
           " AND c1.terminology='NCIMTH' AND c2.terminology='NCIMTH' AND r.relationshipType = 'PAR'"); 
-      //relQuery.setParameter("terminology",getProcess().getTerminology());
+      relQuery.setParameter("terminology",terminologyParam); 
       //Query relQuery = getEntityManager().createNativeQuery(
       //    "select cui1, cui2, publishable from relMap");
       List<Object[]> results = relQuery.getResultList();
@@ -175,8 +176,9 @@ public class CreateEfficientAncestorBequeathalAlgorithm extends AbstractInsertMa
         RelObject rel = new RelObject(fromCui, toCui, toPublishable);
         rels.add(rel);
       }
-      System.out.println("rels.size: " + rels.size());
+      logInfo("rels.size: " + rels.size());
       
+      // put par/chd rels in relMap
       for (RelObject rel : rels) {
         if (relMap.containsKey(rel.getCui1())) {
           List<RelObject> llist = relMap.get(rel.getCui1());
@@ -188,19 +190,20 @@ public class CreateEfficientAncestorBequeathalAlgorithm extends AbstractInsertMa
           relMap.put(rel.getCui1(), llist);
         }
       }
-      System.out.println("relMap.size: " + relMap.size());
+      logInfo("relMap.size: " + relMap.size());
       Entry<String, List<RelObject>> entry = relMap.entrySet().iterator().next();
-      System.out.println("relMap entry: " + entry.getKey() + " ** " + entry.getValue().get(0));
       
+      // determine potential bequeathals for each deleted cui
       for (Concept cpt : deletedCuis) {
-        Set<String> pathResults = computeTransitiveClosure(cpt.getTerminologyId(),relMap,"");
+
+        index++;
+        List<String> pathResults = computeTransitiveClosure(cpt.getTerminologyId(),relMap,"");
         
         if (pathResults != null) {
-          for (String result : pathResults) {
-
-            // System.out.println("path: " + result);
-            // this returns things like .CUI1.CUI2.CUI3.CUI4 => bequeathal rel
-            // is
+          // max of 5 bequeathals for each cui
+          for (int i=0; i<pathResults.size() && i<5; i++) {
+            String result = pathResults.get(i);
+            // this returns things like .CUI1.CUI2.CUI3.CUI4 => bequeathal rel is
             // CUI1=>CUI4
             String[] tokens = FieldedStringTokenizer.split(result, ".");
             StringBuffer sb = new StringBuffer();
@@ -210,16 +213,19 @@ public class CreateEfficientAncestorBequeathalAlgorithm extends AbstractInsertMa
             sb.append("BBT").append("|").append("|");
             sb.append(tokens[tokens.length - 1]).append("|");
             sb.append("NCIMTH|NCIMTH|R|n|N|N|SOURCE_CUI|NCIMTH|SOURCE_CUI|NCIMTH|||").append("\n");
-            System.out.print(sb.toString());
+
+            // write bequeathal rel entries 
+            out.write(sb.toString());
+            
+            updateProgress();
+            if (index % 100 == 0) {
+              out.flush();
+            }
           }
         }
-        
-        
-        System.out.println("\n");
-        // decide what to do if the cui2s set had > 5 entries.
-        // write bequeathal rel entries 
       }
  
+      out.close();
 
       commitClearBegin();
 
@@ -236,21 +242,20 @@ public class CreateEfficientAncestorBequeathalAlgorithm extends AbstractInsertMa
 
   }
 
-  public Set<String> computeTransitiveClosure(String cui, Map<String, List<RelObject>> relMap, String ancestorPath) {
+  public List<String> computeTransitiveClosure(String cui, Map<String, List<RelObject>> relMap, String ancestorPath) {
     // assumption: cui is not publishable  
 
     // check for cycles
     if (ancestorPath.contains(cui+".")) {
-      return new HashSet<>(0);
+      return new ArrayList<>(0);
     }
 
-    Set<String> results = new HashSet<>();
+    List<String> results = new ArrayList<>();
     List<RelObject> relObjs = relMap.get(cui);
     if (relObjs == null) {
       return null;
     }
     for (RelObject rel : relMap.get(cui)) {
-      // String cui1 = rel[0].toString();
       String cui2 = rel.getCui2();
       boolean publishable = Boolean.valueOf(rel.isCui2Publishable());
       if (publishable) {
@@ -277,19 +282,25 @@ public class CreateEfficientAncestorBequeathalAlgorithm extends AbstractInsertMa
   /* see superclass */
   @Override
   public void checkProperties(Properties p) throws Exception {
-    // n/a
+    checkRequiredProperties(new String[] {
+        "terminology"
+    }, p);
   }
 
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
-    // n/a
+    terminologyParam = String.valueOf(p.getProperty("terminology"));
   }
 
   /* see superclass */
   @Override
   public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
+    AlgorithmParameter param = new AlgorithmParameterJpa("Terminology", "terminology",
+        "Deleted cuis with this terminology will be addressed in this run.",
+        "e.g. NCBI", 200, AlgorithmParameter.Type.STRING, "");
+    params.add(param);
 
     return params;
   }
