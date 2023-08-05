@@ -30,7 +30,8 @@ import com.wci.umls.server.model.content.Concept;
 
 /**
  * In effort to reduce deleted_cuis, create bequeathals to the live parent 
- * or grandparent concept.
+ * grandparent or ancestor.  Replaces the deprecated CreateAncestorBequeathalAlgorithm
+ * which is slow and only bequeaths up to grandparents.
  */
 public class CreateEfficientAncestorBequeathalAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
@@ -91,7 +92,7 @@ public class CreateEfficientAncestorBequeathalAlgorithm extends AbstractInsertMa
         maintDir.mkdir();
       }
       logInfo("maint dir:" + maintDir);
-      BufferedWriter out = new BufferedWriter(new FileWriter(new File(maintDir, "bequeathal.ancestor.relationships.src")));
+      BufferedWriter out = new BufferedWriter(new FileWriter(new File(maintDir, "bequeathal.ancestor.relationships.src." + terminologyParam)));
       
       Query query = getEntityManager().createNativeQuery(
           "SELECT   DISTINCT c.id conceptId FROM   concepts c,   "
