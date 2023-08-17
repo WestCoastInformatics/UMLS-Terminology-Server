@@ -163,6 +163,7 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
 
       for (final String key : errors.keySet()) {
         msg.append("  CHECK: ").append(key).append("\r\n");
+        msg.append("  RESULT COUNT: ").append(errors.get(key).size()).append("\r\n");
         msg.append("  QUERY: ").append(queries.get(key)).append("\r\n");
         int displayCt = 0;
         for (final String result : errors.get(key)) {
