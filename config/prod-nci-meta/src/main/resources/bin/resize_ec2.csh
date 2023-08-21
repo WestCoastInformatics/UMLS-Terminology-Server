@@ -3,7 +3,7 @@
 # This script is used to resizean ec2 instance.  The instance will be stopped and  restarted after the resize is complete.
 #
 
-setenv usage 'resize_ec2.csh {meme-test|meme-release}  {t3.nano|t3.large|t3.xlarge}'
+setenv usage 'resize_ec2.csh {nciws-d2391-c|ncias-q3009-c|ncias-q3004-c}  {t3.nano|t3.large|t3.xlarge}'
 setenv TEST_INSTANCE ncias-q3009-c
 setenv DEV_INSTANCE nciws-d2391-c
 setenv RELEASE_INSTANCE ncias-q3004-c
@@ -28,10 +28,10 @@ if ($INSTANCE_NAME != $DEV_INSTANCE && $INSTANCE_NAME != $TEST_INSTANCE && $INST
 	echo "ERROR: INSTANCE must be $DEV_INSTANCE or $TEST_INSTANCE or $RELEASE_INSTANCE";
     exit 1
 endif
-if ($INSTANCE_TYPE != 't3.nano' && $INSTANCE_TYPE != 't3.large' && $INSTANCE_TYPE != 't3.xlarge') then    
-	echo "ERROR: INSTANCE TYPE must be t3.nano, t3.large or t3.xlarge";
-    exit 1
-endif
+#if ($INSTANCE_TYPE != 't3.nano' && $INSTANCE_TYPE != 't3.large' && $INSTANCE_TYPE != 't3.xlarge' && $INSTANCE_TYPE != 't3.2xlarge') then    
+#	echo "ERROR: INSTANCE TYPE must be t3.nano, t3.large, t3.xlarge or t3.2xlarge";
+#    exit 1
+#endif
 
 set instanceId = `aws ec2 describe-instances --profile meme --query "Reservations[*].Instances[*].{InstanceId:InstanceId,PublicIP:PublicIpAddress,Type:InstanceType,Name:Tags[?Key=='Name']|[0].Value,Status:State.Name}" --filters "Name=instance-state-name,Values=running" "Name=tag:Name,Values='$INSTANCE_NAME'" | jq -r '.[0][0].InstanceId'`
 echo "instanceId:	$instanceId"
