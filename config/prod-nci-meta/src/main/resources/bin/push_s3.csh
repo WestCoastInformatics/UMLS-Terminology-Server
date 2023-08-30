@@ -1,23 +1,30 @@
 #!/bin/tcsh -f
 #
 # This script is used to push inversion source folders or release packages to s3.  INversion folders will be compressed as part of the upload process.
+# There is also an option flag --update that will force the upload of an 'inv' folder, even if it already exists on s3, thereby replacing its prior contents.
 #
 # Usage examples:
 # ./push_s3.csh inv NCI_2022_10E
+# ./push_s3.csh inv NCI_2022_10E --update
 # ./push_s3.csh ncim 202208
 # ./push_s3.csh umls 2022AB
 #
 
-set usage = 'push_s3.csh {inv|ncim|umls} {source_name|release_date}'
+set usage = 'push_s3.csh {inv|ncim|umls} {source_name|release_date} --update'
 setenv S3_BUCKET s3://nci-evs-meme
 
 echo "--------------------------------------------------------"
 echo "Starting `/bin/date`"
 echo "--------------------------------------------------------"
 
-if ($#argv == 2) then
+if ($#argv == 2 || $#argv == 3) then
     setenv INV_OR_MR $1
     setenv SOURCE_NAME $2
+    if ($#argv == 3 && $3 == '--update') then
+        setenv update 1
+    else
+        setenv update 0
+    endif
 else
     echo "ERROR: Wrong number of parameters"
     echo "ERROR: $usage"
@@ -26,6 +33,7 @@ endif
 
 echo "INV_OR_MR:          $INV_OR_MR"
 echo "SOURCE_NAME:        $SOURCE_NAME"
+echo "update:        $update"
 
 if ($INV_OR_MR != 'inv' && $INV_OR_MR != 'ncim' && $INV_OR_MR != 'umls') then
     echo "ERROR: inv or ncim or umls  must be specified as first parameter"
@@ -56,18 +64,16 @@ else
 endif
 
 
+
 echo "    Put data on s3... `/bin/date`"
 if ($INV_OR_MR == 'inv') then
-	set fileExists = `aws s3api head-object --bucket nci-evs-meme --key inv/sources/$SOURCE_NAME.tgz | grep Metadata | wc -l `
-    if ($fileExists == 1) then
+	set fileExistsFile = `aws s3api head-object --bucket nci-evs-meme --key inv/sources/$SOURCE_NAME.tgz >& /tmp/t.txt`
+	set fileExists = `cat /tmp/t.txt | grep Metadata | wc -l`
+    if ($fileExists == 1 && $update != 1) then
 	    echo "ERROR: File inv/sources/$SOURCE_NAME.tgz already exists in bucket"
 	    exit 1
-	endif
-	set fileExists = `aws s3api head-object --bucket nci-evs-meme --key inv/sources/$SOURCE_NAME.tar.gz | grep Metadata | wc -l `
-    if ($fileExists == 1) then
-	    echo "ERROR: File inv/sources/$SOURCE_NAME.tar.gz already exists in bucket"
-	    exit 1
     endif
+    rm -rf /tmp/t.txt
     tar -zcvf $SOURCE_NAME.tgz $SOURCE_NAME
     aws s3 cp $SOURCE_NAME.tgz $S3_BUCKET/inv/sources/$SOURCE_NAME.tgz
 else if ($INV_OR_MR == 'ncim') then
@@ -93,3 +99,4 @@ echo ""
 echo "-----------------------------------------------------"
 echo "Finished $0 ... `/bin/date`"
 echo "-----------------------------------------------------"
+

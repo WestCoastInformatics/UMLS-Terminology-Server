@@ -27,8 +27,16 @@ if ($DB_NAME != $DEV_DB && $DB_NAME != $TEST_DB && $DB_NAME != $RELEASE_DB) then
 	exit 1
 endif
 
+if ($DB_NAME == 'meme-dev') then
+    setenv VPC sg-0a42ddabf8c260525
+else 
+    setenv VPC sg-05993d12d18c40cae
+endif
 
-aws rds restore-db-instance-to-point-in-time --profile meme --source-db-instance-identifier meme-edit --target-db-instance-identifier $DB_NAME --use-latest-restorable-time --db-parameter-group-name meme-db --availability-zone us-east-1d --db-subnet-group-name mysql-subnet-group --vpc-security-group-ids sg-0a42ddabf8c260525  --tags "Key"="autostart","Value"="true" "Key"="autostop","Value"="true"
+echo "VPC:    $VPC"
+
+
+aws rds restore-db-instance-to-point-in-time --profile meme --source-db-instance-identifier meme-edit --target-db-instance-identifier $DB_NAME --use-latest-restorable-time --db-parameter-group-name meme-db --availability-zone us-east-1d --db-subnet-group-name mysql-subnet-group --vpc-security-group-ids $VPC --tags "Key"="autostart","Value"="true" "Key"="autostop","Value"="true"
 
 echo ""
 

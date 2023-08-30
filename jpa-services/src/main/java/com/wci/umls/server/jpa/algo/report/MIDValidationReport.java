@@ -128,7 +128,7 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
         if (queryStr.contains(":projectId")) {
           query.setParameter("projectId", getProject().getId());
         }
-        query.setMaxResults(10);
+        //query.setMaxResults(10);
         final List<Object[]> objects = query.getResultList();
 
         // Expect zero count, any results are failures
@@ -163,9 +163,13 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
 
       for (final String key : errors.keySet()) {
         msg.append("  CHECK: ").append(key).append("\r\n");
+        msg.append("  RESULT COUNT: ").append(errors.get(key).size()).append("\r\n");
         msg.append("  QUERY: ").append(queries.get(key)).append("\r\n");
+        int displayCt = 0;
         for (final String result : errors.get(key)) {
           msg.append("    " + result).append("\r\n");
+          displayCt++;
+          if (displayCt >= 10) break;
         }
         if (errors.get(key).size() > 9) {
           msg.append("    ... ").append("\r\n");
