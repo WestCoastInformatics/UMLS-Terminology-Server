@@ -71,7 +71,7 @@ public class LuceneReindexAlgorithm extends AbstractAlgorithm {
     if (fullTextEntityManager == null) {
       fullTextEntityManager = Search.getFullTextEntityManager(manager);
     }
-    clearLuceneIndexes();
+    // clearLuceneIndexes();
     // fullTextEntityManager.close();
   }
 
