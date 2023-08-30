@@ -432,6 +432,17 @@ tsApp
                 }
               }
 
+			  $scope.finish = function(worklist) {
+				console.debug('openFinishWorkflowModal ', worklist);
+
+				workflowService.performWorkflowAction($scope.selected.project.id, worklist.id, $scope.user.userName,
+				  $scope.selected.projectRole, 'FINISH').then(
+					// Success
+					function() {
+					  $scope.getWorklists(worklist);
+					});
+			  };
+	
               // Performs a workflow action
               $scope.performWorkflowAction = function(worklist, action, userName) {
 
