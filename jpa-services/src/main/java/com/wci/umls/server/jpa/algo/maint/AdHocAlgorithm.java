@@ -2018,8 +2018,11 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         if (!newPreferredName.equals("")) {
           terminology.setPreferredName(newPreferredName);
           updatedTerminologies++;
+
+          updateTerminology(terminology);
         }
 
+        
         updateProgress();
         commitClearBegin();
       }
