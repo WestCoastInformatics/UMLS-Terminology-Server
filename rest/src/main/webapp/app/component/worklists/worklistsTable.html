@@ -109,19 +109,26 @@
                 title="Unassign worklist from {{author}}"
                 class="noul glyphicon glyphicon-hand-left"></i>
             </span>
-            <span ng-show="hasPermissions('Stamp') && type == 'Checklist'">
-              <i confirm="Are you sure you want to stamp the {{type}}?"
-                ng-click="stamp(worklist, true); " title="Stamp {{type}}"
-                class="noul glyphicon glyphicon-certificate"></i>
-            </span>
-            <!-- Removed Unapprove - currently unrequired, unrequested feature.
+            <span
+				ng-show="hasPermissions('Stamp') && worklist.reviewers.length > 0 && getWorkflowState(worklist) == 'Review Assigned'">
+				<i confirm="Are you sure you want to stamp the {{type}}?"
+				ng-click="stamp(worklist, true); " title="Stamp {{type}}"
+				class="noul glyphicon glyphicon-certificate"></i>
+			</span> 
+			<span
+				ng-show="getWorkflowState(worklist) == 'Review Assigned' && type == 'Worklist' && worklist.reviewers.length > 0">
+				<i confirm="Are you sure you want to finish the {{type}}?"
+				ng-click="finish(worklist);" title="Finish {{type}}"
+				class="noul glyphicon glyphicon-ok"></i> 
+			</span>
+			<!-- Removed Unapprove - currently unrequired, unrequested feature.
             <span ng-show="hasPermissions('Unapprove')">
               <i confirm="Are you sure you want to unapprove the {{type}}?"
                 ng-click="stamp(worklist, false); " title="Unapprove {{type}}"
                 class="noul glyphicon glyphicon-remove-circle"></i>
             </span>
            -->
-          </td>
+		  </td>
         </tr>
       </tbody>
     </table>
