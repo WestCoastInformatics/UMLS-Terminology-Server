@@ -127,6 +127,7 @@ import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
+import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Component;
@@ -3374,28 +3375,39 @@ public class ContentServiceJpa extends MetadataServiceJpa implements ContentServ
         atomIds.add(-1L);
       }
       query.setParameter("atomIds", atomIds);
-      results.addAll(query.getResultList());
+      List<Object[]> atomRels = query.getResultList();
+      results.addAll(atomRels);
+      
 
-      queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
+      // See NM-195 for more details.  name equivalency was removed because some context relationships
+      // were not getting retrieved.  The missing rels were due to NCI (SCUI) concept objects no longer 
+      // having correctly computed concept.name values because the PTs of the concept have changed
+      
+      queryStr = "select distinct a.id, a.terminologyId, a.terminology, a.version, "
           + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId,       "
           + "a.obsolete, a.suppressible, a.published, a.publishable, "
           // + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
-          + "c2.name, c2.id " + ", a.workflowStatus " + ", a.lastModifiedBy, a.lastModified "
+          + "c2.name, c2.id " + ", a.workflowStatus " + ", a.lastModifiedBy, a.lastModified "          
           + "from ConceptRelationshipJpa a, ConceptJpa b, AtomJpa c, "
           + "ConceptJpa d, AtomJpa e, ConceptJpa c2 join c2.atoms ca " + "where a."
           + (inverseFlag ? "to" : "from") + ".id = b.id " + "and b.terminologyId = c.conceptId "
           + "and b.terminology = c.terminology and b.version = c.version "
-          + "and b.name = c.name and c.id in (:atomIds) " + "and a." + (inverseFlag ? "from" : "to")
+          // + "and b.name = c.name "
+          + " and c.id in (:atomIds) " + "and a." + (inverseFlag ? "from" : "to")
           + ".id = d.id " + "and d.terminologyId = e.conceptId "
-          + "and d.terminology = e.terminology and d.version = e.version " + "and d.name = e.name "
+          + "and d.terminology = e.terminology and d.version = e.version " 
+          //+ "and d.name = e.name "
           + "and c2.terminology = :terminology and c2.version = :version and "
-          + (inverseFlag ? "e.id in (ca.id) " : "e.id in (ca.id) ") + relTypeClause
+          + "  e.id in (ca.id) " + relTypeClause
           + suppressibleClause;
       query = manager.createQuery(queryStr);
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
       query.setParameter("atomIds", atomIds);
-      results.addAll(query.getResultList());
+
+      List<Object[]> cptRels = query.getResultList();
+      results.addAll(cptRels);
+      
 
       queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
           + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId,       "
@@ -3416,8 +3428,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements ContentServ
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
       query.setParameter("atomIds", atomIds);
-      results.addAll(query.getResultList());
 
+      List<Object[]> descRels = query.getResultList();
+      results.addAll(descRels);
+            
       queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
           + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId,       "
           + "a.obsolete, a.suppressible, a.published, a.publishable, "
@@ -3437,8 +3451,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements ContentServ
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
       query.setParameter("atomIds", atomIds);
-      results.addAll(query.getResultList());
 
+      List<Object[]> codeRels = query.getResultList();
+      results.addAll(codeRels);
+      
+      
       // Use a set to "uniq" them
       final Set<ConceptRelationship> conceptRels = new HashSet<>();
       for (final Object[] result : results) {
@@ -3509,6 +3526,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements ContentServ
       } else {
         conceptRelList.addAll(conceptRels);
       }
+;
 
       // set filter as query restriction for use in applyPfsToList
       final PfsParameter pfsLocal = new PfsParameterJpa(pfs);
@@ -3522,6 +3540,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements ContentServ
       for (final ConceptRelationship cr : conceptRelList) {
         list.getObjects().add(cr);
       }
+
 
       return list;
     } catch (NoResultException e) {
