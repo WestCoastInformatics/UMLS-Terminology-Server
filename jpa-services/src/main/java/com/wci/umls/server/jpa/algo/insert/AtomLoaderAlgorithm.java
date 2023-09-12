@@ -427,7 +427,16 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
                 atom.getConceptTerminologyIds().put(
                     getProcess().getTerminology() + getProcess().getVersion(),
                     CUI);
-                if(atom.getConceptTerminologyIds().get(getProject().getTerminology()) == null) {
+                // This is so new concepts from UMLS insertion will get the UMLS CUI
+                // instead of a new CL CUI (added March 2023).  Avoid doing this
+                // for already deleted CUIs, for unpublishable atoms, and for MTH atoms.
+                
+                // TODO: at the beginning of compute we need to look up the
+                // terminologyIds of all component histories and save them in a set
+                // and add a constraint to NOT do this if the CUI is in that set.
+                //  - !historySet.contains(CUI) &&
+                if(atom.isPublishable() && !atom.getTerminology().equals("MTH")
+                    && atom.getConceptTerminologyIds().get(getProject().getTerminology()) == null) {
                   atom.getConceptTerminologyIds().put(getProject().getTerminology(), CUI);
                 }
                 mthCUIUpdateCount++;
