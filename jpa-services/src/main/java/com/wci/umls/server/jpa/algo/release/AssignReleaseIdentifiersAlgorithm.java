@@ -142,7 +142,7 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
 
     // Sort all atoms
     Collections.sort(atomIds,
-        (a1, a2) -> atomRankMap.get(a1).compareTo(atomRankMap.get(a2)));
+        (a1, a2) -> atomRankMap.get(a2).compareTo(atomRankMap.get(a1)));
     // Clear memory.
     atomRankMap.clear();
     updateProgress();
