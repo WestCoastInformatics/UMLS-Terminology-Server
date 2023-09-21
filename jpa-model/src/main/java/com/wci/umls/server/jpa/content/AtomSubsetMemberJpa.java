@@ -62,8 +62,8 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
   /** The attributes. */
   @OneToMany(targetEntity = AttributeJpa.class)
   @JoinColumn(name = "attributes_id")
-  @JoinTable(name = "atom_subsets_attributes", inverseJoinColumns = @JoinColumn(name = "attributes_id"),
-      joinColumns = @JoinColumn(name = "atom_subsets_id"))
+  @JoinTable(name = "atom_subset_members_attributes", inverseJoinColumns = @JoinColumn(name = "attributes_id"),
+      joinColumns = @JoinColumn(name = "atom_subset_members_id"))
   private List<Attribute> attributes = null;
 
   /**
