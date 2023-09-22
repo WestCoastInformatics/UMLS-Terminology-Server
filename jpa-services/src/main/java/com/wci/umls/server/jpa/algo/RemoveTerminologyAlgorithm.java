@@ -539,10 +539,10 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
       // second block if they don't
       AtomRelationship atomRelationship =
           (AtomRelationshipJpa) getRelationship(id, AtomRelationshipJpa.class);
-      Atom fromAtom = getAtom(atomRelationship.getFrom().getId());
+      //Atom fromAtom = getAtom(atomRelationship.getFrom().getId());
 
-      fromAtom.getRelationships().remove(atomRelationship);
-      updateAtom(fromAtom); 
+      //fromAtom.getRelationships().remove(atomRelationship);
+      //updateAtom(fromAtom); 
 
       removeRelationship(atomRelationship.getId(), AtomRelationshipJpa.class);
 
