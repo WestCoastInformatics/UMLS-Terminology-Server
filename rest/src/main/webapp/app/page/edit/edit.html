@@ -158,8 +158,14 @@
           <span class="alert alert-warning">Worklist has no records</span>
         </span>
         <div>
-          <div pager paging="paging['records']" count="lists.records.totalCount"
-            callbacks="paging['records'].callbacks"></div>
+           <div pager paging="paging['records']" count="lists.records.totalCount"
+            callbacks="paging['records'].callbacks"></div> 
+          <span ng-show="lists.records.totalCount > 10" style="float: right;">
+      		Page size: <select ng-model="paging['records'].pageSize" title="Page Size"
+        	ng-change="getRecords()"
+        	ng-options="item.value as item.name for item in pageSizes">
+      		</select>
+    	  </span>
           <table
             ng-show="lists.records.totalCount > 0 || paging['records'].filter || paging['records'].typeFilter"
             class="slim table pointer">
