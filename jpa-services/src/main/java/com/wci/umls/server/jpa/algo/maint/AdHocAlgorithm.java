@@ -2208,7 +2208,9 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
         final Long conceptId = Long.valueOf(entry.toString());
-        concepts.add(getConcept(conceptId));
+        Concept cpt = getConcept(conceptId);
+        cpt.getAtoms().size();
+        concepts.add(cpt);
       }
 
       setSteps(concepts.size());
