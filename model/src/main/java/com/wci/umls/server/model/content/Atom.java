@@ -198,4 +198,18 @@ public interface Atom extends ComponentHasAttributesAndName,
    */
   public List<Note> getNotes();
 
+  /**
+   * Gets the rxcui.
+   *
+   * @return the rxcui
+   */
+  public String getRxcui();
+
+  /**
+   * Sets the rxcui.
+   *
+   * @param rxcui the new rxcui
+   */
+  public void setRxcui(String rxcui);
+
 }

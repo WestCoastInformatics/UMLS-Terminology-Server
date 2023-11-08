@@ -240,6 +240,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       fixTerminologies();
     } else if (actionName.equals("Fix RHT Atoms")) {
       fixRHTAtoms();
+    } else if (actionName.equals("Populate Rxcuis on Atoms")) {
+      populateRxcuis();
     } else if (actionName.equals("Fix MDR Descriptors")) {
       fixMDRDescriptors();
     } else if (actionName.equals("Clear Worklists and Checklists")) {
@@ -2187,6 +2189,51 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     }
 
     logInfo("Updated " + updatedAtoms + " additional relationship types updated.");
+    logInfo("Finished " + getName());
+  }
+  
+  private void populateRxcuis() throws Exception {
+    // 11/08/2023 rxcuis populated on atoms themselves for display on the atom dialog
+    logInfo("Populate Rxcuis on Atoms");
+
+    int updatedAtoms = 0;
+    List<Concept> concepts = new ArrayList<>();
+
+    try {
+
+      // Get the concepts that have RXNORM atoms
+      Query query = getEntityManager()
+          .createNativeQuery("SELECT distinct concepts.id from concepts, atoms where atoms.conceptId = concepts.id and atoms.terminology = 'RXNORM'");
+
+      List<Object> list = query.getResultList();
+      for (final Object entry : list) {
+        final Long conceptId = Long.valueOf(entry.toString());
+        concepts.add(getConcept(conceptId));
+      }
+
+      setSteps(concepts.size());
+
+      logInfo("[PopulateRxcuis] " + concepts.size() + " rxnorm concepts identified");
+
+      for (final Concept concept : concepts) {
+
+        for (Atom atom : concept.getAtoms()) {
+          if (atom.getAttributeByName("RXCUI")!= null) {          
+            atom.setRxcui(atom.getAttributeByName("RXCUI").getValue());
+            updateAtom(atom);
+            updatedAtoms++;
+          }
+        }
+        updateProgress();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
+    } finally {
+      // n/a
+    }
+
+    logInfo("Updated " + updatedAtoms + " rxcuis updated on atoms.");
     logInfo("Finished " + getName());
   }
 
@@ -5218,7 +5265,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         "Set Component Info Relationships To Publishable",
         "Set Stamped Worklists To Ready For Publication", "Add Disposition Atoms", "Fix RelGroups",
         "Fix Source Level Rels", "Fix AdditionalRelType Inverses", "Fix Snomed Family",
-        "Turn off CTRP-SDC", "Fix Terminology Names", "Fix Terminologies", "Fix RHT Atoms",
+        "Turn off CTRP-SDC", "Fix Terminology Names", "Fix Terminologies", "Fix RHT Atoms","Populate Rxcuis on Atoms",
         "Fix MDR Descriptors", "Clear Worklists and Checklists",
         "Fix Duplicate PDQ Mapping Attributes", "Fix Duplicate Concepts", "Fix Null RUIs",
         "Remove old MTH relationships", "Remove old relationships", "Assign Missing STY ATUIs",

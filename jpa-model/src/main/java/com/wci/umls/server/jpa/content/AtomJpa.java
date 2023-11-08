@@ -178,6 +178,10 @@ public class AtomJpa extends AbstractComponent implements Atom {
   @JoinTable(name = "atoms_attributes", inverseJoinColumns = @JoinColumn(name = "attributes_id"),
       joinColumns = @JoinColumn(name = "atoms_id"))
   private List<Attribute> attributes = null;
+  
+  /** The rxcui. */
+  @Column(nullable = true)
+  private String rxcui;
 
   /**
    * Instantiates an empty {@link AtomJpa}.
@@ -215,6 +219,7 @@ public class AtomJpa extends AbstractComponent implements Atom {
     termType = atom.getTermType();
     workflowStatus = atom.getWorkflowStatus();
     lastPublishedRank = atom.getLastPublishedRank();
+    rxcui = atom.getRxcui();
 
     if (collectionCopy) {
       definitions = new ArrayList<>(atom.getDefinitions());
@@ -429,6 +434,18 @@ public class AtomJpa extends AbstractComponent implements Atom {
     this.stringClassId = stringClassId;
   }
 
+  /* see superclass */
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getRxcui() {
+    return rxcui;
+  }
+
+  /* see superclass */
+  @Override
+  public void setRxcui(String rxcui) {
+    this.rxcui = rxcui;
+  }
   /**
    * Returns the lower name hash.
    *
@@ -655,7 +672,7 @@ public class AtomJpa extends AbstractComponent implements Atom {
   public String toString() {
     return "AtomJpa [name=" + name + ", codeId=" + codeId + ", descriptorId=" + descriptorId
         + ", conceptId=" + conceptId + ", language=" + language + ", lexicalClassId="
-        + lexicalClassId + ", stringClassId=" + stringClassId + ", termType=" + termType
+        + lexicalClassId + ", stringClassId=" + stringClassId + ", termType=" + termType + ", rxcui=" + rxcui
         + ", workflowStatus=" + workflowStatus + ", lastPublishedRank=" + lastPublishedRank + "] - "
         + super.toString();
   }
