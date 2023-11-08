@@ -2196,7 +2196,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // 11/08/2023 rxcuis populated on atoms themselves for display on the atom dialog
     logInfo("Populate Rxcuis on Atoms");
 
-    int updatedAtoms = 0;
+    int updatedConcepts = 0;
     List<Concept> concepts = new ArrayList<>();
 
     try {
@@ -2220,12 +2220,13 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       for (final Concept concept : concepts) {
 
         for (Atom atom : concept.getAtoms()) {
+          atom.getAttributes().size();
           if (atom.getAttributeByName("RXCUI")!= null) {          
             atom.setRxcui(atom.getAttributeByName("RXCUI").getValue());
             updateAtom(atom);
-            updatedAtoms++;
           }
         }
+        updatedConcepts++;
         updateProgress();
       }
     } catch (Exception e) {
@@ -2235,7 +2236,7 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       // n/a
     }
 
-    logInfo("Updated " + updatedAtoms + " rxcuis updated on atoms.");
+    logInfo("Updated " + updatedConcepts + " concepts to have rxcuis on atoms.");
     logInfo("Finished " + getName());
   }
 
