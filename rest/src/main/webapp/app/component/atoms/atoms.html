@@ -100,6 +100,12 @@
               <a class="pointer" ng-class="{'nolink' : !callbacks.getComponent}"
                 ng-click="callbacks.getComponent({terminologyId: item.descriptorId, terminology: item.terminology, version: item.version, type: 'DESCRIPTOR'})">{{item.descriptorId}}</a>
             </span>
+             <!-- For rxcui, do not show if identical to component id -->
+            <span
+              uib-tooltip="{{item.terminology}} rxcui">
+              <a class="pointer" ng-class="{'nolink' : !callbacks.getComponent}"
+                ng-click="callbacks.getComponent({terminologyId: item.rxcui, terminology: item.terminology, version: item.version, type: 'RXCUI'})">{{item.rxcui}}</a>
+            </span>
             <!-- Show any referenced components in the concept terminology id list -->
             <span ng-repeat="(key, value) in item.conceptTerminologyIds">
               <a class="pointer" ng-class="{'nolink' : !callbacks.getComponent}"

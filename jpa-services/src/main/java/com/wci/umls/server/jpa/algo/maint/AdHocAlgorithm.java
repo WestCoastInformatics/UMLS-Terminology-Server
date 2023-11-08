@@ -2219,7 +2219,8 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       for (final Concept concept : concepts) {
 
-        for (Atom atom : concept.getAtoms()) {
+        for (Atom a : concept.getAtoms()) {
+          Atom atom = getAtom(a.getId());
           atom.getAttributes().size();
           if (atom.getAttributeByName("RXCUI")!= null) {          
             atom.setRxcui(atom.getAttributeByName("RXCUI").getValue());
