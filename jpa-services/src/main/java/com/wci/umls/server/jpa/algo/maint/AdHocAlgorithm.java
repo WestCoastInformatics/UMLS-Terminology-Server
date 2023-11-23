@@ -3055,18 +3055,20 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // version.
 	// 07/31/2023 - still having same issue in MTH_2023AA.  Updated to new
 	// version.
+	// 11/23/2023 - still having same issue in MTH_2023AB.  Updated to new
+	// version.
 
     logInfo(" Remove old MTH relationships");
 
     Query query = getEntityManager().createNativeQuery(
         "select cr.id from " + " concept_relationships cr, concepts c1, concepts c2 "
             + " where cr.from_id = c1.id " + " and cr.to_id = c2.id " + " AND from_id < to_id "
-            + " and cr.terminology = 'MTH' " + " and cr.terminology != '2023AA' "
+            + " and cr.terminology = 'MTH' " + " and cr.terminology != '2023AB' "
             + " and c1.terminology = 'NCIMTH' " + " and c2.terminology = 'NCIMTH' "
             + " GROUP BY c1.terminologyId, c2.terminologyId HAVING COUNT(*) > 1");
 
     logInfo("[RemoveOldMTHRelationships] Loading "
-        + "ConceptRelationship ids for old relationships that now have duplicates caused by the MTH 2023AA insertion");
+        + "ConceptRelationship ids for old relationships that now have duplicates caused by the MTH 2023AB insertion");
 
     List<Object> list = query.getResultList();
     setSteps(list.size());
