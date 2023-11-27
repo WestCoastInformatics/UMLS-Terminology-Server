@@ -2196,40 +2196,39 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // 11/08/2023 rxcuis populated on atoms themselves for display on the atom dialog
     logInfo("Populate Rxcuis on Atoms");
 
-    int updatedConcepts = 0;
-    List<Concept> concepts = new ArrayList<>();
+    List<Atom> atoms = new ArrayList<>();
 
     try {
 
-      // Get the concepts that have RXNORM atoms
+      // Get the atoms that have RXNORM attributes
       Query query = getEntityManager()
-          .createNativeQuery("SELECT distinct concepts.id from concepts, atoms where atoms.conceptId = concepts.id and atoms.terminology = 'RXNORM'");
+          .createNativeQuery("SELECT distinct atoms_attributes.atoms_id from atoms_attributes, attributes where atoms_attributes.attributes_id = attributes.id  and attributes.name = 'RXCUI'");
 
       List<Object> list = query.getResultList();
       for (final Object entry : list) {
-        final Long conceptId = Long.valueOf(entry.toString());
-        Concept cpt = getConcept(conceptId);
-        cpt.getAtoms().size();
-        concepts.add(cpt);
+        final Long atomId = Long.valueOf(entry.toString());
+        Atom atom = getAtom(atomId);
+        atoms.add(atom);
       }
 
-      setSteps(concepts.size());
+      setSteps(atoms.size());
 
-      logInfo("[PopulateRxcuis] " + concepts.size() + " rxnorm concepts identified");
+      logInfo("[PopulateRxcuis] " + atoms.size() + " atoms with rxcui attributes identified");
 
-      for (final Concept concept : concepts) {
+      int atomCt = 0;
 
-        for (Atom a : concept.getAtoms()) {
+        for (Atom a : atoms) {
           Atom atom = getAtom(a.getId());
           atom.getAttributes().size();
           if (atom.getAttributeByName("RXCUI")!= null) {          
             atom.setRxcui(atom.getAttributeByName("RXCUI").getValue());
             updateAtom(atom);
+            atomCt++;
           }
-        }
-        updatedConcepts++;
         updateProgress();
       }
+      logInfo("[PopulateRxcuis] "  + atomCt + " atomsUpdated");
+      
     } catch (Exception e) {
       e.printStackTrace();
       fail("Unexpected exception thrown - please review stack trace.");
@@ -2237,7 +2236,6 @@ public class AdHocAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       // n/a
     }
 
-    logInfo("Updated " + updatedConcepts + " concepts to have rxcuis on atoms.");
     logInfo("Finished " + getName());
   }
 
