@@ -33,6 +33,9 @@
           ng-click="setSortField('atoms','descriptorId')">Descriptor</span> <span
           ng-bind="getSortIndicator('atoms','descriptorId')"></span></th>
       <th class="col-md-1 col-xs-1"><span
+          ng-click="setSortField('atoms','rxcui')">Rxcui</span> <span
+          ng-bind="getSortIndicator('atoms','rxcui')"></span></th>         
+      <th class="col-md-1 col-xs-1"><span
           ng-click="setSortField('atoms','lastModifiedBy')">Editor</span> <span
           ng-bind="getSortIndicator('atoms','lastModifiedBy')"></span></th>
       <th class="col-md-1 col-xs-1"><span style="float: right;">
@@ -62,6 +65,7 @@
       </td>
       <td ng-click="toggleSelection(atom)">{{atom.conceptId}}</td>
       <td ng-click="toggleSelection(atom)">{{atom.descriptorId}}</td>
+      <td ng-click="toggleSelection(atom)">{{atom.rxcui}}</td>
       <td ng-click="toggleSelection(atom)">{{atom.lastModifiedBy}}</td>
       <td class="nobreak">
         <span notes selected="{component:atom, project:selected.project}"

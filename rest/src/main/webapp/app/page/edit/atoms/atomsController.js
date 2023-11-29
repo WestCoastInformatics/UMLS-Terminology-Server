@@ -47,6 +47,7 @@ tsApp
         $scope.paging['atoms'].filterFields.name = 1;
         $scope.paging['atoms'].filterFields.codeId = 1;
         $scope.paging['atoms'].filterFields.descriptorId = 1;
+        $scope.paging['atoms'].filterFields.rxcui = 1;
         $scope.paging['atoms'].filterFields.conceptId = 1;
         $scope.paging['atoms'].filterFields.termType = 1;
         $scope.paging['atoms'].filterFields.codeId = 1;
