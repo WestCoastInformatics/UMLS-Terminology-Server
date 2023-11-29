@@ -438,6 +438,9 @@ public class AtomJpa extends AbstractComponent implements Atom {
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getRxcui() {
+	if (rxcui == null) {
+	  return "";
+	}
     return rxcui;
   }
 
