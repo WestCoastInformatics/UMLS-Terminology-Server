@@ -119,6 +119,7 @@ public class AttributeLoaderAlgorithm
     int attributeUpdateCount = 0;
     int definitionAddCount = 0;
     int definitionUpdateCount = 0;
+    int rxcuiCount = 0;
 
     try {
 
@@ -471,6 +472,13 @@ public class AttributeLoaderAlgorithm
                 "Attribute Loader: Could not find component");
             continue;
           }
+          
+          // Need to populate rxcui field on Atoms
+          if (fields[3].equals("RXCUI") && containerComponent instanceof Atom ) {
+        	  ((Atom)containerComponent).setRxcui(fields[4]);
+              updateComponent(containerComponent);
+              rxcuiCount++;
+          }
 
           // Compute attribute identity
           final String newAttributeAtui =
@@ -560,6 +568,7 @@ public class AttributeLoaderAlgorithm
       logInfo("  updated attribute count = " + attributeUpdateCount);
       logInfo("  added definition count = " + definitionAddCount);
       logInfo("  updated definition count = " + definitionUpdateCount);
+      logInfo("  rxcui count = " + rxcuiCount);
 
       logInfo("Finished " + getName());
 
