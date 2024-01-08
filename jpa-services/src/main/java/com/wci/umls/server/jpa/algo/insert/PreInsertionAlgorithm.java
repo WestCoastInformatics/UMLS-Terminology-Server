@@ -163,11 +163,11 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           + ": available=" + store.getUsableSpace() + ", total="
           + nf.format(store.getTotalSpace()));
 
-      /**if (store.getUsableSpace() < 20000000000L) {
+      if (store.getUsableSpace() < 20000000000L) {
         validationResult
             .addError("ERROR: Insufficient disk space: " + nf.format(store.getUsableSpace()));
         return validationResult;
-      } */
+      }
 
     } catch (IOException e) {
       validationResult.addError("ERROR: error querying space: " + e.toString());

@@ -731,12 +731,6 @@ public class RelationshipLoaderAlgorithm
         newInverseRelationship, newRelationship.getRelationshipType(),
         newRelationship.getAdditionalRelationshipType());
 
-    if (sourceRelationshipId.equals("6523865") || sourceRelationshipId.equals("6529183")  ||
-    		sourceRelationshipId.equals("6530636") || sourceRelationshipId.equals("6530639")) {
-		logInfo("In newRelationshipRui:" + newRelationshipRui);
-		logInfo("In newInverseRelationshipRui:" + newInverseRelationshipRui);
-	}
-    
     // Check to see if relationship with matching RUI already exists in the
     // database
     final Relationship oldRelationship = (newRelationshipRui.equals("") ? null
@@ -749,21 +743,10 @@ public class RelationshipLoaderAlgorithm
                 getCachedTerminology(sourceTermAndVersion).getTerminology(),
                 relClass));
 
-    if (sourceRelationshipId.equals("6523865") || sourceRelationshipId.equals("6529183")  ||
-    		sourceRelationshipId.equals("6530636") || sourceRelationshipId.equals("6530639")) {
-		logInfo("In oldRelationship:" + (oldRelationship == null ? "null" : oldRelationship.toString()));
-		logInfo("In oldInverseRelationship:" + (oldInverseRelationship == null ? "null" : oldInverseRelationship.toString()));
-	}
-    
     // If no relationships with the same RUI exists, add this new
     // relationship
     boolean dontCreateRel = false;
     if (oldRelationship == null) {
-    	if (sourceRelationshipId.equals("6523865") || sourceRelationshipId.equals("6529183")  ||
-    		sourceRelationshipId.equals("6530636") || sourceRelationshipId.equals("6530639")) {
-    		logInfo("newRelationship:" + newRelationship.toString());
-    		logInfo("");
-    	}
 
       // Don't add a relationship between project-terminology concepts if:
       if (relClass.equals(ConceptRelationshipJpa.class)
