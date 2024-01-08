@@ -734,7 +734,6 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
     hQuery.setReadOnly(true).setFetchSize(100000).setCacheable(false);
     final ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     while (results.next()) {
-
       final Long id = ((BigInteger) results.get()[0]).longValue();
       final String additionalRelationshipType = (String) results.get()[1];
       final String fromId = (String) results.get()[2];
