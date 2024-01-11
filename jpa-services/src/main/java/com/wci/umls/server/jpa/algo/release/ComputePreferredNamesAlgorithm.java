@@ -59,19 +59,7 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
           "Precedence list for terminology " + getProject().getTerminology()
               + ", " + getProject().getVersion() + " has no entries.");
     }
-    /**if (!getProcess().getTerminology().isEmpty() && !getProcess().getVersion().isEmpty()) {
-    	if (getPrecedenceList(getProcess().getTerminology(),
-    	        getProcess().getVersion()) == null) {
-    	      result.addError("Precedence list not found for terminology: "
-    	          + getProcess().getTerminology() + ", " + getProcess().getVersion());
-    	    } else if (getPrecedenceList(getProcess().getTerminology(),
-    	        getProcess().getVersion()).getPrecedence().getKeyValuePairs()
-    	            .size() == 0) {
-    	      result.addError(
-    	          "Precedence list for terminology " + getProcess().getTerminology()
-    	              + ", " + getProcess().getVersion() + " has no entries.");
-    	    }
-    } */
+
     return result;
   }
 
@@ -159,9 +147,7 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
     handler =
         getComputePreferredNameHandler(getProcess().getTerminology());
     setMolecularActionFlag(false);
-    //list = getPrecedenceList(getProcess().getTerminology(),
-    //    getProcess().getVersion());
-
+    
     // 1. Collect all atoms from project concepts
     // Normalization is only for English
     conceptIds = executeSingleComponentIdQuery(
@@ -212,6 +198,7 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
 
   public Map<String, String> getProcessQueryParams() {
 	    final Map<String, String> params = new HashMap<>();
+	    params.put("projectTerminology", getProject().getTerminology());
 	    params.put("terminology", getProcess().getTerminology());
 	    params.put("version", getProcess().getVersion());
 	    return params;
@@ -257,6 +244,9 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
       if (!computedName.equals(concept.getName())) {
         updateConcept = true;
         concept.setName(computedName);
+        if (concept.getTerminology().equals(getProcess().getTerminology())) {
+        	logInfo("source preferred name updated: " + concept.getName() + "   " + computedName );
+        }
       }
     }
 
