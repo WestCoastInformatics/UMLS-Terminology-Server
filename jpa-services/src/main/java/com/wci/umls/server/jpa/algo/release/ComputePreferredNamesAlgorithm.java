@@ -59,7 +59,7 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
           "Precedence list for terminology " + getProject().getTerminology()
               + ", " + getProject().getVersion() + " has no entries.");
     }
-    if (!getProcess().getTerminology().isEmpty() && !getProcess().getVersion().isEmpty()) {
+    /**if (!getProcess().getTerminology().isEmpty() && !getProcess().getVersion().isEmpty()) {
     	if (getPrecedenceList(getProcess().getTerminology(),
     	        getProcess().getVersion()) == null) {
     	      result.addError("Precedence list not found for terminology: "
@@ -71,7 +71,7 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
     	          "Precedence list for terminology " + getProcess().getTerminology()
     	              + ", " + getProcess().getVersion() + " has no entries.");
     	    }
-    }
+    } */
     return result;
   }
 
@@ -159,8 +159,8 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
     handler =
         getComputePreferredNameHandler(getProcess().getTerminology());
     setMolecularActionFlag(false);
-    list = getPrecedenceList(getProcess().getTerminology(),
-        getProcess().getVersion());
+    //list = getPrecedenceList(getProcess().getTerminology(),
+    //    getProcess().getVersion());
 
     // 1. Collect all atoms from project concepts
     // Normalization is only for English
