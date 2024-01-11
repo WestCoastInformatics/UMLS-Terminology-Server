@@ -3,7 +3,9 @@
  */
 package com.wci.umls.server.jpa.algo.release;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -23,6 +25,9 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
  * Algorithm for computing preferred names and publication status for a project
  * terminology. TODO: change this package to "rel" => "release (fix config
  * files)
+ * 01/11/2024 added code to recompute source derived concept names based on process's terminology/version
+ * such as NCI/2024_12D
+ * this is to ensure that the preferred names in the concept context hierarchies stay up-to-date
  */
 public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
 
@@ -54,6 +59,19 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
           "Precedence list for terminology " + getProject().getTerminology()
               + ", " + getProject().getVersion() + " has no entries.");
     }
+    if (!getProcess().getTerminology().isEmpty() && !getProcess().getVersion().isEmpty()) {
+    	if (getPrecedenceList(getProcess().getTerminology(),
+    	        getProcess().getVersion()) == null) {
+    	      result.addError("Precedence list not found for terminology: "
+    	          + getProcess().getTerminology() + ", " + getProcess().getVersion());
+    	    } else if (getPrecedenceList(getProcess().getTerminology(),
+    	        getProcess().getVersion()).getPrecedence().getKeyValuePairs()
+    	            .size() == 0) {
+    	      result.addError(
+    	          "Precedence list for terminology " + getProcess().getTerminology()
+    	              + ", " + getProcess().getVersion() + " has no entries.");
+    	    }
+    }
     return result;
   }
 
@@ -65,18 +83,19 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting " + getName());
+	// first run the computer preferred names for the project terminology (ex. NCIMTH/latest)
+    logInfo("Starting " + getName() + " " + getProject().getTerminology() + getProject().getVersion());
 
     // Configure algorithm
-    final ComputePreferredNameHandler handler =
+    ComputePreferredNameHandler handler =
         getComputePreferredNameHandler(getProject().getTerminology());
     setMolecularActionFlag(false);
-    final PrecedenceList list = getPrecedenceList(getProject().getTerminology(),
+    PrecedenceList list = getPrecedenceList(getProject().getTerminology(),
         getProject().getVersion());
 
     // 1. Collect all atoms from project concepts
     // Normalization is only for English
-    final List<Long> conceptIds = executeSingleComponentIdQuery(
+    List<Long> conceptIds = executeSingleComponentIdQuery(
         "select c.id from ConceptJpa c " + "where c.terminology = :terminology "
             + "  and c.version = :version and publishable = true",
         QueryType.JPQL, getDefaultQueryParams(getProject()), ConceptJpa.class,
@@ -88,7 +107,7 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
     int updatedCt = 0;
     int prevProgress = 0;
     int totalCt = conceptIds.size();
-    final int progressCheck = (int) (totalCt / 200.0) + 1;
+    int progressCheck = (int) (totalCt / 200.0) + 1;
     for (final Long id : conceptIds) {
       final Concept concept = getConcept(id);
 
@@ -126,10 +145,78 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
     fireProgressEvent(100, "Finished - 100%");
     logInfo("  concept count = " + objectCt);
     logInfo("  concepts updated = " + updatedCt);
-    logInfo("Finished " + getName());
+    logInfo("Finished " + getName() + " " + getProject().getTerminology() + getProject().getVersion());
+    
+    
+    
+    
+    // rerun the compute preferred names algorithm for the source concept names (ex. NCI/2024_12D)   
+    logInfo("Starting " + getName() + " " + getProcess().getTerminology() + getProcess().getVersion());
+    if (getProcess().getTerminology().isEmpty() || getProcess().getVersion().isEmpty()) {
+    	return;
+    }
+    // Configure algorithm
+    handler =
+        getComputePreferredNameHandler(getProcess().getTerminology());
+    setMolecularActionFlag(false);
+    list = getPrecedenceList(getProcess().getTerminology(),
+        getProcess().getVersion());
+
+    // 1. Collect all atoms from project concepts
+    // Normalization is only for English
+    conceptIds = executeSingleComponentIdQuery(
+        "select c.id from ConceptJpa c " + "where c.terminology = :terminology "
+            + "  and c.version = :version and publishable = true",
+        QueryType.JPQL, getProcessQueryParams(), ConceptJpa.class,
+        false);
+    commitClearBegin();
+
+    // Iterate through each concept
+    objectCt = 0;
+    updatedCt = 0;
+    prevProgress = 0;
+    totalCt = conceptIds.size();
+    progressCheck = (int) (totalCt / 200.0) + 1;
+    for (final Long id : conceptIds) {
+      final Concept concept = getConcept(id);
+
+      // if something changed, update the concept
+      if (isChanged(concept, handler, list)) {
+        updateConcept(concept);
+        updatedCt++;
+      }
+
+      // progress/cancel
+      if (objectCt % progressCheck == 0) {
+        int currentProgress = (int) ((100.0 * objectCt / totalCt));
+        if (currentProgress > prevProgress) {
+          fireProgressEvent(currentProgress,
+              "Progress: " + currentProgress + "%");
+          prevProgress = currentProgress;
+        }
+        checkCancel();
+      }
+
+      // log/commit
+      logAndCommit(objectCt++, RootService.logCt, RootService.commitCt);
+
+    }
+    commitClearBegin();
+
+    fireProgressEvent(100, "Finished - 100%");
+    logInfo("  concept count = " + objectCt);
+    logInfo("  concepts updated = " + updatedCt);
+    logInfo("Finished " + getName() + " " + getProcess().getTerminology() + getProcess().getVersion());
 
   }
 
+  public Map<String, String> getProcessQueryParams() {
+	    final Map<String, String> params = new HashMap<>();
+	    params.put("terminology", getProcess().getTerminology());
+	    params.put("version", getProcess().getVersion());
+	    return params;
+	  }
+  
   /**
    * Helper.
    *
