@@ -243,10 +243,10 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
 
       if (!computedName.equals(concept.getName())) {
         updateConcept = true;
-        concept.setName(computedName);
         if (concept.getTerminology().equals(getProcess().getTerminology())) {
         	logInfo("source preferred name updated: " + concept.getName() + "   " + computedName );
         }
+        concept.setName(computedName);
       }
     }
 
