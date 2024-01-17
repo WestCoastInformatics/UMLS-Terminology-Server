@@ -26,12 +26,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.codehaus.plexus.util.FileUtils;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -50,6 +52,9 @@ public class CreateRrfStatisticsAlgorithm extends AbstractAlgorithm {
   /**  The stats dir. */
   private File statsDir = null;
   
+  /**  The report dir. */
+  private File reportDir = null;
+  
   /**  The concept sty map. */
   private Map<String, Set<String>> conceptStyMap = new HashMap<>();
   
@@ -64,6 +69,18 @@ public class CreateRrfStatisticsAlgorithm extends AbstractAlgorithm {
  
   /**  The attribute stats writer. */
   private BufferedWriter attributeStatsWriter = null;
+  
+  /**  The counts writer. */
+  private BufferedWriter countsWriter = null;
+  
+  /**  The source counts writer. */
+  private BufferedWriter sourceCountsWriter = null;
+  
+  private int mrrelCount = 0;
+  
+  private int mrconsoCount = 0;
+  
+  private int mrsatCount = 0;
   
   /**
    * Instantiates an empty {@link CreateRrfStatisticsAlgorithm}.
@@ -129,9 +146,41 @@ public class CreateRrfStatisticsAlgorithm extends AbstractAlgorithm {
     styStatsWriter.close();
     attributeStatsWriter.close();
     
+    // make reports subdirectory
+    reportDir = new File(statsDir, "reports");
+    if (!reportDir.exists()){
+    	reportDir.mkdir();
+    }
+    logInfo("report dir:" + reportDir);
+    
+    countsWriter = new BufferedWriter(new FileWriter(new File(reportDir, "counts.txt")));
+    sourceCountsWriter = new BufferedWriter(new FileWriter(new File(reportDir, "sourceCounts.txt")));
+    
+    // create counts reports
+    createCountReports();
+    createSourceCounts();
+    
+    countsWriter.close();
+    sourceCountsWriter.close();
+    
+    
     logInfo("Finished " + getName());
 
   }
+  
+  private void createCountReports() throws Exception {
+	  countsWriter.write("Relationships" + "\t" + mrrelCount);
+	  countsWriter.newLine();
+	  countsWriter.write("Attributes" + "\t" + mrsatCount);
+	  countsWriter.newLine();
+	  countsWriter.write("Total terms" + "\t" + mrconsoCount);
+	  countsWriter.newLine();
+	  countsWriter.write("Concepts" + "\t" + conceptStyMap.keySet().size());
+	  countsWriter.newLine();
+	  countsWriter.flush();
+  }
+  
+
   
   /**
    * Creates the attribute statistics.
@@ -165,6 +214,7 @@ public class CreateRrfStatisticsAlgorithm extends AbstractAlgorithm {
         } else {
           sourceAttributesCtMap.put(sourceAttributePair, 1);
         } 
+        mrsatCount++;
     }
     
     // sort the results
@@ -182,9 +232,52 @@ public class CreateRrfStatisticsAlgorithm extends AbstractAlgorithm {
       attributeStatsWriter.flush();
     }
     
+    attributes.close();
   }
   
+  private void createSourceCounts() throws Exception {
+	    final String sourcesFile = pathMeta + File.separator + "MRSAB.RRF";
+	    BufferedReader sources = null;
+	    try {
+	      sources = new BufferedReader(new FileReader(sourcesFile));
+	    } catch (Exception e) {
+	      throw new Exception("File not found: " + sourcesFile);
+	    }
 
+	    String line = null;
+	    String[] fields = new String[25];
+	    
+	    Map<String, String> ncitSources = new TreeMap<>();
+	    Map<String, String> otherSources = new TreeMap<>();
+
+	    while ((line = sources.readLine()) != null) {
+	        FieldedStringTokenizer.split(line, "|", 25, fields);
+	        if (fields[6].matches("\\d{4}_\\d{2}\\D{1}")) {
+	        	ncitSources.put(fields[3] + fields[6], fields[15] + "\t"  + fields[3] + "\t" + fields[4]);
+	        } else {
+	        	otherSources.put(fields[3] + fields[6], fields[15] + "\t" + fields[3] + "\t" + fields[4]);
+	        }
+	        
+	    }
+
+	    // sort and write out ncit source rows
+	    SortedSet<String> keys = new TreeSet<>(ncitSources.keySet());
+	    for (String key : keys) { 
+	       String source = ncitSources.get(key);
+	       sourceCountsWriter.write(source);
+	       sourceCountsWriter.newLine();
+	    }
+	    
+	    // sort and write out other source rows
+	    keys = new TreeSet<>(otherSources.keySet());
+		for (String key : keys) { 
+		    String source = otherSources.get(key);
+		    sourceCountsWriter.write(source);
+	        sourceCountsWriter.newLine();
+		}
+	    
+	    sources.close();
+  }
   
   /**
    * Creates the rel statistics.
@@ -215,6 +308,7 @@ public class CreateRrfStatisticsAlgorithm extends AbstractAlgorithm {
         } else {
           sourceRelationshipsCtMap.put(sourceRelationshipPair, 1);
         } 
+        mrrelCount++;
     }
     
     // sort the results
@@ -232,6 +326,7 @@ public class CreateRrfStatisticsAlgorithm extends AbstractAlgorithm {
       relStatsWriter.flush();
     }
     
+    relationships.close();
   }
   
   /**
@@ -411,6 +506,8 @@ public class CreateRrfStatisticsAlgorithm extends AbstractAlgorithm {
     Map<Pair<String, String>, Integer> sourceStysCtMap = new HashMap<>();   
 
     while ((line = atoms.readLine()) != null) {
+    	mrconsoCount++;
+    	
         FieldedStringTokenizer.split(line, "|", 18, fields);
         
         // process term types
@@ -504,6 +601,7 @@ public class CreateRrfStatisticsAlgorithm extends AbstractAlgorithm {
         }      
     }
 
+    stys.close();
   }
 
   /* see superclass */
