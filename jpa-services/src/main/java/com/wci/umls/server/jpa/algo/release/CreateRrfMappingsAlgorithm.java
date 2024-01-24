@@ -33,10 +33,11 @@ public class CreateRrfMappingsAlgorithm extends AbstractAlgorithm {
   /**  The mappings dir. */
   private File mappingsDir = null;
   
-  /**  The counts writer. */
+  /**  The mappings writer. */
   private BufferedWriter mappingsWriter = null;
   
-  
+  /**  The readme writer. */
+  private BufferedWriter readmeWriter = null;
   
   
   /**
@@ -82,12 +83,15 @@ public class CreateRrfMappingsAlgorithm extends AbstractAlgorithm {
 
     
     mappingsWriter = new BufferedWriter(new FileWriter(new File(mappingsDir, "NCIt_Metathesaurus_Mapping_" + getProcess().getVersion() + ".txt")));
+    readmeWriter = new BufferedWriter(new FileWriter(new File(mappingsDir, "NCIt_Metathesaurus_Mapping.README.txt")));
     
-    // create counts reports
+    
+    // create mapping report
     createMappings();
+    createReadme();
     
     mappingsWriter.close();
-    
+    readmeWriter.close(); 
     
     logInfo("Finished " + getName());
 
@@ -147,6 +151,27 @@ public class CreateRrfMappingsAlgorithm extends AbstractAlgorithm {
 	  }
   }
   
+  private void createReadme() throws Exception {
+	  
+	  List<Object[]> results = executeQuery(
+			  "select distinct terminology 'Source', version 'Version'" +
+					  "  from terminologies " + 
+					  "  where current and terminology in ('HCPCS', 'ICD10PCS', 'ICD9CM', 'ICDO', 'MDR', 'GO', 'HGNC', 'HPO', 'ICD10CM', 'ICD10', 'LNC', 'MED-RT', 'NCBI', 'RADLEX', 'SNOMEDCT_US')" +
+					  "  order by terminology, version",  
+					  QueryType.SQL,			  
+			  getDefaultQueryParams(this.getProject()), false);
+	  
+	  // write headers
+	  readmeWriter.write("Source\tVersion");
+	  readmeWriter.newLine();
+	  
+	  // write result rows
+	  for (Object[] result : results) {
+		  readmeWriter.write(result[0].toString() + "\t");
+		  readmeWriter.write(result[1].toString() );
+		  readmeWriter.newLine();
+	  }
+  }
 
   /* see superclass */
   @Override
