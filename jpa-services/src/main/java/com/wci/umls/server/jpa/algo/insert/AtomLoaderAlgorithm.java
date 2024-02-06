@@ -5,9 +5,11 @@ package com.wci.umls.server.jpa.algo.insert;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 
 import com.wci.umls.server.AlgorithmParameter;
@@ -15,6 +17,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.AtomJpa;
@@ -48,6 +51,9 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   /** The MTH cui update count. */
   private int mthCUIUpdateCount = 0;
+  
+  /** Ids from component_histories table */
+  private Set<String> historySet = new HashSet<>();
 
   /**
    * Instantiates an empty {@link AtomLoaderAlgorithm}.
@@ -133,6 +139,8 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         newIdentifierAssignmentHandler(getProject().getTerminology());
     handler.setTransactionPerOperation(false);
     handler.beginTransaction();
+    
+    retrieveHistoryIds();
 
     try {
 
@@ -435,7 +443,10 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
                 // terminologyIds of all component histories and save them in a set
                 // and add a constraint to NOT do this if the CUI is in that set.
                 //  - !historySet.contains(CUI) &&
-                if(atom.isPublishable() && !atom.getTerminology().equals("MTH")
+                if (historySet.contains(CUI)) {
+                	logInfo("CUI in historySet, skipped " + CUI);
+                }
+                if(atom.isPublishable() && !atom.getTerminology().equals("MTH") && !historySet.contains(CUI)
                     && atom.getConceptTerminologyIds().get(getProject().getTerminology()) == null) {
                   atom.getConceptTerminologyIds().put(getProject().getTerminology(), CUI);
                 }
@@ -478,6 +489,20 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       clearCaches();
     }
 
+  }
+
+  private void retrieveHistoryIds() throws Exception {
+	  
+	  List<Object[]> results = executeQuery(
+			  "select terminologyId 'TerminologyId'" +
+					  "  from component_histories ",  
+					  QueryType.SQL,			  
+			  getDefaultQueryParams(this.getProject()), false);
+	  
+
+	  for (Object[] result : results) {
+		  historySet.add(result[0].toString());
+	  }
   }
 
   /**
