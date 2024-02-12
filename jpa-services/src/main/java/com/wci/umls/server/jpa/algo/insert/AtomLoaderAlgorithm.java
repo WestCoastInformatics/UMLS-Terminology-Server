@@ -494,7 +494,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   private void retrieveHistoryIds() throws Exception {
 	  
 	  List<Object[]> results = executeQuery(
-			  "select terminologyId 'TerminologyId'" +
+			  "select terminologyId 'TerminologyId', additionalRelationshiptype 'Rela'" +
 					  "  from component_histories ",  
 					  QueryType.SQL,			  
 			  getDefaultQueryParams(this.getProject()), false);
