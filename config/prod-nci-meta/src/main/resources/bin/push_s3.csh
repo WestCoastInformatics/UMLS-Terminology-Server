@@ -44,7 +44,7 @@ if ($INV_OR_MR == 'inv') then
 	setenv SOURCE_PATH /local/content/MEME/MEME5/inv/sources
 endif
 if ($INV_OR_MR == 'ncim') then 
-	setenv SOURCE_PATH /local/content/MEME/MEME5/mr/ncim
+	setenv SOURCE_PATH /local/content/MEME/MEME5/mr
 endif
 if ($INV_OR_MR == 'umls') then 
 	setenv SOURCE_PATH /local/content/MEME/MEME5/mr/umls
