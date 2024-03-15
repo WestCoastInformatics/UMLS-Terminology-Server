@@ -34,15 +34,21 @@ if ($enabled == "true") then
 
 cd $MEME_HOME/archive/indexes
 echo `pwd`
-set dayofweek=`date +"%a"`
-set todaysdate=`date +"%a_%Y%m%d"`
+if ($#argv == 1) then
+    set dayofweek='manual'
+    set todaysdate=`date +"manual_%Y%m%d"`
+else
+    set dayofweek=`date +"%a"`
+    set todaysdate=`date +"%a_%Y%m%d"`
+endif
+
 echo "todaysdate: $todaysdate"
 
 mkdir $MEME_HOME/archive/indexes/$todaysdate
 cp -R /local/content/MEME/MEME5/ncim/data/indexes/* $MEME_HOME/archive/indexes/$todaysdate
 
 cd $MEME_HOME/archive/indexes/$todaysdate
-tar -zcvf $todaysdate.tgz *
+tar -cvf $todaysdate.tgz *
 
 
     set fileExists = `aws s3api list-objects-v2 --bucket nci-evs-meme --max-items 10 --prefix indexes/$dayofweek --output json | jq -r '.Contents | .[] |[.Key]' | grep $dayofweek | wc -l `

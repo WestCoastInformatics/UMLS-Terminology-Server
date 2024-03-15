@@ -12,6 +12,7 @@ set abs_rootdir = `cd $rootdir && pwd`
 
 setenv usage 'pull_s3.csh {inv|ncim|umls} {source_name|release_date}'
 setenv S3_BUCKET s3://nci-evs-meme
+set awspath = '/usr/local/bin'
 
 echo "--------------------------------------------------------"
 echo "Starting `/bin/date`"
@@ -62,18 +63,18 @@ endif
 
 echo "    Download data from s3 and decompress it... `/bin/date`"
 if ($INV_OR_MR == 'inv') then
-    set fileExists = `aws s3api head-object --bucket nci-evs-meme --key inv/sources/$TARGET_NAME.tgz | grep Metadata | wc -l `
+    set fileExists = `$awspath/aws s3api head-object --bucket nci-evs-meme --key inv/sources/$TARGET_NAME.tgz | grep Metadata | wc -l `
     if ($fileExists == 1) then
 	    echo "    Downloading $TARGET_NAME.tgz"
-        aws s3 cp $S3_BUCKET/inv/sources/$TARGET_NAME.tgz . 
+        $awspath/aws s3 cp $S3_BUCKET/inv/sources/$TARGET_NAME.tgz . 
 	    echo "    Extracting $TARGET_NAME.tgz"
 	    tar -xvf $TARGET_NAME.tgz
 	    rm -f $TARGET_NAME.tgz
     else
-        set fileExists = `aws s3api head-object --bucket nci-evs-meme --key inv/sources/$TARGET_NAME.tar.gz | grep Metadata | wc -l `    
+        set fileExists = `$awspath/aws s3api head-object --bucket nci-evs-meme --key inv/sources/$TARGET_NAME.tar.gz | grep Metadata | wc -l `    
 		if ($fileExists == 1) then
 	        echo "    Downloading $TARGET_NAME.tar.gz"
-	        aws s3 cp $S3_BUCKET/inv/sources/$TARGET_NAME.tar.gz . 
+	        $awspath/aws s3 cp $S3_BUCKET/inv/sources/$TARGET_NAME.tar.gz . 
 	        echo "    Extracting $TARGET_NAME.tar.gz"
 	        tar -xvf $TARGET_NAME.tar.gz
 	        rm -f $TARGET_NAME.tar.gz
@@ -84,23 +85,23 @@ if ($INV_OR_MR == 'inv') then
     endif
 
 else if ($INV_OR_MR == 'ncim') then
-    set fileExists = `aws s3api head-object --bucket nci-evs-meme --key mr/ncim/$TARGET_NAME/$TARGET_NAME.zip | grep Metadata | wc -l `    
+    set fileExists = `$awspath/aws s3api head-object --bucket nci-evs-meme --key mr/ncim/$TARGET_NAME/$TARGET_NAME.zip | grep Metadata | wc -l `    
 	if ($fileExists == 1) then
 	    echo "    Downloading $TARGET_NAME"
     	mkdir $TARGET_PATH/ncim/$TARGET_NAME
 	    cd $TARGET_PATH/ncim/$TARGET_NAME
-        aws s3 cp $S3_BUCKET/mr/ncim/$TARGET_NAME . --recursive
+        $awspath/aws s3 cp $S3_BUCKET/mr/ncim/$TARGET_NAME . --recursive
  	else
 		echo "    $TARGET_NAME was not found.  Exiting..."
 	    exit 1
     endif	
 else if ($INV_OR_MR == 'umls') then
-    set fileExists = `aws s3api head-object --bucket nci-evs-meme --key mr/umls/$TARGET_NAME/META/MRSAB.RRF | grep Metadata | wc -l `    
+    set fileExists = `$awspath/aws s3api head-object --bucket nci-evs-meme --key mr/umls/$TARGET_NAME/META/MRSAB.RRF | grep Metadata | wc -l `    
 	if ($fileExists == 1) then
 	    echo "    Downloading $TARGET_NAME"
     	mkdir $TARGET_PATH/umls/$TARGET_NAME
 		cd $TARGET_PATH/umls/$TARGET_NAME
-    	aws s3 cp $S3_BUCKET/mr/umls/$TARGET_NAME . --recursive
+    	$awspath/aws s3 cp $S3_BUCKET/mr/umls/$TARGET_NAME . --recursive
  	else
 		echo "    $TARGET_NAME was not found.  Exiting..."
 	    exit 1
