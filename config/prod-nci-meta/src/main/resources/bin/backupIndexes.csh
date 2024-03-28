@@ -48,7 +48,7 @@ mkdir $MEME_HOME/archive/indexes/$todaysdate
 cp -R /local/content/MEME/MEME5/ncim/data/indexes/* $MEME_HOME/archive/indexes/$todaysdate
 
 cd $MEME_HOME/archive/indexes/$todaysdate
-tar -cvf $todaysdate.tgz *
+tar -cvf $todaysdate.tar *
 
 
     set fileExists = `aws s3api list-objects-v2 --bucket nci-evs-meme --max-items 10 --prefix indexes/$dayofweek --output json | jq -r '.Contents | .[] |[.Key]' | grep $dayofweek | wc -l `
@@ -61,9 +61,9 @@ tar -cvf $todaysdate.tgz *
     else
         echo "INFO: no previous $dayofweek indexes file"
     endif
-    aws s3 cp $todaysdate.tgz $S3_BUCKET/indexes/$todaysdate.tgz
+    aws s3 cp $todaysdate.tar $S3_BUCKET/indexes/$todaysdate.tar
 
-    rm $todaysdate.tgz
+    rm $todaysdate.tar
     rm -rf $MEME_HOME/archive/indexes/$todaysdate
 
 
